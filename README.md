@@ -1,7 +1,5 @@
 # Pengembangan Aplikasi Mobile dan Sistem Website Bank Koperasi Eceng Gondok
 
-## Hasil Requirement Gathering : Interview 
-
 Latar Belakang:
 
 Bank Koperasi Eceng Gondok didirikan pada tahun 2023 sebagai tanggapan terhadap permasalahan lingkungan dan peluang ekonomi di sekitar Danau Toba, khususnya di Samosir. Pertumbuhan eceng gondok yang berlebihan menyebabkan perairan danau menjadi kotor dan menimbulkan limbah. Selain itu, pemasaran serta penjualan produk kerajinan—seperti sandal hotel, cover buku, tas, dan souvenir—masih dilakukan secara manual melalui media sosial, sehingga menyulitkan pengelolaan transaksi dan ketersediaan stok, serta membatasi promosi yang efektif.
