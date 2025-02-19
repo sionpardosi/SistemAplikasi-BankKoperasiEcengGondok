@@ -1,4 +1,4 @@
-# SistemAplikasi-BankKoperasiEcengGondok
+# Pengembangan Aplikasi Mobile dan Sistem Website Bank Koperasi Eceng Gondok
 
 ## Hasil Requirement Gathering : Interview 
 
