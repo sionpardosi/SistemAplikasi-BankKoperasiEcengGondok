@@ -46,7 +46,7 @@ class AdminController extends Controller
         return redirect()->route('admin.brands')->with('status', 'Record has been added successfully !');
     }
 
-    public function GenerateBrandThumbailsImage($image, $imageName)
+    public function GenerateBrandThumbailImage($image, $imageName)
     {
         $destinationPath = public_path('uploads/brands');
         $img = Image::read($image->path());
@@ -55,4 +55,5 @@ class AdminController extends Controller
             $constraint->aspectRatio();
         })->save($destinationPath . '/' . $imageName);
     }
+
 }

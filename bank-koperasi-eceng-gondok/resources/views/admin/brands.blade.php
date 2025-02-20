@@ -44,7 +44,8 @@
                             </div>
                         </form>
                     </div>
-                    <a class="tf-button style-1 w208" href="{{route('admin.brand.add')}}"><i class="icon-plus"></i>Add new</a>
+                    <a class="tf-button style-1 w208" href="{{ route('admin.brand.add') }}"><i class="icon-plus"></i>Add
+                        new</a>
                 </div>
                 <div class="wg-table table-all-user">
                     <div class="table-responsive">
@@ -75,8 +76,8 @@
                                             </div>
                                         </td>
                                         <td>{{ $brand->slug }}</td>
-                                        <td><a href="{{ route('admin.brand.products', ['brand_slug' => $brand->slug]) }}"
-                                                target="_blank">{{ $brand->products()->count() }}</a></td>
+                                        {{-- <td><a href="{{ route('admin.brand.products', ['brand_slug' => $brand->slug]) }}"
+                                                target="_blank">{{ $brand->products()->count() }}</a></td> --}}
                                         <td>
                                             <div class="list-icon-function">
                                                 <div class="item edit">
