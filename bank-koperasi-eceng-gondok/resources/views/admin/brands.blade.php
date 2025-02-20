@@ -80,12 +80,16 @@
                                                 target="_blank">{{ $brand->products()->count() }}</a></td> --}}
                                         <td>
                                             <div class="list-icon-function">
-                                                <div class="item edit">
-                                                    <i class="icon-edit-3"></i>
-                                                </div>
-                                                <div class="item text-danger delete">
-                                                    <i class="icon-trash-2"></i>
-                                                </div>
+                                                <a href="{{ route('admin.brand.edit')}}">
+                                                    <div class="item edit">
+                                                        <i class="icon-edit-3"></i>
+                                                    </div>
+                                                </a>
+                                                <form action="#" method="POST">
+                                                    <div class="item text-danger delete">
+                                                        <i class="icon-trash-2"></i>
+                                                    </div>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>
