@@ -1,5 +1,10 @@
 # Pengembangan Aplikasi Mobile dan Sistem Website Bank Koperasi Eceng Gondok
 
+Daily Task Management Project 3
+
+https://trello.com/b/mvhn4cag/daily-task-management-project-3
+
+-- --
 
 Bank Koperasi Eceng Gondok didirikan pada tahun 2023 sebagai tanggapan terhadap permasalahan lingkungan dan peluang ekonomi di sekitar Danau Toba, khususnya di Samosir. Pertumbuhan eceng gondok yang berlebihan menyebabkan perairan danau menjadi kotor dan menimbulkan limbah. Selain itu, pemasaran serta penjualan produk kerajinan—seperti sandal hotel, cover buku, tas, dan souvenir—masih dilakukan secara manual melalui media sosial, sehingga menyulitkan pengelolaan transaksi dan ketersediaan stok, serta membatasi promosi yang efektif.
 
@@ -9,6 +14,12 @@ Melihat urgensi tersebut, pengembangan Aplikasi Sistem Bank Koperasi Eceng Gondo
 
 -- --
 
-Daily Task Management Project 3
+### **SKETSA KERTAS**
 
-https://trello.com/b/mvhn4cag/daily-task-management-project-3
+<div align="center">
+  <img src="https://github.com/sionpardosi/SistemAplikasi-BankKoperasiEcengGondok/blob/branch-website/Flow%20Diagram%20fitur%20produk%20(SKETSA%20KERTAS).jpg" 
+       alt="Flow Diagram fitur produk (SKETSA KERTAS)" 
+       width="70%" 
+       style="border: 2px solid #4CAF50; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+  <p style="font-style: italic; color: #555;">*Gambar masih berupa sketsa kertas dan akan dipindahkan ke diagram flow</p>
+</div>
