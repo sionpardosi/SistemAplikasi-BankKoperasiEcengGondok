@@ -24,9 +24,13 @@ Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::middleware(['auth'])->group(function(){
     Route::get('/account-dashboard',[UserController::class,'index'])->name('user.index');
 });
-//  Admin
+
+//  Admin GET
 Route::middleware(['auth',AuthAdmin::class])->group(function(){
     Route::get('/admin',[AdminController::class,'index'])->name('admin.index');
+    Route::get('/admin/brands',[AdminController::class,'brands'])->name('admin.brands');
+    Route::get('/admin/brand/add',[AdminController::class,'add_brand'])->name('admin.brand.add');
+    Route::post('/admin/brand/store',[AdminController::class,'add_brand_store'])->name('admin.brand.store');
 });
 
 // Route::middleware([AuthUser::class])->group(function(){
