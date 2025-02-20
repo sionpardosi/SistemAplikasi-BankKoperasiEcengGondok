@@ -16,9 +16,9 @@ Auth::routes();
 // index Home
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 
-Route::get('/', function () {
-    return view('produk');
-})->name('produk');
+// Route::get('/', function () {
+//     return view('produk');
+// })->name('produk');
 
 // User
 Route::middleware(['auth'])->group(function(){

@@ -318,7 +318,7 @@
                             <a href="{{ route('home.index') }}" class="navigation__link">Home</a>
                         </li>
                         <li class="navigation__item">
-                            <a href="{{ route('produk') }}" class="navigation__link">Produk</a>
+                            {{-- <a href="{{ route('produk') }}" class="navigation__link">Produk</a> --}}
                         </li>
                         <li class="navigation__item">
                             <a href="cart.html" class="navigation__link">Cart</a>
