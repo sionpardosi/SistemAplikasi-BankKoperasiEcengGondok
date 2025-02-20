@@ -1,12 +1,12 @@
 # Pengembangan Aplikasi Mobile dan Sistem Website Bank Koperasi Eceng Gondok
 
-**Daily Task Management Project 3**
+**Daily Task Management Project Aplikasi Mobile dan Sistem Website Bank Koperasi Eceng Gondok**
 
-https://trello.com/b/mvhn4cag/daily-task-management-project-3
+[Link Daily Task Management Project](https://trello.com/b/mvhn4cag/daily-task-management-project-bank-koperasi-eceng-gondok)
 
-**Link Design Figma Mobile (Andorid) & Website**
+**Design Figma Mobile (Andorid) & Website**
 
-https://www.figma.com/design/UE7BRHWyp3Em3iMkB7qaMS/PA3?node-id=21-2&p=f&t=v6rcA6iDYpDAYGSy-0
+[Link Design Figma Mobile (Andorid) & Website](https://www.figma.com/design/UE7BRHWyp3Em3iMkB7qaMS/PA3?node-id=21-2&p=f&t=v6rcA6iDYpDAYGSy-0)
 
 -- --
 
