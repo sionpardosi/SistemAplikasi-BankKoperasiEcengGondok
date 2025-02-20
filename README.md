@@ -14,10 +14,10 @@ Melihat urgensi tersebut, pengembangan Aplikasi Sistem Bank Koperasi Eceng Gondo
 
 -- --
 
-### **SKETSA KERTAS**
+### **Flow Diagram fitur produk (SKETSA KERTAS)**
 
 <div align="center">
-  <img src="https://github.com/sionpardosi/SistemAplikasi-BankKoperasiEcengGondok/blob/branch-website/Flow%20Diagram%20fitur%20produk%20(SKETSA%20KERTAS).jpg" 
+  <img src="https://github.com/sionpardosi/SistemAplikasi-BankKoperasiEcengGondok/blob/branch-website/Flow%20Diagram%20fitur%20produk.jpg" 
        alt="Flow Diagram fitur produk (SKETSA KERTAS)" 
        width="70%" 
        style="border: 2px solid #4CAF50; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
