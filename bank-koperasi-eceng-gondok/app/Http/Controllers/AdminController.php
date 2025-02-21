@@ -137,6 +137,7 @@ class AdminController extends Controller
         $category->save();
         return redirect()->route('admin.categories')->with('status', 'Record has been added successfully !');
     }
+    // Halaman Upload img Category
     public function GenerateCategoryThumbailImage($image, $imageName)
     {
         $destinationPath = public_path('uploads/categories');
@@ -145,6 +146,40 @@ class AdminController extends Controller
         $img->resize(124, 124, function ($constraint) {
             $constraint->aspectRatio();
         })->save($destinationPath . '/' . $imageName);
+    }
+    // Halaman Edit Category
+    public function edit_category($id)
+    {
+        $category = Category::find($id);
+        return view('admin.category-edit', compact('category'));
+    }
+    // Halaman Update Category
+    public function update_category(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'slug' => 'required|unique:categories,slug,'.$request->id,
+            'image' => 'mimes:png,jpg,jpeg|max:2048'
+        ]);
+
+        $category = Category::find($request->id);
+        $category->name = $request->name;
+        $category->slug = $request->slug;
+
+        if($request->hasFile('image'))
+        {
+            if (File::exists(public_path('uploads/categories').'/'.$category->image)) {
+                File::delete(public_path('uploads/categories').'/'.$category->image);
+            }
+            $image = $request->file('image');
+            $file_extention = $image->extension();
+            $file_name = Carbon::now()->timestamp . '.' . $file_extention;
+
+            $this->GenerateCategoryThumbailImage($image, $file_name);
+            $category->image = $file_name;
+        }
+        $category->save();
+        return redirect()->route('admin.categories')->with('status','Record has been updated successfully !');
     }
 
 }
