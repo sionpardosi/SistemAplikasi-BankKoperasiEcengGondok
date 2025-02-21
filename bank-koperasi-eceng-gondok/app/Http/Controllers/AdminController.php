@@ -158,7 +158,7 @@ class AdminController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'slug' => 'required|unique:categories,slug,'.$request->id,
+            'slug' => 'required|unique:categories,slug,' . $request->id,
             'image' => 'mimes:png,jpg,jpeg|max:2048'
         ]);
 
@@ -166,10 +166,9 @@ class AdminController extends Controller
         $category->name = $request->name;
         $category->slug = $request->slug;
 
-        if($request->hasFile('image'))
-        {
-            if (File::exists(public_path('uploads/categories').'/'.$category->image)) {
-                File::delete(public_path('uploads/categories').'/'.$category->image);
+        if ($request->hasFile('image')) {
+            if (File::exists(public_path('uploads/categories') . '/' . $category->image)) {
+                File::delete(public_path('uploads/categories') . '/' . $category->image);
             }
             $image = $request->file('image');
             $file_extention = $image->extension();
@@ -179,7 +178,16 @@ class AdminController extends Controller
             $category->image = $file_name;
         }
         $category->save();
-        return redirect()->route('admin.categories')->with('status','Record has been updated successfully !');
+        return redirect()->route('admin.categories')->with('status', 'Record has been updated successfully !');
     }
-
+    // Halaman Delete Category
+    public function delete_category($id)
+    {
+        $category = Category::find($id);
+        if (File::exists(public_path('uploads/categories') . '/' . $category->image)) {
+            File::delete(public_path('uploads/categories') . '/' . $category->image);
+        }
+        $category->delete();
+        return redirect()->route('admin.categories')->with('status', 'Record has been deleted successfully !');
+    }
 }

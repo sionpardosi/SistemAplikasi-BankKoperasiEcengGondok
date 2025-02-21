@@ -68,7 +68,7 @@
                                     <td class="pname">
                                         <div class="image">
                                             <img src="{{ asset('uploads/categories') }}/{{ $category->image }}"
-                                                alt="" class="image">
+                                                alt="{{ $category->name }}" class="image">
                                         </div>
                                         <div class="name">
                                             <a href="#" class="body-title-2">{{ $category->name }}</a>
@@ -86,14 +86,14 @@
                                                     <i class="icon-edit-3"></i>
                                                 </div>
                                             </a>
-                                            {{-- <form action="{{ route('admin.brand.delete', ['id' => $categoru->id]) }}"
+                                            <form action="{{ route('admin.category.delete', ['id' => $category->id]) }}"
                                                 method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <div class="item text-danger delete">
                                                     <i class="icon-trash-2"></i>
                                                 </div>
-                                            </form> --}}
+                                            </form>
                                         </div>
                                     </td>
                                 </tr>
@@ -109,3 +109,25 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        $(function(){
+            $(".delete").on('click',function(e){
+                e.preventDefault();
+                var selectedForm = $(this).closest('form');
+                swal({
+                    title: "Are you sure?",
+                    text: "You want to delete this record?",
+                    type: "warning",
+                    buttons: ["No!", "Yes!"],
+                    confirmButtonColor: '#dc3545'
+                }).then(function (result) {
+                    if (result) {
+                        selectedForm.submit();
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

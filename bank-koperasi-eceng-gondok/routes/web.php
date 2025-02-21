@@ -47,12 +47,13 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Halaman Menambahkan Category
     Route::get('/admin/category/add', [AdminController::class, 'add_category'])->name('admin.category.add');
     // Halaman Menyimpan Category
-    Route::post('/admin/category/store',[AdminController::class,'add_category_store'])->name('admin.category.store');
+    Route::post('/admin/category/store', [AdminController::class, 'add_category_store'])->name('admin.category.store');
     // Halaman Edit Category
-    Route::get('/admin/category/{id}/edit',[AdminController::class,'edit_category'])->name('admin.category.edit');
+    Route::get('/admin/category/{id}/edit', [AdminController::class, 'edit_category'])->name('admin.category.edit');
     // Halaman Update Category
-     Route::put('/admin/category/update',[AdminController::class,'update_category'])->name('admin.category.update');
-
+    Route::put('/admin/category/update', [AdminController::class, 'update_category'])->name('admin.category.update');
+    // Halaman Delete Category
+    Route::delete('/admin/category/{id}/delete', [AdminController::class, 'delete_category'])->name('admin.category.delete');
 });
 
 // User
