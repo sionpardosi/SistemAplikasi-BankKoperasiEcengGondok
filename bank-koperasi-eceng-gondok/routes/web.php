@@ -7,22 +7,13 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 
-// Route::get('/', function () {
-//     return view('index');
-// });
-
+// Auth
 Auth::routes();
 
-// index Home
+// index Home Pengunjung
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
+Route::get('/produk', [HomeController::class, 'produk'])->name('produk');
 
-Route::get('/', function () {
-    return view('produk');
-})->name('produk');
-
-Route::get('/', function () {
-    return view('produk');
-})->name('');
 
 // User
 Route::middleware(['auth'])->group(function(){
@@ -45,11 +36,10 @@ Route::middleware(['auth',AuthAdmin::class])->group(function(){
 
     // Halaman Categories
     Route::get('/admin/categories',[AdminController::class,'categories'])->name('admin.categories');
+
 });
 
+// User
 // Route::middleware([AuthUser::class])->group(function(){
 //     Route::get('/account-dashboard',[UserController::class,'account_dashboard'])->name('user.account.dashboard');
-// });
-// Route::middleware([AuthAdmin::class])->group(function(){
-//     Route::get('/admin',[AdminController::class,'index'])->name('admin.index');
 // });

@@ -25,4 +25,9 @@ class HomeController extends Controller
     {
         return view('index');
     }
+
+    public function produk()
+{
+    return view('produk');
+}
 }

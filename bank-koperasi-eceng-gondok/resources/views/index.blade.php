@@ -22,13 +22,13 @@
                             <div class="character_markup type2">
                                 <p
                                     class="text-uppercase font-sofia mark-grey-color animate animate_fade animate_btt animate_delay-10 mb-0">
-                                    SENDAL PREMIUM</p>
+                                    SENDAL PREMIUM HOTEL</p>
                             </div>
                         </div>
                         <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
                             <h6
                                 class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
-                                SENDAL PREMIUM</h6>
+                                SENDAL PREMIUM HOTEL</h6>
                             <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">BANK KOPERASI</h2>
                             <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">ECENG GONDOK</h2>
                             <a href="#"
@@ -46,19 +46,18 @@
                             <div class="character_markup">
                                 <p
                                     class="text-uppercase font-sofia fw-bold animate animate_fade animate_rtl animate_delay-10">
-                                    Summer
+                                    TOPI
                                 </p>
                             </div>
                         </div>
                         <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
                             <h6
                                 class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
-                                Topi PREMIUM</h6>
+                                TOPI PREMIUM</h6>
                             <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">BANK KOPERASI</h2>
                             <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">ECENG GONDOK</h2>
                             <a href="#"
-                                class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">Shop
-                                Now</a>
+                                class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">BELANJA SEKARANG!</a>
                         </div>
                     </div>
                 </div>
@@ -73,12 +72,11 @@
                         <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
                             <h6
                                 class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
-                                New Arrivals</h6>
-                            <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">Night Spring</h2>
-                            <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">Dresses</h2>
+                                TOTE BAG</h6>
+                            <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">BANK KOPERASI</h2>
+                            <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">ECENG GONDOK</h2>
                             <a href="#"
-                                class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">Shop
-                                Now</a>
+                                class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">BELANJA SEKARANG!</a>
                         </div>
                     </div>
                 </div>
