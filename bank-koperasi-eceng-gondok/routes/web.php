@@ -16,9 +16,13 @@ Auth::routes();
 // index Home
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 
-// Route::get('/', function () {
-//     return view('produk');
-// })->name('produk');
+Route::get('/', function () {
+    return view('produk');
+})->name('produk');
+
+Route::get('/', function () {
+    return view('produk');
+})->name('');
 
 // User
 Route::middleware(['auth'])->group(function(){
@@ -38,6 +42,9 @@ Route::middleware(['auth',AuthAdmin::class])->group(function(){
     Route::get('/admin/brand/edit/{id}',[AdminController::class,'brand_edit'])->name('admin.brand.edit');
     Route::put('/admin/brand/update',[AdminController::class,'update_brand'])->name('admin.brand.update');
     Route::delete('/admin/brand/{id}/delete',[AdminController::class,'delete_brand'])->name('admin.brand.delete');
+
+    // Halaman Categories
+    Route::get('/admin/categories',[AdminController::class,'categories'])->name('admin.categories');
 });
 
 // Route::middleware([AuthUser::class])->group(function(){

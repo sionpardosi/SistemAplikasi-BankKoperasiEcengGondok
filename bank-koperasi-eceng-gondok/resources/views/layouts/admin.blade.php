@@ -42,9 +42,10 @@
                 <div class="section-menu-left">
                     <div class="box-logo">
                         <a href="{{ route('admin.index') }}" id="site-logo-inner">
-                            <img class="" id="logo_header" alt="" src="{{ asset('images/logo/logo.png') }}"
-                                 data-light="{{ asset('images/logo/logo.png') }}"
-                                 data-dark="{{ asset('images/logo/logo.png') }}">
+                            <img class="" id="logo_header" alt=""
+                                src="{{ asset('images/logo/logo.png') }}"
+                                data-light="{{ asset('images/logo/logo.png') }}"
+                                data-dark="{{ asset('images/logo/logo.png') }}">
                         </a>
                         <div class="button-show-hide">
                             <i class="icon-menu-left"></i>
@@ -100,6 +101,7 @@
                                         </li>
                                     </ul>
                                 </li>
+
                                 <li class="menu-item has-children">
                                     <a href="javascript:void(0);" class="menu-item-button">
                                         <div class="icon"><i class="icon-layers"></i></div>
@@ -107,12 +109,12 @@
                                     </a>
                                     <ul class="sub-menu">
                                         <li class="sub-menu-item">
-                                            <a href="add-category.html" class="">
+                                            <a href="#" class="">
                                                 <div class="text">New Category</div>
                                             </a>
                                         </li>
                                         <li class="sub-menu-item">
-                                            <a href="categories.html" class="">
+                                            <a href="{{ route('admin.categories') }}" class="">
                                                 <div class="text">Categories</div>
                                             </a>
                                         </li>
@@ -286,8 +288,7 @@
                                                         </div>
                                                         <div class="flex items-center justify-between gap20 flex-grow">
                                                             <div class="name">
-                                                                <a href="product-list.html" class="body-text">Kristin
-                                                                    Watson</a>
+                                                                <a href="product-list.html" class="body-text">Sumondang</a>
                                                             </div>
                                                         </div>
                                                     </li>
@@ -408,7 +409,7 @@
                                                     <img src="images/avatar/user-1.png" alt="">
                                                 </span>
                                                 <span class="flex flex-column">
-                                                    <span class="body-title mb-2">Kristin Watson</span>
+                                                    <span class="body-title mb-2">Sumondang</span>
                                                     <span class="text-tiny">Admin</span>
                                                 </span>
                                             </span>
@@ -468,7 +469,7 @@
                         @yield('content')
 
                         <div class="bottom-page">
-                            <div class="body-text">Copyright © 2024 SurfsideMedia</div>
+                            <div class="body-text">Copyright © 2025 BankKoperasiEcengGondok</div>
                         </div>
                     </div>
 

@@ -383,13 +383,12 @@
         </nav>
     </div>
 
-
     <header id="header" class="header header-fullwidth header-transparent-bg">
         <div class="container">
             <div class="header-desk header-desk_type_1">
                 <div class="logo">
                     <a href="index.html">
-                        <img src="" alt="logo Eceng Gondok Nanti" class="logo__image d-block" />
+                        <img src="{{ asset('images/logo/logo.png') }}" alt="logo Eceng Gondok Nanti" class="logo__image d-block" />
                     </a>
                 </div>
 

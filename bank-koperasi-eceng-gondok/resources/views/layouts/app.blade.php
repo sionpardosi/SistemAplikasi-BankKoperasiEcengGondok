@@ -276,7 +276,7 @@
 
             <div class="logo">
                 <a href="{{ route('home.index') }}">
-                    <img src="{{ asset('assets/images/logo.png') }}" alt="Uomo" class="logo__image d-block">
+                    <img src="{{ asset('images/logo/logo.png') }}" alt="Uomo" class="logo__image d-block">
                 </a>
             </div>
 
@@ -342,8 +342,6 @@
                     <span class="d-inline-block ms-2 text-uppercase align-middle fw-medium">My Account</span>
                 </div>
 
-
-
                 <ul class="container social-links list-unstyled d-flex flex-wrap mb-0">
                     <li>
                         <a href="#" class="footer__social-link d-block ps-0">
@@ -391,13 +389,12 @@
         </nav>
     </div>
 
-
     <header id="header" class="header header-fullwidth header-transparent-bg">
         <div class="container">
             <div class="header-desk header-desk_type_1">
                 <div class="logo">
                     <a href="{{ route('home.index') }}">
-                        <img src="{{ asset('assets/images/logo.png') }}" alt="Uomo" class="logo__image d-block">
+                        <img src="{{ asset('images/logo/logo.png') }}" alt="Uomo" class="logo__image d-block">
                     </a>
                 </div>
 
@@ -407,7 +404,7 @@
                             <a href="{{ route('home.index') }}" class="navigation__link">Home</a>
                         </li>
                         <li class="navigation__item">
-                            <a href="produk.html" class="navigation__link">Shop</a>
+                            <a href="{{ route('produk') }}" class="navigation__link">Shop</a>
                         </li>
                         <li class="navigation__item">
                             <a href="cart.html" class="navigation__link">Cart</a>
@@ -453,7 +450,7 @@
                                         <h6 class="sub-menu__title fs-base">Quicklinks</h6>
                                         <ul class="sub-menu__list list-unstyled">
                                             <li class="sub-menu__item"><a href="shop2.html"
-                                                    class="menu-link menu-link_us-s">New Arrivals</a>
+                                                    class="menu-link menu-link_us-s">Sendal Premium</a>
                                             </li>
                                             <li class="sub-menu__item"><a href="#"
                                                     class="menu-link menu-link_us-s">Dresses</a></li>
@@ -595,8 +592,7 @@
                     <div class="footer-column footer-menu mb-4 mb-lg-0">
                         <h6 class="sub-menu__title text-uppercase">Shop</h6>
                         <ul class="sub-menu__list list-unstyled">
-                            <li class="sub-menu__item"><a href="shop2.html" class="menu-link menu-link_us-s">New
-                                    Arrivals</a></li>
+                            <li class="sub-menu__item"><a href="shop2.html" class="menu-link menu-link_us-s">si</a></li>
                             <li class="sub-menu__item"><a href="shop3.html"
                                     class="menu-link menu-link_us-s">Accessories</a></li>
                             <li class="sub-menu__item"><a href="shop4.html" class="menu-link menu-link_us-s">Men</a></li>
@@ -655,7 +651,8 @@
         <footer class="footer-mobile container w-100 px-5 d-md-none bg-body">
             <div class="row text-center">
                 <div class="col-4">
-                    <a href="{{ route('home.index') }}" class="footer-mobile__link d-flex flex-column align-items-center">
+                    <a href="{{ route('home.index') }}"
+                        class="footer-mobile__link d-flex flex-column align-items-center">
                         <svg class="d-block" width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <use href="#icon_home" />
@@ -665,7 +662,8 @@
                 </div>
 
                 <div class="col-4">
-                    <a href="{{ route('home.index') }}" class="footer-mobile__link d-flex flex-column align-items-center">
+                    <a href="{{ route('home.index') }}"
+                        class="footer-mobile__link d-flex flex-column align-items-center">
                         <svg class="d-block" width="18" height="18" viewBox="0 0 18 18" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <use href="#icon_hanger" />
@@ -675,7 +673,8 @@
                 </div>
 
                 <div class="col-4">
-                    <a href="{{ route('home.index') }}" class="footer-mobile__link d-flex flex-column align-items-center">
+                    <a href="{{ route('home.index') }}"
+                        class="footer-mobile__link d-flex flex-column align-items-center">
                         <div class="position-relative">
                             <svg class="d-block" width="18" height="18" viewBox="0 0 20 20" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">

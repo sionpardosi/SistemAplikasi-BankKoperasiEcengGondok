@@ -4,29 +4,34 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Brand;
+use App\Models\Category;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Intervention\Image\Laravel\Facades\Image;
 
 class AdminController extends Controller
 {
+    // Halaman Index
     public function index()
     {
         return view("admin.index");
     }
 
+    // ====================================================================================================
+
+    // Halaman Brands
     public function brands()
     {
         $brands = Brand::orderBy('id', 'DESC')->paginate(10);
         return view("admin.brands", compact('brands'));
     }
-
+    // Halaman Menambahkan Brand
     public function add_brand()
     {
         return view("admin.brand-add");
     }
-
+    // Halaman Menyimpan Brand
     public function add_brand_store(Request $request)
     {
         $request->validate([
@@ -46,13 +51,13 @@ class AdminController extends Controller
         $brand->save();
         return redirect()->route('admin.brands')->with('status', 'Record has been added successfully !');
     }
-
+    // Halaman Edit Brand
     public function brand_edit($id)
     {
         $brand = Brand::find($id);
         return view('admin.brand-edit', compact('brand'));
     }
-
+    // Halaman Update Brand
     public function update_brand(Request $request)
     {
         $request->validate([
@@ -78,7 +83,7 @@ class AdminController extends Controller
         $brand->save();
         return redirect()->route('admin.brands')->with('status', 'Record has been updated successfully !');
     }
-
+    // Halaman Generate Brand Thumbnail Image
     public function GenerateBrandThumbailImage($image, $imageName)
     {
         $destinationPath = public_path('uploads/brands');
@@ -88,15 +93,22 @@ class AdminController extends Controller
             $constraint->aspectRatio();
         })->save($destinationPath . '/' . $imageName);
     }
-
+    // Halaman Delete Brand
     public function delete_brand($id)
     {
         $brand = Brand::find($id);
-        if (File::exists(public_path('uploads/brands') . '/' . $brand->image))
-        {
+        if (File::exists(public_path('uploads/brands') . '/' . $brand->image)) {
             File::delete(public_path('uploads/brands') . '/' . $brand->image);
         }
         $brand->delete();
         return redirect()->route('admin.brands')->with('status', 'Record has been deleted successfully !');
+    }
+
+    // ====================================================================================================
+
+    public function categories()
+    {
+        $categories = Category::orderBy('id', 'DESC')->paginate(10);
+        return view("admin.categories", compact('categories'));
     }
 }
