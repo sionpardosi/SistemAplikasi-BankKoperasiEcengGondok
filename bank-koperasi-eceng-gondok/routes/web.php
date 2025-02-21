@@ -54,6 +54,13 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::put('/admin/category/update', [AdminController::class, 'update_category'])->name('admin.category.update');
     // Halaman Delete Category
     Route::delete('/admin/category/{id}/delete', [AdminController::class, 'delete_category'])->name('admin.category.delete');
+
+
+    // ====================================================================================================
+    // Halaman Produk
+    // ====================================================================================================
+    Route::get('/admin/products',[AdminController::class,'products'])->name('admin.products');
+
 });
 
 // User
