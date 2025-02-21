@@ -27,11 +27,16 @@ Route::middleware(['auth'])->group(function(){
 
 //  Admin
 Route::middleware(['auth',AuthAdmin::class])->group(function(){
+
+    // Halaman Index
     Route::get('/admin',[AdminController::class,'index'])->name('admin.index');
+
+    // Halaman Brands
     Route::get('/admin/brands',[AdminController::class,'brands'])->name('admin.brands');
     Route::get('/admin/brand/add',[AdminController::class,'add_brand'])->name('admin.brand.add');
     Route::post('/admin/brand/store',[AdminController::class,'add_brand_store'])->name('admin.brand.store');
-    Route::get('/admin/brand/edit/{id}',[AdminController::class,'edit_brand'])->name('admin.brand.edit');
+    Route::get('/admin/brand/edit/{id}',[AdminController::class,'brand_edit'])->name('admin.brand.edit');
+    Route::put('/admin/brand/update',[AdminController::class,'update_brand'])->name('admin.brand.update');
 });
 
 // Route::middleware([AuthUser::class])->group(function(){
