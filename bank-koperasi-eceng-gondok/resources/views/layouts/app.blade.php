@@ -514,7 +514,7 @@
         @yield('content')
 
         <hr class="mt-5 text-secondary" />
-        <footer class="footer footer_type_2">
+        {{-- <footer class="footer footer_type_2">
             <div class="footer-middle container">
                 <div class="row row-cols-lg-5 row-cols-2">
                     <div class="footer-column footer-store-info col-12 mb-4 mb-lg-0">
@@ -686,7 +686,7 @@
                     </a>
                 </div>
             </div>
-        </footer>
+        </footer> --}}
 
         <div id="scrollTop" class="visually-hidden end-0"></div>
         <div class="page-overlay"></div>
