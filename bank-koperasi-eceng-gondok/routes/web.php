@@ -33,10 +33,15 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Halaman Brands
     // ====================================================================================================
     Route::get('/admin/brands', [AdminController::class, 'brands'])->name('admin.brands');
+    // Halaman Menambahkan Brand
     Route::get('/admin/brand/add', [AdminController::class, 'add_brand'])->name('admin.brand.add');
+    // Halaman Menyimpan Brand
     Route::post('/admin/brand/store', [AdminController::class, 'add_brand_store'])->name('admin.brand.store');
+    // Halaman Edit Brand
     Route::get('/admin/brand/edit/{id}', [AdminController::class, 'brand_edit'])->name('admin.brand.edit');
+    // Halaman Update Brand
     Route::put('/admin/brand/update', [AdminController::class, 'update_brand'])->name('admin.brand.update');
+    // Halaman Delete Brand
     Route::delete('/admin/brand/{id}/delete', [AdminController::class, 'delete_brand'])->name('admin.brand.delete');
 
 
@@ -64,6 +69,13 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/admin/product/add',[AdminController::class,'add_product'])->name('admin.product.add');
     // Halaman Menyimpan Produk
     Route::post('/admin/product/store',[AdminController::class,'product_store'])->name('admin.product.store');
+    // Halaman Edit Produk
+    Route::get('/admin/product/{id}/edit',[AdminController::class,'edit_product'])->name('admin.product.edit');
+    // Halaman Update Produk
+    Route::put('/admin/product/update',[AdminController::class,'update_product'])->name('admin.product.update');
+    // Halaman Delete Produk
+    Route::delete('/admin/product/{id}/delete',[AdminController::class,'delete_product'])->name('admin.product.delete');
+
 
 });
 
