@@ -8,19 +8,27 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 
-// Auth
+// ====================================================================================================
+// Halaman Pengunjung
+// ====================================================================================================
 Auth::routes();
 
-// index Home Pengunjung
+
+// ====================================================================================================
+// Halaman Pengunjung
+// ====================================================================================================
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
-// Route::get('/produk', [HomeController::class, 'produk'])->name('produk');
+// Halaman Produk Pengunjung
 Route::get('/shop',[ShopController::class,'index'])->name('shop.index');
+// Halaman Produk Detail Pengunjung
+Route::get('/shop/{product_slug}',[ShopController::class,'product_details'])->name("shop.product.details");
 
 
 // User
 Route::middleware(['auth'])->group(function () {
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
 });
+
 
 //  Admin
 Route::middleware(['auth', AuthAdmin::class])->group(function () {

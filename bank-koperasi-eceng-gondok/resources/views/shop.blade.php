@@ -413,8 +413,7 @@
                                         <div class="swiper-wrapper">
                                             <div class="swiper-slide">
                                                 <a
-                                                    href="#">
-                                                    {{-- {{ route('shop.product.details', ['product_slug' => $product->slug]) }} --}}
+                                                    href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">
                                                     <img loading="lazy"
                                                         src="{{ asset('uploads/products') }}/{{ $product->image }}"
                                                         width="330" height="400" alt="{{ $product->name }}"
@@ -424,8 +423,7 @@
                                             <div class="swiper-slide">
                                                 @foreach (explode(',', $product->images) as $gimg)
                                                     <a
-                                                        href="#">
-                                                        {{-- {{ route('shop.product.details', ['product_slug' => $product->slug]) }} --}}
+                                                        href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">
                                                         <img loading="lazy"
                                                             src="{{ asset('uploads/products') }}/{{ trim($gimg) }}"
                                                             width="330" height="400" alt="{{ $product->name }}"
@@ -448,28 +446,28 @@
                                             class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart btn-warning">Go
                                             to Cart</a>
                                     @else --}}
-                                        <form name="addtocart-form" method="POST" action="#">
-                                            {{-- {{ route('cart.add') }} --}}
-                                            @csrf
-                                            <div class="product-single__addtocart">
-                                                <input type="hidden" name="id" value="{{ $product->id }}" />
-                                                <input type="hidden" name="name" value="{{ $product->name }}" />
-                                                <input type="hidden" name="quantity" value="1" />
-                                                <input type="hidden" name="price"
-                                                    value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                                <button type="submit"
-                                                    class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Add
-                                                    to Cart</button>
-                                            </div>
-                                        </form>
+                                    <form name="addtocart-form" method="POST" action="#">
+                                        {{-- {{ route('cart.add') }} --}}
+                                        @csrf
+                                        <div class="product-single__addtocart">
+                                            <input type="hidden" name="id" value="{{ $product->id }}" />
+                                            <input type="hidden" name="name" value="{{ $product->name }}" />
+                                            <input type="hidden" name="quantity" value="1" />
+                                            <input type="hidden" name="price"
+                                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                            <button type="submit"
+                                                class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Add
+                                                to Cart</button>
+                                        </div>
+                                    </form>
                                     {{-- @endif --}}
                                 </div>
 
                                 <div class="pc__info position-relative">
                                     <p class="pc__category">{{ $product->category->name }}</p>
-                                    {{-- <h6 class="pc__title"><a
+                                    <h6 class="pc__title"><a
                                             href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">{{ $product->name }}</a>
-                                    </h6> --}}
+                                    </h6>
                                     <div class="product-card__price d-flex">
                                         <span class="money price">
                                             @if ($product->sale_price)
