@@ -3,6 +3,7 @@
 use App\Http\Middleware\AuthAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
@@ -22,6 +23,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::get('/shop',[ShopController::class,'index'])->name('shop.index');
 // Halaman Produk Detail Pengunjung
 Route::get('/shop/{product_slug}',[ShopController::class,'product_details'])->name("shop.product.details");
+// Halaman Keranjang
+Route::get('/cart',[CartController::class,'index'])->name('cart.index');
+// Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.store');
+Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
 
 
 // User
@@ -88,8 +93,9 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
 
 
     // ====================================================================================================
-    // Halaman Produk
+    // Halaman Keranjang
     // ====================================================================================================
+
 });
 
 // User

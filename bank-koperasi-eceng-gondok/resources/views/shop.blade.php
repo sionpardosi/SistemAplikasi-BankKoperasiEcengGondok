@@ -441,26 +441,25 @@
                                                 <use href="#icon_next_sm" />
                                             </svg></span>
                                     </div>
-                                    {{-- @if (Cart::instance('cart')->content()->Where('id', $product->id)->count() > 0)
+                                    @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content()->Where('id', $product->id)->count() > 0)
                                         <a href="{{ route('cart.index') }}"
                                             class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart btn-warning">Go
                                             to Cart</a>
-                                    @else --}}
-                                    <form name="addtocart-form" method="POST" action="#">
-                                        {{-- {{ route('cart.add') }} --}}
-                                        @csrf
-                                        <div class="product-single__addtocart">
-                                            <input type="hidden" name="id" value="{{ $product->id }}" />
-                                            <input type="hidden" name="name" value="{{ $product->name }}" />
-                                            <input type="hidden" name="quantity" value="1" />
-                                            <input type="hidden" name="price"
-                                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                            <button type="submit"
-                                                class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Add
-                                                to Cart</button>
-                                        </div>
-                                    </form>
-                                    {{-- @endif --}}
+                                    @else
+                                        <form name="addtocart-form" method="POST" action=" {{ route('cart.add') }}">
+                                            @csrf
+                                            <div class="product-single__addtocart">
+                                                <input type="hidden" name="id" value="{{ $product->id }}" />
+                                                <input type="hidden" name="name" value="{{ $product->name }}" />
+                                                <input type="hidden" name="quantity" value="1" />
+                                                <input type="hidden" name="price"
+                                                    value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                                <button type="submit"
+                                                    class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Add
+                                                    to Cart</button>
+                                            </div>
+                                        </form>
+                                    @endif
                                 </div>
 
                                 <div class="pc__info position-relative">
@@ -472,8 +471,8 @@
                                         <span class="money price">
                                             @if ($product->sale_price)
                                                 <s>${{ $product->regular_price }}</s> ${{ $product->sale_price }}
-                                                {{ round((($product->regular_price - $product->sale_price) * 100) / $product->regular_price) }}
-                                                % OFF
+                                                {{-- {{ round((($product->regular_price - $product->sale_price) * 100) / $product->regular_price) }}
+                                                % OFF --}}
                                             @else
                                                 {{ $product->regular_price }}
                                             @endif
