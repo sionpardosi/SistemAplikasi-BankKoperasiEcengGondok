@@ -60,6 +60,10 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Halaman Produk
     // ====================================================================================================
     Route::get('/admin/products',[AdminController::class,'products'])->name('admin.products');
+    // Halaman Menambahkan Produk
+    Route::get('/admin/product/add',[AdminController::class,'add_product'])->name('admin.product.add');
+    // Halaman Menyimpan Produk
+    Route::post('/admin/product/store',[AdminController::class,'product_store'])->name('admin.product.store');
 
 });
 
