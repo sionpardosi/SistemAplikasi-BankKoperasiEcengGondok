@@ -4,6 +4,7 @@ use App\Http\Middleware\AuthAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
 
@@ -12,7 +13,8 @@ Auth::routes();
 
 // index Home Pengunjung
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
-Route::get('/produk', [HomeController::class, 'produk'])->name('produk');
+// Route::get('/produk', [HomeController::class, 'produk'])->name('produk');
+Route::get('/shop',[ShopController::class,'index'])->name('shop.index');
 
 
 // User
@@ -77,6 +79,9 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::delete('/admin/product/{id}/delete',[AdminController::class,'delete_product'])->name('admin.product.delete');
 
 
+    // ====================================================================================================
+    // Halaman Produk
+    // ====================================================================================================
 });
 
 // User
