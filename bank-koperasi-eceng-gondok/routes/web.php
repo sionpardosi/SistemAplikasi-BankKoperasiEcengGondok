@@ -27,6 +27,10 @@ Route::get('/shop/{product_slug}',[ShopController::class,'product_details'])->na
 Route::get('/cart',[CartController::class,'index'])->name('cart.index');
 // Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.store');
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+// Route untuk menambahkan item di keranjang
+Route::put('/cart/increase-qunatity/{rowId}',[CartController::class,'increase_item_quantity'])->name('cart.increase.qty');
+// Route untuk mengurangi item di keranjang
+Route::put('/cart/reduce-qunatity/{rowId}',[CartController::class,'reduce_item_quantity'])->name('cart.reduce.qty');
 
 
 // User

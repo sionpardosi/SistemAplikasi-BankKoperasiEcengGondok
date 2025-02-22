@@ -22,4 +22,20 @@ class CartController extends Controller
         // return response()->json(['status' => 200, 'message' => 'Success ! Item Successfully added to your cart.']);
         return redirect()->back();
     }
+    // Remove from Cart
+    public function increase_item_quantity($rowId)
+    {
+        $product = Cart::instance('cart')->get($rowId);
+        $qty = $product->qty + 1;
+        Cart::instance('cart')->update($rowId, $qty);
+        return redirect()->back();
+    }
+    // Reduce Item Quantity
+    public function reduce_item_quantity($rowId)
+    {
+        $product = Cart::instance('cart')->get($rowId);
+        $qty = $product->qty - 1;
+        Cart::instance('cart')->update($rowId, $qty);
+        return redirect()->back();
+    }
 }
