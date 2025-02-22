@@ -116,7 +116,7 @@
                     </div>
                     <div class="product-single__price">
                         <span class="current-price">
-                            {{-- @if ($product->sale_price)
+                            @if ($product->sale_price)
                                 <s>${{ $product->regular_price }}</s> ${{ $product->sale_price }}
                                 {{ round((($product->regular_price - $product->sale_price) * 100) / $product->regular_price) }}
                                 %
@@ -124,7 +124,7 @@
                             @else
                                 {{ $product->regular_price }}
                             @endif
-                        </span> --}}
+                        </span>
                     </div>
                     <div class="product-single__short-desc">
                         <p>{{ $product->short_description }}</p>
@@ -444,27 +444,38 @@
                         @foreach ($rproducts as $rproduct)
                             <div class="swiper-slide product-card">
                                 <div class="pc__img-wrapper">
-                                    <a href="details.php">
+                                    <a href="{{ route('shop.product.details', ['product_slug' => $rproduct->slug]) }}">
                                         <img loading="lazy" src="{{ asset('uploads/products') }}/{{ $rproduct->image }}"
-                                            width="330" height="400" alt="Cropped Faux leather Jacket"
-                                            class="pc__img">
+                                            width="330" height="400" alt="{{ $rproduct->name }}" class="pc__img">
                                         @if (count(explode(',', $rproduct->images)) > 0)
                                             <img loading="lazy"
                                                 src="{{ asset('uploads/products') }}/{{ trim(explode(',', $rproduct->images)[0]) }}"
-                                                width="330" height="400" alt="Cropped Faux leather Jacket"
+                                                width="330" height="400" alt="{{ $rproduct->name }}"
                                                 class="pc__img pc__img-second">
                                         @endif
                                     </a>
                                     <button
                                         class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart js-open-aside"
-                                        data-aside="cartDrawer" title="Add To Cart">Add To Cart</button>
+                                        data-aside="cartDrawer" title="Add To Cart">Add To Cart
+                                    </button>
                                 </div>
 
                                 <div class="pc__info position-relative">
-                                    <p class="pc__category">d</p>
-                                    <h6 class="pc__title"><a href="details.php">{{ $rproduct->name }}</a></h6>
+                                    <p class="pc__category">{{ $rproduct->category->name }}</p>
+                                    <h6 class="pc__title"><a
+                                            href="{{ route('shop.product.details', ['product_slug' => $rproduct->slug]) }}">{{ $rproduct->name }}</a>
+                                    </h6>
                                     <div class="product-card__price d-flex">
-                                        <span class="money price">${{ $rproduct->regular_price }}</span>
+                                        <span class="money price">
+                                            @if ($product->sale_price)
+                                                <s>${{ $product->regular_price }}</s> ${{ $rproduct->sale_price }}
+                                                {{ round((($product->regular_price - $rproduct->sale_price) * 100) / $product->regular_price) }}
+                                                % OFF
+                                            @else
+                                                {{ $product->regular_price }}
+                                            @endif
+                                        </span>
+                                        {{-- ${{ $rproduct->regular_price }} --}}
                                     </div>
 
                                     <button
