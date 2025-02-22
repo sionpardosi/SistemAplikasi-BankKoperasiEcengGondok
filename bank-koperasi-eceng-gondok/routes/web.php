@@ -31,6 +31,10 @@ Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add')
 Route::put('/cart/increase-qunatity/{rowId}',[CartController::class,'increase_item_quantity'])->name('cart.increase.qty');
 // Route untuk mengurangi item di keranjang
 Route::put('/cart/reduce-qunatity/{rowId}',[CartController::class,'reduce_item_quantity'])->name('cart.reduce.qty');
+// Route untuk menghapus item di keranjang
+Route::delete('/cart/remove/{rowId}',[CartController::class,'remove_item_from_cart'])->name('cart.remove');
+// Route untuk mengosongkan keranjang
+Route::delete('/cart/clear',[CartController::class,'empty_cart'])->name('cart.empty');
 
 
 // User
