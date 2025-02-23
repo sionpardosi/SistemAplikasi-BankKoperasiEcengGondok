@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Brand;
 use App\Models\Product;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,7 @@ class ShopController extends Controller
     {
         $size = $request->query('size') ? $request->query('size') : 12;
         $order = $request->query('order') ? $request->query('order') : -1;
+        $f_brands = $request->query('brands');
 
         switch ($order) {
             case 1:
@@ -32,12 +34,17 @@ class ShopController extends Controller
                 break;
             default:
                 // Misalnya, untuk default kita ingin urut berdasarkan created_at DESC
-                $o_column = 'created_at';
+                $o_column = 'id';
                 $o_order = 'DESC';
         }
+        $brands = Brand::orderBy('name', 'ASC')->get();
 
-        $products = Product::orderBy($o_column, $o_order)->paginate($size);
-        return view('shop', compact('products', 'size', 'order'));
+        $products = Product::where(function ($query) use ($f_brands) {
+            $query->whereIn('brand_id', explode(',', $f_brands))->orWhereRaw("'" . $f_brands . "' = ''");
+        })
+            ->orderBy($o_column, $o_order)->paginate($size);
+
+        return view('shop', compact('products', 'size', 'order', 'brands', 'f_brands'));
     }
 
     // Halaman Detail Produk
@@ -48,8 +55,3 @@ class ShopController extends Controller
         return view('details', compact("product", "rproducts"));
     }
 }
-
-
-
-    // $categories = Category::orderBy("name","ASC")->get();
-    // $brands = Brand::orderBy("name","ASC")->get();
