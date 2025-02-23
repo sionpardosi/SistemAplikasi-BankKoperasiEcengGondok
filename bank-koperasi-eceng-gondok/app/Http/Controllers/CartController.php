@@ -46,8 +46,10 @@ class CartController extends Controller
     }
     // Empty Cart
     public function empty_cart()
-{
-    Cart::instance('cart')->destroy();
-    return redirect()->back();
-}
+    {
+        Cart::instance('cart')->destroy();
+        return redirect()->back();
+    }
+
+    
 }
