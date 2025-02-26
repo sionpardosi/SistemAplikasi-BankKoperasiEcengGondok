@@ -33,7 +33,7 @@
                             <button class="accordion-button p-0 border-0 fs-5 text-uppercase" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#accordion-filter-1" aria-expanded="true"
                                 aria-controls="accordion-filter-1">
-                                Product Categories
+                                Kategori Produk
                                 <svg class="accordion-button__icon type2" viewBox="0 0 10 6"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g aria-hidden="true" stroke="none" fill-rule="evenodd">
@@ -71,7 +71,7 @@
                             <button class="accordion-button p-0 border-0 fs-5 text-uppercase" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#accordion-filter-2" aria-expanded="true"
                                 aria-controls="accordion-filter-2">
-                                Color
+                                Warna
                                 <svg class="accordion-button__icon type2" viewBox="0 0 10 6"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g aria-hidden="true" stroke="none" fill-rule="evenodd">
@@ -109,7 +109,7 @@
                             <button class="accordion-button p-0 border-0 fs-5 text-uppercase" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#accordion-filter-size" aria-expanded="true"
                                 aria-controls="accordion-filter-size">
-                                Sizes
+                                Ukuran
                                 <svg class="accordion-button__icon type2" viewBox="0 0 10 6"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g aria-hidden="true" stroke="none" fill-rule="evenodd">
@@ -148,7 +148,7 @@
                             <button class="accordion-button p-0 border-0 fs-5 text-uppercase" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#accordion-filter-brand" aria-expanded="true"
                                 aria-controls="accordion-filter-brand">
-                                Brands
+                                Merek
                                 <svg class="accordion-button__icon type2" viewBox="0 0 10 6"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g aria-hidden="true" stroke="none" fill-rule="evenodd">
@@ -189,7 +189,7 @@
                             <button class="accordion-button p-0 border-0 fs-5 text-uppercase" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#accordion-filter-price" aria-expanded="true"
                                 aria-controls="accordion-filter-price">
-                                Price
+                                Harga
                                 <svg class="accordion-button__icon type2" viewBox="0 0 10 6"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g aria-hidden="true" stroke="none" fill-rule="evenodd">
@@ -203,15 +203,15 @@
                             aria-labelledby="accordion-heading-price" data-bs-parent="#price-filters">
                             <input class="price-range-slider" type="text" name="price_range" value=""
                                 data-slider-min="1" data-slider-max="10000" data-slider-step="5"
-                                data-slider-value="[{{ $min_price }},{{ $max_price }}]" data-currency="$" />
+                                data-slider-value="[{{ $min_price }},{{ $max_price }}]" data-currency="Rp" />
                             <div class="price-range__info d-flex align-items-center mt-2">
                                 <div class="me-auto">
-                                    <span class="text-secondary">Min Price: </span>
-                                    <span class="price-range__min">$1</span>
+                                    <span class="text-secondary">Harga Minimal: </span>
+                                    <span class="price-range__min">Rp1</span>
                                 </div>
                                 <div>
-                                    <span class="text-secondary">Max Price: </span>
-                                    <span class="price-range__max">$10000</span>
+                                    <span class="text-secondary">Harga Maksimal: </span>
+                                    <span class="price-range__max">Rp10000</span>
                                 </div>
                             </div>
                         </div>
@@ -242,11 +242,13 @@
                                     <div class="slideshow-text container p-3 p-xl-5">
                                         <h2
                                             class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
-                                            Women's <br /><strong>ACCESSORIES</strong></h2>
-                                        <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are
-                                            the best way to
-                                            update your look. Add a title edge with new styles and new colors, or go for
-                                            timeless pieces.</h6>
+                                            BANK KOPERASI<br /><strong>ECENG GONDOK</strong></h2>
+                                        <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
+                                            Bank Koperasi Eceng Gondok hadir untuk menggerakkan perekonomian bersama melalui
+                                            layanan keuangan yang inovatif dan terpercaya. Bergabunglah bersama kami untuk
+                                            meraih kemudahan dalam pengelolaan keuangan dan mewujudkan masa depan yang lebih
+                                            cerah.
+                                            </h6>
                                     </div>
                                 </div>
                                 <div class="slide-split_media position-relative">
@@ -266,16 +268,16 @@
                                     <div class="slideshow-text container p-3 p-xl-5">
                                         <h2
                                             class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
-                                            Women's <br /><strong>ACCESSORIES</strong></h2>
-                                        <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are
-                                            the best way to
-                                            update your look. Add a title edge with new styles and new colors, or go for
-                                            timeless pieces.</h6>
+                                            BANK KOPERASI <br /><strong>ECENG GONDOK</strong></h2>
+                                        <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
+                                            Nikmati berbagai kemudahan dalam pengelolaan keuangan melalui sistem layanan
+                                            digital kami yang inovatif dan ramah pengguna.
+                                            </h6>
                                     </div>
                                 </div>
                                 <div class="slide-split_media position-relative">
                                     <div class="slideshow-bg" style="background-color: #f5e6e0;">
-                                        <img loading="lazy" src="assets/images/shop/shop_banner3.jpg" width="630"
+                                        <img loading="lazy" src="assets/images/shop/shop_banner1.jpg" width="630"
                                             height="450" alt="Women's accessories"
                                             class="slideshow-bg__img object-fit-cover" />
                                     </div>
@@ -290,16 +292,16 @@
                                     <div class="slideshow-text container p-3 p-xl-5">
                                         <h2
                                             class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
-                                            Women's <br /><strong>ACCESSORIES</strong></h2>
-                                        <p class="mb-0 animate animate_fade animate_btt animate_delay-5">Accessories are
-                                            the best way to
-                                            update your look. Add a title edge with new styles and new colors, or go for
-                                            timeless pieces.</h6>
+                                            BANK KOPERASI <br /><strong>ECENG GONDOK</strong></h2>
+                                        <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
+                                            Bergabunglah dengan komunitas Bank Koperasi Eceng Gondok dan rasakan pengalaman
+                                            transaksi yang cepat, aman, dan terpercaya.
+                                            </h6>
                                     </div>
                                 </div>
                                 <div class="slide-split_media position-relative">
                                     <div class="slideshow-bg" style="background-color: #f5e6e0;">
-                                        <img loading="lazy" src="assets/images/shop/shop_banner3.jpg" width="630"
+                                        <img loading="lazy" src="assets/images/shop/shop_banner4.jpg" width="630"
                                             height="450" alt="Women's accessories"
                                             class="slideshow-bg__img object-fit-cover" />
                                     </div>
@@ -321,9 +323,9 @@
                 <div class="d-flex justify-content-between mb-4 pb-md-2">
                     <div class="breadcrumb mb-0 d-none d-md-block flex-grow-1">
                         <a href="{{ route('home.index') }}"
-                            class="menu-link menu-link_us-s text-uppercase fw-medium">Home</a>
+                            class="menu-link menu-link_us-s text-uppercase fw-medium">Beranda</a>
                         <span class="breadcrumb-separator menu-link fw-medium ps-1 pe-1">/</span>
-                        <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium">The Shop</a>
+                        <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium">Toko</a>
                     </div>
 
                     <div
@@ -341,10 +343,14 @@
                         <select class="shop-acs__select form-select w-auto border-0 py-0 order-1 order-md-0"
                             aria-label="Sort Items" id="orderby">
                             <option value="-1" {{ $order == -1 ? 'selected' : '' }}>Default</option>
-                            <option value="1" {{ $order == 1 ? 'selected' : '' }}>Date, New To Old</option>
-                            <option value="2" {{ $order == 2 ? 'selected' : '' }}>Date, Old To New</option>
-                            <option value="3" {{ $order == 3 ? 'selected' : '' }}>Price, Low To High</option>
-                            <option value="4" {{ $order == 4 ? 'selected' : '' }}>Price, High To Low</option>
+                            <option value="1" {{ $order == 1 ? 'selected' : '' }}>Tanggal, Terbaru ke Terdahulu
+                            </option>
+                            <option value="2" {{ $order == 2 ? 'selected' : '' }}>Tanggal, Terdahulu ke Terbaru
+                            </option>
+                            <option value="3" {{ $order == 3 ? 'selected' : '' }}>Harga, Terendah ke Tertinggi
+                            </option>
+                            <option value="4" {{ $order == 4 ? 'selected' : '' }}>Harga, Tertinggi ke Terendah
+                            </option>
                         </select>
 
                         <div class="shop-asc__seprator mx-3 bg-light d-none d-md-block order-md-0"></div>
@@ -412,8 +418,8 @@
                                     </div>
                                     @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content()->Where('id', $product->id)->count() > 0)
                                         <a href="{{ route('cart.index') }}"
-                                            class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart btn-warning">Go
-                                            to Cart</a>
+                                            class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart btn-warning">Lihat Keranjang
+                                        </a>
                                     @else
                                         <form name="addtocart-form" method="POST" action=" {{ route('cart.add') }}">
                                             @csrf
@@ -424,8 +430,8 @@
                                                 <input type="hidden" name="price"
                                                     value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
                                                 <button type="submit"
-                                                    class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Add
-                                                    to Cart</button>
+                                                    class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Tambahkan ke Keranjang
+                                                </button>
                                             </div>
                                         </form>
                                     @endif
@@ -439,14 +445,14 @@
                                     <div class="product-card__price d-flex">
                                         <span class="money price">
                                             @if ($product->sale_price)
-                                                <s>${{ $product->regular_price }}</s> ${{ $product->sale_price }}
-                                                {{-- {{ round((($product->regular_price - $product->sale_price) * 100) / $product->regular_price) }}
-                                                % OFF --}}
+                                                <s>Rp{{ $product->regular_price }}</s> Rp{{ $product->sale_price }}
+                                                {{-- {{ round((($product->regular_price - $product->sale_price) * 100) / $product->regular_price) }}% Diskon --}}
                                             @else
-                                                {{ $product->regular_price }}
+                                                Rp{{ $product->regular_price }}
                                             @endif
                                         </span>
                                     </div>
+
                                     <div class="product-card__review d-flex align-items-center">
                                         <div class="reviews-group d-flex">
                                             <svg class="review-star" viewBox="0 0 9 9"
@@ -471,11 +477,11 @@
                                             </svg>
                                         </div>
                                         <span class="reviews-note text-lowercase text-secondary ms-1">8k+
-                                            reviews</span>
+                                            Ulasan</span>
                                     </div>
-                                    {{-- @if (Cart::instance('wishlist')->content()->Where('id', $product->id)->count() > 0)
-                                        <form method="POST"
-                                            action="{{ route('wishlist.remove', ['rowId' => Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}">
+                                    {{-- @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->count() > 0) --}}
+                                        {{-- <form method="POST"
+                                            action="{{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -486,8 +492,8 @@
                                                     <use href="#icon_heart" />
                                                 </svg>
                                             </button>
-                                        </form>
-                                    @else
+                                        </form> --}}
+                                    {{-- @else --}}
                                         <form method="POST" action="{{ route('wishlist.add') }}">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $product->id }}" />
@@ -504,7 +510,7 @@
                                                 </svg>
                                             </button>
                                         </form>
-                                    @endif --}}
+                                    {{-- @endif --}}
                                 </div>
                             </div>
                         </div>

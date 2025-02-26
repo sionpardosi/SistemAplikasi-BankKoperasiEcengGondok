@@ -4,27 +4,27 @@
     <main class="pt-90">
         <div class="mb-4 pb-4"></div>
         <section class="shop-checkout container">
-            <h2 class="page-title">Cart</h2>
+            <h2 class="page-title">Keranjang</h2>
             <div class="checkout-steps">
                 <a href="javascript:void(0);" class="checkout-steps__item active">
                     <span class="checkout-steps__item-number">01</span>
                     <span class="checkout-steps__item-title">
-                        <span>Shopping Bag</span>
-                        <em>Manage Your Items List</em>
+                        <span>Keranjang Belanja</span>
+                        <em>Kelola Daftar Barang Anda</em>
                     </span>
                 </a>
                 <a href="javascript:void(0);" class="checkout-steps__item">
                     <span class="checkout-steps__item-number">02</span>
                     <span class="checkout-steps__item-title">
-                        <span>Shipping and Checkout</span>
-                        <em>Checkout Your Items List</em>
+                        <span>Pengiriman dan Pembayaran</span>
+                        <em>Lanjutkan ke Pembayaran</em>
                     </span>
                 </a>
                 <a href="javascript:void(0);" class="checkout-steps__item">
                     <span class="checkout-steps__item-number">03</span>
                     <span class="checkout-steps__item-title">
-                        <span>Confirmation</span>
-                        <em>Review And Submit Your Order</em>
+                        <span>Konfirmasi</span>
+                        <em>Tinjau dan Kirim Pesanan Anda</em>
                     </span>
                 </a>
             </div>
@@ -34,11 +34,11 @@
                         <table class="cart-table">
                             <thead>
                                 <tr>
-                                    <th>Product</th>
+                                    <th>Produk</th>
                                     <th></th>
-                                    <th>Price</th>
-                                    <th>Quantity</th>
-                                    <th>Subtotal</th>
+                                    <th>Harga</th>
+                                    <th>Jumlah</th>
+                                    <th>Sub Total</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -62,7 +62,7 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <span class="shopping-cart__product-price">${{ $cartItem->price }}</span>
+                                            <span class="shopping-cart__product-price">Rp{{ $cartItem->price }}</span>
                                         </td>
                                         <td>
                                             <div class="qty-control position-relative">
@@ -114,14 +114,14 @@
                             <form class="position-relative bg-body" method="POST" action="{{ route('cart.empty') }}">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-light" type="submit">CLEAR CART</button>
+                                <button class="btn btn-light" type="submit">KOSONGKAN KERANJANG</button>
                             </form>
                         </div>
                     </div>
                     <div class="shopping-cart__totals-wrapper">
                         <div class="sticky-content">
                             <div class="shopping-cart__totals">
-                                <h3>Cart Totals</h3>
+                                <h3>Total Keranjang</h3>
                                 <table class="cart-totals">
                                     <tbody>
                                         <tr>
@@ -130,11 +130,11 @@
                                             </td>
                                         </tr>
                                         <tr>
-                                            <th>SHIPPING</th>
-                                            <td class="text-right">Free</td>
+                                            <th>Pengiriman</th>
+                                            <td class="text-right">Gratis</td>
                                         </tr>
                                         <tr>
-                                            <th>VAT</th>
+                                            <th>Ongkos Kirim</th>
                                             <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->tax() }}
                                             </td>
                                         </tr>
@@ -148,7 +148,7 @@
                             </div>
                             <div class="mobile_fixed-btn_wrapper">
                                 <div class="button-wrapper container">
-                                    <a href="checkout.html" class="btn btn-primary btn-checkout">PROCEED TO CHECKOUT</a>
+                                    <a href="checkout.html" class="btn btn-primary btn-checkout">LANJUTKAN KE PEMBAYARAN</a>
                                 </div>
                             </div>
                         </div>
@@ -156,7 +156,7 @@
                 @else
                     <div class="row">
                         <div class="col-md-12 text-center pt-5 pb-5">
-                            <p>No item found in your cart</p>
+                            <p>Tidak Ada Produk di Keranjang</p>
                             <a href="{{ route('shop.index') }}" class="btn btn-info">Belanja Sekarang</a>
                         </div>
                     </div>

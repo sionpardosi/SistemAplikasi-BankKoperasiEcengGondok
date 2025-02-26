@@ -75,10 +75,11 @@
                 <div class="col-lg-5">
                     <div class="d-flex justify-content-between mb-4 pb-md-2">
                         <div class="breadcrumb mb-0 d-none d-md-block flex-grow-1">
-                            <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium">Home</a>
+                            <a href="{{ route('home.index') }}"
+                                class="menu-link menu-link_us-s text-uppercase fw-medium">Beranda</a>
                             <span class="breadcrumb-separator menu-link fw-medium ps-1 pe-1">/</span>
-                            <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium">The Shop</a>
-                        </div><!-- /.breadcrumb -->
+                            <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium">Toko</a>
+                        </div>
 
                         <div
                             class="product-single__prev-next d-flex align-items-center justify-content-between justify-content-md-end flex-grow-1">
@@ -90,7 +91,8 @@
                                     class="menu-link menu-link_us-s">Next</span><svg width="10" height="10"
                                     viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
                                     <use href="#icon_next_md" />
-                                </svg></a>
+                                </svg>
+                            </a>
                         </div><!-- /.shop-acs -->
                     </div>
                     <h1 class="product-single__name">{{ $product->name }}</h1>
@@ -112,17 +114,16 @@
                                 <use href="#icon_star" />
                             </svg>
                         </div>
-                        <span class="reviews-note text-lowercase text-secondary ms-1">8k+ reviews</span>
+                        <span class="reviews-note text-lowercase text-secondary ms-1">8k+ Ulasan</span>
                     </div>
                     <div class="product-single__price">
                         <span class="current-price">
                             @if ($product->sale_price)
-                                <s>${{ $product->regular_price }}</s> ${{ $product->sale_price }}
-                                {{ round((($product->regular_price - $product->sale_price) * 100) / $product->regular_price) }}
-                                %
-                                OFF
+                                <s>Rp{{ $product->regular_price }}</s> Rp{{ $product->sale_price }}
+                                {{ round((($product->regular_price - $product->sale_price) * 100) / $product->regular_price) }}%
+                                Diskon
                             @else
-                                {{ $product->regular_price }}
+                                Rp{{ $product->regular_price }}
                             @endif
                         </span>
                     </div>
@@ -130,7 +131,7 @@
                         <p>{{ $product->short_description }}</p>
                     </div>
                     @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content()->Where('id', $product->id)->count() > 0)
-                        <a href="{{ route('cart.index') }}" class="btn btn-warning mb-3">Go to Cart</a>
+                        <a href="{{ route('cart.index') }}" class="btn btn-warning mb-3">Lihat Keranjang</a>
                     @else
                         <form name="addtocart-form" method="POST" action="{{ route('cart.add') }}">
                             @csrf
@@ -145,7 +146,7 @@
                                 <input type="hidden" name="name" value="{{ $product->name }}" />
                                 <input type="hidden" name="price"
                                     value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                <button type="submit" class="btn btn-primary">Add to Cart</button>
+                                <button type="submit" class="btn btn-primary">Tambahkan ke Keranjang</button>
                             </div>
                         </form>
                     @endif
@@ -204,7 +205,7 @@
                         </div>
                         <div class="meta-item">
                             <label>Tags:</label>
-                            <span>biker, black, bomber, leather</span>
+                            {{-- <span>biker, black, bomber, leather</span> --}}
                         </div>
                     </div>
                 </div>
@@ -214,16 +215,16 @@
                     <li class="nav-item" role="presentation">
                         <a class="nav-link nav-link_underscore active" id="tab-description-tab" data-bs-toggle="tab"
                             href="#tab-description" role="tab" aria-controls="tab-description"
-                            aria-selected="true">Description</a>
+                            aria-selected="true">Deskripsi</a>
                     </li>
                     <li class="nav-item" role="presentation">
                         <a class="nav-link nav-link_underscore" id="tab-additional-info-tab" data-bs-toggle="tab"
                             href="#tab-additional-info" role="tab" aria-controls="tab-additional-info"
-                            aria-selected="false">Additional Information</a>
+                            aria-selected="false">Informasi Tambahan</a>
                     </li>
                     <li class="nav-item" role="presentation">
                         <a class="nav-link nav-link_underscore" id="tab-reviews-tab" data-bs-toggle="tab"
-                            href="#tab-reviews" role="tab" aria-controls="tab-reviews" aria-selected="false">Reviews
+                            href="#tab-reviews" role="tab" aria-controls="tab-reviews" aria-selected="false">Ulasan
                             (2)</a>
                     </li>
                 </ul>
@@ -234,7 +235,7 @@
                             {{ $product->description }}
                         </div>
                     </div>
-                    <div class="tab-pane fade" id="tab-additional-info" role="tabpanel"
+                    {{-- <div class="tab-pane fade" id="tab-additional-info" role="tabpanel"
                         aria-labelledby="tab-additional-info-tab">
                         <div class="product-single__addtional-info">
                             <div class="item">
@@ -258,8 +259,8 @@
                                 <span>Relaxed fit shirt-style dress with a rugged</span>
                             </div>
                         </div>
-                    </div>
-                    <div class="tab-pane fade" id="tab-reviews" role="tabpanel" aria-labelledby="tab-reviews-tab">
+                    </div> --}}
+                    {{-- <div class="tab-pane fade" id="tab-reviews" role="tabpanel" aria-labelledby="tab-reviews-tab">
                         <h2 class="product-single__reviews-title">Reviews</h2>
                         <div class="product-single__reviews-list">
                             <div class="product-single__reviews-item">
@@ -396,13 +397,12 @@
                                 </div>
                             </form>
                         </div>
-                    </div>
+                    </div> --}}
                 </div>
             </div>
         </section>
         <section class="products-carousel container">
-            <h2 class="h3 text-uppercase mb-4 pb-xl-2 mb-xl-4">Related <strong>Products</strong></h2>
-
+            <h2 class="h3 text-uppercase mb-4 pb-xl-2 mb-xl-4">Produk <strong>Terkait</strong></h2>
             <div id="related_products" class="position-relative">
                 <div class="swiper-container js-swiper-slider"
                     data-settings='
@@ -467,8 +467,8 @@
                                                 <input type="hidden" name="price"
                                                     value="{{ $rproduct->sale_price == '' ? $rproduct->regular_price : $rproduct->sale_price }}" />
                                                 <button type="submit"
-                                                    class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Add
-                                                    to Cart</button>
+                                                    class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Tambahkan
+                                                    ke Keranjang</button>
                                             </div>
                                         </form>
                                     @endif
@@ -482,14 +482,14 @@
                                     <div class="product-card__price d-flex">
                                         <span class="money price">
                                             @if ($product->sale_price)
-                                                <s>${{ $product->regular_price }}</s> ${{ $rproduct->sale_price }}
-                                                {{ round((($product->regular_price - $rproduct->sale_price) * 100) / $product->regular_price) }}
-                                                % OFF
-                                            @else
-                                                {{ $product->regular_price }}
+                                                <s>Rp{{ $product->regular_price }}</s> Rp{{ $rproduct->sale_price }}
+                                                {{-- {{ round((($product->regular_price - $rproduct->sale_price) * 100) / $product->regular_price) }}% --}}
+                                                {{-- Diskon --}}
+                                                {{-- @else --}}
+                                                {{-- Rp{{ $product->regular_price }} --}}
                                             @endif
                                         </span>
-                                        {{-- ${{ $rproduct->regular_price }} --}}
+                                        {{-- Rp{{ $rproduct->regular_price }} --}}
                                     </div>
 
                                     <button

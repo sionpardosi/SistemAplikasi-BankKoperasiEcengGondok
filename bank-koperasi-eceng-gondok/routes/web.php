@@ -8,6 +8,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\WishlistController;
 
 // ====================================================================================================
 // Halaman Pengunjung
@@ -35,6 +36,8 @@ Route::put('/cart/reduce-qunatity/{rowId}',[CartController::class,'reduce_item_q
 Route::delete('/cart/remove/{rowId}',[CartController::class,'remove_item_from_cart'])->name('cart.remove');
 // Route untuk mengosongkan keranjang
 Route::delete('/cart/clear',[CartController::class,'empty_cart'])->name('cart.empty');
+// Route untuk membuat Wishlist
+Route::post('/wishlist/add',[WishlistController::class,'add_to_wishlist'])->name('wishlist.add');
 
 
 // User
