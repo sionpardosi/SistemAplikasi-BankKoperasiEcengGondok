@@ -16,14 +16,3 @@ Kondisi ini berdampak pada berbagai aspek, mulai dari lingkungan yang kian teran
 
 Melihat urgensi tersebut, pengembangan Aplikasi Sistem Bank Koperasi Eceng Gondok menjadi solusi yang sangat relevan. Sistem digital terpusat akan memudahkan pencatatan transaksi, pengelolaan stok, dan promosi produk, sekaligus membuka peluang pemberdayaan masyarakat melalui penyerapan tenaga kerja lokal. Selain itu, pemanfaatan eceng gondok sebagai bahan kerajinan dapat mendukung keberlanjutan lingkungan dengan mengurangi limbah, menjaga kelestarian Danau Toba, dan menjadi model bisnis ramah lingkungan yang berkelanjutan.
 
--- --
-
-### **Flow Diagram fitur produk (SKETSA KERTAS)**
-
-<div align="center">
-  <img src="https://github.com/sionpardosi/SistemAplikasi-BankKoperasiEcengGondok/blob/branch-website/Flow%20Diagram%20fitur%20produk.jpg" 
-       alt="Flow Diagram fitur produk (SKETSA KERTAS)" 
-       width="70%" 
-       style="border: 2px solid #4CAF50; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
-  <p style="font-style: italic; color: #555;">*Gambar masih berupa sketsa kertas dan akan dipindahkan ke diagram flow</p>
-</div>
