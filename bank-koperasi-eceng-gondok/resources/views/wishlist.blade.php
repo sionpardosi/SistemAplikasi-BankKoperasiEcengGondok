@@ -42,11 +42,13 @@
                                         </td>
                                         <td>
                                             <div class="del-action">
-                                                <button type="submit" class="remove-cart btn btn-sm btn-warning">Move to
-                                                    Cart</button>
-
-                                                <button type="submit"
-                                                    class="remove-cart btn btn-sm btn-danger">Remove</button>
+                                                <form method="POST"
+                                                    action="{{ route('wishlist.remove', ['rowId' => $wishlistItem->rowId]) }}">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit"
+                                                        class="remove-cart btn btn-sm btn-danger">Remove</button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>
@@ -54,7 +56,11 @@
                             </tbody>
                         </table>
                         <div class="cart-table-footer">
-                            <button class="btn btn-light" type="submit">CLEAR WISHLIST</button>
+                            <form method="POST" action="{{ route('wishlist.empty') }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-light" type="submit">CLEAR WISHLIST</button>
+                            </form>
                         </div>
                     </div>
                 @else

@@ -490,28 +490,26 @@
 
 
                                     @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
-                                        <button type="submit"
-                                            class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
-                                            title="Remove from Wishlist">
-                                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
-                                                xmlns="http://www.w3.org/2000/svg">
-                                                <use href="#icon_heart" />
-                                            </svg>
-                                        </button>
-
-                                        {{-- <form method="POST"
-                                            action="#">
-                                            {{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}
+                                        <form method="POST"
+                                            action="{{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}">
                                             @csrf
                                             @method('DELETE')
-                                        </form> --}}
-
+                                            <button type="submit"
+                                                class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
+                                                title="Remove from Wishlist">
+                                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <use href="#icon_heart" />
+                                                </svg>
+                                            </button>
+                                        </form>
                                     @else
                                         <form method="POST" action="{{ route('wishlist.add') }}">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $product->id }}" />
                                             <input type="hidden" name="name" value="{{ $product->name }}" />
-                                            <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                            <input type="hidden" name="price"
+                                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
                                             <input type="hidden" name="quantity" value="1" />
                                             <button
                                                 type="submit"class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
