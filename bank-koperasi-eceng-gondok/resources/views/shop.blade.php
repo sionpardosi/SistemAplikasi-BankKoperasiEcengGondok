@@ -17,6 +17,12 @@
         }
     </style>
 
+    <style>
+        .filled-heart {
+            color: orange;
+        }
+    </style>
+
     <main class="pt-90">
         <section class="shop-main container d-flex pt-4 pt-xl-5">
             <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
@@ -418,7 +424,8 @@
                                     </div>
                                     @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content()->Where('id', $product->id)->count() > 0)
                                         <a href="{{ route('cart.index') }}"
-                                            class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart btn-warning">Lihat Keranjang
+                                            class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart btn-warning">Lihat
+                                            Keranjang
                                         </a>
                                     @else
                                         <form name="addtocart-form" method="POST" action=" {{ route('cart.add') }}">
@@ -430,7 +437,8 @@
                                                 <input type="hidden" name="price"
                                                     value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
                                                 <button type="submit"
-                                                    class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Tambahkan ke Keranjang
+                                                    class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart">Tambahkan
+                                                    ke Keranjang
                                                 </button>
                                             </div>
                                         </form>
@@ -479,30 +487,34 @@
                                         <span class="reviews-note text-lowercase text-secondary ms-1">8k+
                                             Ulasan</span>
                                     </div>
-                                    {{-- @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->count() > 0) --}}
+
+
+                                    @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
+                                        <button type="submit"
+                                            class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
+                                            title="Remove from Wishlist">
+                                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <use href="#icon_heart" />
+                                            </svg>
+                                        </button>
+
                                         {{-- <form method="POST"
-                                            action="{{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}">
+                                            action="#">
+                                            {{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit"
-                                                class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
-                                                title="Remove from Wishlist">
-                                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <use href="#icon_heart" />
-                                                </svg>
-                                            </button>
                                         </form> --}}
-                                    {{-- @else --}}
+
+                                    @else
                                         <form method="POST" action="{{ route('wishlist.add') }}">
                                             @csrf
                                             <input type="hidden" name="id" value="{{ $product->id }}" />
                                             <input type="hidden" name="name" value="{{ $product->name }}" />
+                                            <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
                                             <input type="hidden" name="quantity" value="1" />
-                                            <input type="hidden" name="price"
-                                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                            <button type="submit"
-                                                class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0"
+                                            <button
+                                                type="submit"class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
                                                 title="Add To Wishlist">
                                                 <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
                                                     xmlns="http://www.w3.org/2000/svg">
@@ -510,7 +522,7 @@
                                                 </svg>
                                             </button>
                                         </form>
-                                    {{-- @endif --}}
+                                    @endif
                                 </div>
                             </div>
                         </div>
