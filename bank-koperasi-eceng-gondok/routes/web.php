@@ -11,7 +11,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\WishlistController;
 
 // ====================================================================================================
-// Halaman Pengunjung
+// Halaman AUTH
 // ====================================================================================================
 Auth::routes();
 
@@ -20,11 +20,19 @@ Auth::routes();
 // Halaman Pengunjung
 // ====================================================================================================
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
-// Halaman Produk Pengunjung
+
+
+// ====================================================================================================
+// Halaman Produk
+// ====================================================================================================
 Route::get('/shop',[ShopController::class,'index'])->name('shop.index');
-// Halaman Produk Detail Pengunjung
+// Halaman Produk Detail
 Route::get('/shop/{product_slug}',[ShopController::class,'product_details'])->name("shop.product.details");
+
+
+// ====================================================================================================
 // Halaman Keranjang
+// ====================================================================================================
 Route::get('/cart',[CartController::class,'index'])->name('cart.index');
 // Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.store');
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
@@ -36,8 +44,13 @@ Route::put('/cart/reduce-qunatity/{rowId}',[CartController::class,'reduce_item_q
 Route::delete('/cart/remove/{rowId}',[CartController::class,'remove_item_from_cart'])->name('cart.remove');
 // Route untuk mengosongkan keranjang
 Route::delete('/cart/clear',[CartController::class,'empty_cart'])->name('cart.empty');
-// Route untuk membuat Wishlist
+
+// ====================================================================================================
+// Route untuk menambahkan Wishlist
+// ====================================================================================================
 Route::post('/wishlist/add',[WishlistController::class,'add_to_wishlist'])->name('wishlist.add');
+// Route untuk menampilkan Wishlist
+Route::get('/wishlist',[WishlistController::class,'index'])->name('wishlist.index');
 
 
 // User
