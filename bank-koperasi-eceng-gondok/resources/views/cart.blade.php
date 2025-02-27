@@ -113,21 +113,27 @@
                             </tbody>
                         </table>
                         <div class="cart-table-footer">
-                            @if(!Session::has("coupon"))
-                                <form class="position-relative bg-body" method="POST" action="{{route('cart.coupon.apply')}}">
+                            @if (!Session::has('coupon'))
+                                <form class="position-relative bg-body" method="POST"
+                                    action="{{ route('cart.coupon.apply') }}">
                                     @csrf
                                     <input class="form-control" type="text" name="coupon_code" placeholder="Coupon Code">
-                                    <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4" type="submit" value="APPLY COUPON">
+                                    <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4"
+                                        type="submit" value="APPLY COUPON">
                                 </form>
                             @else
-                                <form class="position-relative bg-body" method="POST" action="{{route('cart.coupon.remove')}}">
+                                <form class="position-relative bg-body" method="POST"
+                                    action="{{ route('cart.coupon.remove') }}">
                                     @csrf
                                     @method('DELETE')
-                                    <input class="form-control text-success fw-bold" type="text" name="coupon_code" placeholder="Coupon Code" value="{{session()->get('coupon')['code']}} Applied!" readonly>
-                                    <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4 text-danger" type="submit" value="REMOVE COUPON">
+                                    <input class="form-control text-success fw-bold" type="text" name="coupon_code"
+                                        placeholder="Coupon Code" value="{{ session()->get('coupon')['code'] }} Applied!"
+                                        readonly>
+                                    <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4 text-danger"
+                                        type="submit" value="REMOVE COUPON">
                                 </form>
                             @endif
-                            <form class="position-relative bg-body" method="POST" action="{{route('cart.empty')}}">
+                            <form class="position-relative bg-body" method="POST" action="{{ route('cart.empty') }}">
                                 @csrf
                                 @method('DELETE')
                                 <button class="btn btn-light" type="submit">CLEAR CART</button>
@@ -152,7 +158,8 @@
                                         <tbody>
                                             <tr>
                                                 <th>Subtotal</th>
-                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal() }}</td>
+                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal() }}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <th>Discount {{ Session('coupon')['code'] }}</th>
@@ -181,7 +188,8 @@
                                         <tbody>
                                             <tr>
                                                 <th>Subtotal</th>
-                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal() }}</td>
+                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal() }}
+                                                </td>
                                             </tr>
                                             <tr>
                                                 <th>SHIPPING</th>
@@ -189,11 +197,13 @@
                                             </tr>
                                             <tr>
                                                 <th>VAT</th>
-                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->tax() }}</td>
+                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->tax() }}
+                                                </td>
                                             </tr>
                                             <tr class="cart-total">
                                                 <th>Total</th>
-                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->total() }}</td>
+                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->total() }}
+                                                </td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -201,9 +211,9 @@
                             </div>
                             <div class="mobile_fixed-btn_wrapper">
                                 <div class="button-wrapper container">
-                                    <a href="#" class="btn btn-primary btn-checkout">PROCEED TO
-                                        CHECKOUT</a>
-                                        {{-- {{ route('cart.checkout') }} --}}
+                                    <a href="{{ route('cart.checkout') }}" class="btn btn-primary btn-checkout">PROCEED TO
+                                        CHECKOUT
+                                    </a>
                                 </div>
                             </div>
                         </div>
