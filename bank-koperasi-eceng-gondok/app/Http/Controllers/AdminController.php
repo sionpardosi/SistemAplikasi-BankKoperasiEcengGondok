@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Brand;
+use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Support\Str;
@@ -404,28 +405,29 @@ class AdminController extends Controller
     public function delete_product($id)
     {
         $product = Product::find($id);
-        if (File::exists(public_path('uploads/products') . '/' . $product->image))
-        {
+        if (File::exists(public_path('uploads/products') . '/' . $product->image)) {
             File::delete(public_path('uploads/products') . '/' . $product->image);
         }
-        if (File::exists(public_path('uploads/products/thumbnails') . '/' . $product->image))
-        {
+        if (File::exists(public_path('uploads/products/thumbnails') . '/' . $product->image)) {
             File::delete(public_path('uploads/products/thumbnails') . '/' . $product->image);
         }
 
-        foreach (explode(',', $product->images) as $ofile)
-        {
-            if (File::exists(public_path('uploads/products') . '/' . $ofile))
-            {
+        foreach (explode(',', $product->images) as $ofile) {
+            if (File::exists(public_path('uploads/products') . '/' . $ofile)) {
                 File::delete(public_path('uploads/products') . '/' . $ofile);
             }
-            if (File::exists(public_path('uploads/products/thumbnails') . '/' . $ofile))
-            {
+            if (File::exists(public_path('uploads/products/thumbnails') . '/' . $ofile)) {
                 File::delete(public_path('uploads/products/thumbnails') . '/' . $ofile);
             }
         }
 
         $product->delete();
         return redirect()->route('admin.products')->with('status', 'Record has been deleted successfully !');
+    }
+
+    public function coupons()
+    {
+        $coupons = Coupon::orderBy('expiry_date', 'DESC')->paginate(12);
+        return view("admin.coupons", compact('coupons'));
     }
 }

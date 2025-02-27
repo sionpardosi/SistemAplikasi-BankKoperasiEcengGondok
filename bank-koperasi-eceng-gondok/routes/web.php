@@ -123,8 +123,9 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
 
 
     // ====================================================================================================
-    // Halaman Keranjang
+    // Halaman Coupons
     // ====================================================================================================
+    Route::get('/admin/coupons',[AdminController::class,'coupons'])->name('admin.coupons');
 
 });
 
