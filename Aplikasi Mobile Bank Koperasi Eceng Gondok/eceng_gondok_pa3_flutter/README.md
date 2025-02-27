@@ -1,4 +1,4 @@
-# eceng_gondok_pa3_flutter.
+# eceng_gondok_pa3_flutter
 
 A new Flutter project.
 
