@@ -46,6 +46,8 @@ Route::delete('/cart/remove/{rowId}',[CartController::class,'remove_item_from_ca
 Route::delete('/cart/clear',[CartController::class,'empty_cart'])->name('cart.empty');
 // Route untuk menghitung diskon
 Route::post('/cart/apply-coupon',[CartController::class,'apply_coupon_code'])->name('cart.coupon.apply');
+// Route untuk menghapus diskon
+Route::delete('/cart/remove-coupon',[CartController::class,'remove_coupon_code'])->name('cart.coupon.remove');
 
 
 // ====================================================================================================

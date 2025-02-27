@@ -154,10 +154,17 @@ class CartController extends Controller
         $totalAfterDiscount = $subtotalAfterDiscount + $taxAfterDiscount;
 
         Session::put('discounts', [
-            'discount' => number_format(floatval($discount),2,'.',''),
-            'subtotal' => number_format(floatval(Cart::instance('cart')->subtotal() - $discount),2,'.',''),
-            'tax' => number_format(floatval((($subtotalAfterDiscount * config('cart.tax'))/100)),2,'.',''),
-            'total' => number_format(floatval($subtotalAfterDiscount + $taxAfterDiscount),2,'.','')
+            'discount' => number_format(floatval($discount), 2, '.', ''),
+            'subtotal' => number_format(floatval(Cart::instance('cart')->subtotal() - $discount), 2, '.', ''),
+            'tax' => number_format(floatval((($subtotalAfterDiscount * config('cart.tax')) / 100)), 2, '.', ''),
+            'total' => number_format(floatval($subtotalAfterDiscount + $taxAfterDiscount), 2, '.', '')
         ]);
+    }
+
+    public function remove_coupon_code()
+    {
+        session()->forget('coupon');
+        session()->forget('discounts');
+        return back()->with('status', 'Coupon has been removed!');
     }
 }

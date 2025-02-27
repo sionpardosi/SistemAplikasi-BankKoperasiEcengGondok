@@ -112,42 +112,25 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        {{-- <div class="cart-table-footer">
-                            @if (!Session::has('coupon'))
-                                <form class="position-relative bg-body" method="POST"
-                                    action="{{ route('cart.coupon.apply') }}">
+                        <div class="cart-table-footer">
+                            @if(!Session::has("coupon"))
+                                <form class="position-relative bg-body" method="POST" action="{{route('cart.coupon.apply')}}">
                                     @csrf
                                     <input class="form-control" type="text" name="coupon_code" placeholder="Coupon Code">
-                                    <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4"
-                                        type="submit" value="APPLY COUPON">
+                                    <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4" type="submit" value="APPLY COUPON">
+                                </form>
+                            @else
+                                <form class="position-relative bg-body" method="POST" action="{{route('cart.coupon.remove')}}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input class="form-control text-success fw-bold" type="text" name="coupon_code" placeholder="Coupon Code" value="{{session()->get('coupon')['code']}} Applied!" readonly>
+                                    <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4 text-danger" type="submit" value="REMOVE COUPON">
                                 </form>
                             @endif
-                            <form class="position-relative bg-body" method="POST" action="{{ route('cart.empty') }}">
+                            <form class="position-relative bg-body" method="POST" action="{{route('cart.empty')}}">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-light" type="submit">KOSONGKAN KERANJANG</button>
-                            </form>
-                            <div>
-                                @if (Session::has('success'))
-                                    <p class="text-success">{{ Session::get('success') }}</p>
-                                @elseif(Session::has('error'))
-                                    <p class="text-danger">{{ Session::get('error') }}</p>
-                                @endif
-                            </div>
-                        </div> --}}
-                        <div class="cart-table-footer">
-                            <form action="{{ route('cart.coupon.apply') }}" method="POST"
-                                class="position-relative bg-body">
-                                @csrf
-                                <input class="form-control" type="text" name="coupon_code" placeholder="Coupon Code"
-                                    value="@if (Session::has('coupon')) {{ Session::get('coupon')['code'] }} Applied! @endif">
-                                <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4"
-                                    type="submit"value="APPLY COUPON">
-                            </form>
-                            <form class="position-relative bg-body" method="POST" action="{{ route('cart.empty') }}">
-                                @csrf
-                                @method('DELETE')
-                                <button class="btn btn-light" type="submit">KOSONGKAN KERANJANG</button>
+                                <button class="btn btn-light" type="submit">CLEAR CART</button>
                             </form>
                         </div>
 
