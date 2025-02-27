@@ -43,6 +43,16 @@
                                         <td>
                                             <div class="del-action">
                                                 <form method="POST"
+                                                    action="{{ route('wishlist.move.to.cart', ['rowId' => $wishlistItem->rowId]) }}">
+                                                    @csrf
+                                                    <button type="submit" class="remove-cart btn btn-sm btn-warning">Move
+                                                        to Cart</button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div class="del-action">
+                                                <form method="POST"
                                                     action="{{ route('wishlist.remove', ['rowId' => $wishlistItem->rowId]) }}">
                                                     @csrf
                                                     @method('DELETE')

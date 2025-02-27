@@ -55,7 +55,8 @@ Route::get('/wishlist',[WishlistController::class,'index'])->name('wishlist.inde
 Route::delete('/wishlist/remove/{rowId}',[WishlistController::class,'remove_item_from_wishlist'])->name('wishlist.remove');
 // Route untuk mengosongkan Wishlist
 Route::delete('/wishlist/clear',[WishlistController::class,'empty_wishlist'])->name('wishlist.empty');
-
+// Route untuk memindahkan item dari Wishlist ke Cart
+Route::post('/wishlist/move-to-cart/{rowId}',[WishlistController::class,'move_to_cart'])->name('wishlist.move.to.cart');
 
 
 // User

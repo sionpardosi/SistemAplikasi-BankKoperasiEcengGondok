@@ -13,6 +13,7 @@ class WishlistController extends Controller
         $cartItems = Cart::instance('wishlist')->content();
         return view('wishlist', compact('cartItems'));
     }
+
     // Add to wishlist
     public function add_to_wishlist(Request $request)
     {
@@ -31,6 +32,15 @@ class WishlistController extends Controller
     public function empty_wishlist()
     {
         Cart::instance('wishlist')->destroy();
+        return redirect()->back();
+    }
+
+    // Move to cart
+    public function move_to_cart($rowId)
+    {
+        $item = Cart::instance('wishlist')->get($rowId);
+        Cart::instance('wishlist')->remove($rowId);
+        Cart::instance('cart')->add($item->id, $item->name, 1, $item->price)->associate('App\Models\Product');
         return redirect()->back();
     }
 }
