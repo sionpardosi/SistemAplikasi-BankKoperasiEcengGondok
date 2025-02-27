@@ -1,6 +1,13 @@
 @extends('layouts.app')
 
 @section('content')
+
+    <style>
+        .text-success {
+            color: #278c04 !important;
+        }
+    </style>
+
     <main class="pt-90">
         <div class="mb-4 pb-4"></div>
         <section class="shop-checkout container">
@@ -105,7 +112,7 @@
                                 @endforeach
                             </tbody>
                         </table>
-                        <div class="cart-table-footer">
+                        {{-- <div class="cart-table-footer">
                             @if (!Session::has('coupon'))
                                 <form class="position-relative bg-body" method="POST"
                                     action="{{ route('cart.coupon.apply') }}">
@@ -120,7 +127,30 @@
                                 @method('DELETE')
                                 <button class="btn btn-light" type="submit">KOSONGKAN KERANJANG</button>
                             </form>
+                            <div>
+                                @if (Session::has('success'))
+                                    <p class="text-success">{{ Session::get('success') }}</p>
+                                @elseif(Session::has('error'))
+                                    <p class="text-danger">{{ Session::get('error') }}</p>
+                                @endif
+                            </div>
+                        </div> --}}
+                        <div class="cart-table-footer">
+                            <form action="{{ route('cart.coupon.apply') }}" method="POST"
+                                class="position-relative bg-body">
+                                @csrf
+                                <input class="form-control" type="text" name="coupon_code" placeholder="Coupon Code"
+                                    value="@if (Session::has('coupon')) {{ Session::get('coupon')['code'] }} Applied! @endif">
+                                <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4"
+                                    type="submit"value="APPLY COUPON">
+                            </form>
+                            <form class="position-relative bg-body" method="POST" action="{{ route('cart.empty') }}">
+                                @csrf
+                                @method('DELETE')
+                                <button class="btn btn-light" type="submit">KOSONGKAN KERANJANG</button>
+                            </form>
                         </div>
+
                         <div>
                             @if (Session::has('success'))
                                 <p class="text-success">{{ Session::get('success') }}</p>
@@ -128,38 +158,69 @@
                                 <p class="text-danger">{{ Session::get('error') }}</p>
                             @endif
                         </div>
+
                     </div>
                     <div class="shopping-cart__totals-wrapper">
                         <div class="sticky-content">
                             <div class="shopping-cart__totals">
-                                <h3>Total Keranjang</h3>
-                                <table class="cart-totals">
-                                    <tbody>
-                                        <tr>
-                                            <th>Subtotal</th>
-                                            <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal() }}
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <th>Pengiriman</th>
-                                            <td class="text-right">Gratis</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Ongkos Kirim</th>
-                                            <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->tax() }}
-                                            </td>
-                                        </tr>
-                                        <tr class="cart-total">
-                                            <th>Total</th>
-                                            <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->total() }}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <h3>Cart Totals</h3>
+                                @if (Session::has('discounts'))
+                                    <table class="cart-totals">
+                                        <tbody>
+                                            <tr>
+                                                <th>Subtotal</th>
+                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal() }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Discount {{ Session('coupon')['code'] }}</th>
+                                                <td>-${{ Session('discounts')['discount'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Subtotal After Discount</th>
+                                                <td>${{ Session('discounts')['subtotal'] }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>SHIPPING</th>
+                                                <td class="text-right">Free</td>
+                                            </tr>
+                                            <tr>
+                                                <th>VAT</th>
+                                                <td>${{ Session('discounts')['tax'] }}</td>
+                                            </tr>
+                                            <tr class="cart-total">
+                                                <th>Total</th>
+                                                <td>${{ Session('discounts')['total'] }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <table class="cart-totals">
+                                        <tbody>
+                                            <tr>
+                                                <th>Subtotal</th>
+                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal() }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>SHIPPING</th>
+                                                <td class="text-right">Free</td>
+                                            </tr>
+                                            <tr>
+                                                <th>VAT</th>
+                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->tax() }}</td>
+                                            </tr>
+                                            <tr class="cart-total">
+                                                <th>Total</th>
+                                                <td>${{ \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->total() }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                @endif
                             </div>
                             <div class="mobile_fixed-btn_wrapper">
                                 <div class="button-wrapper container">
-                                    <a href="checkout.html" class="btn btn-primary btn-checkout">LANJUTKAN KE PEMBAYARAN</a>
+                                    <a href="#" class="btn btn-primary btn-checkout">PROCEED TO
+                                        CHECKOUT</a>
+                                        {{-- {{ route('cart.checkout') }} --}}
                                 </div>
                             </div>
                         </div>

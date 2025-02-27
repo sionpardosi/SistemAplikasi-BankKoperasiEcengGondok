@@ -60,6 +60,7 @@ Route::delete('/wishlist/remove/{rowId}',[WishlistController::class,'remove_item
 Route::delete('/wishlist/clear',[WishlistController::class,'empty_wishlist'])->name('wishlist.empty');
 // Route untuk memindahkan item dari Wishlist ke Cart
 Route::post('/wishlist/move-to-cart/{rowId}',[WishlistController::class,'move_to_cart'])->name('wishlist.move.to.cart');
+Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
 
 // User
