@@ -52,7 +52,7 @@
                         <span class="alert alert-danger text-center">{{ $message }}</span>
                     @enderror
                     <fieldset>
-                        <div class="body-title">Upload images <span class="tf-color-1">*</span></div>
+                        <div class="body-title">Masukkan Gambar <span class="tf-color-1">*</span></div>
                         <div class="upload-image flex-grow">
                             @if ($brand->image)
                                 <div class="item" id="imgpreview">
