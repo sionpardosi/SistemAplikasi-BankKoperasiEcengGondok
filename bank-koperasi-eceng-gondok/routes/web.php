@@ -66,12 +66,14 @@ Route::post('/wishlist/move-to-cart/{rowId}',[WishlistController::class,'move_to
 Route::post('/cart/remove-coupon', [CartController::class, 'removeCoupon'])->name('cart.coupon.remove');
 
 
-
+// ====================================================================================================
+// Route untuk Checkout/Order
+// ====================================================================================================
 Route::get('/checkout',[CartController::class,'checkout'])->name('cart.checkout');
+// Route untuk menyimpan order
 Route::post('/place-order',[CartController::class,'place_order'])->name('cart.place.order');
+// Route untuk menampilkan order confirmation
 Route::get('/order-confirmation',[CartController::class,'confirmation'])->name('cart.confirmation');
-
-
 
 
 // User
@@ -157,6 +159,8 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Halaman Orders
     // ====================================================================================================
     Route::get('/admin/orders',[AdminController::class,'orders'])->name('admin.orders');
+    // Halaman Order Details
+    Route::get('/admin/order/items/{order_id}',[AdminController::class,'order_items'])->name('admin.order.items');
 
 });
 

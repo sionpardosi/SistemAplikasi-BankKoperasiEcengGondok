@@ -51,7 +51,7 @@
                             <thead>
                                 <tr>
                                     <th style="width: 80px">Order No</th>
-                                    <th>Name</th>
+                                    <th class="text-center">Name</th>
                                     <th class="text-center">Phone</th>
                                     <th class="text-center">Subtotal</th>
                                     <th class="text-center">Tax</th>
@@ -83,8 +83,7 @@
                                         <td class="text-center">{{ $order->orderItems->count() }}</td>
                                         <td class="text-center">{{ $order->delivered_date }}</td>
                                         <td class="text-center">
-                                            <a href="#">
-                                                {{-- {{ route('admin.order.items', ['order_id' => $order->id]) }} --}}
+                                            <a href="{{ route('admin.order.items', ['order_id' => $order->id]) }}">
                                                 <div class="list-icon-function view-icon">
                                                     <div class="item eye">
                                                         <i class="icon-eye"></i>
