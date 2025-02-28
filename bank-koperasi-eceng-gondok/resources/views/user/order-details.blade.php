@@ -1,64 +1,103 @@
 @extends('layouts.app')
 
 @section('content')
-    <style>
-        .bg-warning {
-            background-color: #f5d700 !important;
-            color: #000;
-        }
+<style>
+    .pt-90 {
+      padding-top: 90px !important;
+    }
 
-        .table-transaction>tbody>tr:nth-of-type(odd) {
-            --bs-table-accent-bg: #fff !important;
+    .pr-6px {
+      padding-right: 6px;
+      text-transform: uppercase;
+    }
 
-        }
+    .my-account .page-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 40px;
+      border-bottom: 1px solid;
+      padding-bottom: 13px;
+    }
 
-        .table-transaction th,
-        .table-transaction td {
-            padding: 0.625rem 1.5rem .25rem;
-            !important;
-            color: #000 !important;
-        }
+    .my-account .wg-box {
+      display: -webkit-box;
+      display: -moz-box;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      padding: 24px;
+      flex-direction: column;
+      gap: 24px;
+      border-radius: 12px;
+      background: var(--White);
+      box-shadow: 0px 4px 24px 2px rgba(20, 25, 38, 0.05);
+    }
 
-        .table> :not(caption)>tr>th {
-            padding: 0.625rem 1.5rem .25rem !important;
-            background-color: #6a6e51 !important;
-        }
+    .bg-success {
+      background-color: #40c710 !important;
+    }
 
-        .table-bordered>:not(caption)>*>* {
-            border-width: inherit;
-            line-height: 32px;
-            font-size: 14px;
-            border: 1px solid #e1e1e1;
-            vertical-align: middle;
-        }
+    .bg-danger {
+      background-color: #f44032 !important;
+    }
 
-        .table-striped .image {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 50px;
-            height: 50px;
-            flex-shrink: 0;
-            border-radius: 10px;
-            overflow: hidden;
-        }
+    .bg-warning {
+      background-color: #f5d700 !important;
+      color: #000;
+    }
 
-        .table-striped td:nth-child(1) {
-            min-width: 250px;
-            padding-bottom: 7px;
-        }
+    .table-transaction>tbody>tr:nth-of-type(odd) {
+      --bs-table-accent-bg: #fff !important;
 
-        .pname {
-            display: flex;
-            gap: 13px;
-        }
+    }
 
-        .table-bordered> :not(caption)>tr>th,
-        .table-bordered> :not(caption)>tr>td {
-            border-width: 1px 1px;
-            border-color: #6a6e51;
-        }
-    </style>
+    .table-transaction th,
+    .table-transaction td {
+      padding: 0.625rem 1.5rem .25rem !important;
+      color: #000 !important;
+    }
+
+    .table> :not(caption)>tr>th {
+      padding: 0.625rem 1.5rem .25rem !important;
+      background-color: #6a6e51 !important;
+    }
+
+    .table-bordered>:not(caption)>*>* {
+      border-width: inherit;
+      line-height: 32px;
+      font-size: 14px;
+      border: 1px solid #e1e1e1;
+      vertical-align: middle;
+    }
+
+    .table-striped .image {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 50px;
+      height: 50px;
+      flex-shrink: 0;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .table-striped td:nth-child(1) {
+      min-width: 250px;
+      padding-bottom: 7px;
+    }
+
+    .pname {
+      display: flex;
+      gap: 13px;
+    }
+
+    .table-bordered> :not(caption)>tr>th,
+    .table-bordered> :not(caption)>tr>td {
+      border-width: 1px 1px;
+      border-color: #6a6e51;
+    }
+  </style>
     <main class="pt-90">
         <div class="mb-4 pb-4"></div>
         <section class="my-account container">
