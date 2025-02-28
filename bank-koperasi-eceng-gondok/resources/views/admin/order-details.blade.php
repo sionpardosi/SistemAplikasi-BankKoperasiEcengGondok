@@ -32,36 +32,41 @@
                     </div>
                     <a class="tf-button style-1 w208" href="{{ route('admin.orders') }}">Back</a>
                 </div>
-                <table class="table table-striped table-bordered table-transaction">
-                    <tr>
-                        <th>Order No</th>
-                        <td>{{ '1' . str_pad($transaction->order->id, 4, '0', STR_PAD_LEFT) }}</td>
-                        <th>Mobile</th>
-                        <td>{{ $transaction->order->phone }}</td>
-                        <th>Pin/Zip Code</th>
-                        <td>{{ $transaction->order->zip }}</td>
-                    </tr>
-                    <tr>
-                        <th>Order Date</th>
-                        <td>{{ $transaction->order->created_at }}</td>
-                        <th>Delivered Date</th>
-                        <td>{{ $transaction->order->delivered_date }}</td>
-                        <th>Canceled Date</th>
-                        <td>{{ $transaction->order->canceled_date }}</td>
-                    </tr>
-                    <tr>
-                        <th>Order Status</th>
-                        <td colspan="5">
-                            @if ($transaction->order->status == 'delivered')
-                                <span class="badge bg-success">Delivered</span>
-                            @elseif($transaction->order->status == 'canceled')
-                                <span class="badge bg-danger">Canceled</span>
-                            @else
-                                <span class="badge bg-warning">Ordered</span>
-                            @endif
-                        </td>
-                    </tr>
-                </table>
+                <div class="table-responsive">
+                    @if (Session::has('status'))
+                        <p class="alert alert-success">{{ Session::get('status') }}</p>
+                    @endif
+                    <table class="table table-striped table-bordered table-transaction">
+                        <tr>
+                            <th>Order No</th>
+                            <td>{{ '1' . str_pad($transaction->order->id, 4, '0', STR_PAD_LEFT) }}</td>
+                            <th>Mobile</th>
+                            <td>{{ $transaction->order->phone }}</td>
+                            <th>Pin/Zip Code</th>
+                            <td>{{ $transaction->order->zip }}</td>
+                        </tr>
+                        <tr>
+                            <th>Order Date</th>
+                            <td>{{ $transaction->order->created_at }}</td>
+                            <th>Delivered Date</th>
+                            <td>{{ $transaction->order->delivered_date }}</td>
+                            <th>Canceled Date</th>
+                            <td>{{ $transaction->order->canceled_date }}</td>
+                        </tr>
+                        <tr>
+                            <th>Order Status</th>
+                            <td colspan="5">
+                                @if ($transaction->order->status == 'delivered')
+                                    <span class="badge bg-success">Delivered</span>
+                                @elseif($transaction->order->status == 'canceled')
+                                    <span class="badge bg-danger">Canceled</span>
+                                @else
+                                    <span class="badge bg-warning">Ordered</span>
+                                @endif
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             </div>
 
             <div class="wg-box mt-5">
@@ -179,6 +184,38 @@
                     </tr>
                 </table>
             </div>
+
+            <div class="wg-box mt-5">
+                <h5>Update Order Status</h5>
+                <form action="{{ route('admin.order.status.update') }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <input type="hidden" name="order_id" value="{{ $transaction->order->id }}" />
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="select">
+                                <select id="order_status" name="order_status">
+                                    <option value="ordered"
+                                        {{ $transaction->order->status == 'ordered' ? 'selected' : '' }}>
+                                        Ordered</option>
+                                    <option value="delivered"
+                                        {{ $transaction->order->status == 'delivered' ? 'selected' : '' }}>Delivered
+                                    </option>
+
+
+                                    <option value="canceled"
+                                        {{ $transaction->order->status == 'canceled' ? 'selected' : '' }}>
+                                        Canceled</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary tf-button w208">Update Status</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
         </div>
     </div>
 @endsection
