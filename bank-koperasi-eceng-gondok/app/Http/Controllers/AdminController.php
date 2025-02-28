@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Brand;
+use App\Models\Order;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\Category;
@@ -488,5 +489,12 @@ class AdminController extends Controller
         $coupon = Coupon::find($id);
         $coupon->delete();
         return redirect()->route('admin.coupons')->with('status', 'Record has been deleted successfully !');
+    }
+
+
+    public function orders()
+    {
+        $orders = Order::orderBy('created_at', 'DESC')->paginate(12);
+        return view("admin.orders", compact('orders'));
     }
 }
