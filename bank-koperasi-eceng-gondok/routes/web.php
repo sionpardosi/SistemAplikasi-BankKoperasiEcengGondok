@@ -91,6 +91,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account-orders',[UserController::class,'account_orders'])->name('user.account.orders');
     // Halaman Order Details
     Route::get('/account-order-details/{order_id}',[UserController::class,'account_order_details'])->name('user.account.order.details');
+    // Route untuk cancel order
+    Route::put('/account-order/cancel-order',[UserController::class,'account_cancel_order'])->name('user.account_cancel_order');
+
 
 });
 

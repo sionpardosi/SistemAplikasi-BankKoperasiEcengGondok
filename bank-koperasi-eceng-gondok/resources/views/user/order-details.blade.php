@@ -1,103 +1,103 @@
 @extends('layouts.app')
 
 @section('content')
-<style>
-    .pt-90 {
-      padding-top: 90px !important;
-    }
+    <style>
+        .pt-90 {
+            padding-top: 90px !important;
+        }
 
-    .pr-6px {
-      padding-right: 6px;
-      text-transform: uppercase;
-    }
+        .pr-6px {
+            padding-right: 6px;
+            text-transform: uppercase;
+        }
 
-    .my-account .page-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 40px;
-      border-bottom: 1px solid;
-      padding-bottom: 13px;
-    }
+        .my-account .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            border-bottom: 1px solid;
+            padding-bottom: 13px;
+        }
 
-    .my-account .wg-box {
-      display: -webkit-box;
-      display: -moz-box;
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-      padding: 24px;
-      flex-direction: column;
-      gap: 24px;
-      border-radius: 12px;
-      background: var(--White);
-      box-shadow: 0px 4px 24px 2px rgba(20, 25, 38, 0.05);
-    }
+        .my-account .wg-box {
+            display: -webkit-box;
+            display: -moz-box;
+            display: -ms-flexbox;
+            display: -webkit-flex;
+            display: flex;
+            padding: 24px;
+            flex-direction: column;
+            gap: 24px;
+            border-radius: 12px;
+            background: var(--White);
+            box-shadow: 0px 4px 24px 2px rgba(20, 25, 38, 0.05);
+        }
 
-    .bg-success {
-      background-color: #40c710 !important;
-    }
+        .bg-success {
+            background-color: #40c710 !important;
+        }
 
-    .bg-danger {
-      background-color: #f44032 !important;
-    }
+        .bg-danger {
+            background-color: #f44032 !important;
+        }
 
-    .bg-warning {
-      background-color: #f5d700 !important;
-      color: #000;
-    }
+        .bg-warning {
+            background-color: #f5d700 !important;
+            color: #000;
+        }
 
-    .table-transaction>tbody>tr:nth-of-type(odd) {
-      --bs-table-accent-bg: #fff !important;
+        .table-transaction>tbody>tr:nth-of-type(odd) {
+            --bs-table-accent-bg: #fff !important;
 
-    }
+        }
 
-    .table-transaction th,
-    .table-transaction td {
-      padding: 0.625rem 1.5rem .25rem !important;
-      color: #000 !important;
-    }
+        .table-transaction th,
+        .table-transaction td {
+            padding: 0.625rem 1.5rem .25rem !important;
+            color: #000 !important;
+        }
 
-    .table> :not(caption)>tr>th {
-      padding: 0.625rem 1.5rem .25rem !important;
-      background-color: #6a6e51 !important;
-    }
+        .table> :not(caption)>tr>th {
+            padding: 0.625rem 1.5rem .25rem !important;
+            background-color: #6a6e51 !important;
+        }
 
-    .table-bordered>:not(caption)>*>* {
-      border-width: inherit;
-      line-height: 32px;
-      font-size: 14px;
-      border: 1px solid #e1e1e1;
-      vertical-align: middle;
-    }
+        .table-bordered>:not(caption)>*>* {
+            border-width: inherit;
+            line-height: 32px;
+            font-size: 14px;
+            border: 1px solid #e1e1e1;
+            vertical-align: middle;
+        }
 
-    .table-striped .image {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 50px;
-      height: 50px;
-      flex-shrink: 0;
-      border-radius: 10px;
-      overflow: hidden;
-    }
+        .table-striped .image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            flex-shrink: 0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
 
-    .table-striped td:nth-child(1) {
-      min-width: 250px;
-      padding-bottom: 7px;
-    }
+        .table-striped td:nth-child(1) {
+            min-width: 250px;
+            padding-bottom: 7px;
+        }
 
-    .pname {
-      display: flex;
-      gap: 13px;
-    }
+        .pname {
+            display: flex;
+            gap: 13px;
+        }
 
-    .table-bordered> :not(caption)>tr>th,
-    .table-bordered> :not(caption)>tr>td {
-      border-width: 1px 1px;
-      border-color: #6a6e51;
-    }
-  </style>
+        .table-bordered> :not(caption)>tr>th,
+        .table-bordered> :not(caption)>tr>td {
+            border-width: 1px 1px;
+            border-color: #6a6e51;
+        }
+    </style>
     <main class="pt-90">
         <div class="mb-4 pb-4"></div>
         <section class="my-account container">
@@ -121,6 +121,9 @@
                             </div>
                         </div>
                         <div class="table-responsive">
+                            @if (Session::has('status'))
+                                <p class="alert alert-success">{{ Session::get('status') }}</p>
+                            @endif
                             <table class="table table-striped table-bordered table-transaction">
                                 <tr>
                                     <th>Order No</th>
@@ -269,9 +272,43 @@
                             </table>
                         </div>
                     </div>
+
+                    @if ($order->status == 'ordered')
+                        <div class="wg-box mt-5 text-right">
+                            <form action="{{ route('user.account_cancel_order') }}" method="POST">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="order_id" value="{{ $order->id }}" />
+                                <button type="button" class="btn btn-danger cancel-order">Cancel Order</button>
+                            </form>
+                        </div>
+                    @endif
+
                 </div>
 
             </div>
         </section>
     </main>
 @endsection
+
+@push('scripts')
+    <script>
+        $(function() {
+            $(".cancel-order").on('click', function(e) {
+                e.preventDefault();
+                var selectedForm = $(this).closest('form');
+                swal({
+                    title: "Are you sure?",
+                    text: "You want to cancel this order?",
+                    type: "warning",
+                    buttons: ["No!", "Yes!"],
+                    confirmButtonColor: '#dc3545'
+                }).then(function(result) {
+                    if (result) {
+                        selectedForm.submit();
+                    }
+                });
+            });
+        });
+    </script>
+@endpush
