@@ -78,7 +78,20 @@ Route::get('/order-confirmation',[CartController::class,'confirmation'])->name('
 
 // User
 Route::middleware(['auth'])->group(function () {
+
+    // ====================================================================================================
+    // Halaman Index
+    // ====================================================================================================
     Route::get('/account-dashboard', [UserController::class, 'index'])->name('user.index');
+
+
+    // ====================================================================================================
+    // Halaman Orders
+    // ====================================================================================================
+    Route::get('/account-orders',[UserController::class,'account_orders'])->name('user.account.orders');
+    // Halaman Order Details
+    Route::get('/account-order-details/{order_id}',[UserController::class,'account_order_details'])->name('user.account.order.details');
+
 });
 
 

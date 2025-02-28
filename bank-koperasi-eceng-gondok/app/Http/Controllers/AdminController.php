@@ -17,15 +17,17 @@ use Intervention\Image\Laravel\Facades\Image;
 
 class AdminController extends Controller
 {
-    // Halaman Index
+    // ====================================================================================================
+    // Halaman Index Admin
+    // ====================================================================================================
     public function index()
     {
         return view("admin.index");
     }
 
     // ====================================================================================================
-
     // Halaman Brands
+    // ====================================================================================================
     public function brands()
     {
         $brands = Brand::orderBy('id', 'DESC')->paginate(10);
@@ -109,9 +111,10 @@ class AdminController extends Controller
         return redirect()->route('admin.brands')->with('status', 'Record has been deleted successfully !');
     }
 
-    // ====================================================================================================
 
+    // ====================================================================================================
     // Halaman Categories
+    // ====================================================================================================
     public function categories()
     {
         $categories = Category::orderBy('id', 'DESC')->paginate(10);
@@ -197,8 +200,8 @@ class AdminController extends Controller
     }
 
     // ====================================================================================================
-
     // Halaman Produk
+    // ====================================================================================================
     public function products()
     {
         $products = Product::OrderBy('created_at', 'DESC')->paginate(10);
@@ -429,6 +432,8 @@ class AdminController extends Controller
     }
 
     // ====================================================================================================
+    // Halaman Coupons
+    // ====================================================================================================
     public function coupons()
     {
         $coupons = Coupon::orderBy('expiry_date', 'DESC')->paginate(12);
@@ -459,13 +464,13 @@ class AdminController extends Controller
         $coupon->save();
         return redirect()->route("admin.coupons")->with('status', 'Record has been added successfully !');
     }
-
+    // Halaman Edit Coupon
     public function edit_coupon($id)
     {
         $coupon = Coupon::find($id);
         return view('admin.coupon-edit', compact('coupon'));
     }
-
+    // Halaman Update Coupon
     public function update_coupon(Request $request)
     {
         $request->validate([
@@ -485,7 +490,6 @@ class AdminController extends Controller
         $coupon->save();
         return redirect()->route('admin.coupons')->with('status', 'Record has been updated successfully !');
     }
-
     // Halaman Delete Coupon
     public function delete_coupon($id)
     {
@@ -494,18 +498,21 @@ class AdminController extends Controller
         return redirect()->route('admin.coupons')->with('status', 'Record has been deleted successfully !');
     }
 
+
+    // ====================================================================================================
     // Halaman Orders
+    // ====================================================================================================
     public function orders()
     {
         $orders = Order::orderBy('created_at', 'DESC')->paginate(12);
         return view("admin.orders", compact('orders'));
     }
-
     // Halaman Order detail Items
-    public function order_items($order_id){
+    public function order_items($order_id)
+    {
         $order = Order::find($order_id);
-          $orderitems = OrderItem::where('order_id',$order_id)->orderBy('id')->paginate(12);
-          $transaction = Transaction::where('order_id',$order_id)->first();
-          return view("admin.order-details",compact('order','orderitems','transaction'));
+        $orderitems = OrderItem::where('order_id', $order_id)->orderBy('id')->paginate(12);
+        $transaction = Transaction::where('order_id', $order_id)->first();
+        return view("admin.order-details", compact('order', 'orderitems', 'transaction'));
     }
 }
