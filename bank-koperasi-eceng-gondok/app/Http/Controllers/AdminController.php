@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Brand;
 use App\Models\Order;
+use App\Models\Slide;
 use App\Models\Coupon;
 use App\Models\Product;
 use App\Models\Category;
@@ -536,4 +537,20 @@ class AdminController extends Controller
         }
         return back()->with("status", "Status changed successfully!");
     }
+
+
+    // ====================================================================================================
+    // Halaman Slides
+    // ====================================================================================================
+    public function slides()
+    {
+        $slides = Slide::orderBy('id', 'DESC')->paginate(12);
+        return view("admin.slides", compact('slides'));
+    }
+    public function slide_add()
+    {
+        return view("admin.slide-add");
+    }
+
+
 }
