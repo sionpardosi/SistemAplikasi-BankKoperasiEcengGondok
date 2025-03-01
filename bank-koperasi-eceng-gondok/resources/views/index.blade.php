@@ -12,74 +12,34 @@
         "loop": true
       }'>
             <div class="swiper-wrapper">
-                <div class="swiper-slide">
-                    <div class="overflow-hidden position-relative h-100">
-                        <div class="slideshow-character position-absolute bottom-0 pos_right-center">
-                            <img loading="lazy" src="{{ asset('assets/images/shop/slideshow-character3.png') }}"
-                                width="542" height="733" alt="Woman Fashion 1"
-                                class="slideshow-character__img animate animate_fade animate_btt animate_delay-9 w-auto h-auto">
+                @foreach ($slides as $slide)
+                    <div class="swiper-slide">
+                        <div class="overflow-hidden position-relative h-100">
+                            <div class="slideshow-character position-absolute bottom-0 pos_right-center">
+                                <img loading="lazy" src="{{ asset('uploads/slides') }}/{{ $slide->image }}"
+                                    width="542" height="733" alt="Woman Fashion 1"
+                                    class="slideshow-character__img animate animate_fade animate_btt animate_delay-9 w-auto h-auto">
 
-                            <div class="character_markup type2">
-                                <p
-                                    class="text-uppercase font-sofia mark-grey-color animate animate_fade animate_btt animate_delay-10 mb-0">
-                                    Tas Eceng Gondok</p>
+                                <div class="character_markup type2">
+                                    <p
+                                        class="text-uppercase font-sofia mark-grey-color animate animate_fade animate_btt animate_delay-10 mb-0">
+                                        {{$slide->tagline}}</p>
+                                </div>
+                            </div>
+                            <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
+                                <h6
+                                    class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
+                                    {{$slide->tagline}}</h6>
+                                <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">{{$slide->title}}
+                                </h2>
+                                <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">{{$slide->subtitle}}</h2>
+                                <a href="{{$slide->link}}"
+                                    class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">BELANJA
+                                    SEKARANG!</a>
                             </div>
                         </div>
-                        <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
-                            <h6
-                                class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
-                                Inovasi dari Eceng Gondok Samosir</h6>
-                            <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">BANK KOPERASI</h2>
-                            <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">ECENG GONDOK</h2>
-                            <a href="#"
-                                class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">BELANJA SEKARANG!</a>
-                        </div>
                     </div>
-                </div>
-
-                <div class="swiper-slide">
-                    <div class="overflow-hidden position-relative h-100">
-                        <div class="slideshow-character position-absolute bottom-0 pos_right-center">
-                            <img loading="lazy" src="{{ asset('assets/images/shop/slideshow-character1.png') }}" width="400"
-                                height="733" alt="Woman Fashion 1"
-                                class="slideshow-character__img animate animate_fade animate_btt animate_delay-9 w-auto h-auto" />
-                            <div class="character_markup">
-                                <p
-                                    class="text-uppercase font-sofia fw-bold animate animate_fade animate_rtl animate_delay-10">
-                                    TOPI
-                                </p>
-                            </div>
-                        </div>
-                        <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
-                            <h6
-                                class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
-                                Ciptakan kesejahteraan melalui sinergi kearifan lokal dan inovasi modern</h6>
-                            <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">BANK KOPERASI</h2>
-                            <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">ECENG GONDOK</h2>
-                            <a href="{{ route('shop.index'  )}}"
-                                class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">BELANJA SEKARANG!</a>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="swiper-slide">
-                    <div class="overflow-hidden position-relative h-100">
-                        <div class="slideshow-character position-absolute bottom-0 pos_right-center">
-                            <img loading="lazy" src="{{ asset('assets/images/shop/slideshow-character2.png') }}" width="400"
-                                height="690" alt="Woman Fashion 2"
-                                class="slideshow-character__img animate animate_fade animate_rtl animate_delay-10 w-auto h-auto" />
-                        </div>
-                        <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
-                            <h6
-                                class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
-                                Bersama Bank Koperasi Eceng Gondok, wujudkan inovasi dan semangat gotong royong</h6>
-                            <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">BANK KOPERASI</h2>
-                            <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">ECENG GONDOK</h2>
-                            <a href="#"
-                                class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">BELANJA SEKARANG!</a>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
             </div>
 
             <div class="container">
