@@ -76,6 +76,14 @@ Route::post('/place-order',[CartController::class,'place_order'])->name('cart.pl
 Route::get('/order-confirmation',[CartController::class,'confirmation'])->name('cart.confirmation');
 
 
+// ====================================================================================================
+// Halaman Kontak
+// ====================================================================================================
+Route::get('/contact-us',[HomeController::class,'contact'])->name('home.contact');
+// Route untuk menyimpan kontak
+Route::post('/contact/store',[HomeController::class,'contact_store'])->name('home.contact.store');
+
+
 // User
 Route::middleware(['auth'])->group(function () {
 
@@ -196,6 +204,13 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Route untuk delete slide
     Route::delete('/admin/slide/{id}/delete',[AdminController::class,'slide_delete'])->name('admin.slide.delete');
 
+
+    // ====================================================================================================
+    // Halaman Contact
+    // ====================================================================================================
+    Route::get('/admin/contact',[AdminController::class,'contacts'])->name('admin.contacts');
+    // Route untuk delete contact
+    Route::delete('/admin/contact/{id}/delete',[AdminController::class,'contact_delete'])->name('admin.contact.delete');
 });
 
 // User

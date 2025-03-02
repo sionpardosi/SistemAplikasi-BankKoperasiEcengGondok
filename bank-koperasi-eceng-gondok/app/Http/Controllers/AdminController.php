@@ -7,6 +7,7 @@ use App\Models\Brand;
 use App\Models\Order;
 use App\Models\Slide;
 use App\Models\Coupon;
+use App\Models\Contact;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\OrderItem;
@@ -71,7 +72,6 @@ class AdminController extends Controller
         $TotalCanceledAmount = collect($monthlyDatas)->sum('TotalCanceledAmount');
 
         return view('admin.index', compact('orders', 'dashboardDatas', 'AmountM', 'OrderedAmountM', 'DeliveredAmountM', 'CanceledAmountM', 'TotalAmount', 'TotalOrderedAmount', 'TotalDeliveredAmount', 'TotalCanceledAmount'));
-
     }
 
     // ====================================================================================================
@@ -684,5 +684,22 @@ class AdminController extends Controller
         }
         $slide->delete();
         return redirect()->route('admin.slides')->with("status", "Slide deleted successfully!");
+    }
+
+
+    // ====================================================================================================
+    // Halaman Contacts
+    // ====================================================================================================
+    public function contacts()
+    {
+        $contacts = Contact::orderBy('created_at', 'DESC')->paginate(10);
+        return view('admin.contacts', compact('contacts'));
+    }
+    // Halaman Delete Contact
+    public function contact_delete($id)
+    {
+        $contact = Contact::find($id);
+        $contact->delete();
+        return redirect()->route('admin.contacts')->with('status', 'Contact deleted successfully!');
     }
 }
