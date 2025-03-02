@@ -16,24 +16,26 @@
                     <div class="swiper-slide">
                         <div class="overflow-hidden position-relative h-100">
                             <div class="slideshow-character position-absolute bottom-0 pos_right-center">
-                                <img loading="lazy" src="{{ asset('uploads/slides') }}/{{ $slide->image }}"
-                                    width="542" height="733" alt="Woman Fashion 1"
+                                <img loading="lazy" src="{{ asset('uploads/slides') }}/{{ $slide->image }}" width="542"
+                                    height="733" alt="Woman Fashion 1"
                                     class="slideshow-character__img animate animate_fade animate_btt animate_delay-9 w-auto h-auto">
 
                                 <div class="character_markup type2">
                                     <p
                                         class="text-uppercase font-sofia mark-grey-color animate animate_fade animate_btt animate_delay-10 mb-0">
-                                        {{$slide->tagline}}</p>
+                                        {{ $slide->tagline }}</p>
                                 </div>
                             </div>
                             <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
                                 <h6
                                     class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
-                                    {{$slide->tagline}}</h6>
-                                <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">{{$slide->title}}
+                                    {{ $slide->tagline }}</h6>
+                                <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">
+                                    {{ $slide->title }}
                                 </h2>
-                                <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">{{$slide->subtitle}}</h2>
-                                <a href="{{$slide->link}}"
+                                <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">
+                                    {{ $slide->subtitle }}</h2>
+                                <a href="{{ $slide->link }}"
                                     class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">BELANJA
                                     SEKARANG!</a>
                             </div>
@@ -48,7 +50,7 @@
                 </div>
             </div>
         </section>
-        {{-- <div class="container mw-1620 bg-white border-radius-10">
+        <div class="container mw-1620 bg-white border-radius-10">
             <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
             <section class="category-carousel container">
                 <h2 class="section-title text-center mb-3 pb-xl-2 mb-xl-4">You Might Like</h2>
@@ -93,70 +95,16 @@
               }
             }'>
                         <div class="swiper-wrapper">
-                            <div class="swiper-slide">
-                                <img loading="lazy" class="w-100 h-auto mb-3"
-                                    src="{{ asset('assets/images/home/demo3/category_1.png') }}" width="124"
-                                    height="124" alt="" />
-                                <div class="text-center">
-                                    <a href="#" class="menu-link fw-medium">Women<br />Tops</a>
+                            @foreach ($categories as $category)
+                                <div class="swiper-slide">
+                                    <img loading="lazy" class="w-100 h-auto mb-3"
+                                        src="{{ asset('uploads/categories') }}/{{ $category->image }}" width="124"
+                                        height="124" alt="" />
+                                    <div class="text-center">
+                                        <a href="{{route('shop.index', ['categories'=>$category->id])}}" class="menu-link fw-medium">{{ $category->name }}</a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <img loading="lazy" class="w-100 h-auto mb-3"
-                                    src="{{ asset('assets/images/home/demo3/category_2.png') }}" width="124"
-                                    height="124" alt="" />
-                                <div class="text-center">
-                                    <a href="#" class="menu-link fw-medium">Women<br />Pants</a>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <img loading="lazy" class="w-100 h-auto mb-3"
-                                    src="{{ asset('assets/images/home/demo3/category_3.png') }}" width="124"
-                                    height="124" alt="" />
-                                <div class="text-center">
-                                    <a href="#" class="menu-link fw-medium">Women<br />Clothes</a>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <img loading="lazy" class="w-100 h-auto mb-3"
-                                    src="{{ asset('assets/images/home/demo3/category_4.png') }}" width="124"
-                                    height="124" alt="" />
-                                <div class="text-center">
-                                    <a href="#" class="menu-link fw-medium">Men<br />Jeans</a>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <img loading="lazy" class="w-100 h-auto mb-3"
-                                    src="{{ asset('assets/images/home/demo3/category_5.png') }}" width="124"
-                                    height="124" alt="" />
-                                <div class="text-center">
-                                    <a href="#" class="menu-link fw-medium">Men<br />Shirts</a>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <img loading="lazy" class="w-100 h-auto mb-3"
-                                    src="{{ asset('assets/images/home/demo3/category_6.png') }}" width="124"
-                                    height="124" alt="" />
-                                <div class="text-center">
-                                    <a href="#" class="menu-link fw-medium">Men<br />Shoes</a>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <img loading="lazy" class="w-100 h-auto mb-3"
-                                    src="{{ asset('assets/images/home/demo3/category_7.png') }}" width="124"
-                                    height="124" alt="" />
-                                <div class="text-center">
-                                    <a href="#" class="menu-link fw-medium">Women<br />Dresses</a>
-                                </div>
-                            </div>
-                            <div class="swiper-slide">
-                                <img loading="lazy" class="w-100 h-auto mb-3"
-                                    src="{{ asset('assets/images/home/demo3/category_8.png') }}" width="124"
-                                    height="124" alt="" />
-                                <div class="text-center">
-                                    <a href="#" class="menu-link fw-medium">Kids<br />Tops</a>
-                                </div>
-                            </div>
+                            @endforeach
                         </div><!-- /.swiper-wrapper -->
                     </div><!-- /.swiper-container js-swiper-slider -->
 
@@ -991,7 +939,7 @@
                         More</a>
                 </div>
             </section>
-        </div> --}}
+        </div>
 
         <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
 
