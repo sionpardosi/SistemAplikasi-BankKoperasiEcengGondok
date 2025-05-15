@@ -1,18 +1,27 @@
 <!-- Bank Eceng Gondok Chatbot Widget -->
 <div
     style="position: fixed; bottom: 50px; right: 50px; z-index: 9999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-    <!-- Chat Widget Button - Circular Only -->
+    <!-- Chat Widget Button - Circular with Label -->
     <div id="chatbotButton"
-        style="position: absolute; bottom: 0; right: 0; display: flex; align-items: center; justify-content: center; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #956a3b, #7a552f); color: #ffffff; cursor: pointer; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); transition: all 0.3s ease;"
+        style="position: absolute; bottom: 0; right: 0; display: flex; align-items: center; cursor: pointer; transition: all 0.3s ease;"
         aria-label="Chat dengan AI Bank Eceng Gondok" role="button" tabindex="0">
+        <!-- Text Label -->
+        <div class="button-label"
+            style="background: linear-gradient(135deg, #956a3b, #7a552f); color: #ffffff; padding: 8px 16px; border-radius: 20px; margin-right: 10px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); font-weight: 500; font-size: 14px; opacity: 1; transition: all 0.3s ease;">
+            Chat dengan AI
+        </div>
+        <!-- Button Circle -->
         <div
-            style="position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+            style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #956a3b, #7a552f); color: #ffffff; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; position: relative;">
             <div
-                style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2;">
-                <i class="fas fa-robot" style="font-size: 24px; color: #ffffff;"></i>
-            </div>
-            <div id="buttonPulse"
-                style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background: rgba(255, 255, 255, 0.2); z-index: 1; animation: pulse 2s infinite;">
+                style="position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <div
+                    style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                    <i class="fas fa-robot" style="font-size: 24px; color: #ffffff;"></i>
+                </div>
+                <div id="buttonPulse"
+                    style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background: rgba(255, 255, 255, 0.2); z-index: 1; animation: pulse 2s infinite;">
+                </div>
             </div>
         </div>
     </div>
@@ -139,6 +148,9 @@
     </div>
 </div>
 
+<!-- Include FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <style>
     @keyframes pulse {
         0% {
@@ -166,6 +178,18 @@
         to {
             opacity: 1;
             transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
         }
     }
 
@@ -205,12 +229,62 @@
         }
     }
 
-    /* These are just the animations, everything else is inline */
+    @keyframes bounce {
+        0%, 100% {
+            transform: translateY(0);
+        }
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Animation for button label */
+    @keyframes labelFadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes labelFadeOut {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateX(10px);
+        }
+    }
+
+    /* Hover effect for button */
+    #chatbotButton:hover .button-label {
+        animation: labelFadeIn 0.3s forwards;
+    }
+
+    /* Chat button hover effects */
+    #chatMinimize:hover,
+    #chatClose:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Quick option hover effects */
+    .quick-option:hover {
+        background: #f8f9fa;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+    }
 </style>
 
 <script>
     // API Key Configuration
-    const API_KEY = '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';
+    const API_KEY = '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';
 
     // DOM Elements
     const chatbotButton = document.getElementById('chatbotButton');
@@ -221,69 +295,114 @@
     const chatInput = document.getElementById('chatInput');
     const sendButton = document.getElementById('sendButton');
     const quickOptions = document.querySelectorAll('.quick-option');
+    const buttonLabel = document.querySelector('.button-label');
 
     // State Variables
     let isAnswerLoading = false;
     let answerSectionId = 0;
     let chatHistory = [];
+    let isChatOpen = false;
 
-    // Event Listeners
-    chatbotButton.addEventListener('click', toggleChatbox);
-    chatMinimize.addEventListener('click', minimizeChatbox);
-    chatClose.addEventListener('click', closeChatbox);
-    sendButton.addEventListener('click', handleSendMessage);
-    chatInput.addEventListener('keypress', event => {
-        if (event.key === 'Enter') {
-            handleSendMessage();
-        }
-    });
+    // Initialize chat state
+    function initializeChatState() {
+        isChatOpen = false;
+        chatbotBox.style.opacity = '0';
+        chatbotBox.style.transform = 'translateY(20px) scale(0.9)';
+        chatbotBox.style.pointerEvents = 'none';
+        buttonLabel.style.opacity = '1';
+        buttonLabel.style.display = 'block';
+    }
 
-    // Setup Quick Options
-    quickOptions.forEach(option => {
-        option.addEventListener('click', () => {
-            const query = option.getAttribute('data-query');
-            if (query) {
-                chatInput.value = query;
-                handleSendMessage();
-            }
-        });
-    });
-
-    // Toggle Chatbox Visibility
+    // Toggle Chatbox Visibility - Improved function
     function toggleChatbox() {
-        if (chatbotBox.style.opacity === '0' || chatbotBox.style.opacity === '') {
-            // Open chatbox
-            chatbotBox.style.opacity = '1';
-            chatbotBox.style.transform = 'translateY(0) scale(1)';
-            chatbotBox.style.pointerEvents = 'all';
-            chatbotBox.style.animation = 'slideIn 0.3s forwards';
-            chatbotButton.style.display = 'none';
-
-            // Focus on input when opened
-            setTimeout(() => chatInput.focus(), 300);
+        if (isChatOpen) {
+            closeChatbox();
         } else {
-            // Close chatbox
+            openChatbox();
+        }
+    }
+
+    // Open chatbox
+    function openChatbox() {
+        isChatOpen = true;
+        chatbotBox.style.opacity = '1';
+        chatbotBox.style.transform = 'translateY(0) scale(1)';
+        chatbotBox.style.pointerEvents = 'all';
+        chatbotBox.style.animation = 'slideIn 0.3s forwards';
+
+        // Hide the label with animation
+        buttonLabel.style.animation = 'labelFadeOut 0.3s forwards';
+        setTimeout(() => {
+            buttonLabel.style.opacity = '0';
+            buttonLabel.style.display = 'none';
+        }, 300);
+
+        // Focus on input when opened
+        setTimeout(() => chatInput.focus(), 300);
+    }
+
+    // Close chatbox
+    function closeChatbox() {
+        isChatOpen = false;
+        chatbotBox.style.animation = 'slideOut 0.3s forwards';
+
+        setTimeout(() => {
             chatbotBox.style.opacity = '0';
             chatbotBox.style.transform = 'translateY(20px) scale(0.9)';
             chatbotBox.style.pointerEvents = 'none';
-            chatbotButton.style.display = 'flex';
-        }
+        }, 100);
+
+        // Show the label with animation
+        buttonLabel.style.display = 'block';
+        buttonLabel.style.animation = 'labelFadeIn 0.3s forwards';
+        setTimeout(() => {
+            buttonLabel.style.opacity = '1';
+        }, 100);
     }
 
-    // Minimize Chatbox
+    // Minimize Chatbox - Same as close
     function minimizeChatbox() {
-        chatbotBox.style.opacity = '0';
-        chatbotBox.style.transform = 'translateY(20px) scale(0.9)';
-        chatbotBox.style.pointerEvents = 'none';
-        chatbotButton.style.display = 'flex';
+        closeChatbox();
     }
 
-    // Close Chatbox
-    function closeChatbox() {
-        chatbotBox.style.opacity = '0';
-        chatbotBox.style.transform = 'translateY(20px) scale(0.9)';
-        chatbotBox.style.pointerEvents = 'none';
-        chatbotButton.style.display = 'flex';
+    // Event Listeners - Fixed to prevent multiple listeners
+    function setupEventListeners() {
+        // Remove existing listeners if any
+        chatbotButton.removeEventListener('click', toggleChatbox);
+        chatMinimize.removeEventListener('click', minimizeChatbox);
+        chatClose.removeEventListener('click', closeChatbox);
+
+        // Add new listeners
+        chatbotButton.addEventListener('click', toggleChatbox);
+        chatMinimize.addEventListener('click', minimizeChatbox);
+        chatClose.addEventListener('click', closeChatbox);
+
+        sendButton.addEventListener('click', handleSendMessage);
+        chatInput.addEventListener('keypress', event => {
+            if (event.key === 'Enter') {
+                handleSendMessage();
+            }
+        });
+
+        // Setup Quick Options
+        quickOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const query = option.getAttribute('data-query');
+                if (query) {
+                    chatInput.value = query;
+                    handleSendMessage();
+                }
+            });
+        });
+
+        // Hover effects for button
+        chatbotButton.addEventListener('mouseenter', () => {
+            if (!isChatOpen) {
+                buttonLabel.style.display = 'block';
+                buttonLabel.style.animation = 'labelFadeIn 0.3s forwards';
+                buttonLabel.style.opacity = '1';
+            }
+        });
     }
 
     // Handle Send Message
@@ -383,6 +502,7 @@
         sectionElement.style.alignSelf = 'flex-end';
         sectionElement.style.flexDirection = 'row-reverse';
         sectionElement.style.animation = 'messageIn 0.3s ease-out forwards';
+        sectionElement.style.marginBottom = '15px';
 
         sectionElement.innerHTML = `
           <i class="fas fa-user" style="width: 32px; height: 32px; background: #956a3b; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 10px; font-size: 16px;"></i>
@@ -408,6 +528,7 @@
         sectionElement.style.maxWidth = '85%';
         sectionElement.style.alignSelf = 'flex-start';
         sectionElement.style.animation = 'messageIn 0.3s ease-out forwards';
+        sectionElement.style.marginBottom = '15px';
         sectionElement.id = `answer-${answerSectionId}`;
 
         sectionElement.innerHTML = `
@@ -442,27 +563,17 @@
 
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
-        // Hide chat on load
-        chatbotBox.style.opacity = '0';
-        chatbotBox.style.transform = 'translateY(20px) scale(0.9)';
-        chatbotBox.style.pointerEvents = 'none';
-        chatbotButton.style.display = 'flex';
+        // Initialize chat state
+        initializeChatState();
 
-        // Hide quick options after user interaction
+        // Setup event listeners
+        setupEventListeners();
+
+        // Hide quick options when user starts typing
         chatInput.addEventListener('input', () => {
             if (chatInput.value.trim().length > 0) {
                 document.getElementById('quickOptions').style.display = 'none';
             }
         });
-
-        // Additional animations for bounce
-        const style = document.createElement('style');
-        style.textContent = `
-          @keyframes bounce {
-              0%, 100% { transform: translateY(0); }
-              50% { transform: translateY(-10px); }
-          }
-      `;
-        document.head.appendChild(style);
     });
 </script>
