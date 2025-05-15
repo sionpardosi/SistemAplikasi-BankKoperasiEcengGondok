@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3307
--- Waktu pembuatan: 13 Bulan Mei 2025 pada 06.02
+-- Waktu pembuatan: 15 Bulan Mei 2025 pada 13.42
 -- Versi server: 10.4.24-MariaDB
 -- Versi PHP: 8.2.26
 
@@ -86,7 +86,23 @@ CREATE TABLE `addresses` (
 --
 
 INSERT INTO `addresses` (`id`, `user_id`, `name`, `phone`, `locality`, `address`, `city`, `state`, `country`, `landmark`, `zip`, `type`, `isdefault`, `created_at`, `updated_at`) VALUES
-(1, 1, 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 1, '2025-05-12 17:20:15', '2025-05-12 17:20:15');
+(1, 1, 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'other', 1, '2025-05-12 17:20:15', '2025-05-14 08:42:30');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `bank_accounts`
+--
+
+CREATE TABLE `bank_accounts` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `bank_code` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `account_number` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `account_name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- --------------------------------------------------------
 
@@ -127,12 +143,16 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('efranlumbantoruan83@gmail.com|127.0.0.1', 'i:1;', 1747100912),
-('efranlumbantoruan83@gmail.com|127.0.0.1:timer', 'i:1747100912;', 1747100912),
+('asrisirait2004@gmail.com|127.0.0.1', 'i:1;', 1747211186),
+('asrisirait2004@gmail.com|127.0.0.1:timer', 'i:1747211186;', 1747211186),
+('lalistramanoban@gmail.com|127.0.0.1', 'i:2;', 1747232793),
+('lalistramanoban@gmail.com|127.0.0.1:timer', 'i:1747232793;', 1747232793),
+('lalistramanoban27@gmai.com|127.0.0.1', 'i:1;', 1747190581),
+('lalistramanoban27@gmai.com|127.0.0.1:timer', 'i:1747190581;', 1747190581),
 ('listra.sidabutar@gmail.com|127.0.0.1', 'i:2;', 1747103531),
 ('listra.sidabutar@gmail.com|127.0.0.1:timer', 'i:1747103531;', 1747103531),
-('sumondang@gmail.com|127.0.0.1', 'i:1;', 1747069886),
-('sumondang@gmail.com|127.0.0.1:timer', 'i:1747069886;', 1747069886);
+('sumondang@gmail.com|127.0.0.1', 'i:1;', 1747189987),
+('sumondang@gmail.com|127.0.0.1:timer', 'i:1747189987;', 1747189987);
 
 -- --------------------------------------------------------
 
@@ -172,10 +192,11 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `image`, `parent_id`, `created_a
 (13, 'Karpet', 'karpet', '1745403132.jpg', NULL, '2025-04-22 20:12:12', '2025-04-22 20:12:12'),
 (14, 'Wadah', 'wadah', '1745403148.jpg', NULL, '2025-04-22 20:12:28', '2025-04-22 20:12:28'),
 (15, 'Keranjang', 'keranjang', '1745403164.jpg', NULL, '2025-04-22 20:12:44', '2025-04-22 20:12:44'),
-(16, 'Sendal', 'sendal', '1745403179.webp', NULL, '2025-04-22 20:12:59', '2025-04-22 20:12:59'),
+(16, 'Sendal', 'sendal', '1747273901.jpg', NULL, '2025-04-22 20:12:59', '2025-05-15 01:51:41'),
 (17, 'Bantal', 'bantal', '1745403192.jpg', NULL, '2025-04-22 20:13:13', '2025-04-22 20:13:13'),
 (18, 'Tas', 'tas', '1745403217.jpg', NULL, '2025-04-22 20:13:37', '2025-04-22 20:13:37'),
-(19, 'Vas Bunga', 'vas-bunga', '1745403246.jpg', NULL, '2025-04-22 20:14:06', '2025-04-22 20:14:06');
+(19, 'Vas Bunga', 'vas-bunga', '1745403246.jpg', NULL, '2025-04-22 20:14:06', '2025-04-22 20:14:06'),
+(20, 'Alas', 'alas', '1747274111.jpg', NULL, '2025-05-15 01:54:42', '2025-05-15 01:55:11');
 
 -- --------------------------------------------------------
 
@@ -417,7 +438,15 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (39, '2025_05_06_095857_create_supplier_infos_table', 1),
 (40, '2025_05_07_084334_create_threads_table', 1),
 (41, '2025_05_07_084335_create_thread_messages_table', 1),
-(42, '2025_05_09_081915_update_supplier_infos_and_create_related_videos', 1);
+(42, '2025_05_09_081915_update_supplier_infos_and_create_related_videos', 1),
+(43, '2025_05_13_105343_create_notifications_table', 2),
+(44, '2025_05_13_225008_create_reviews_table', 2),
+(45, '2025_05_13_225042_create_review_media_table', 2),
+(46, '2025_05_14_222442_create_bank_accounts_table', 3),
+(47, '2025_05_14_222727_add_bank_info_to_transactions_table', 4),
+(48, '2025_05_15_012225_add_reserved_quantity_to_products_table', 5),
+(49, '2025_05_15_102329_create_sizes_table', 6),
+(50, '2025_05_15_102447_create_product_size_table', 6);
 
 -- --------------------------------------------------------
 
@@ -437,27 +466,43 @@ CREATE TABLE `month_names` (
 --
 
 CREATE TABLE `notifications` (
-  `idnotification` int(11) NOT NULL,
-  `pesan` text NOT NULL,
+  `idnotification` bigint(20) UNSIGNED NOT NULL,
+  `pesan` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `waktu` datetime NOT NULL,
-  `status` varchar(250) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+  `status` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Dumping data untuk tabel `notifications`
 --
 
 INSERT INTO `notifications` (`idnotification`, `pesan`, `waktu`, `status`) VALUES
-(0, 'Pesanan Baru Dari sion dengan Invoice ORDER-1-81abea07-3394-4e75-b02e-b91ea6757782 dengan status pending', '2025-05-13 00:20:16', 'read'),
-(0, 'Pesanan telah dikonfirmasi untuk Invoice ORDER-1', '2025-05-13 00:24:02', 'read'),
-(0, 'Pesanan telah dibatalkan untuk Invoice ORDER-1', '2025-05-13 00:27:22', 'read'),
-(0, 'Pesanan telah dikirim untuk Invoice ORDER-1', '2025-05-13 00:30:29', 'read'),
-(0, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-1', '2025-05-13 00:30:42', 'read'),
-(0, 'Pesanan telah dikirim untuk Invoice ORDER-1', '2025-05-13 00:32:30', 'read'),
-(0, 'Pesanan menunggu konfirmasi untuk Invoice ORDER-1', '2025-05-13 00:32:46', 'read'),
-(0, 'Pesanan telah dikonfirmasi untuk Invoice ORDER-1', '2025-05-13 00:32:53', 'read'),
-(0, 'Pesanan sedang diproses untuk Invoice ORDER-1', '2025-05-13 01:09:39', 'unread'),
-(0, 'Pesanan telah dikirim untuk Invoice ORDER-1', '2025-05-13 01:19:11', 'unread');
+(1, 'Pesanan Baru Dari sion dengan Invoice ORDER-5-b1e23b4e-914a-4451-9e7b-b310d3c6063c dengan status pending', '2025-05-14 10:24:29', 'unread'),
+(2, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-5', '2025-05-14 10:25:40', 'unread'),
+(3, 'Pesanan Baru Dari sion dengan Invoice ORDER-6-34b5bd11-3885-485c-b601-151318394f4f dengan status pending', '2025-05-14 10:27:00', 'unread'),
+(4, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-6', '2025-05-14 10:27:38', 'unread'),
+(5, 'Pesanan Baru Dari sion dengan Invoice ORDER-7-e6cec5aa-229c-4b6e-adc2-73b23f6fd488 dengan status pending', '2025-05-14 22:16:45', 'unread'),
+(6, 'Pesanan Baru Dari sion dengan Invoice ORDER-8-6dc5c355-5ad3-4591-8b85-22858ef6b2da dengan status pending', '2025-05-14 22:32:09', 'unread'),
+(7, 'Pesanan Baru Dari sion dengan Invoice ORDER-9-b906ad7e-a835-4238-b0d9-e149aff8a98d dengan status pending', '2025-05-14 22:48:11', 'unread'),
+(8, 'Pesanan Baru Dari sion dengan Invoice ORDER-10-fcd5c672-3e15-44dc-a567-84051efbf9c3 dengan status pending', '2025-05-15 01:38:32', 'unread'),
+(9, 'Pesanan telah dikonfirmasi untuk Invoice ORDER-10', '2025-05-15 01:41:13', 'unread'),
+(10, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-10', '2025-05-15 01:41:42', 'unread'),
+(11, 'Pesanan Baru Dari sion dengan Invoice ORDER-11-20158879-f663-4e49-ba91-8e1e4db1f009 dengan status pending', '2025-05-15 01:44:02', 'unread'),
+(12, 'Pesanan telah dikonfirmasi untuk Invoice ORDER-11', '2025-05-15 01:44:52', 'unread'),
+(13, 'Pesanan sedang diproses untuk Invoice ORDER-11', '2025-05-15 01:45:09', 'unread'),
+(14, 'Pesanan telah dikirim untuk Invoice ORDER-11', '2025-05-15 01:45:21', 'unread'),
+(15, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-11', '2025-05-15 01:45:31', 'unread'),
+(16, 'Pesanan Baru Dari sion dengan Invoice ORDER-12-dbeb0d7e-b213-4988-aa83-3de6267cef16 dengan status pending', '2025-05-15 01:51:39', 'unread'),
+(17, 'Pesanan telah dikonfirmasi untuk Invoice ORDER-12', '2025-05-15 01:52:52', 'unread'),
+(18, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-12', '2025-05-15 01:53:03', 'unread'),
+(19, 'Pesanan Baru Dari sion dengan Invoice ORDER-13-a6f6ad46-1d33-45c2-940f-6b748a230d53 dengan status pending', '2025-05-15 01:55:22', 'unread'),
+(20, 'Pesanan telah dikonfirmasi untuk Invoice ORDER-13', '2025-05-15 01:55:47', 'unread'),
+(21, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-13', '2025-05-15 01:55:57', 'unread'),
+(22, 'Pesanan Baru Dari sion dengan Invoice ORDER-14-9ec86921-6f69-4935-8ab0-2bec275c81de dengan status pending', '2025-05-15 08:16:57', 'unread'),
+(23, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-14', '2025-05-15 08:18:02', 'unread'),
+(24, 'Pesanan Baru Dari sion dengan Invoice ORDER-15-6d95497e-3694-4107-849a-d6142acf2c21 dengan status pending', '2025-05-15 08:20:46', 'unread'),
+(25, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-15', '2025-05-15 08:23:19', 'unread'),
+(26, 'Pesanan Baru Dari sion dengan Invoice ORDER-16-082be840-4fd9-45ec-a85a-523b0e0c6e66 dengan status pending', '2025-05-15 11:01:53', 'unread');
 
 -- --------------------------------------------------------
 
@@ -499,7 +544,22 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`id`, `user_id`, `subtotal`, `discount`, `tax`, `total`, `name`, `phone`, `locality`, `address`, `city`, `state`, `country`, `landmark`, `zip`, `type`, `status`, `is_shipping_different`, `confirmed_date`, `processing_date`, `shipped_date`, `delivered_date`, `completed_date`, `canceled_date`, `created_at`, `updated_at`) VALUES
-(1, 1, '300000.00', '0.00', '63000.00', '363000.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'shipped', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13', '2025-05-12 17:20:15', '2025-05-12 18:19:11');
+(1, 1, '300000.00', '0.00', '63000.00', '363000.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-12 17:20:15', '2025-05-13 09:51:30'),
+(2, 1, '150000.00', '0.00', '31500.00', '181500.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13 08:16:28', '2025-05-13 08:54:14'),
+(3, 1, '600000.00', '0.00', '126000.00', '726000.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13 08:56:07', '2025-05-13 09:07:53'),
+(4, 1, '79000.00', '0.00', '16590.00', '95590.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13 10:27:17', '2025-05-13 16:03:03'),
+(5, 1, '50000.00', '0.00', '10500.00', '60500.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-14', '2025-05-14', NULL, '2025-05-14 03:24:27', '2025-05-14 03:25:56'),
+(6, 1, '25000.00', '0.00', '5250.00', '30250.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-14', '2025-05-14', NULL, '2025-05-14 03:26:59', '2025-05-14 03:27:44'),
+(7, 1, '150000.00', '0.00', '31500.00', '181500.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-14 15:16:43', '2025-05-14 15:16:43'),
+(8, 1, '89000.00', '0.00', '18690.00', '107690.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-14 15:32:09', '2025-05-14 15:32:09'),
+(9, 1, '30000.00', '0.00', '6300.00', '36300.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-14 15:48:10', '2025-05-14 15:48:10'),
+(10, 1, '119000.00', '0.00', '24990.00', '143990.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-15', NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:38:31', '2025-05-14 18:41:57'),
+(11, 1, '300000.00', '0.00', '63000.00', '363000.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-15', '2025-05-15', '2025-05-15', '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:44:02', '2025-05-14 18:45:40'),
+(12, 1, '60000.00', '0.00', '12600.00', '72600.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-15', NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:51:38', '2025-05-14 18:53:09'),
+(13, 1, '60000.00', '0.00', '12600.00', '72600.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-15', NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:55:22', '2025-05-14 18:56:09'),
+(14, 1, '2100000.00', '0.00', '441000.00', '2541000.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-15 01:16:57', '2025-05-15 01:18:18'),
+(15, 1, '176000.00', '0.00', '36960.00', '212960.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-15 01:20:45', '2025-05-15 01:23:30'),
+(16, 1, '318000.00', '0.00', '66780.00', '384780.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-15 04:01:53', '2025-05-15 04:01:53');
 
 -- --------------------------------------------------------
 
@@ -524,7 +584,25 @@ CREATE TABLE `order_items` (
 --
 
 INSERT INTO `order_items` (`id`, `product_id`, `order_id`, `price`, `quantity`, `options`, `rstatus`, `created_at`, `updated_at`) VALUES
-(1, 24, 1, '150000.00', 2, NULL, 0, '2025-05-12 17:20:15', '2025-05-12 17:20:15');
+(1, 24, 1, '150000.00', 2, NULL, 0, '2025-05-12 17:20:15', '2025-05-12 17:20:15'),
+(2, 24, 2, '150000.00', 1, NULL, 0, '2025-05-13 08:16:28', '2025-05-13 08:16:28'),
+(3, 24, 3, '150000.00', 4, NULL, 0, '2025-05-13 08:56:07', '2025-05-13 08:56:07'),
+(4, 22, 4, '30000.00', 1, NULL, 0, '2025-05-13 10:27:17', '2025-05-13 10:27:17'),
+(5, 19, 4, '49000.00', 1, NULL, 0, '2025-05-13 10:27:17', '2025-05-13 10:27:17'),
+(6, 17, 5, '25000.00', 2, NULL, 0, '2025-05-14 03:24:27', '2025-05-14 03:24:27'),
+(7, 17, 6, '25000.00', 1, NULL, 0, '2025-05-14 03:26:59', '2025-05-14 03:26:59'),
+(8, 24, 7, '150000.00', 1, NULL, 0, '2025-05-14 15:16:43', '2025-05-14 15:16:43'),
+(9, 23, 8, '89000.00', 1, NULL, 0, '2025-05-14 15:32:09', '2025-05-14 15:32:09'),
+(10, 22, 9, '30000.00', 1, NULL, 0, '2025-05-14 15:48:10', '2025-05-14 15:48:10'),
+(11, 23, 10, '89000.00', 1, NULL, 0, '2025-05-14 18:38:31', '2025-05-14 18:38:31'),
+(12, 22, 10, '30000.00', 1, NULL, 0, '2025-05-14 18:38:31', '2025-05-14 18:38:31'),
+(13, 24, 11, '150000.00', 2, NULL, 0, '2025-05-14 18:44:02', '2025-05-14 18:44:02'),
+(14, 22, 12, '30000.00', 2, NULL, 0, '2025-05-14 18:51:38', '2025-05-14 18:51:38'),
+(15, 22, 13, '30000.00', 2, NULL, 0, '2025-05-14 18:55:22', '2025-05-14 18:55:22'),
+(16, 24, 14, '150000.00', 14, NULL, 0, '2025-05-15 01:16:57', '2025-05-15 01:16:57'),
+(17, 18, 15, '11000.00', 16, NULL, 0, '2025-05-15 01:20:45', '2025-05-15 01:20:45'),
+(18, 20, 16, '49000.00', 6, NULL, 0, '2025-05-15 04:01:53', '2025-05-15 04:01:53'),
+(19, 25, 16, '12000.00', 2, NULL, 0, '2025-05-15 04:01:53', '2025-05-15 04:01:53');
 
 -- --------------------------------------------------------
 
@@ -595,6 +673,7 @@ CREATE TABLE `products` (
   `stock_status` enum('instock','outofstock') COLLATE utf8mb4_unicode_ci NOT NULL,
   `featured` tinyint(1) NOT NULL DEFAULT 0,
   `quantity` int(10) UNSIGNED NOT NULL DEFAULT 10,
+  `reserved_quantity` int(11) NOT NULL DEFAULT 0,
   `image` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `images` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `category_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -607,15 +686,40 @@ CREATE TABLE `products` (
 -- Dumping data untuk tabel `products`
 --
 
-INSERT INTO `products` (`id`, `name`, `slug`, `short_description`, `description`, `regular_price`, `sale_price`, `SKU`, `stock_status`, `featured`, `quantity`, `image`, `images`, `category_id`, `brand_id`, `created_at`, `updated_at`) VALUES
-(17, 'Sendal Anyaman Eceng Gondok', 'sendal-anyaman-eceng-gondok', 'Sendal Anyaman Eceng Gondok Samosir', 'Sendal Anyaman Eceng Gondok Samosir', '25000.00', '25000.00', 'sendal000001', 'instock', 1, 30, '1745404000.jpg', '1745404000-1.png,1745404000-2.png,1745404000-3.png', 16, 6, '2025-04-22 20:26:42', '2025-04-22 20:26:42'),
-(18, 'Karpet Anyaman Eceng Gondok', 'karpet-anyaman-eceng-gondok', 'Karpet Anyaman Eceng Gondok Samosir', 'Karpet Anyaman Eceng Gondok Samosir', '12000.00', '11000.00', 'karpet0000001', 'instock', 1, 16, '1745404380.jpg', '1745404380-1.jpg', 13, 6, '2025-04-22 20:33:00', '2025-04-22 20:33:00'),
-(19, 'Tas Enceng Gondok Anyaman Samosir', 'tas-enceng-gondok-anyaman-samosir', 'Tas Enceng Gondok Anyaman Samosir', 'Tas Enceng Gondok Anyaman Samosir', '94000.00', '49000.00', 'tas0000001', 'instock', 1, 7, '1745404445.jpg', '1745404445-1.jpg,1745404445-2.jpg', 18, 6, '2025-04-22 20:34:06', '2025-04-22 20:34:06'),
-(20, 'Cover dan Bantal Anyaman Eceng Gondok', 'cover-dan-bantal-anyaman-eceng-gondok', 'Cover dan Bantal Anyaman Eceng Gondok', 'Cover dan Bantal Anyaman Eceng Gondok', '50000.00', '49000.00', 'bantal0000001', 'instock', 1, 90, '1745404545.jpg', '1745404545-1.jpg,1745404545-2.jpg', 17, 6, '2025-04-22 20:35:46', '2025-04-22 20:35:46'),
-(21, 'Topi Anyaman Eceng Gondok Samosir', 'topi-anyaman-eceng-gondok-samosir', 'Topi Anyaman Eceng Gondok Samosir', 'Topi Anyaman Eceng Gondok Samosir', '59000.00', '21000.00', 'topi00001', 'instock', 1, 40, '1745404704.avif', '1745404704-1.jpg', 11, 6, '2025-04-22 20:38:29', '2025-04-22 20:41:13'),
-(22, 'Kotak Cover Tissue Anyaman Eceng Gondok', 'kotak-cover-tissue-anyaman-eceng-gondok', 'Kotak Cover Tissue Anyaman Eceng Gondok Samosir', 'Kotak Cover Tissue Anyaman Eceng Gondok', '30000.00', '30000.00', 'kotaktissue000001', 'instock', 1, 12, '1745404943.webp', '1745404943-1.jpg', 12, 6, '2025-04-22 20:42:23', '2025-04-22 20:42:23'),
-(23, 'Kotak Keranjang Anyaman Eceng Gondok', 'kotak-keranjang-anyaman-eceng-gondok', 'Kotak Keranjang Anyaman Eceng Gondok Samosir', 'Kotak Keranjang Anyaman Eceng Gondok Samosir', '90000.00', '89000.00', 'keranjang000001', 'instock', 1, 50, '1745405025.jpg', '1745405025-1.jpg,1745405025-2.jpg', 15, 6, '2025-04-22 20:43:46', '2025-04-22 20:43:46'),
-(24, 'Cover Vas Bunga Anyaman Eceng Gondok', 'cover-vas-bunga-anyaman-eceng-gondok', 'Cover Vas Bunga Anyaman Eceng Gondok Samosir', 'Cover Vas Bunga Anyaman Eceng Gondok Samosir', '150000.00', '150000.00', 'vasbunga000001', 'instock', 1, 16, '1745405097.jpg', '1745405097-1.jpg', 19, 6, '2025-04-22 20:44:57', '2025-04-22 20:44:57');
+INSERT INTO `products` (`id`, `name`, `slug`, `short_description`, `description`, `regular_price`, `sale_price`, `SKU`, `stock_status`, `featured`, `quantity`, `reserved_quantity`, `image`, `images`, `category_id`, `brand_id`, `created_at`, `updated_at`) VALUES
+(17, 'Sendal Anyaman Eceng Gondok', 'sendal-anyaman-eceng-gondok', 'Sendal Anyaman Eceng Gondok Samosir', 'Sendal Anyaman Eceng Gondok Samosir', '25000.00', '25000.00', 'sendal000001', 'instock', 1, 30, 0, '1745404000.jpg', '1745404000-1.png,1745404000-2.png,1745404000-3.png', 16, 6, '2025-04-22 20:26:42', '2025-04-22 20:26:42'),
+(18, 'Karpet Anyaman Eceng Gondok', 'karpet-anyaman-eceng-gondok', 'Karpet Anyaman Eceng Gondok Samosir', 'Karpet Anyaman Eceng Gondok Samosir', '12000.00', '11000.00', 'karpet0000001', 'instock', 1, 16, 16, '1745404380.jpg', '1745404380-1.jpg', 13, 6, '2025-04-22 20:33:00', '2025-05-15 01:20:46'),
+(19, 'Tas Enceng Gondok Anyaman Samosir', 'tas-enceng-gondok-anyaman-samosir', 'Tas Enceng Gondok Anyaman Samosir', 'Tas Enceng Gondok Anyaman Samosir', '94000.00', '49000.00', 'tas0000001', 'instock', 1, 7, 0, '1745404445.jpg', '1745404445-1.jpg,1745404445-2.jpg', 18, 6, '2025-04-22 20:34:06', '2025-04-22 20:34:06'),
+(20, 'Cover dan Bantal Anyaman Eceng Gondok', 'cover-dan-bantal-anyaman-eceng-gondok', 'Cover dan Bantal Anyaman Eceng Gondok', 'Cover dan Bantal Anyaman Eceng Gondok', '50000.00', '49000.00', 'bantal0000001', 'instock', 1, 90, 6, '1745404545.jpg', '1745404545-1.jpg,1745404545-2.jpg', 17, 6, '2025-04-22 20:35:46', '2025-05-15 04:01:53'),
+(21, 'Topi Anyaman Eceng Gondok Samosir', 'topi-anyaman-eceng-gondok-samosir', 'Topi Anyaman Eceng Gondok Samosir', 'Topi Anyaman Eceng Gondok Samosir', '59000.00', '21000.00', 'topi00001', 'instock', 1, 40, 0, '1745404704.avif', '1745404704-1.jpg', 11, 6, '2025-04-22 20:38:29', '2025-04-22 20:41:13'),
+(22, 'Kotak Cover Tissue Anyaman Eceng Gondok', 'kotak-cover-tissue-anyaman-eceng-gondok', 'Kotak Cover Tissue Anyaman Eceng Gondok Samosir', 'Kotak Cover Tissue Anyaman Eceng Gondok', '30000.00', '30000.00', 'kotaktissue000001', 'instock', 1, 12, 5, '1745404943.webp', '1745404943-1.jpg', 12, 6, '2025-04-22 20:42:23', '2025-05-14 18:55:22'),
+(23, 'Kotak Keranjang Anyaman Eceng Gondok', 'kotak-keranjang-anyaman-eceng-gondok', 'Kotak Keranjang Anyaman Eceng Gondok Samosir', 'Kotak Keranjang Anyaman Eceng Gondok Samosir', '90000.00', '89000.00', 'keranjang000001', 'instock', 1, 50, 1, '1745405025.jpg', '1745405025-1.jpg,1745405025-2.jpg', 15, 6, '2025-04-22 20:43:46', '2025-05-14 18:38:32'),
+(24, 'Cover Vas Bunga Anyaman Eceng Gondok', 'cover-vas-bunga-anyaman-eceng-gondok', 'Cover Vas Bunga Anyaman Eceng Gondok Samosir', 'Cover Vas Bunga Anyaman Eceng Gondok Samosir', '150000.00', '150000.00', 'vasbunga000001', 'instock', 1, 16, 16, '1745405097.jpg', '1745405097-1.jpg', 19, 6, '2025-04-22 20:44:57', '2025-05-15 01:16:57'),
+(25, 'sas', 'sas', 'as', 'as', '12000.00', '12000.00', '12', 'instock', 1, 12, 2, '1747281551.jpg', '1747281551-1.jpg', 13, 6, '2025-05-15 03:59:11', '2025-05-15 04:01:53');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `product_size`
+--
+
+CREATE TABLE `product_size` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `product_id` bigint(20) UNSIGNED NOT NULL,
+  `size_id` bigint(20) UNSIGNED NOT NULL,
+  `stock` int(10) UNSIGNED NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `product_size`
+--
+
+INSERT INTO `product_size` (`id`, `product_id`, `size_id`, `stock`, `created_at`, `updated_at`) VALUES
+(1, 25, 1, 12, '2025-05-15 03:59:11', '2025-05-15 03:59:11'),
+(2, 25, 2, 12, '2025-05-15 03:59:11', '2025-05-15 03:59:11'),
+(3, 25, 3, 24, '2025-05-15 03:59:11', '2025-05-15 03:59:11');
 
 -- --------------------------------------------------------
 
@@ -639,6 +743,56 @@ CREATE TABLE `related_videos` (
 -- --------------------------------------------------------
 
 --
+-- Struktur dari tabel `reviews`
+--
+
+CREATE TABLE `reviews` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `order_item_id` bigint(20) UNSIGNED NOT NULL,
+  `product_id` bigint(20) UNSIGNED NOT NULL,
+  `rating` int(11) NOT NULL,
+  `comment` text COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `status` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'approved',
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `reviews`
+--
+
+INSERT INTO `reviews` (`id`, `user_id`, `order_item_id`, `product_id`, `rating`, `comment`, `status`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, 24, 1, 'sangat bagusas', 'approved', '2025-05-13 16:00:22', '2025-05-13 16:01:32'),
+(2, 1, 5, 19, 3, 'keren', 'approved', '2025-05-13 16:03:14', '2025-05-13 16:03:14'),
+(3, 1, 6, 17, 3, 'bagus', 'approved', '2025-05-14 03:26:05', '2025-05-14 03:26:31'),
+(4, 1, 7, 17, 1, 'bagus', 'approved', '2025-05-14 03:27:53', '2025-05-14 03:28:12');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `review_media`
+--
+
+CREATE TABLE `review_media` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `review_id` bigint(20) UNSIGNED NOT NULL,
+  `file_path` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `file_type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `review_media`
+--
+
+INSERT INTO `review_media` (`id`, `review_id`, `file_path`, `file_type`, `created_at`, `updated_at`) VALUES
+(1, 1, 'reviews/3aF3ZlNlJQVL5eeqNrnH80ZCwRK99abFAQ0O3dIq.png', 'image', '2025-05-13 16:00:22', '2025-05-13 16:00:22');
+
+-- --------------------------------------------------------
+
+--
 -- Struktur dari tabel `sessions`
 --
 
@@ -656,70 +810,31 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('1EkO2coRTB7HxkKdD6E509Wf6YnveW0obZPMyq5P', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoia1luTzNzWXhFN1cyRzVCeVdqQzBaY3BVNzVSQWU2R1BhUkhnOUdoeSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105341),
-('1HWIl5JgTN4xFpGeE2VdAjk4UAUSyqmavZP40dk4', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiREFaY282RHlHM2daVUtxYko5NEJkZWNiQ3loWFpWamQ2NjRKOWhpRCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747107378),
-('22gzOllDsiNarepY2OTsuCOjQpkqoTGsUxWgTE23', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiSWNWTU1YM2pLZDJBRUI1aUdtUzRDTVQzTm9WQ3JjMFFoNWs1dTBFOCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747103629),
-('2fGCGSaZMIumcfSY1kNbJ9pOarAljjoZa6LaEUln', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoia0VpdHVKcFZrRGVGYllkM2ZaMFZOYWZVMkkwMFpneTRNT0JHMWJqdiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747103240),
-('2LlU51ZbbRZtMDKLauX2roa2Xa0QoAvOfw9LDQMy', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiZnNjZzd0TWFaTHhjemNrdWxVSFZ4QXBzaUozTE9qSWt0NFlZYjgzdSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747108288),
-('2oaGvXtuHQmOEsxQy0fDlnPA154fOe4elwKfQZ1u', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiRjg5cnVrT3NUMWFlQzdqUkFPckxLbVFVVkh4cW56cWh4WWdMTDVmQSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747100334),
-('2Tz8fyHPuXdaE7HyaOhs507p0y1jq9g6sDoBomDf', 3, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoicHJ3c1JqanVHQTJYSG41cDhyTTc2c3NucFRGeHB4enllSEp4WXlreiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjM7czo0OiJhdXRoIjthOjE6e3M6MjE6InBhc3N3b3JkX2NvbmZpcm1lZF9hdCI7aToxNzQ3MTA4NjYyO319', 1747108664),
-('429xTV4ZjgiCN9otF4R4paxC3QQkhaUKjziJwSB2', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoid2dnRVdUc20yOFFlTUNkNmtDSll2RlBMVGNsVHNWU0FDbk5ZbUdVOCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747108923),
-('42A9VezaNcp8JyFKvH102sgT4Vp6Hw7sEfmD4c3F', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiVGZTOU5aZlpSN1MwYVVhTE43MnNSdHZkc25pc09meHRUckR1Uk8zbSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747108757),
-('4BqOAGZUl6zhb8oIQairKCd3STUPJG3Ne6AiLV4G', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiSm1FMkR5eFd2TzlGVkF1TGRwTVgwdDN2eGMxMzNtOE1INDF6dW93MSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NzU6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC92ZXJpZmljYXRpb24vZm9ybT9lbWFpbD1sYWxpc3RyYW1hbm9iYW4yNyU0MGdtYWlsLmNvbSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6MjI6InZlcmlmaWNhdGlvbl90aW1lc3RhbXAiO2k6MTc0NzEwNjk2ODt9', 1747107030),
-('54hQ9BtQuFMgujYHD5sCplDGYsm4rAJR4Ya6bNwY', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiTzRkemQyTDl0SGUwYWl1dG53WXo5VEw3dGVyem5HdGQ2YWNkQk9RSyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747103689),
-('5FPkx3otyWOE35dXpoqfiMszMoU26vFioUv3IO96', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoibWNZRk9kMW5sZVJXTGdhRUtMd1FBUWV2RDBGWFhCcGVrQkc1RlYyZSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZWdpc3RlciI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105901),
-('5L3KsdOKxB84pEtlJmpyhyhMqfvgkqNUfAm3sgYy', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiQkVCOUNheFZPTXo1TDFkMVg1OHpWRDBYNkRzRnR6RFdaS250dndHTCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747106442),
-('7sfh5iYEZb75bXFFJJ5YtKRcEM29c8rmcZaeZ7Qc', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiZDdvbE4xVWkzNUp1ZXhwSkZGM0JNQjlNWVJ1UHZ4eFh4QzZoeVc4WiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102653),
-('8FDeGplzLIdoa4Rv4GMIyZKYeoCHZbzrq96TrAfi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiRmR5VDhZTnlaRmJrM3BrT3NLbW1lUEZtRzJodFBFSGp6d1hnVjdIeiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747101841),
-('8XMgQuZwPzghCD5cKs9Jv4SUiam5NTTP6RVmgji1', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiVmhVOUlwMk1jbjlDbjVKYmxuc2RlQWhWc241RFF3azIxOFdhdWZHNSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102080),
-('aQmXvcAd1o6Ymve0cAMBtHUh2SpyKBG1TFRuzL09', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoicHhQcXJFVDNVVlhFNVJjOVE2SkVrYWdNZEs5VENvUXB3TGN3TFVEQSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105977),
-('auVHFiVultsOLWeOZmNUzo4sIFHCb65Q6PvpA88A', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoidWRaRlllbURJbEU0SUJvQ1Q3Mld1czVOdm1udU9qNWNPVTFXUDNmSiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZWdpc3RlciI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105598),
-('b5E6FeBfQ3yYw7yzrWuS8VEhHdghyT0aSfR8aprO', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiYW5zUGw0NUVYQ0tBYVVCOXQyTnlwU1VKYXkwc3Q2VHB5QjRNWVpidSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747107058),
-('bxFEyKf9UG1gbqYDtjI5XOZRCUiL43Hwmu28iVIt', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiUERDZmEwWVVnbDN1VjNhNW5La2l3RElUSzBSUkczU2luV1R3aHpjWSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747104688),
-('bZaJuFcTfdJZO0FQZMqdNwCWNA3Ti4Volhnq2nwL', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiUUJadWE5cmJMVWpPS3pOUEppSElDY3ZORkQ4NVNUZUFHVERvb2VTMSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747106321),
-('FV7HMf446Yf63eOC05OEaX34no2blPAWfPkbkYQs', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiQjdJTW1GSmc2RTRzR1FISVRQWGpFOUM5Y2JVZU9OMEo1aEFWWmx4USI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747106471),
-('GBjYQ3TFd7sYMx8xl8FVXUasYnFL05ybZh7X0uTp', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiRmV4RmY2eTlJTk4wOGlBZmtld3BoU3p5dGFEQ05YODFYZ2YxUTZWTCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NDoiY2FydCI7YToxOntzOjQ6ImNhcnQiO086Mjk6IklsbHVtaW5hdGVcU3VwcG9ydFxDb2xsZWN0aW9uIjoyOntzOjg6IgAqAGl0ZW1zIjthOjE6e3M6MzI6IjhlYjc0N2I5NWI5ODYyZTlkODMwMzFiZWI5OTM4NzIwIjtPOjM1OiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbSI6OTp7czo1OiJyb3dJZCI7czozMjoiOGViNzQ3Yjk1Yjk4NjJlOWQ4MzAzMWJlYjk5Mzg3MjAiO3M6MjoiaWQiO3M6MjoiMjEiO3M6MzoicXR5IjtpOjI7czo0OiJuYW1lIjtzOjMzOiJUb3BpIEFueWFtYW4gRWNlbmcgR29uZG9rIFNhbW9zaXIiO3M6NToicHJpY2UiO2Q6MjEwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO319czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO319fQ==', 1747101605),
-('GJnUpuGGDXuALNFq5bUKpEW7iPo2jpzY1S4mzk2R', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiWGxJSUdFbDJ2eDU5N2M4TnJ1WFVGZzBuRTJMYVdwR1N6cDlaSTJOUiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747103806),
-('hEc2hVLgUqwxNyBxB9ZLHYEPeWBFtwzpiEMAnPUi', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiN04zUGI1RzdubGZLQ01MZ2hJYjY1TDhkb3Z4Nkd6TzNhNlNwNE1HNyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105304),
-('hlFluNVeaWmaNxLGTe5eY3Ii5B6SuRUrgBjY1i4X', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiR0pRNVdVWFlYWkNpOWhmb3BxUEZJMTdEcm5tYTBwUGVEVGhqSE11RCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747100814),
-('hyF3n8r9gC72lAQjaKAg6HhlfJDPX3RWaK5B29Wz', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiOFJWWk1rcm44ekdzeUg4bWZ1QzkxdDVKS3FIQVh2Q2ZoUDVLVHlDbSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZWdpc3RlciI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747104311),
-('iEhzJY3vPVc0OYqiMP7EdfPbBpHF1dkNN1zQhlP1', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiV1VtTFF4OUNaaHpSSWVhS3djOUhXRXE2RDVRRVpBeGRQZEVGOEJ3VyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747106688),
-('ISW1KwUF8sG7q3i0xZt8zH49enWnXaA3SvtcpSyR', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiaE55YWhJNUU5YWFtUnhhcTZLRWh6UGtrQ1p6eWVsNUgzV1J1TGk0OCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105188),
-('JC0FGRgA9HJ6bpHFBMQp5xZPLhdIhbfATpcGknuF', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiOHl1UzBnWHRiNVlzTk1KS0IyZFRFTGRyR0ZHUlJpT09jUXVKYnNOTyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZWdpc3RlciI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747103870),
-('K5cE6lC5v2aeW6fY9iSDt6ddph31H0msodb5zIz5', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiaGRKektEampmNFJLNFF3WXk4Q0VROGVCcnlwS1JvdENBS3NocVBycyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102613),
-('KmtlUzxxEvJKDB71pzMrll7CE33W6cyqS7Mt34Hd', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoieFNaNzl4bFNGRGVZZHhpR3FTUWhMUko0ZnhPRGhCQXNhcDhlNDd4MSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747103008),
-('KwwnGbjxAbdnrTNtJtr2TS7kmVWKFmpxFCBty928', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiUnN6cHlsejNQUEc1d0N5bGk2QVU2dlZxQjI3c1RVVHVjaXVXbFhMWCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102700),
-('LiZehmJg9TpFfYH1V1g0QhlWYyigwRvcxHjPFDcY', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiTzhpMVRMemFCa3FhUnhsbEM4NkhHUnJIeWdhRzhNNmNSSnlqMmxKaSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747100942),
-('MwaQw98ByEP9OlGylyqa2GpUVjBGza4yAcl24EMX', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoidFBXdGY2V3I5cGtkN3dYUzZ3dHhvTFB4ekhBTkNvYjBJWXBEa2drTyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747106497),
-('noGv7EzDuvqTEhwH9v5b16wzTCpHKCIsplD1ofzU', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiMjNhVHhEQTVwVnY5NnJqQW1nR2Y2dWpjS2ZIc1N6VDBlRWdVWjFkbyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747101803),
-('OohJ7Y4O0AUe0X7BmgoP6zjZBD7rk01z1SRg7Lkd', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoidklmU3Nxd0UyblhHYW1hbHNTT0g1WHRCVU1zbnRMaDE5OGRqOGlwYyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102494),
-('p8sF62Vk2P359VJMhSQumR8JnwqktIDa32C1xuiz', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiYmxqS1M4MTc0a2xsMG9YWmFoc3k3UUdCT0JOUm8zcEdzRzNJdWZ1TiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZWdpc3RlciI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105764),
-('pAe68MwlVmOKLAq06c8YinLGrbyt0nRHG5XB9cIK', 3, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiMU02T0U2emVnc2I0TWhwZnVUTFoxRTA0dEtid1dETlMyd0d1dG9IcyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjM7fQ==', 1747108636),
-('PbMlDLPT1Pz6housTt6elisQDJ42OqTWZpmSSc7N', NULL, '127.0.0.1', 'WhatsApp/2.2518.3 W', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiV252TGZjT2xkd3VGUWNWaXJFSlVmU2tRTDBCME4zSDFmMzVibW9sbCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747100220),
-('pgon7b1VqtisDLP0gGRjDViwRQ3yS1R61KYE7UzB', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiT00zbnhGY0VEcE5vZW0zTUdIdDRzamRMRWVueUM3VTlHNEp2T0tFUCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747100639),
-('PUZaUWW8LJd70Xiqsws6Q7qugW5Bj9hqrAv9PH2e', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiM0JreFVDcUVmSW5MSUxyT1oxYTN4V1A3dW9YUG43eUhsT0x4U3JTVCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102775),
-('qQCzc5sAU9SlZWFMsj1JXlGrOUJ6T6fT5CZ6ALjA', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiM2hRaTNId0RDd1ZFeExFYXBxaEZYc3ZzV1Q3U0V1VjJUR3prd05STSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747108722),
-('RDae7PPNd6GOOXATxzka4aWsMJfA7pniepdT2XGI', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiSVdpeVFmbVR5UHBib29aUzJoRzN2UzJNWlY3dDdIREtRNTVEZEMzTiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9qb2ItdmFjYW5jeSI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czo0OiJhdXRoIjthOjE6e3M6MjE6InBhc3N3b3JkX2NvbmZpcm1lZF9hdCI7aToxNzQ3MDk5ODU1O31zOjQ6ImNhcnQiO2E6Mjp7czo0OiJjYXJ0IjtPOjI5OiJJbGx1bWluYXRlXFN1cHBvcnRcQ29sbGVjdGlvbiI6Mjp7czo4OiIAKgBpdGVtcyI7YToyOntzOjMyOiIxOTNmNjMyNjQ0ZTA2YTMwN2NiYTE4OTE3YWIxMzkyNCI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjE5M2Y2MzI2NDRlMDZhMzA3Y2JhMTg5MTdhYjEzOTI0IjtzOjI6ImlkIjtzOjI6IjE5IjtzOjM6InF0eSI7aToyO3M6NDoibmFtZSI7czozMzoiVGFzIEVuY2VuZyBHb25kb2sgQW55YW1hbiBTYW1vc2lyIjtzOjU6InByaWNlIjtkOjQ5MDAwO3M6Nzoib3B0aW9ucyI7Tzo0MjoiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW1PcHRpb25zIjoyOntzOjg6IgAqAGl0ZW1zIjthOjA6e31zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fXM6NTI6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBhc3NvY2lhdGVkTW9kZWwiO3M6MTg6IkFwcFxNb2RlbHNcUHJvZHVjdCI7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAHRheFJhdGUiO2k6MjE7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGlzU2F2ZWQiO2I6MDt9czozMjoiOGViNzQ3Yjk1Yjk4NjJlOWQ4MzAzMWJlYjk5Mzg3MjAiO086MzU6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtIjo5OntzOjU6InJvd0lkIjtzOjMyOiI4ZWI3NDdiOTViOTg2MmU5ZDgzMDMxYmViOTkzODcyMCI7czoyOiJpZCI7czoyOiIyMSI7czozOiJxdHkiO2k6OTtzOjQ6Im5hbWUiO3M6MzM6IlRvcGkgQW55YW1hbiBFY2VuZyBHb25kb2sgU2Ftb3NpciI7czo1OiJwcmljZSI7ZDoyMTAwMDtzOjc6Im9wdGlvbnMiO086NDI6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtT3B0aW9ucyI6Mjp7czo4OiIAKgBpdGVtcyI7YTowOnt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fX1zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fXM6ODoid2lzaGxpc3QiO086Mjk6IklsbHVtaW5hdGVcU3VwcG9ydFxDb2xsZWN0aW9uIjoyOntzOjg6IgAqAGl0ZW1zIjthOjI6e3M6MzI6IjE5M2Y2MzI2NDRlMDZhMzA3Y2JhMTg5MTdhYjEzOTI0IjtPOjM1OiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbSI6OTp7czo1OiJyb3dJZCI7czozMjoiMTkzZjYzMjY0NGUwNmEzMDdjYmExODkxN2FiMTM5MjQiO3M6MjoiaWQiO2k6MTk7czozOiJxdHkiO2k6MTtzOjQ6Im5hbWUiO3M6MzM6IlRhcyBFbmNlbmcgR29uZG9rIEFueWFtYW4gU2Ftb3NpciI7czo1OiJwcmljZSI7ZDo0OTAwMDtzOjc6Im9wdGlvbnMiO086NDI6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtT3B0aW9ucyI6Mjp7czo4OiIAKgBpdGVtcyI7YTowOnt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fXM6MzI6IjU2NGRkMGFiMzRiNjM4NzhjYTIyMzdjNDdhNjIwY2YyIjtPOjM1OiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbSI6OTp7czo1OiJyb3dJZCI7czozMjoiNTY0ZGQwYWIzNGI2Mzg3OGNhMjIzN2M0N2E2MjBjZjIiO3M6MjoiaWQiO2k6MjI7czozOiJxdHkiO2k6MTtzOjQ6Im5hbWUiO3M6Mzk6IktvdGFrIENvdmVyIFRpc3N1ZSBBbnlhbWFuIEVjZW5nIEdvbmRvayI7czo1OiJwcmljZSI7ZDozMDAwMDtzOjc6Im9wdGlvbnMiO086NDI6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtT3B0aW9ucyI6Mjp7czo4OiIAKgBpdGVtcyI7YTowOnt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fX1zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fX19', 1747108932),
-('RjztdFLap9lMwfhiEJsxJE9BnHx7nesTSavOksYJ', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36 Edg/136.0.0.0', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiejVraWV3TUdjcFhVN3lqcElQZ01Ta3g1NU0xa0JQQ09ydzhCb0ZWVCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NTU6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hZG1pbi9wZW5qYWR3YWxhbi1wZW5qZW1wdXRhbi9hZGQiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX1zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aToyO30=', 1747101301),
-('RlQVKPEfVAKmuuawhWusRwWTV7oBWTRTVx8bMDHH', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiMHllV2RvYjNzc1hUNTVlV3dzTldiSXhIRXFnRXJvUnZMZnJZT3NkbyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9yZWdpc3RlciI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747104513),
-('rps7Dlp9oqwO7l3J4P0x0aYbrCtluvLbcJKato0p', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiMDJ6cFJ4UGZFbU9tdUFac1dhUW80NEFHQVlVZG44ZGZ5OTVrdWlHTiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747104780),
-('Rw6gmTUsKoD81pQh0NH0oUhkpM88oHuMfQQyKfbR', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiTnY1UHdPTW9ETkhqUXI1T1ZyYWx1QnF0SjNheWVaaDg2d1VjQ0VCaSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102136),
-('Sa20NMqyf62uGouN7g8oehTC3f75nW29tV3cQjx0', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiQU5BS2FmRE8zUGgxeEFiSnJTdU1WZmduTTBYNkdHZFhUVUdtYTFOciI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105537),
-('slCNW3Wz6ZJo7myNDAAbGeeHaRCtgtYu4SqpokS5', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiRFdzMHFheUV4NTFkOHBVQTYwbnpJSWF4eHpVMTNwNjI0M0hwRDk1ZSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747106544),
-('St8NHymbSHk7QwydYKHNxO38wQsfkoOP2sL21xQB', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoia1NIUElhck1HUDd1RTJQVzY4SUI5Qk9xZDZhNzkzRXNaRDFsdVZWciI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102412),
-('tl1hhP3ht6MfI4tRTCi2MpRNhCKIg1ylVfSeLShv', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiRG5lR2FzTDdsdUM5OWtQYkRaNnBwRHJzRWQ5cjhZMW5teTFWeklNaCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102887),
-('UcLTuO0zWH8aVzEj0TxwpOpYXd0bSRnfNta9Aa48', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoibkhYT0N2R3VMZGFCRGRDYW9CTldZbFpUenJIR2Znc1lQVVdITm1MdCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NjY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zaG9wL2tvdGFrLWNvdmVyLXRpc3N1ZS1hbnlhbWFuLWVjZW5nLWdvbmRvayI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105740),
-('v7dPA6KCE6Iz5oKmyxl7KuvdCAmbkZjCI3PTBaUw', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoic0NGYTFKeFZzOThRaUp6QjBTMUpkRFZFSnhqd1N2VEdrR0hiMGRsOCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747106073),
-('VgqbrLQayqzKy2A5YtWGHLTOzCYIDZjLxYIviKT7', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiT1JWbzhnT3BEc1U1alhTbjRVc1ZXTDYwVWg1c2lWMVJJUHd5R1JRbSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747106625),
-('VV4G2uOsXFlEeCSzuiLkEAfPrihcHzcvoK5j3fSd', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoidGpFdXpWQTYxYmZXQVFMb3VMb2ZkRFhscEpXNUxoNnBjdHhRZ0pUVyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747107566),
-('WAoMKV1HShoIAfm9XKNIfSuibKsVdWzO51buI2hn', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoicTV6ZW5DNmdNRUpVVThMcUp0eWRMaEZoc256blI2Q1l3Z0hSeDdUUiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747105249),
-('wlROwiV0XVTnduk1mfAwlwgGM63RI2pfTdETs8AZ', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoidkhVTTU0aFlGaHJSMmJwNWJzQ1N4UnFvaldqc21NM3d6dTFaSTlhYiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102265),
-('WqmSvqL8c7gyShaPdfqbKeM0vPHWsqQtE9SZ0i6C', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiTklNZEZrcHJvTnZWZTJ4Vk0yUGJUdGpPeHlSbDZweUFneVdGdXhyeCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747106044),
-('XArsTk7oZND6JvP8CFQr3QEarye7HZoeh70OG9nq', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoicFRUcVFMSjQ4MWZmYUpRMm83d2ZUTVVZVldTRllPMXVwTXpldGhHaSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747103593),
-('xggTQw2hVs4t0EnwtyjKYHu3qsZL735QWIO9WReX', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiZXgzd29ycHVmMTZwSGpkeVlldzlpdGtVaWw4akhTRWNkSXNOeDh1bCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747104653),
-('XJ9dmUaurNNzO2XGEgg4Ya7CKVMKY3bHIfy3Zy8s', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiUTlyMUZsaWlIbzdnVEUzUlAwSndBUVhDVElEak9Qc3kzYXZNcU56OCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747107501),
-('xoUeHHfTPQqn0lmaDpp4Yt7yE3MesNZRBzTsglI3', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiUmNQeTdaZXRxbWVoOGNlRFV6N1BXUkpNZ3V0ZU5xRmg4Ukg1QXlkcSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747102531),
-('yzEtN1DW30QYhKelHgAIy3BK3beDecI9mUetoDaW', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiWExJVkpWTXIwSk1taUFhM1ZhenJNTHBrdUNoVkxmVTNnZ0ttTXRtMyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1747108781);
+('BYldEY9zD43cozz0X8cgS2ZxXqhtcaFECwe7KAdm', 3, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiYVQ4bEtGS29uMUg0TnVXdFVnR0pEVmFxaE1KTDk0d1U1VFdhZ3NLSyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zdXBwbGllciI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6MzoidXJsIjthOjA6e31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozO3M6NDoiYXV0aCI7YToxOntzOjIxOiJwYXNzd29yZF9jb25maXJtZWRfYXQiO2k6MTc0NzI5NzQzOTt9czo0OiJjYXJ0IjthOjE6e3M6ODoid2lzaGxpc3QiO086Mjk6IklsbHVtaW5hdGVcU3VwcG9ydFxDb2xsZWN0aW9uIjoyOntzOjg6IgAqAGl0ZW1zIjthOjM6e3M6MzI6IjZhYTBkNGI4ZmFjM2M1NWEzZTgzYjdlMmI3ZDFjYjk3IjtPOjM1OiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbSI6OTp7czo1OiJyb3dJZCI7czozMjoiNmFhMGQ0YjhmYWMzYzU1YTNlODNiN2UyYjdkMWNiOTciO3M6MjoiaWQiO2k6MjQ7czozOiJxdHkiO2k6MTtzOjQ6Im5hbWUiO3M6MzY6IkNvdmVyIFZhcyBCdW5nYSBBbnlhbWFuIEVjZW5nIEdvbmRvayI7czo1OiJwcmljZSI7ZDoxNTAwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiJiYTAyYjBkZGRiMDAwYjI1NDQ1MTY4MzAwYzY1Mzg2ZCI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6ImJhMDJiMGRkZGIwMDBiMjU0NDUxNjgzMDBjNjUzODZkIjtzOjI6ImlkIjtpOjIzO3M6MzoicXR5IjtpOjE7czo0OiJuYW1lIjtzOjM2OiJLb3RhayBLZXJhbmphbmcgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6ODkwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiIzMDNhN2YwMjM2NGYxZTkyZGM2MGMwNWM5YjE1MjM5ZiI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjMwM2E3ZjAyMzY0ZjFlOTJkYzYwYzA1YzliMTUyMzlmIjtzOjI6ImlkIjtpOjE4O3M6MzoicXR5IjtpOjE7czo0OiJuYW1lIjtzOjI3OiJLYXJwZXQgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6MTEwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO319czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO319fQ==', 1747297444),
+('nbSK9I2xwRPygRtZ8zirokCfqBWO1omlPRgXEN8k', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiYkZJWDNLRGtjZmxvejF3ZmJJMjAxZkI3UjdEbTltaFZCVnlXSWFQMiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zaG9wL3NhcyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czo0OiJhdXRoIjthOjE6e3M6MjE6InBhc3N3b3JkX2NvbmZpcm1lZF9hdCI7aToxNzQ3Mjg5MjE1O31zOjQ6ImNhcnQiO2E6Mjp7czo0OiJjYXJ0IjtPOjI5OiJJbGx1bWluYXRlXFN1cHBvcnRcQ29sbGVjdGlvbiI6Mjp7czo4OiIAKgBpdGVtcyI7YTo2OntzOjMyOiIxOTNmNjMyNjQ0ZTA2YTMwN2NiYTE4OTE3YWIxMzkyNCI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjE5M2Y2MzI2NDRlMDZhMzA3Y2JhMTg5MTdhYjEzOTI0IjtzOjI6ImlkIjtpOjE5O3M6MzoicXR5IjtzOjE6IjEiO3M6NDoibmFtZSI7czozMzoiVGFzIEVuY2VuZyBHb25kb2sgQW55YW1hbiBTYW1vc2lyIjtzOjU6InByaWNlIjtkOjQ5MDAwO3M6Nzoib3B0aW9ucyI7Tzo0MjoiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW1PcHRpb25zIjoyOntzOjg6IgAqAGl0ZW1zIjthOjA6e31zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fXM6NTI6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBhc3NvY2lhdGVkTW9kZWwiO3M6MTg6IkFwcFxNb2RlbHNcUHJvZHVjdCI7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAHRheFJhdGUiO2k6MjE7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGlzU2F2ZWQiO2I6MDt9czozMjoiOGViNzQ3Yjk1Yjk4NjJlOWQ4MzAzMWJlYjk5Mzg3MjAiO086MzU6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtIjo5OntzOjU6InJvd0lkIjtzOjMyOiI4ZWI3NDdiOTViOTg2MmU5ZDgzMDMxYmViOTkzODcyMCI7czoyOiJpZCI7aToyMTtzOjM6InF0eSI7czoxOiIxIjtzOjQ6Im5hbWUiO3M6MzM6IlRvcGkgQW55YW1hbiBFY2VuZyBHb25kb2sgU2Ftb3NpciI7czo1OiJwcmljZSI7ZDoyMTAwMDtzOjc6Im9wdGlvbnMiO086NDI6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtT3B0aW9ucyI6Mjp7czo4OiIAKgBpdGVtcyI7YTowOnt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fXM6MzI6IjRmMmQyZDA3MDliMDA3MTAyZjdmZTMzY2VhMjAxODg3IjtPOjM1OiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbSI6OTp7czo1OiJyb3dJZCI7czozMjoiNGYyZDJkMDcwOWIwMDcxMDJmN2ZlMzNjZWEyMDE4ODciO3M6MjoiaWQiO2k6MjA7czozOiJxdHkiO2k6NDtzOjQ6Im5hbWUiO3M6Mzc6IkNvdmVyIGRhbiBCYW50YWwgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6NDkwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiJiYTAyYjBkZGRiMDAwYjI1NDQ1MTY4MzAwYzY1Mzg2ZCI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6ImJhMDJiMGRkZGIwMDBiMjU0NDUxNjgzMDBjNjUzODZkIjtzOjI6ImlkIjtpOjIzO3M6MzoicXR5IjtpOjY7czo0OiJuYW1lIjtzOjM2OiJLb3RhayBLZXJhbmphbmcgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6ODkwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiIwZDg4MTgxN2JiODFlNjAxN2QyZGY5MmQwMzEzZjYwNyI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjBkODgxODE3YmI4MWU2MDE3ZDJkZjkyZDAzMTNmNjA3IjtzOjI6ImlkIjtzOjI6IjI1IjtzOjM6InF0eSI7aToyO3M6NDoibmFtZSI7czozOiJzYXMiO3M6NToicHJpY2UiO2Q6MTIwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiIzNmNmZjNlZGI2ZmRkZjYzZDIxMWY2YTM4MDY0NmRlMiI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjM2Y2ZmM2VkYjZmZGRmNjNkMjExZjZhMzgwNjQ2ZGUyIjtzOjI6ImlkIjtpOjI1O3M6MzoicXR5IjtpOjI7czo0OiJuYW1lIjtzOjM6InNhcyI7czo1OiJwcmljZSI7ZDoxMjAwMDtzOjc6Im9wdGlvbnMiO086NDI6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtT3B0aW9ucyI6Mjp7czo4OiIAKgBpdGVtcyI7YToyOntzOjc6InNpemVfaWQiO2k6MTtzOjk6InNpemVfbmFtZSI7czoyOiIyMSI7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO319czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjg6Indpc2hsaXN0IjtPOjI5OiJJbGx1bWluYXRlXFN1cHBvcnRcQ29sbGVjdGlvbiI6Mjp7czo4OiIAKgBpdGVtcyI7YToxOntzOjMyOiJiYTAyYjBkZGRiMDAwYjI1NDQ1MTY4MzAwYzY1Mzg2ZCI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6ImJhMDJiMGRkZGIwMDBiMjU0NDUxNjgzMDBjNjUzODZkIjtzOjI6ImlkIjtpOjIzO3M6MzoicXR5IjtpOjE7czo0OiJuYW1lIjtzOjM2OiJLb3RhayBLZXJhbmphbmcgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6ODkwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO319czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO319fQ==', 1747304173),
+('XHuNwRr5ZaQlNGn6pjX34CRLuKajoroTSCY9rdmu', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiMVVZNEcySkJxUmN2NzE5RVFOMUt1enQ3cmtacmN1R2hSaVk4YnMxRyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hY2NvdW50LW9yZGVycyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czo0OiJhdXRoIjthOjE6e3M6MjE6InBhc3N3b3JkX2NvbmZpcm1lZF9hdCI7aToxNzQ3Mjk3Mzk2O31zOjQ6ImNhcnQiO2E6MTp7czo4OiJ3aXNobGlzdCI7TzoyOToiSWxsdW1pbmF0ZVxTdXBwb3J0XENvbGxlY3Rpb24iOjI6e3M6ODoiACoAaXRlbXMiO2E6MTp7czozMjoiYmEwMmIwZGRkYjAwMGIyNTQ0NTE2ODMwMGM2NTM4NmQiO086MzU6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtIjo5OntzOjU6InJvd0lkIjtzOjMyOiJiYTAyYjBkZGRiMDAwYjI1NDQ1MTY4MzAwYzY1Mzg2ZCI7czoyOiJpZCI7aToyMztzOjM6InF0eSI7aToxO3M6NDoibmFtZSI7czozNjoiS290YWsgS2VyYW5qYW5nIEFueWFtYW4gRWNlbmcgR29uZG9rIjtzOjU6InByaWNlIjtkOjg5MDAwO3M6Nzoib3B0aW9ucyI7Tzo0MjoiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW1PcHRpb25zIjoyOntzOjg6IgAqAGl0ZW1zIjthOjA6e31zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fXM6NTI6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBhc3NvY2lhdGVkTW9kZWwiO3M6MTg6IkFwcFxNb2RlbHNcUHJvZHVjdCI7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAHRheFJhdGUiO2k6MjE7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGlzU2F2ZWQiO2I6MDt9fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9fX0=', 1747297410);
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `sizes`
+--
+
+CREATE TABLE `sizes` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `sizes`
+--
+
+INSERT INTO `sizes` (`id`, `name`, `created_at`, `updated_at`) VALUES
+(1, '21', '2025-05-15 03:59:11', '2025-05-15 03:59:11'),
+(2, '22', '2025-05-15 03:59:11', '2025-05-15 03:59:11'),
+(3, '23', '2025-05-15 03:59:11', '2025-05-15 03:59:11');
 
 -- --------------------------------------------------------
 
@@ -744,9 +859,9 @@ CREATE TABLE `slides` (
 --
 
 INSERT INTO `slides` (`id`, `tagline`, `title`, `subtitle`, `link`, `image`, `status`, `created_at`, `updated_at`) VALUES
-(5, 'Topi', 'Bank Koperasi', 'ECENG GONDOK', '/shop', '1745404301.png', 1, '2025-04-22 20:31:41', '2025-04-22 20:31:41'),
+(5, 'Sendal', 'Bank Koperasi', 'ECENG GONDOK', '/shop?name=1&size=12&order=-1&brands=&categories=16&min=1&max=10000000&ratings=', '1747272764.png', 1, '2025-04-22 20:31:41', '2025-05-15 01:32:44'),
 (6, 'Cover Kotak Tissue', 'Bank Koperasi', 'ECENG GONDOK', 'http://127.0.0.1:8000/shop?name=1&size=12&order=-1&brands=&categories=18&min=1&max=10000000', '1745859368.png', 1, '2025-04-28 09:53:16', '2025-04-28 09:56:40'),
-(7, 'Bantal', 'Bank Koperasi', 'ECENG GONDOK', 'http://127.0.0.1:8000/shop?name=1&size=12&order=-1&brands=&categories=17&min=1&max=10000000', '1745859562.png', 1, '2025-04-28 09:59:23', '2025-04-28 09:59:23'),
+(7, 'Produk Kami', 'Bank Koperasi', 'ECENG GONDOK', 'http://127.0.0.1:8000/shop', '1747273794.png', 1, '2025-04-28 09:59:23', '2025-05-15 01:49:54'),
 (8, 'Vas Guci', 'Bank Koperasi', 'ECENG GONDOK', 'a', '1745859628.png', 1, '2025-04-28 10:00:29', '2025-04-28 10:00:29');
 
 -- --------------------------------------------------------
@@ -835,7 +950,8 @@ CREATE TABLE `supplier_requests` (
 --
 
 INSERT INTO `supplier_requests` (`id`, `user_id`, `nama`, `email`, `no_hp`, `no_wa`, `lokasi`, `estimasi_kg`, `insentif`, `foto`, `catatan`, `status`, `coupon_id`, `catatan_admin`, `created_at`, `updated_at`, `kecamatan`, `desa`, `detail_lokasi`) VALUES
-(1, 2, 'Efran Lumbantoruan', 'efranlumbantoruan83@gmail.com', '082264528495', '082264528495', NULL, 10, 'uang_tunai', 'uploads/bukti_pemasok/1747101209_pPkIGw.png', 'wqe', 'disetujui', NULL, 'oke', '2025-05-13 01:53:29', '2025-05-13 01:54:23', 'Pangururan', 'Pardomuan Nauli', 'balige');
+(1, 2, 'Efran Lumbantoruan', 'efranlumbantoruan83@gmail.com', '082264528495', '082264528495', NULL, 10, 'uang_tunai', 'uploads/bukti_pemasok/1747101209_pPkIGw.png', 'wqe', 'disetujui', NULL, 'oke', '2025-05-13 01:53:29', '2025-05-13 01:54:23', 'Pangururan', 'Pardomuan Nauli', 'balige'),
+(2, 3, 'Listra Imelda Sidabutar', 'lalistramanoban27@gmail.com', '082164080661', '082164080661', NULL, 25, 'uang_tunai', 'uploads/bukti_pemasok/1747280182_ySjA9R.jpg', 'Bisa diambil hari Sabtu jam 9 pagi.', 'pending', NULL, NULL, '2025-05-15 03:36:22', '2025-05-15 03:36:22', 'Simanindo', 'Tomok', 'Pelabuhan Kapal Tomok');
 
 -- --------------------------------------------------------
 
@@ -879,6 +995,8 @@ CREATE TABLE `transactions` (
   `order_id` bigint(20) UNSIGNED NOT NULL,
   `invoice` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `mode` enum('midtrans','manual_atm') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `bank_code` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `payment_proof` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `status` enum('pending','approved','declined','refunded') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
   `snap_token` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
@@ -889,8 +1007,23 @@ CREATE TABLE `transactions` (
 -- Dumping data untuk tabel `transactions`
 --
 
-INSERT INTO `transactions` (`id`, `user_id`, `order_id`, `invoice`, `mode`, `status`, `snap_token`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 'ORDER-1-81abea07-3394-4e75-b02e-b91ea6757782', '', 'approved', '4fae7ccd-4c89-4e11-ae7b-e429db1ee3f1', '2025-05-12 17:20:16', '2025-05-12 17:30:42');
+INSERT INTO `transactions` (`id`, `user_id`, `order_id`, `invoice`, `mode`, `bank_code`, `payment_proof`, `status`, `snap_token`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 'ORDER-1-81abea07-3394-4e75-b02e-b91ea6757782', '', NULL, NULL, 'approved', '4fae7ccd-4c89-4e11-ae7b-e429db1ee3f1', '2025-05-12 17:20:16', '2025-05-12 17:30:42'),
+(2, 1, 2, 'ORDER-2-ec412a71-713e-4198-838a-41e6c6b7ff2f', '', NULL, NULL, 'approved', '534596dc-2e18-4448-82c8-1973f7644f98', '2025-05-13 08:16:30', '2025-05-13 08:19:21'),
+(3, 1, 3, 'ORDER-3-6de040e9-27f1-40f2-bd13-ad0e0d13b817', '', NULL, NULL, 'approved', '0f049a3d-43ae-4d05-b86c-aab325f5e34d', '2025-05-13 08:56:08', '2025-05-13 09:07:29'),
+(4, 1, 4, 'ORDER-4-c57994a7-0e60-4b4e-82df-303dc07fe7fd', '', NULL, NULL, 'approved', 'ededcc0e-1761-47ce-bcd1-b17090348f7e', '2025-05-13 10:27:17', '2025-05-13 10:29:10'),
+(5, 1, 5, 'ORDER-5-b1e23b4e-914a-4451-9e7b-b310d3c6063c', '', NULL, NULL, 'approved', '3a7aa954-58c7-4934-9cd5-b8615d0ad084', '2025-05-14 03:24:29', '2025-05-14 03:25:40'),
+(6, 1, 6, 'ORDER-6-34b5bd11-3885-485c-b601-151318394f4f', '', NULL, NULL, 'approved', '83c5ca29-7046-460c-bf0f-6d5a964098a3', '2025-05-14 03:27:00', '2025-05-14 03:27:38'),
+(7, 1, 7, 'ORDER-7-e6cec5aa-229c-4b6e-adc2-73b23f6fd488', 'manual_atm', NULL, NULL, 'pending', '48c335ef-a178-40b5-9534-18d0cb3cdc55', '2025-05-14 15:16:45', '2025-05-14 15:16:45'),
+(8, 1, 8, 'ORDER-8-6dc5c355-5ad3-4591-8b85-22858ef6b2da', 'manual_atm', 'bni', 'payment_proofs/1747236729_Screenshot 2025-05-14 214616.png', 'pending', NULL, '2025-05-14 15:32:09', '2025-05-14 15:32:09'),
+(9, 1, 9, 'ORDER-9-b906ad7e-a835-4238-b0d9-e149aff8a98d', '', NULL, NULL, 'pending', 'dbb77000-3c1d-437d-94dd-07077c453a1b', '2025-05-14 15:48:11', '2025-05-14 15:48:11'),
+(10, 1, 10, 'ORDER-10-fcd5c672-3e15-44dc-a567-84051efbf9c3', '', NULL, NULL, 'approved', '2b92b40a-f7b9-4865-871f-4577defe8e79', '2025-05-14 18:38:32', '2025-05-14 18:41:42'),
+(11, 1, 11, 'ORDER-11-20158879-f663-4e49-ba91-8e1e4db1f009', 'manual_atm', 'bni', 'payment_proofs/1747248242_Screenshot 2025-05-14 214616.png', 'approved', NULL, '2025-05-14 18:44:02', '2025-05-14 18:45:31'),
+(12, 1, 12, 'ORDER-12-dbeb0d7e-b213-4988-aa83-3de6267cef16', '', NULL, NULL, 'approved', '72ddbbcc-7cd1-427e-b6fc-4ff825aaee53', '2025-05-14 18:51:39', '2025-05-14 18:53:03'),
+(13, 1, 13, 'ORDER-13-a6f6ad46-1d33-45c2-940f-6b748a230d53', 'manual_atm', 'bni', 'payment_proofs/1747248922_Screenshot 2025-05-14 214616.png', 'approved', NULL, '2025-05-14 18:55:22', '2025-05-14 18:55:57'),
+(14, 1, 14, 'ORDER-14-9ec86921-6f69-4935-8ab0-2bec275c81de', 'manual_atm', 'bri', 'payment_proofs/1747271817_image_Pippit_202505101829.jpeg', 'approved', NULL, '2025-05-15 01:16:57', '2025-05-15 01:18:02'),
+(15, 1, 15, 'ORDER-15-6d95497e-3694-4107-849a-d6142acf2c21', '', NULL, NULL, 'approved', '7db3963c-1536-46d0-a1fe-666c93a727fc', '2025-05-15 01:20:46', '2025-05-15 01:23:19'),
+(16, 1, 16, 'ORDER-16-082be840-4fd9-45ec-a85a-523b0e0c6e66', '', NULL, NULL, 'pending', '26935948-5f62-4ce6-8294-16d397dedb2a', '2025-05-15 04:01:53', '2025-05-15 04:01:53');
 
 -- --------------------------------------------------------
 
@@ -925,7 +1058,8 @@ CREATE TABLE `users` (
 INSERT INTO `users` (`id`, `name`, `email`, `mobile`, `email_verified_at`, `phone_verified_at`, `password`, `profile_picture`, `bio`, `utype`, `remember_token`, `last_login_at`, `created_at`, `updated_at`, `gauth_id`, `gauth_type`, `coupon_data`) VALUES
 (1, 'Sion', 'spardosi12@gmail.com', '82278900178', NULL, NULL, '$2y$12$YcK4oO3FzOE5Bl1ywX9SrOwF5BZE8vEEd4Dv8mOafjZY3YG9L.hgm', NULL, NULL, 'ADM', NULL, NULL, '2025-05-12 17:14:49', '2025-05-12 17:14:49', NULL, NULL, NULL),
 (2, 'Efran Lumbantoruan', 'efranlumbantoruan83@gmail.com', '82264528495', NULL, NULL, '$2y$12$JlISYyyZPaty7HxzgGMvPOPmd4YOL65u0QmP4TeRdssfdR240OBh2', NULL, NULL, 'ADM', NULL, NULL, '2025-05-13 01:49:41', '2025-05-13 01:49:41', NULL, NULL, NULL),
-(3, 'Listra Imelda Sidabutar', 'lalistramanoban27@gmail.com', '82164080661', NULL, NULL, '$2y$12$HFubD87zLLCPRS5gxgB1IeGiB.FMWXLH0AjE1rfJFELTPT0qlbMwi', NULL, NULL, 'USR', NULL, NULL, '2025-05-13 03:57:14', '2025-05-13 03:57:14', NULL, NULL, NULL);
+(3, 'Listra Imelda Sidabutar', 'lalistramanoban27@gmail.com', '82164080661', NULL, NULL, '$2y$12$HFubD87zLLCPRS5gxgB1IeGiB.FMWXLH0AjE1rfJFELTPT0qlbMwi', NULL, NULL, 'USR', NULL, NULL, '2025-05-13 03:57:14', '2025-05-13 03:57:14', NULL, NULL, NULL),
+(4, 'Asri yohana Sirait', 'asrisirait2004@gmail.com', '82364638046', NULL, NULL, '$2y$12$vC97zLe4h8/f1hAyEW9IAe5tRnMGGLtHHUWPiUtgIYYzW6bL163mu', NULL, NULL, 'USR', '9BZfzVN2A2NYOlsTnxjCseAd27GkUTBthsHEJxoVxG1hQBLHBQz8Kisbqguo', NULL, '2025-05-14 08:20:38', '2025-05-14 08:26:59', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -966,8 +1100,10 @@ CREATE TABLE `wishlist_items` (
 --
 
 INSERT INTO `wishlist_items` (`id`, `user_id`, `product_id`, `name`, `quantity`, `price`, `created_at`, `updated_at`) VALUES
-(2, 1, 19, 'Tas Enceng Gondok Anyaman Samosir', 1, '49000.00', '2025-05-13 02:32:24', '2025-05-13 02:32:24'),
-(6, 1, 22, 'Kotak Cover Tissue Anyaman Eceng Gondok', 1, '30000.00', '2025-05-13 03:13:37', '2025-05-13 03:13:37');
+(14, 3, 24, 'Cover Vas Bunga Anyaman Eceng Gondok', 1, '150000.00', '2025-05-14 02:55:45', '2025-05-14 02:55:45'),
+(15, 3, 23, 'Kotak Keranjang Anyaman Eceng Gondok', 1, '89000.00', '2025-05-14 02:57:38', '2025-05-14 02:57:38'),
+(16, 3, 18, 'Karpet Anyaman Eceng Gondok', 1, '11000.00', '2025-05-14 03:01:56', '2025-05-14 03:01:56'),
+(17, 1, 23, 'Kotak Keranjang Anyaman Eceng Gondok', 1, '89000.00', '2025-05-14 08:46:13', '2025-05-14 08:46:13');
 
 --
 -- Indexes for dumped tables
@@ -984,6 +1120,12 @@ ALTER TABLE `abouts`
 -- Indeks untuk tabel `addresses`
 --
 ALTER TABLE `addresses`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `bank_accounts`
+--
+ALTER TABLE `bank_accounts`
   ADD PRIMARY KEY (`id`);
 
 --
@@ -1094,6 +1236,12 @@ ALTER TABLE `month_names`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indeks untuk tabel `notifications`
+--
+ALTER TABLE `notifications`
+  ADD PRIMARY KEY (`idnotification`);
+
+--
 -- Indeks untuk tabel `orders`
 --
 ALTER TABLE `orders`
@@ -1139,10 +1287,34 @@ ALTER TABLE `products`
   ADD KEY `products_brand_id_foreign` (`brand_id`);
 
 --
+-- Indeks untuk tabel `product_size`
+--
+ALTER TABLE `product_size`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `product_size_product_id_foreign` (`product_id`),
+  ADD KEY `product_size_size_id_foreign` (`size_id`);
+
+--
 -- Indeks untuk tabel `related_videos`
 --
 ALTER TABLE `related_videos`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `reviews`
+--
+ALTER TABLE `reviews`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `reviews_order_item_id_unique` (`order_item_id`),
+  ADD KEY `reviews_user_id_foreign` (`user_id`),
+  ADD KEY `reviews_product_id_foreign` (`product_id`);
+
+--
+-- Indeks untuk tabel `review_media`
+--
+ALTER TABLE `review_media`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `review_media_review_id_foreign` (`review_id`);
 
 --
 -- Indeks untuk tabel `sessions`
@@ -1151,6 +1323,12 @@ ALTER TABLE `sessions`
   ADD PRIMARY KEY (`id`),
   ADD KEY `sessions_user_id_index` (`user_id`),
   ADD KEY `sessions_last_activity_index` (`last_activity`);
+
+--
+-- Indeks untuk tabel `sizes`
+--
+ALTER TABLE `sizes`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indeks untuk tabel `slides`
@@ -1244,6 +1422,12 @@ ALTER TABLE `addresses`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT untuk tabel `bank_accounts`
+--
+ALTER TABLE `bank_accounts`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT untuk tabel `brands`
 --
 ALTER TABLE `brands`
@@ -1253,7 +1437,7 @@ ALTER TABLE `brands`
 -- AUTO_INCREMENT untuk tabel `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT untuk tabel `chat_messages`
@@ -1283,7 +1467,7 @@ ALTER TABLE `coupons`
 -- AUTO_INCREMENT untuk tabel `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT untuk tabel `failed_jobs`
@@ -1313,7 +1497,7 @@ ALTER TABLE `job_lists`
 -- AUTO_INCREMENT untuk tabel `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
 
 --
 -- AUTO_INCREMENT untuk tabel `month_names`
@@ -1322,16 +1506,22 @@ ALTER TABLE `month_names`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT untuk tabel `notifications`
+--
+ALTER TABLE `notifications`
+  MODIFY `idnotification` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+
+--
 -- AUTO_INCREMENT untuk tabel `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT untuk tabel `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
 
 --
 -- AUTO_INCREMENT untuk tabel `penjadwalan_penjemputans`
@@ -1349,13 +1539,37 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT untuk tabel `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+
+--
+-- AUTO_INCREMENT untuk tabel `product_size`
+--
+ALTER TABLE `product_size`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `related_videos`
 --
 ALTER TABLE `related_videos`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT untuk tabel `reviews`
+--
+ALTER TABLE `reviews`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT untuk tabel `review_media`
+--
+ALTER TABLE `review_media`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT untuk tabel `sizes`
+--
+ALTER TABLE `sizes`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT untuk tabel `slides`
@@ -1379,7 +1593,7 @@ ALTER TABLE `supplier_infos`
 -- AUTO_INCREMENT untuk tabel `supplier_requests`
 --
 ALTER TABLE `supplier_requests`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT untuk tabel `threads`
@@ -1397,13 +1611,13 @@ ALTER TABLE `thread_messages`
 -- AUTO_INCREMENT untuk tabel `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT untuk tabel `user_cart_items`
@@ -1415,7 +1629,7 @@ ALTER TABLE `user_cart_items`
 -- AUTO_INCREMENT untuk tabel `wishlist_items`
 --
 ALTER TABLE `wishlist_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)
@@ -1465,6 +1679,27 @@ ALTER TABLE `penjadwalan_penjemputans`
 ALTER TABLE `products`
   ADD CONSTRAINT `products_brand_id_foreign` FOREIGN KEY (`brand_id`) REFERENCES `brands` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `products_category_id_foreign` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `product_size`
+--
+ALTER TABLE `product_size`
+  ADD CONSTRAINT `product_size_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `product_size_size_id_foreign` FOREIGN KEY (`size_id`) REFERENCES `sizes` (`id`) ON DELETE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `reviews`
+--
+ALTER TABLE `reviews`
+  ADD CONSTRAINT `reviews_order_item_id_foreign` FOREIGN KEY (`order_item_id`) REFERENCES `order_items` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `reviews_product_id_foreign` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `reviews_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `review_media`
+--
+ALTER TABLE `review_media`
+  ADD CONSTRAINT `review_media_review_id_foreign` FOREIGN KEY (`review_id`) REFERENCES `reviews` (`id`) ON DELETE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `stok_bahan_bakus`

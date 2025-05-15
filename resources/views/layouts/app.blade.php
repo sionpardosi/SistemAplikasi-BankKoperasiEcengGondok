@@ -1059,7 +1059,7 @@
             </div>
         </div>
     </footer>
-    
+
     <!-- Chat Widget -->
     @include('components.chat-widget')
 
