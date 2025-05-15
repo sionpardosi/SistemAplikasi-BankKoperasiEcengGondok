@@ -331,7 +331,7 @@
             <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
 
             <section id="produk-unggulan" class="products-grid container">
-                <h2 class="section-title text-center mb-3 pb-xl-3 mb-xl-4">Produk Unggulan api</h2>
+                <h2 class="section-title text-center mb-3 pb-xl-3 mb-xl-4">Produk Unggulan</h2>
 
                 <div class="row">
                     @foreach ($fproducts as $fproduct)
