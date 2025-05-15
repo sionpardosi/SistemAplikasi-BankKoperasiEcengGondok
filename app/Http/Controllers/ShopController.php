@@ -24,6 +24,12 @@ class ShopController extends Controller
     $max_price = $request->query('max') ? $request->query('max') : 10000000;
     $search = $request->query('search');
     $ratings = $request->query('ratings');
+    $shipping_courier = $request->query('shipping_courier');
+    $shipping_cost = $request->query('shipping_cost');
+    $shipping_time = $request->query('shipping_time');
+    $shipping_cost_min = $request->query('shipping_cost_min') ? $request->query('shipping_cost_min') : 0;
+    $shipping_cost_max = $request->query('shipping_cost_max') ? $request->query('shipping_cost_max') : 100000;
+
 
         // Definisikan ordering
         switch ($order) {
@@ -124,7 +130,7 @@ class ShopController extends Controller
             'ratings',
             'sizes',
             'f_sizes',
-            'productCountBySize'
+            'productCountBySize',
         ));
     }
 

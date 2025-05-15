@@ -849,8 +849,8 @@
                                             class="swatch-size btn btn-sm mb-3 me-3 js-filter-size {{ in_array($size_item->id, explode(',', $f_sizes ?? '')) ? 'active btn-primary' : 'btn-outline-light' }}"
                                             data-size-id="{{ $size_item->id }}">
                                             {{ $size_item->name }}
-                                            <small
-                                                class="d-block text-muted mt-1">({{ $productCountBySize[$size_item->id] ?? 0 }})</small>
+                                            {{-- <small
+                                                class="d-block text-muted mt-1">({{ $productCountBySize[$size_item->id] ?? 0 }})</small> --}}
                                         </button>
                                     @endforeach
                                 </div>

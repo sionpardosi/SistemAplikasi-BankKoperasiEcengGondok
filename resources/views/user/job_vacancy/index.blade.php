@@ -415,7 +415,7 @@
 
                 <!-- No jobs message -->
                 <div class="no-jobs d-none" id="noJobs">
-                    <img src="{{ asset('assets/img/no-jobs.png') }}" alt="No Jobs" class="mb-3" width="150">
+                    <img src="{{ asset('assets/images/pemasok/whatsapp-image-2022-02-13-at-11-20220214120322.jpeg') }}" alt="No Jobs" class="mb-3" width="150">
                     <h4>Tidak ada lowongan yang ditemukan</h4>
                     <p>Silakan coba dengan filter pencarian yang berbeda</p>
                 </div>

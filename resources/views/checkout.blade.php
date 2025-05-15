@@ -1393,5 +1393,6 @@
                 updateCheckoutStep(2);
             });
         </script>
+
     @endpush
 @endsection

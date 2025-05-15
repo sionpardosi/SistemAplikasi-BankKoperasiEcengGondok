@@ -32,6 +32,12 @@ Route::get('oauth/google', [OAuthController::class, 'redirectToGoogle'])->name('
 Route::get('oauth/google/callback', [OAuthController::class, 'handleGoogleCallback'])->name('oauth.google.callback');
 
 
+
+Route::get('/api/rajaongkir/provinces', 'RajaOngkirController@getProvinces');
+Route::get('/api/rajaongkir/cities/{province_id}', 'RajaOngkirController@getCities');
+Route::post('/api/rajaongkir/calculate', 'RajaOngkirController@calculateShipping');
+
+
 // ====================================================================================================
 // Halaman Verifikasi Email
 // ====================================================================================================
