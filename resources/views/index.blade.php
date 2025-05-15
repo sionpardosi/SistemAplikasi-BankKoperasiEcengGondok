@@ -301,7 +301,7 @@
                             <img loading="lazy" class="h-auto" src="{{ asset('assets/images/shop/shop_banner4.jpg') }}"
                                 width="690" height="665" alt="" />
                             <div class="category-banner__item-mark">
-                                Harga Spesial Rp 47.000s
+                                Harga Spesial Rp 47.000
                             </div>
                             <div class="category-banner__item-content">
                                 <h3 class="mb-0">Tas Anyaman Eceng Gondok Samosir</h3>
@@ -331,7 +331,7 @@
             <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
 
             <section id="produk-unggulan" class="products-grid container">
-                <h2 class="section-title text-center mb-3 pb-xl-3 mb-xl-4">Produk Unggulan</h2>
+                <h2 class="section-title text-center mb-3 pb-xl-3 mb-xl-4">Produk Unggulan api</h2>
 
                 <div class="row">
                     @foreach ($fproducts as $fproduct)
