@@ -548,6 +548,100 @@
             width: 16px;
             height: 16px;
         }
+
+        /* Cart notification */
+        .cart-notification {
+            position: fixed;
+            top: 20px;
+            /* Tetap di atas */
+            right: 20px;
+            /* Diubah ke posisi kanan */
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            z-index: 1000;
+            max-width: 350px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(-20px);
+            /* Hanya transform Y untuk efek muncul dari atas */
+            opacity: 0;
+            border-left: 4px solid #956a3b;
+            /* Warna coklat default */
+        }
+
+        .cart-notification.success {
+            border-left-color: #956a3b;
+            /* Warna coklat */
+        }
+
+        .cart-notification.error {
+            border-left-color: #e53935;
+            /* Tetap merah untuk error */
+        }
+
+        .cart-notification.show {
+            transform: translateY(0);
+            /* Normal position */
+            opacity: 1;
+        }
+
+        .cart-notification__icon {
+            margin-right: 15px;
+            width: 30px;
+            height: 30px;
+            background: #f9f3ec;
+            /* Background lebih terang dari coklat */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-notification.success .cart-notification__icon {
+            color: #956a3b;
+            /* Warna coklat */
+        }
+
+        .cart-notification.error .cart-notification__icon {
+            color: #e53935;
+            /* Tetap merah untuk error */
+        }
+
+        .cart-notification__content {
+            flex: 1;
+        }
+
+        .cart-notification__title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+            color: #956a3b;
+            /* Judul berwarna coklat */
+        }
+
+        .cart-notification__message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .cart-notification__close {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .cart-notification__close:hover {
+            color: #956a3b;
+            /* Hover menjadi coklat */
+        }
     </style>
 
     <main class="pt-90">
@@ -1283,10 +1377,64 @@
             </div><!-- /.position-relative -->
 
         </section><!-- /.products-carousel container -->
+
+        <!-- Cart notification -->
+        <div class="cart-notification" id="cart-notification">
+            <div class="cart-notification__icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="cart-notification__content">
+                <div class="cart-notification__title" id="cart-notification-title">Ditambahkan ke Keranjang</div>
+                <div class="cart-notification__message" id="cart-notification-message"></div>
+            </div>
+            <button class="cart-notification__close" id="close-cart-notification">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     </main>
+
 @endsection
 
 @push('scripts')
+    <script>
+        // Function to show cart notification
+        function showCartNotification(message, isSuccess = true) {
+            const notification = $('#cart-notification');
+            const title = $('#cart-notification-title');
+            const messageEl = $('#cart-notification-message');
+
+            // Set content
+            messageEl.text(message);
+
+            // Set type (success or error)
+            if (isSuccess) {
+                notification.removeClass('error').addClass('success');
+                title.text('Ditambahkan ke Keranjang');
+                $('.cart-notification__icon i').removeClass('fa-exclamation-circle').addClass('fa-shopping-cart');
+            } else {
+                notification.removeClass('success').addClass('error');
+                title.text('Gagal Ditambahkan');
+                $('.cart-notification__icon i').removeClass('fa-shopping-cart').addClass('fa-exclamation-circle');
+            }
+
+            // Show notification
+            notification.css('display', 'flex').addClass('show');
+
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                notification.removeClass('show');
+                setTimeout(() => notification.css('display', 'none'), 300);
+            }, 3000);
+        }
+
+        // Close notification button
+        $('#close-cart-notification').on('click', function() {
+            const notification = $('#cart-notification');
+            notification.removeClass('show');
+            setTimeout(() => notification.css('display', 'none'), 300);
+        });
+    </script>
+
     <script>
         $(document).ready(function() {
             // Kode yang sudah ada tetap dipertahankan
@@ -1564,7 +1712,9 @@
                             $('.js-cart-items-count').text(response.cartCount);
 
                             // Show success message
-                            alert('Produk berhasil ditambahkan ke keranjang');
+                            showCartNotification(
+                                '{{ $product->name }} berhasil ditambahkan ke keranjang Anda.',
+                                true);
 
                             // Close the modal
                             $('#quantityModal').modal('hide');
@@ -1577,7 +1727,7 @@
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMsg = xhr.responseJSON.message;
                         }
-                        alert(errorMsg);
+                        showCartNotification(errorMsg, false);
                     }
                 });
             });
@@ -1849,5 +1999,4 @@
             });
         });
     </script>
-
 @endpush
