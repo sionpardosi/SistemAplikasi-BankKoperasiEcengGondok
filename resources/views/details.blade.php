@@ -2,6 +2,10 @@
 
 @section('content')
     <style>
+        .text-danger {
+            color: #e53935 !important;
+        }
+
         /* Modern Wishlist Button */
         .wishlist-btn {
             display: flex;
@@ -729,7 +733,7 @@
                                             data-size-name="{{ $size->name }}" data-stock="{{ $size->pivot->stock }}"
                                             style="border: 1px solid #d2b48c; color: #956a3b; background-color: white; min-width: 50px; padding: 8px 16px; border-radius: 4px;">
                                             {{ $size->name }}
-                                            <small class="d-block text-muted mt-1">Stok: {{ $size->pivot->stock }}</small>
+                                            {{-- <small class="d-block text-muted mt-1">Stok: {{ $size->pivot->stock }}</small> --}}
                                         </button>
                                     @endforeach
                                 </div>
@@ -779,8 +783,7 @@
                         <input type="hidden" name="checkout_redirect" value="1" />
                     </form>
 
-                    <!-- Quantity Modal -->
-                    <!-- Quantity Modal -->
+                    <!-- Quantity Modal (Diperbaiki) -->
                     <div class="modal fade quantity-modal" id="quantityModal" tabindex="-1"
                         aria-labelledby="quantityModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
@@ -835,7 +838,7 @@
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-cancel"
                                         data-bs-dismiss="modal">Batalkan</button>
-                                    <button type="button" class="btn btn-confirm modal-add-to-cart">
+                                    <button type="button" class="btn btn-confirm" id="confirmAddToCart">
                                         <i class="fas fa-shopping-cart me-2"></i> Tambahkan
                                     </button>
                                 </div>
@@ -1335,453 +1338,262 @@
         });
     </script>
 
+<script>
+    $(document).ready(function() {
+        // === SIZE SELECTOR HANDLING ===
+        const hasProductSizes = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
+
+        // Handle size button clicks
+        $('.size-btn').on('click', function() {
+            // Hapus active class dari semua tombol
+            $('.size-btn').removeClass('active')
+                .css({
+                    'background-color': 'white',
+                    'color': '#956a3b'
+                });
+
+            // Tambahkan active class ke tombol yang dipilih
+            $(this).addClass('active')
+                .css({
+                    'background-color': '#956a3b',
+                    'color': 'white'
+                });
+
+            // Simpan size id yang dipilih
+            const sizeId = $(this).data('size-id');
+            const sizeName = $(this).data('size-name');
+            const sizeStock = $(this).data('stock');
+
+            // Update hidden inputs pada form
+            $('#selected-size-id').val(sizeId);
+            $('#cart-size-id').val(sizeId);
+            $('#buynow-size-id').val(sizeId);
+
+            // Tampilkan informasi ukuran yang dipilih
+            $('#size-name').text(sizeName);
+            $('#selected-size-info').removeClass('d-none');
+            $('#size-error').addClass('d-none');
+        });
+
+        // === MODAL HANDLING ===
+
+        // Handle "Tambahkan ke Keranjang" button to open modal
+        $('#open-quantity-modal').on('click', function() {
+            // Cek apakah produk punya ukuran dan ukuran sudah dipilih
+            if (hasProductSizes && !$('#selected-size-id').val()) {
+                $('#size-error').removeClass('d-none');
+                $('html, body').animate({
+                    scrollTop: $("#size-buttons").offset().top - 100
+                }, 500);
+                return;
+            }
+
+            // Update modal with selected size information
+            if (hasProductSizes) {
+                const sizeId = $('#selected-size-id').val();
+                const sizeName = $('#size-name').text();
+                const sizeBtn = $(`.size-btn[data-size-id="${sizeId}"]`);
+
+                // Update size info in modal
+                $('#modal-size-name').text(sizeName);
+                $('#modal-size-info').removeClass('d-none');
+
+                // Update stock info in modal if this size has specific stock
+                if (sizeBtn.length) {
+                    const availableStock = sizeBtn.data('stock');
+                    $('#modal-available-stock').text(availableStock);
+                    $('.modal-qty-input').attr('max', availableStock);
+                }
+            }
+
+            // Reset quantity to 1
+            $('.modal-qty-input').val(1);
+
+            // Show the modal
+            $('#quantityModal').modal('show');
+        });
+
+        // Handle quantity control in modal
+        $('.modal-reduce-qty').on('click', function() {
+            let qty = parseInt($('.modal-qty-input').val());
+            if (qty > 1) {
+                $('.modal-qty-input').val(qty - 1);
+            }
+        });
+
+        $('.modal-increase-qty').on('click', function() {
+            let qty = parseInt($('.modal-qty-input').val());
+            let max = parseInt($('.modal-qty-input').attr('max'));
+            if (qty < max) {
+                $('.modal-qty-input').val(qty + 1);
+            }
+        });
+
+        // PENTING: Tombol Tambahkan di Modal - Ini adalah bagian yang mungkin bermasalah sebelumnya
+        $('#confirmAddToCart').on('click', function() {
+            // Get quantity from modal
+            const quantity = $('.modal-qty-input').val();
+
+            // Update quantity in the cart form
+            $('#cart-quantity').val(quantity);
+
+            // Submit the form via AJAX
+            const formData = $('#addtocart-form').serialize();
+
+            $.ajax({
+                url: "{{ route('cart.add') }}",
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        // Update cart count in navbar
+                        $('.js-cart-items-count').text(response.cartCount);
+
+                        // Show success message
+                        alert('Produk berhasil ditambahkan ke keranjang');
+
+                        // Close the modal
+                        $('#quantityModal').modal('hide');
+                    } else {
+                        alert(response.message || 'Gagal menambahkan produk ke keranjang');
+                    }
+                },
+                error: function(xhr) {
+                    let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    alert(errorMsg);
+                }
+            });
+        });
+
+        // === BUY NOW HANDLING ===
+
+        // Handle "Beli Sekarang" button
+        $('#buy-now').on('click', function() {
+            // Cek apakah produk punya ukuran dan ukuran sudah dipilih
+            if (hasProductSizes && !$('#selected-size-id').val()) {
+                $('#size-error').removeClass('d-none');
+                $('html, body').animate({
+                    scrollTop: $("#size-buttons").offset().top - 100
+                }, 500);
+                return;
+            }
+
+            // Set quantity (default to 1 if not set)
+            const quantity = 1;
+            $('#buynow-quantity').val(quantity);
+
+            // Submit the buy now form
+            const formData = $('#buynow-form').serialize();
+
+            $.ajax({
+                url: "{{ route('cart.add') }}",
+                type: 'POST',
+                data: formData,
+                dataType: 'json',
+                success: function(response) {
+                    if (response.success) {
+                        // Redirect to cart/checkout
+                        window.location.href = "{{ route('cart.index') }}";
+                    } else {
+                        alert(response.message || 'Gagal menambahkan produk ke keranjang');
+                    }
+                },
+                error: function(xhr) {
+                    let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+                    alert(errorMsg);
+                }
+            });
+        });
+    });
+    </script>
+
     <script>
         $(document).ready(function() {
-            // Get the maximum available stock
-            const maxStock = {{ $product->quantity }};
+            // Clear any existing event handlers to prevent conflicts
+            $('#open-quantity-modal').off('click');
 
-            // Toast configuration - Modern notification system
-            const showNotification = (message, type = 'success') => {
-                // Create toast element if it doesn't exist
-                if ($('#stockNotification').length === 0) {
-                    $('body').append(`
-                <div id="stockNotification" class="position-fixed" style="top: 20px; right: 20px; z-index: 9999; max-width: 350px; min-width: 300px;">
-                    <div class="toast" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="3000">
-                        <div class="toast-header d-flex justify-content-between align-items-center">
-                            <strong class="me-auto notification-title">Notifikasi</strong>
-                            <small>Baru saja</small>
-                            <button type="button" class="btn-close ms-2" data-bs-dismiss="toast" aria-label="Close"></button>
-                        </div>
-                        <div class="toast-body notification-message"></div>
-                    </div>
-                </div>
-            `);
-                }
-
-                // Set styling based on notification type
-                const toastEl = $('#stockNotification .toast');
-                const headerEl = $('#stockNotification .toast-header');
-                const messageEl = $('#stockNotification .notification-message');
-
-                // Set colors based on type
-                if (type === 'error') {
-                    headerEl.css('background-color', '#f8d7da');
-                    messageEl.css('background-color', '#f8d7da').css('color', '#842029');
-                } else {
-                    headerEl.css('background-color', '#d1e7dd');
-                    messageEl.css('background-color', '#d1e7dd').css('color', '#0f5132');
-                }
-
-                // Set message and show
-                messageEl.text(message);
-
-                const toast = new bootstrap.Toast(toastEl[0]);
-                toast.show();
-            };
-
-            // Open the quantity modal when clicking "Add to Cart"
+            // Create a single, consolidated event handler
             $('#open-quantity-modal').on('click', function() {
-                $('#quantityModal').modal('show');
-            });
+                console.log('Add to Cart button clicked');
 
-            // Handle quantity changes in modal
-            $('.modal-increase-qty').on('click', function() {
-                const inputField = $('.modal-qty-input');
-                const currentValue = parseInt(inputField.val());
-
-                // Only increase if less than available stock
-                if (currentValue < maxStock) {
-                    inputField.val(currentValue + 1);
-                } else {
-                    // Show notification that maximum stock is reached
-                    showNotification(`Tidak bisa menambah lebih dari stok yang tersedia: ${maxStock} item`,
-                        'error');
-                }
-            });
-
-            $('.modal-reduce-qty').on('click', function() {
-                const inputField = $('.modal-qty-input');
-                const currentValue = parseInt(inputField.val());
-
-                if (currentValue > 1) {
-                    inputField.val(currentValue - 1);
-                }
-            });
-
-            // Validate manual input to prevent exceeding stock
-            $('.modal-qty-input').on('change', function() {
-                const enteredValue = parseInt($(this).val());
-                if (enteredValue > maxStock) {
-                    $(this).val(maxStock);
-                    showNotification(`Tidak bisa menambah lebih dari stok yang tersedia: ${maxStock} item`,
-                        'error');
-                } else if (enteredValue < 1) {
-                    $(this).val(1);
-                }
-            });
-
-            // Handle "Add to Cart" button in modal
-            $('.modal-add-to-cart').on('click', function() {
-                const quantity = $('.modal-qty-input').val();
-
-                // Update hidden form quantity and submit
-                $('#cart-quantity').val(quantity);
-
-                const form = $('#addtocart-form');
-                const url = form.attr('action');
-                const formData = form.serialize();
-
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: formData,
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            // Update jumlah item di navbar
-                            $('.js-cart-items-count').text(response.cartCount);
-                            showNotification('Produk berhasil ditambahkan ke keranjang');
-                            $('#quantityModal').modal('hide');
-                        } else {
-                            showNotification(response.message ||
-                                'Gagal menambahkan produk ke keranjang', 'error');
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMsg = xhr.responseJSON.message;
-                        }
-                        showNotification(errorMsg, 'error');
-                    }
-                });
-            });
-
-            // Buy Now button functionality
-            $('#buy-now').on('click', function() {
-                // Show the quantity modal but with buy now intent
-                $('#quantityModal').modal('show');
-                // Add a data attribute to track that the buy now button was clicked
-                $('#quantityModal').data('buyNow', true);
-            });
-
-            // Update the modal add to cart button behavior
-            $('.modal-add-to-cart').on('click', function() {
-                const quantity = $('.modal-qty-input').val();
-                const isBuyNow = $('#quantityModal').data('buyNow');
-
-                if (isBuyNow) {
-                    // Update buy now form and submit
-                    $('#buynow-quantity').val(quantity);
-
-                    const formData = $('#buynow-form').serialize();
-                    $.ajax({
-                        url: "{{ route('cart.add') }}",
-                        type: 'POST',
-                        data: formData,
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.success) {
-                                // Update jumlah item di navbar jika perlu
-                                $('.js-cart-items-count').text(response.cartCount);
-                                // Redirect to checkout
-                                window.location.href = "{{ route('cart.index') }}";
-                            } else {
-                                showNotification(response.message ||
-                                    'Gagal menambahkan produk ke keranjang', 'error');
-                            }
-                        },
-                        error: function(xhr) {
-                            let errorMsg = 'Gagal menambahkan produk ke keranjang';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMsg = xhr.responseJSON.message;
-                            }
-                            showNotification(errorMsg, 'error');
-                        }
-                    });
-                } else {
-                    // Regular add to cart (code reused from above)
-                    $('#cart-quantity').val(quantity);
-
-                    const form = $('#addtocart-form');
-                    const url = form.attr('action');
-                    const formData = form.serialize();
-
-                    $.ajax({
-                        url: url,
-                        type: 'POST',
-                        data: formData,
-                        dataType: 'json',
-                        success: function(response) {
-                            if (response.success) {
-                                // Update jumlah item di navbar
-                                $('.js-cart-items-count').text(response.cartCount);
-                                showNotification('Produk berhasil ditambahkan ke keranjang');
-                                $('#quantityModal').modal('hide');
-                            } else {
-                                showNotification(response.message ||
-                                    'Gagal menambahkan produk ke keranjang', 'error');
-                            }
-                        },
-                        error: function(xhr) {
-                            let errorMsg = 'Gagal menambahkan produk ke keranjang';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMsg = xhr.responseJSON.message;
-                            }
-                            showNotification(errorMsg, 'error');
-                        }
-                    });
+                // Check if product has sizes and if size is selected
+                if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }} && !$('#selected-size-id')
+                    .val()) {
+                    $('#size-error').removeClass('d-none');
+                    $('html, body').animate({
+                        scrollTop: $("#size-buttons").offset().top - 100
+                    }, 500);
+                    return false; // Prevent further execution
                 }
 
-                // Reset the buy now flag when done
+                // Explicitly reset buyNow flag
                 $('#quantityModal').data('buyNow', false);
-            });
 
-            // Reset modal when it's closed
-            $('#quantityModal').on('hidden.bs.modal', function() {
-                $('.modal-qty-input').val(1);
-                $(this).data('buyNow', false);
-            });
-
-            // Add validation to related products cart buttons (keep existing)
-            $('.pc__img-wrapper form[name="addtocart-form"]').on('submit', function(e) {
-                e.preventDefault();
-                const form = $(this);
-                const productId = form.find('input[name="id"]').val();
-
-                // Fetch current stock before adding to cart
-                $.ajax({
-                    url: `/api/check-stock/${productId}`,
-                    type: 'GET',
-                    success: function(response) {
-                        const availableStock = response.stock;
-                        const requestedQty = parseInt(form.find('input[name="quantity"]')
-                            .val());
-
-                        if (requestedQty > availableStock) {
-                            showNotification(
-                                `Tidak bisa menambah lebih dari stok yang tersedia: ${availableStock} item`,
-                                'error');
-                            return;
-                        }
-
-                        // Continue with form submission if stock is available
-                        submitRelatedProductForm(form);
-                    },
-                    error: function() {
-                        // Fallback to regular submission if API fails
-                        submitRelatedProductForm(form);
-                    }
-                });
-            });
-
-            // Tambahkan ini ke dalam script sebelumnya
-            // Perbarui informasi ukuran di modal ketika modal dibuka
-            $('#quantityModal').on('show.bs.modal', function() {
-                if (hasProductSizes) {
+                // Update modal with selected size information
+                if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }}) {
                     const sizeId = $('#selected-size-id').val();
                     const sizeName = $('#size-name').text();
                     const sizeBtn = $(`.size-btn[data-size-id="${sizeId}"]`);
 
-                    // Update nama ukuran di modal
+                    // Update size info in modal
                     $('#modal-size-name').text(sizeName);
 
-                    // Update stok tersedia berdasarkan ukuran
+                    // Update stock info in modal
                     if (sizeBtn.length) {
                         const availableStock = sizeBtn.data('stock');
                         $('#modal-available-stock').text(availableStock);
                         $('.modal-qty-input').attr('max', availableStock);
                     }
                 }
+
+                // Show the modal
+                $('#quantityModal').modal('show');
             });
 
-            // Modifikasi fungsi validasi kuantitas di modal
-            $('.modal-increase-qty').on('click', function() {
-                const inputField = $('.modal-qty-input');
-                const currentValue = parseInt(inputField.val());
-                const maxStock = parseInt(inputField.attr('max'));
+            // Ensure size buttons work correctly
+            $('.size-btn').off('click').on('click', function() {
+                console.log('Size button clicked');
 
-                // Only increase if less than available stock
-                if (currentValue < maxStock) {
-                    inputField.val(currentValue + 1);
-                } else {
-                    // Show notification that maximum stock is reached
-                    showNotification(`Tidak bisa menambah lebih dari stok yang tersedia: ${maxStock} item`,
-                        'error');
-                }
-            });
-
-            function submitRelatedProductForm(form) {
-                const url = form.attr('action');
-                const formData = form.serialize();
-
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: formData,
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            // Update cart counter
-                            $('.js-cart-items-count').text(response.cartCount);
-                            showNotification('Produk berhasil ditambahkan ke keranjang');
-                        } else {
-                            showNotification(response.message ||
-                                'Gagal menambahkan produk ke keranjang', 'error');
-                        }
-                    },
-                    error: function() {
-                        showNotification('Gagal menambahkan produk ke keranjang', 'error');
-                    }
-                });
-            }
-        });
-    </script>
-
-    <script>
-        $(document).ready(function() {
-            const hasProductSizes = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
-
-            // Handle size button clicks
-            $('.size-btn').on('click', function() {
-                // Hapus active class dari semua tombol
+                // Remove active class from all buttons
                 $('.size-btn').removeClass('active')
                     .css({
                         'background-color': 'white',
                         'color': '#956a3b'
                     });
 
-                // Tambahkan active class ke tombol yang dipilih
+                // Add active class to selected button
                 $(this).addClass('active')
                     .css({
                         'background-color': '#956a3b',
                         'color': 'white'
                     });
 
-                // Simpan size id yang dipilih
+                // Get size info
                 const sizeId = $(this).data('size-id');
                 const sizeName = $(this).data('size-name');
 
-                // Update hidden inputs pada form
+                // Update all hidden inputs
                 $('#selected-size-id').val(sizeId);
                 $('#cart-size-id').val(sizeId);
                 $('#buynow-size-id').val(sizeId);
 
-                // Tampilkan informasi ukuran yang dipilih
+                // Update visible size info
                 $('#size-name').text(sizeName);
                 $('#selected-size-info').removeClass('d-none');
                 $('#size-error').addClass('d-none');
-            });
 
-            // Handle "Tambahkan ke Keranjang" button
-            $('#open-quantity-modal').on('click', function() {
-                // Cek apakah produk punya ukuran dan ukuran sudah dipilih
-                if (hasProductSizes && !$('#selected-size-id').val()) {
-                    $('#size-error').removeClass('d-none');
-                    $('html, body').animate({
-                        scrollTop: $("#size-buttons").offset().top - 100
-                    }, 500);
-                    return;
-                }
-
-                // Buka modal kuantitas
-                $('#quantityModal').modal('show');
-            });
-
-            // Handle "Beli Sekarang" button
-            $('#buy-now').on('click', function() {
-                // Cek apakah produk punya ukuran dan ukuran sudah dipilih
-                if (hasProductSizes && !$('#selected-size-id').val()) {
-                    $('#size-error').removeClass('d-none');
-                    $('html, body').animate({
-                        scrollTop: $("#size-buttons").offset().top - 100
-                    }, 500);
-                    return;
-                }
-
-                const quantity = $('.qty-control__number').val() || 1;
-                const maxStock = {{ $product->quantity }};
-
-                // Validasi quantity tidak melebihi stok
-                if (parseInt(quantity) > maxStock) {
-                    showNotification(`Tidak bisa menambah lebih dari stok yang tersedia: ${maxStock} item`,
-                        'error');
-                    return;
-                }
-
-                // Update quantity di form beli sekarang
-                $('#buynow-quantity').val(quantity);
-
-                // Submit form secara asynchronous
-                const formData = $('#buynow-form').serialize();
-
-                $.ajax({
-                    url: "{{ route('cart.add') }}",
-                    type: 'POST',
-                    data: formData,
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            // Update jumlah item di navbar
-                            $('.js-cart-items-count').text(response.cartCount);
-
-                            // Redirect ke halaman keranjang
-                            window.location.href = "{{ route('cart.index') }}";
-                        } else {
-                            showNotification(response.message ||
-                                'Gagal menambahkan produk ke keranjang', 'error');
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMsg = xhr.responseJSON.message;
-                        }
-                        showNotification(errorMsg, 'error');
-                    }
+                console.log('Size selected:', {
+                    id: sizeId,
+                    name: sizeName,
+                    'selected-size-id': $('#selected-size-id').val()
                 });
-            });
-
-            // Modifikasi modal add to cart button
-            $('.modal-add-to-cart').on('click', function() {
-                const quantity = $('.modal-qty-input').val();
-
-                // Update hidden form quantity dan submit
-                $('#cart-quantity').val(quantity);
-
-                const form = $('#addtocart-form');
-                const url = form.attr('action');
-                const formData = form.serialize();
-
-                $.ajax({
-                    url: url,
-                    type: 'POST',
-                    data: formData,
-                    dataType: 'json',
-                    success: function(response) {
-                        if (response.success) {
-                            // Update jumlah item di navbar
-                            $('.js-cart-items-count').text(response.cartCount);
-                            showNotification('Produk berhasil ditambahkan ke keranjang');
-                            $('#quantityModal').modal('hide');
-                        } else {
-                            showNotification(response.message ||
-                                'Gagal menambahkan produk ke keranjang', 'error');
-                        }
-                    },
-                    error: function(xhr) {
-                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMsg = xhr.responseJSON.message;
-                        }
-                        showNotification(errorMsg, 'error');
-                    }
-                });
-            });
-
-            // Reset modal size when it's closed
-            $('#quantityModal').on('hidden.bs.modal', function() {
-                $('.modal-qty-input').val(1);
             });
         });
     </script>
@@ -1811,6 +1623,182 @@
                 $(this).append(
                     '<span class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></span>'
                 );
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // === SIZE SELECTOR HANDLING ===
+            const hasProductSizes = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
+
+            // Handle size button clicks
+            $('.size-btn').on('click', function() {
+                // Hapus active class dari semua tombol
+                $('.size-btn').removeClass('active')
+                    .css({
+                        'background-color': 'white',
+                        'color': '#956a3b'
+                    });
+
+                // Tambahkan active class ke tombol yang dipilih
+                $(this).addClass('active')
+                    .css({
+                        'background-color': '#956a3b',
+                        'color': 'white'
+                    });
+
+                // Simpan size id yang dipilih
+                const sizeId = $(this).data('size-id');
+                const sizeName = $(this).data('size-name');
+                const sizeStock = $(this).data('stock');
+
+                // Update hidden inputs pada form
+                $('#selected-size-id').val(sizeId);
+                $('#cart-size-id').val(sizeId);
+                $('#buynow-size-id').val(sizeId);
+
+                // Tampilkan informasi ukuran yang dipilih
+                $('#size-name').text(sizeName);
+                $('#selected-size-info').removeClass('d-none');
+                $('#size-error').addClass('d-none');
+            });
+
+            // === MODAL HANDLING ===
+
+            // Handle "Tambahkan ke Keranjang" button to open modal
+            $('#open-quantity-modal').on('click', function() {
+                // Cek apakah produk punya ukuran dan ukuran sudah dipilih
+                if (hasProductSizes && !$('#selected-size-id').val()) {
+                    $('#size-error').removeClass('d-none');
+                    $('html, body').animate({
+                        scrollTop: $("#size-buttons").offset().top - 100
+                    }, 500);
+                    return;
+                }
+
+                // Update modal with selected size information
+                if (hasProductSizes) {
+                    const sizeId = $('#selected-size-id').val();
+                    const sizeName = $('#size-name').text();
+                    const sizeBtn = $(`.size-btn[data-size-id="${sizeId}"]`);
+
+                    // Update size info in modal
+                    $('#modal-size-name').text(sizeName);
+                    $('#modal-size-info').removeClass('d-none');
+
+                    // Update stock info in modal if this size has specific stock
+                    if (sizeBtn.length) {
+                        const availableStock = sizeBtn.data('stock');
+                        $('#modal-available-stock').text(availableStock);
+                        $('.modal-qty-input').attr('max', availableStock);
+                    }
+                }
+
+                // Reset quantity to 1
+                $('.modal-qty-input').val(1);
+
+                // Show the modal
+                $('#quantityModal').modal('show');
+            });
+
+            // Handle quantity control in modal
+            $('.modal-reduce-qty').on('click', function() {
+                let qty = parseInt($('.modal-qty-input').val());
+                if (qty > 1) {
+                    $('.modal-qty-input').val(qty - 1);
+                }
+            });
+
+            $('.modal-increase-qty').on('click', function() {
+                let qty = parseInt($('.modal-qty-input').val());
+                let max = parseInt($('.modal-qty-input').attr('max'));
+                if (qty < max) {
+                    $('.modal-qty-input').val(qty + 1);
+                }
+            });
+
+            // IMPORTANT: This is the fixed part - Handle "Tambahkan" button in modal
+            $('#confirmAddToCart').on('click', function() {
+                // Get quantity from modal
+                const quantity = $('.modal-qty-input').val();
+
+                // Update quantity in the cart form
+                $('#cart-quantity').val(quantity);
+
+                // Submit the form via AJAX
+                const formData = $('#addtocart-form').serialize();
+
+                $.ajax({
+                    url: "{{ route('cart.add') }}",
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update cart count in navbar
+                            $('.js-cart-items-count').text(response.cartCount);
+
+                            // Show success message
+                            alert('Produk berhasil ditambahkan ke keranjang');
+
+                            // Close the modal
+                            $('#quantityModal').modal('hide');
+                        } else {
+                            alert(response.message || 'Gagal menambahkan produk ke keranjang');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        alert(errorMsg);
+                    }
+                });
+            });
+
+            // === BUY NOW HANDLING ===
+
+            // Handle "Beli Sekarang" button
+            $('#buy-now').on('click', function() {
+                // Cek apakah produk punya ukuran dan ukuran sudah dipilih
+                if (hasProductSizes && !$('#selected-size-id').val()) {
+                    $('#size-error').removeClass('d-none');
+                    $('html, body').animate({
+                        scrollTop: $("#size-buttons").offset().top - 100
+                    }, 500);
+                    return;
+                }
+
+                // Set quantity (default to 1 if not set)
+                const quantity = 1;
+                $('#buynow-quantity').val(quantity);
+
+                // Submit the buy now form
+                const formData = $('#buynow-form').serialize();
+
+                $.ajax({
+                    url: "{{ route('cart.add') }}",
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Redirect to cart/checkout
+                            window.location.href = "{{ route('cart.index') }}";
+                        } else {
+                            alert(response.message || 'Gagal menambahkan produk ke keranjang');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        alert(errorMsg);
+                    }
+                });
             });
         });
     </script>
