@@ -783,7 +783,7 @@
                                             </div>
                                             <div class="stock-info">
                                                 <i class="fas fa-box-open me-1"></i> Stok tersedia: <span
-                                                    class="fw-semibold">{{ $product->quantity }}</span>
+                                                    class="fw-semibold">{{ $product->quantity - $product->reserved_quantity }}</span>
                                             </div>
                                         </div>
                                     </div>
