@@ -39,17 +39,56 @@ class CartController extends Controller
     // ----------------- Add to Cart --------------------------------------------------------
     public function addToCart(Request $request)
     {
+        // Validate request
         $product = Product::findOrFail($request->id);
 
-        // Hitung stok yang tersedia = quantity - reserved_quantity
-        $availableStock = $product->quantity - $product->reserved_quantity;
+        // Check if product has sizes
+        $hasSizes = $product->sizes->count() > 0;
 
-        // Ambil jumlah produk yang sudah ada di keranjang
-        $cartItem = Cart::instance('cart')->content()->where('id', $request->id)->first();
+        // Validate size if product has sizes
+        if ($hasSizes) {
+            $request->validate([
+                'size_id' => 'required|exists:sizes,id',
+            ], [
+                'size_id.required' => 'Silakan pilih ukuran produk terlebih dahulu.',
+                'size_id.exists' => 'Ukuran produk tidak valid.',
+            ]);
+
+            // Check if size is available for this product
+            $size = $product->sizes()->where('sizes.id', $request->size_id)->first();
+            if (!$size) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ukuran produk tidak tersedia.'
+                    ], 400);
+                }
+                return redirect()->back()->with('error', 'Ukuran produk tidak tersedia.');
+            }
+
+            // Get stock per size
+            $availableStock = $size->pivot->stock;
+        } else {
+            // If product doesn't have sizes, use regular stock
+            $availableStock = $product->quantity - $product->reserved_quantity;
+        }
+
+        // Check if current cart already has this product with the same size
+        $cartItem = null;
+        foreach (Cart::instance('cart')->content() as $item) {
+            if (
+                $item->id == $request->id &&
+                ($hasSizes ? ($item->options->size_id == $request->size_id) : true)
+            ) {
+                $cartItem = $item;
+                break;
+            }
+        }
+
         $currentCartQty = $cartItem ? $cartItem->qty : 0;
-
         $totalRequestedQty = $currentCartQty + $request->quantity;
 
+        // Check if requested quantity exceeds available stock
         if ($totalRequestedQty > $availableStock) {
             if ($request->ajax()) {
                 return response()->json([
@@ -60,12 +99,28 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Total jumlah di keranjang melebihi stok yang tersedia.');
         }
 
-        // Jika sudah ada di keranjang, update qty
+        // Add/update cart
         if ($cartItem) {
             Cart::instance('cart')->update($cartItem->rowId, $totalRequestedQty);
         } else {
-            Cart::instance('cart')->add($request->id, $request->name, $request->quantity, $request->price)
-                ->associate('App\Models\Product');
+            // If product has sizes, include size information in options
+            if ($hasSizes) {
+                $sizeName = Size::find($request->size_id)->name;
+                Cart::instance('cart')->add([
+                    'id' => $request->id,
+                    'name' => $request->name,
+                    'qty' => $request->quantity,
+                    'price' => $request->price,
+                    'weight' => 0,
+                    'options' => [
+                        'size_id' => $request->size_id,
+                        'size_name' => $sizeName
+                    ]
+                ])->associate('App\Models\Product');
+            } else {
+                Cart::instance('cart')->add($request->id, $request->name, $request->quantity, $request->price)
+                    ->associate('App\Models\Product');
+            }
         }
 
         // Response
@@ -77,57 +132,6 @@ class CartController extends Controller
         $checkoutRedirect = $request->input('checkout_redirect', 0);
         if ($checkoutRedirect == 1) {
             return redirect()->route('cart.index');
-        }
-
-
-        // Size
-        $request->validate([
-            'id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'size_id' => 'required|exists:sizes,id',
-        ], [
-            'size_id.required' => 'Silakan pilih ukuran produk terlebih dahulu.',
-            'size_id.exists' => 'Ukuran produk tidak valid.',
-        ]);
-
-        $product = Product::findOrFail($request->id);
-
-        // Cek apakah ukuran tersedia untuk produk ini
-        $size = $product->sizes()->where('sizes.id', $request->size_id)->first();
-
-        if (!$size) {
-            return redirect()->back()->with('error', 'Ukuran produk tidak tersedia.');
-        }
-
-        // Ambil stok per ukuran jika ada
-        $availableStock = $size->pivot->stock;
-
-        // Hitung qty yang sudah ada di cart untuk produk dan ukuran ini
-        $cartItem = Cart::instance('cart')->content()->first(function ($cartItem) use ($request) {
-            return $cartItem->id == $request->id && $cartItem->options->size_id == $request->size_id;
-        });
-
-        $currentCartQty = $cartItem ? $cartItem->qty : 0;
-        $totalRequestedQty = $currentCartQty + $request->quantity;
-
-        if ($totalRequestedQty > $availableStock) {
-            return redirect()->back()->with('error', 'Jumlah pesanan melebihi stok yang tersedia untuk ukuran ini.');
-        }
-
-        if ($cartItem) {
-            Cart::instance('cart')->update($cartItem->rowId, $totalRequestedQty);
-        } else {
-            Cart::instance('cart')->add([
-                'id' => $product->id,
-                'name' => $product->name,
-                'qty' => $request->quantity,
-                'price' => $product->sale_price ?: $product->regular_price,
-                'weight' => 0,
-                'options' => [
-                    'size_id' => $size->id,
-                    'size_name' => $size->name,
-                ],
-            ])->associate(Product::class);
         }
 
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang.');

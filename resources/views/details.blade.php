@@ -718,8 +718,31 @@
                         </span>
                     </div>
 
-                    <!-- Add to Cart and Buy Now buttons -->
+                    <!-- Sebelum buttons "Tambahkan ke Keranjang" dan "Beli Sekarang" -->
                     <div class="product-single__addtocart">
+                        @if ($product->sizes->count() > 0)
+                            <div class="size-selector mb-3">
+                                <label class="fw-semibold mb-2">Pilih Ukuran:</label>
+                                <div class="d-flex flex-wrap gap-2" id="size-buttons">
+                                    @foreach ($product->sizes as $size)
+                                        <button type="button" class="btn size-btn" data-size-id="{{ $size->id }}"
+                                            data-size-name="{{ $size->name }}" data-stock="{{ $size->pivot->stock }}"
+                                            style="border: 1px solid #d2b48c; color: #956a3b; background-color: white; min-width: 50px; padding: 8px 16px; border-radius: 4px;">
+                                            {{ $size->name }}
+                                            <small class="d-block text-muted mt-1">Stok: {{ $size->pivot->stock }}</small>
+                                        </button>
+                                    @endforeach
+                                </div>
+                                <div class="selected-size mt-2 d-none" id="selected-size-info">
+                                    <span class="badge bg-secondary">Ukuran dipilih: <span id="size-name"></span></span>
+                                </div>
+                                <div class="text-danger small mt-2 d-none" id="size-error">
+                                    Silakan pilih ukuran terlebih dahulu
+                                </div>
+                                <input type="hidden" id="selected-size-id" name="size_id" value="">
+                            </div>
+                        @endif
+
                         <div class="d-flex gap-2 mt-3">
                             <button type="button" class="btn flex-grow-1" id="open-quantity-modal"
                                 style="background-color: rgba(149, 106, 59, 0.2); border: 1px solid #956a3b; color: #956a3b; padding: 0.75rem 1rem;">
@@ -741,6 +764,7 @@
                         <input type="hidden" name="quantity" id="cart-quantity" value="1" />
                         <input type="hidden" name="price"
                             value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                        <input type="hidden" name="size_id" id="cart-size-id" value="" />
                     </form>
 
                     <form name="buynow-form" id="buynow-form" method="POST" action="{{ route('cart.add') }}"
@@ -751,9 +775,11 @@
                         <input type="hidden" name="quantity" id="buynow-quantity" value="1" />
                         <input type="hidden" name="price"
                             value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                        <input type="hidden" name="size_id" id="buynow-size-id" value="" />
                         <input type="hidden" name="checkout_redirect" value="1" />
                     </form>
 
+                    <!-- Quantity Modal -->
                     <!-- Quantity Modal -->
                     <div class="modal fade quantity-modal" id="quantityModal" tabindex="-1"
                         aria-labelledby="quantityModalLabel" aria-hidden="true">
@@ -781,9 +807,16 @@
                                                     <span>{{ formatRupiah($product->regular_price) }}</span>
                                                 @endif
                                             </div>
+                                            @if ($product->sizes->count() > 0)
+                                                <div class="selected-size-info mt-1" id="modal-size-info">
+                                                    <span class="badge bg-secondary">Ukuran: <span
+                                                            id="modal-size-name"></span></span>
+                                                </div>
+                                            @endif
                                             <div class="stock-info">
                                                 <i class="fas fa-box-open me-1"></i> Stok tersedia: <span
-                                                    class="fw-semibold">{{ $product->quantity - $product->reserved_quantity }}</span>
+                                                    class="fw-semibold"
+                                                    id="modal-available-stock">{{ $product->quantity - $product->reserved_quantity }}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -794,7 +827,6 @@
                                         </button>
                                         <input type="number" class="qty-input modal-qty-input" value="1"
                                             min="1" max="{{ $product->quantity - $product->reserved_quantity }}">
-
                                         <button type="button" class="qty-btn modal-increase-qty">
                                             <i class="fas fa-plus"></i>
                                         </button>
@@ -807,28 +839,6 @@
                                         <i class="fas fa-shopping-cart me-2"></i> Tambahkan
                                     </button>
                                 </div>
-                                <form id="add-to-cart-form" method="POST" action="{{ route('cart.add') }}">
-                                    @csrf
-                                    <input type="hidden" name="id" value="{{ $product->id }}" />
-                                    <input type="hidden" name="name" value="{{ $product->name }}" />
-                                    <input type="hidden" name="quantity" id="quantity-input" value="1" />
-                                    <input type="hidden" name="price" value="{{ $product->sale_price ?: $product->regular_price }}" />
-
-                                    @if($product->sizes->count() > 0)
-                                        <div class="mb-3">
-                                            <label for="size_id" class="form-label">Pilih Ukuran</label>
-                                            <select name="size_id" id="size_id" class="form-select" required>
-                                                <option value="">-- Pilih Ukuran --</option>
-                                                @foreach($product->sizes as $size)
-                                                    <option value="{{ $size->id }}">{{ $size->name }} (Stok: {{ $size->pivot->stock }})</option>
-                                                @endforeach
-                                            </select>
-                                        </div>
-                                    @endif
-
-                                    <button type="submit" class="btn btn-primary">Tambah ke Keranjang</button>
-                                </form>
-
                             </div>
                         </div>
                     </div>
@@ -960,13 +970,11 @@
                                 <div class="review-item mb-4 p-3 border rounded">
                                     <div class="d-flex align-items-center mb-2">
                                         <strong>{{ $review->user->name }}</strong>
-                                        <span
-                                            class="ms-3 text-muted">{{ $review->created_at->format('d M Y') }}</span>
+                                        <span class="ms-3 text-muted">{{ $review->created_at->format('d M Y') }}</span>
                                     </div>
                                     <div class="review-rating mb-2">
                                         @for ($i = 1; $i <= 5; $i++)
-                                            <svg class="review-star" viewBox="0 0 9 9"
-                                                xmlns="http://www.w3.org/2000/svg"
+                                            <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg"
                                                 style="fill: {{ $i <= $review->rating ? '#FFD700' : '#E0E0E0' }};">
                                                 <use href="#icon_star" />
                                             </svg>
@@ -1020,7 +1028,7 @@
                     <li class="nav-item" role="presentation">
                         <button class="nav-link" id="tab-reviews-tab" data-bs-toggle="tab" data-bs-target="#tab-reviews"
                             type="button" role="tab" aria-controls="tab-reviews" aria-selected="false">
-                            <i class="fas fa-star me-2"></i>Ulasan ({{ $product->reviews()->count() }})
+                            <i class="fas fa-star me-2"></i>Semua Ulasan ({{ $product->reviews()->count() }})
                         </button>
                     </li>
                 </ul>
@@ -1567,6 +1575,42 @@
                 });
             });
 
+            // Tambahkan ini ke dalam script sebelumnya
+            // Perbarui informasi ukuran di modal ketika modal dibuka
+            $('#quantityModal').on('show.bs.modal', function() {
+                if (hasProductSizes) {
+                    const sizeId = $('#selected-size-id').val();
+                    const sizeName = $('#size-name').text();
+                    const sizeBtn = $(`.size-btn[data-size-id="${sizeId}"]`);
+
+                    // Update nama ukuran di modal
+                    $('#modal-size-name').text(sizeName);
+
+                    // Update stok tersedia berdasarkan ukuran
+                    if (sizeBtn.length) {
+                        const availableStock = sizeBtn.data('stock');
+                        $('#modal-available-stock').text(availableStock);
+                        $('.modal-qty-input').attr('max', availableStock);
+                    }
+                }
+            });
+
+            // Modifikasi fungsi validasi kuantitas di modal
+            $('.modal-increase-qty').on('click', function() {
+                const inputField = $('.modal-qty-input');
+                const currentValue = parseInt(inputField.val());
+                const maxStock = parseInt(inputField.attr('max'));
+
+                // Only increase if less than available stock
+                if (currentValue < maxStock) {
+                    inputField.val(currentValue + 1);
+                } else {
+                    // Show notification that maximum stock is reached
+                    showNotification(`Tidak bisa menambah lebih dari stok yang tersedia: ${maxStock} item`,
+                        'error');
+                }
+            });
+
             function submitRelatedProductForm(form) {
                 const url = form.attr('action');
                 const formData = form.serialize();
@@ -1591,6 +1635,154 @@
                     }
                 });
             }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            const hasProductSizes = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
+
+            // Handle size button clicks
+            $('.size-btn').on('click', function() {
+                // Hapus active class dari semua tombol
+                $('.size-btn').removeClass('active')
+                    .css({
+                        'background-color': 'white',
+                        'color': '#956a3b'
+                    });
+
+                // Tambahkan active class ke tombol yang dipilih
+                $(this).addClass('active')
+                    .css({
+                        'background-color': '#956a3b',
+                        'color': 'white'
+                    });
+
+                // Simpan size id yang dipilih
+                const sizeId = $(this).data('size-id');
+                const sizeName = $(this).data('size-name');
+
+                // Update hidden inputs pada form
+                $('#selected-size-id').val(sizeId);
+                $('#cart-size-id').val(sizeId);
+                $('#buynow-size-id').val(sizeId);
+
+                // Tampilkan informasi ukuran yang dipilih
+                $('#size-name').text(sizeName);
+                $('#selected-size-info').removeClass('d-none');
+                $('#size-error').addClass('d-none');
+            });
+
+            // Handle "Tambahkan ke Keranjang" button
+            $('#open-quantity-modal').on('click', function() {
+                // Cek apakah produk punya ukuran dan ukuran sudah dipilih
+                if (hasProductSizes && !$('#selected-size-id').val()) {
+                    $('#size-error').removeClass('d-none');
+                    $('html, body').animate({
+                        scrollTop: $("#size-buttons").offset().top - 100
+                    }, 500);
+                    return;
+                }
+
+                // Buka modal kuantitas
+                $('#quantityModal').modal('show');
+            });
+
+            // Handle "Beli Sekarang" button
+            $('#buy-now').on('click', function() {
+                // Cek apakah produk punya ukuran dan ukuran sudah dipilih
+                if (hasProductSizes && !$('#selected-size-id').val()) {
+                    $('#size-error').removeClass('d-none');
+                    $('html, body').animate({
+                        scrollTop: $("#size-buttons").offset().top - 100
+                    }, 500);
+                    return;
+                }
+
+                const quantity = $('.qty-control__number').val() || 1;
+                const maxStock = {{ $product->quantity }};
+
+                // Validasi quantity tidak melebihi stok
+                if (parseInt(quantity) > maxStock) {
+                    showNotification(`Tidak bisa menambah lebih dari stok yang tersedia: ${maxStock} item`,
+                        'error');
+                    return;
+                }
+
+                // Update quantity di form beli sekarang
+                $('#buynow-quantity').val(quantity);
+
+                // Submit form secara asynchronous
+                const formData = $('#buynow-form').serialize();
+
+                $.ajax({
+                    url: "{{ route('cart.add') }}",
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update jumlah item di navbar
+                            $('.js-cart-items-count').text(response.cartCount);
+
+                            // Redirect ke halaman keranjang
+                            window.location.href = "{{ route('cart.index') }}";
+                        } else {
+                            showNotification(response.message ||
+                                'Gagal menambahkan produk ke keranjang', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        showNotification(errorMsg, 'error');
+                    }
+                });
+            });
+
+            // Modifikasi modal add to cart button
+            $('.modal-add-to-cart').on('click', function() {
+                const quantity = $('.modal-qty-input').val();
+
+                // Update hidden form quantity dan submit
+                $('#cart-quantity').val(quantity);
+
+                const form = $('#addtocart-form');
+                const url = form.attr('action');
+                const formData = form.serialize();
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update jumlah item di navbar
+                            $('.js-cart-items-count').text(response.cartCount);
+                            showNotification('Produk berhasil ditambahkan ke keranjang');
+                            $('#quantityModal').modal('hide');
+                        } else {
+                            showNotification(response.message ||
+                                'Gagal menambahkan produk ke keranjang', 'error');
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        showNotification(errorMsg, 'error');
+                    }
+                });
+            });
+
+            // Reset modal size when it's closed
+            $('#quantityModal').on('hidden.bs.modal', function() {
+                $('.modal-qty-input').val(1);
+            });
         });
     </script>
 
