@@ -282,10 +282,29 @@ class CartController extends Controller
         // Ambil semua alamat user untuk ditampilkan di dropdown
         $userAddresses = Address::where('user_id', Auth::user()->id)->get();
 
+
+        // Hitung total berat dari keranjang (asumsi 1000g per item)
+        $weight = 0;
+        foreach (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content() as $item) {
+            $weight += (500 * $item->qty); // 1000g (1kg) per item
+        }
+
+        // Jika tidak ada berat, gunakan berat default
+        if ($weight <= 0) {
+            $weight = 1000; // 1kg default
+        }
+
+        // Ambil data kurir yang tersedia
+        $couriers = [
+            'jne' => 'JNE',
+            'pos' => 'POS Indonesia',
+            'tiki' => 'TIKI'
+        ];
+
         // Ambil rekening bank yang aktif
         $bankAccounts = BankAccount::where('is_active', true)->get();
 
-        return view('checkout', compact('address', 'userAddresses', 'bankAccounts'));
+        return view('checkout', compact('address', 'userAddresses', 'bankAccounts', 'couriers', 'weight'));
     }
 
 
@@ -330,6 +349,8 @@ class CartController extends Controller
             $address->zip = $request->zip;
             $address->state = $request->state;
             $address->city = $request->city;
+            $address->idcity = $request->idcity;
+            $address->idstate = $request->idstate;
             $address->address = $request->address;
             $address->locality = $request->locality;
             $address->landmark = $request->landmark;
@@ -357,7 +378,7 @@ class CartController extends Controller
         $order->subtotal = session()->get('checkout')['subtotal'];
         $order->discount = session()->get('checkout')['discount'];
         $order->tax = session()->get('checkout')['tax'];
-        $order->total = session()->get('checkout')['total'];
+        $order->total = session()->get('checkout')['total'] + $request->ongkir;
         $order->name = $address->name;
         $order->phone = $address->phone;
         $order->locality = $address->locality;
@@ -367,6 +388,8 @@ class CartController extends Controller
         $order->country = $address->country;
         $order->landmark = $address->landmark;
         $order->zip = $address->zip;
+        $order->ongkir = $request->ongkir;
+        $order->kurir = $request->kurir;
         $order->save();
 
         // Simpan order item

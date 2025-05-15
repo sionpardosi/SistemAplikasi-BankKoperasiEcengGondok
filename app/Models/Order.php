@@ -33,6 +33,8 @@ class Order extends Model
         'delivered_date',
         'completed_date',
         'canceled_date',
+        'ongkir',
+        'kurir',
     ];
 
     public function user()

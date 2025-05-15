@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\API\JobController;
@@ -11,11 +12,11 @@ use App\Http\Controllers\API\ShopController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\AdminController;
 use App\Http\Controllers\API\BrandController;
+use App\Http\Controllers\RajaOngkirController;
 use App\Http\Controllers\API\WishlistController;
 use App\Http\Controllers\API\GoogleAuthController;
 use App\Http\Controllers\MidtransCallbackController;
 use App\Http\Controllers\API\JobApplicationController;
-use Illuminate\Support\Facades\Http;
 
 
 /*
@@ -28,7 +29,11 @@ use Illuminate\Support\Facades\Http;
 |
 */
 
-Route::post('/chat', [ChatController::class, 'chat']);
+Route::get('rajaongkirprovinces', [RajaOngkirController::class, 'getProvinces']);
+Route::get('rajaongkircities/{id}', [RajaOngkirController::class, 'getCities']);
+Route::get('useraddressgetaddress/{id}', [RajaOngkirController::class, 'userAddressGetAddress']);
+Route::post('rajaongkircalculate', [RajaOngkirController::class, 'calculateShipping']);
+Route::post('saveshippingcost', [RajaOngkirController::class, 'saveShippingCost']); // optional
 
 
 
