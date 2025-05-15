@@ -6,6 +6,7 @@ use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ShopController extends Controller
 {
@@ -19,6 +20,7 @@ class ShopController extends Controller
         $min_price = $request->query('min') ? $request->query('min') : 1;
         $max_price = $request->query('max') ? $request->query('max') : 10000000; // 10.000.000
         $search = $request->query('search'); // Get search parameter
+        $ratings = $request->query('ratings'); // Get ratings filter
 
         switch ($order) {
             case 1:
@@ -56,6 +58,14 @@ class ShopController extends Controller
                     ->orWhereBetween('sale_price', [$min_price, $max_price]);
             });
 
+        // Filter berdasarkan rating jika ada
+        if (!empty($ratings)) {
+            $ratingArray = explode(',', $ratings);
+            $query->whereHas('reviews', function ($q) use ($ratingArray) {
+                $q->whereIn(DB::raw('FLOOR(rating)'), $ratingArray);
+            });
+        }
+
         // Add search filter if search parameter exists
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -67,11 +77,11 @@ class ShopController extends Controller
 
         $products = $query->orderBy($o_column, $o_order)->paginate($size);
 
-        // Prepare rating filter counts
+        // Prepare rating filter counts - menghitung jumlah produk untuk tiap rating
         $productCountByRating = [];
         for ($i = 1; $i <= 5; $i++) {
             $productCountByRating[$i] = Product::whereHas('reviews', function ($query) use ($i) {
-                $query->where('rating', $i);
+                $query->where(DB::raw('FLOOR(rating)'), $i);
             })->count();
         }
 
@@ -89,7 +99,8 @@ class ShopController extends Controller
             'min_price',
             'max_price',
             'search_query',
-            'productCountByRating'
+            'productCountByRating',
+            'ratings'
         ));
     }
 

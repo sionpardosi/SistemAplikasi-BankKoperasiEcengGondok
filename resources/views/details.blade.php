@@ -1267,7 +1267,8 @@
                                             class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart btn-warning">Go
                                             to Cart</a>
                                     @else --}}
-                                    <form name="addtocart-form" method="POST" action=" {{ route('cart.add') }}">
+                                    <form name="addtocart-form" class="related-product-form" method="POST"
+                                        action="{{ route('cart.add') }}">
                                         @csrf
                                         <div class="product-single__addtocart">
                                             <input type="hidden" name="id" value="{{ $rproduct->id }}" />
@@ -1282,43 +1283,6 @@
                                             </button>
                                         </div>
                                     </form>
-                                    <!-- Toast Notification khusus untuk produk ini -->
-                                    <div id="cart-toast-{{ $rproduct->id }}" class="toast" role="alert"
-                                        aria-live="assertive" aria-atomic="true" data-bs-delay="3000"
-                                        style="
-                       position: absolute;
-                       bottom: 50px; /* Jarak 50px di atas tombol */
-                       left: 0;
-                       z-index: 9999;
-                       display: none;
-                       min-width: 250px;
-                       background-color: #fff;
-                       border: 1px solid #e0e0e0;
-                       border-radius: 8px;
-                       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                    ">
-                                        <div class="toast-header"
-                                            style="
-                          background-color: #f9f9f9;
-                          color: #333;
-                          border-top-left-radius: 8px;
-                          border-top-right-radius: 8px;
-                          padding: 0.5rem 0.75rem;
-                          display: flex;
-                          align-items: center;
-                          justify-content: space-between;
-                        ">
-                                            <strong class="me-auto" style="font-size: 14px;">Notifikasi</strong>
-                                            <small style="font-size: 12px;">Baru saja</small>
-                                            <button type="button" class="btn-close" data-bs-dismiss="toast"
-                                                aria-label="Close" style="margin-left: 10px;"></button>
-                                        </div>
-                                        <div class="toast-body" style="font-size: 14px; color: #555; padding: 0.75rem;">
-                                            Produk telah ditambahkan ke dalam keranjang.
-                                        </div>
-                                    </div>
-                                    <!-- End Toast Notification -->
-                                    {{-- @endif --}}
                                 </div>
 
                                 <div class="pc__info position-relative">
@@ -1772,6 +1736,42 @@
                         }
                         alert(errorMsg);
                     }
+                });
+            });
+
+            // Tambahkan untuk menangani form produk terkait
+            $(document).ready(function() {
+                // Tangani form untuk produk terkait
+                $('.related-product-form').off('submit').on('submit', function(e) {
+                    e.preventDefault();
+                    var form = $(this);
+                    var url = form.attr('action');
+                    var formData = form.serialize();
+
+                    // Dapatkan nama produk untuk ditampilkan di notifikasi
+                    var productName = form.find('input[name="name"]').val();
+
+                    $.ajax({
+                        url: url,
+                        type: 'POST',
+                        data: formData,
+                        dataType: 'json',
+                        success: function(response) {
+                            // Update jumlah item di navbar
+                            $('.js-cart-items-count').text(response.cartCount);
+
+                            // Tampilkan notifikasi dengan nama produk
+                            showCartNotification(productName +
+                                ' berhasil ditambahkan ke keranjang Anda.', true);
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+                            showCartNotification(errorMsg, false);
+                        }
+                    });
                 });
             });
         });

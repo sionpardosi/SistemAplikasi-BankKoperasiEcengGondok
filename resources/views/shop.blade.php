@@ -363,6 +363,299 @@
                 color: white;
             }
         }
+
+        /* Cart notification */
+        .cart-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            z-index: 1000;
+            max-width: 350px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(-20px);
+            opacity: 0;
+            border-left: 4px solid #956a3b;
+        }
+
+        .cart-notification.success {
+            border-left-color: #956a3b;
+        }
+
+        .cart-notification.error {
+            border-left-color: #e53935;
+        }
+
+        .cart-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .cart-notification__icon {
+            margin-right: 15px;
+            width: 30px;
+            height: 30px;
+            background: #f9f3ec;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-notification.success .cart-notification__icon {
+            color: #956a3b;
+        }
+
+        .cart-notification.error .cart-notification__icon {
+            color: #e53935;
+        }
+
+        .cart-notification__content {
+            flex: 1;
+        }
+
+        .cart-notification__title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+            color: #956a3b;
+        }
+
+        .cart-notification__message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .cart-notification__close {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .cart-notification__close:hover {
+            color: #956a3b;
+        }
+    </style>
+
+    <style>
+        /* Enhanced Rating Filter Styles */
+        .rating-filters {
+            padding: 10px 0;
+        }
+
+        .rating-filter-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+            justify-content: space-between;
+            position: relative;
+            border-left: 3px solid transparent;
+        }
+
+        .rating-filter-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(to right, rgba(149, 106, 59, 0.1), transparent);
+            border-radius: 8px;
+            transition: width 0.3s ease;
+            z-index: 0;
+        }
+
+        .rating-filter-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 2px 8px rgba(149, 106, 59, 0.15);
+        }
+
+        .rating-filter-item:hover::before {
+            width: 100%;
+        }
+
+        .rating-filter-item.active {
+            background-color: rgba(149, 106, 59, 0.15);
+            border-left-color: #956a3b;
+        }
+
+        .rating-filter-item.active::after {
+            content: '\f00c';
+            font-family: 'Font Awesome 5 Free';
+            font-weight: 900;
+            position: absolute;
+            right: 12px;
+            color: #956a3b;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .rating-stars {
+            display: flex;
+            align-items: center;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .rating-stars i {
+            font-size: 14px;
+            transition: transform 0.2s ease;
+            margin-right: 2px;
+        }
+
+        .rating-filter-item:hover .rating-stars i.text-warning {
+            transform: scale(1.2);
+        }
+
+        .rating-stars i.text-warning {
+            color: #FFD700 !important;
+        }
+
+        .rating-stars i.text-muted {
+            color: #d1d1d1 !important;
+        }
+
+        .rating-count {
+            margin-left: 8px;
+            font-size: 0.85rem;
+            color: #666;
+            white-space: nowrap;
+        }
+
+        .rating-progress {
+            flex: 1;
+            margin-left: 12px;
+            z-index: 1;
+            max-width: 80px;
+        }
+
+        .progress {
+            height: 6px;
+            background-color: #f0f0f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            transition: width 0.5s ease;
+            background-color: #956a3b !important;
+            animation: progressGrow 1s ease-out forwards;
+        }
+
+        /* Filter badges */
+        .rating-filter-badge {
+            padding: 0 15px;
+        }
+
+        .rating-filter-badge .badge {
+            padding: 8px 15px;
+            font-weight: 500;
+            font-size: 0.85rem;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .rating-filter-badge .badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .clear-rating-filter {
+            padding: 0 15px;
+        }
+
+        .clear-rating-filter .btn {
+            transition: all 0.2s ease;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .clear-rating-filter .btn:hover {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        /* Status badge when filter is active */
+        .filter-active-status {
+            display: inline-flex;
+            align-items: center;
+            margin-left: 10px;
+            font-size: 0.75rem;
+            color: #956a3b;
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes progressGrow {
+            from {
+                width: 0;
+            }
+
+            to {
+                width: 100%;
+            }
+        }
+
+        .rating-filter-item.active:hover {
+            animation: pulse 0.5s ease;
+        }
+
+        /* Mobile styles */
+        @media (max-width: 767.98px) {
+            .rating-filter-item {
+                padding: 10px 12px;
+            }
+
+            .rating-count {
+                font-size: 0.75rem;
+            }
+
+            .rating-stars i {
+                font-size: 12px;
+            }
+
+            .rating-progress {
+                max-width: 60px;
+            }
+        }
     </style>
 
     <main class="pt-90">
@@ -412,13 +705,14 @@
                     </div>
                 </div>
 
-                {{-- <div class="accordion" id="rating-filters">
+                <!-- Letakkan kode ini setelah filter warna dan sebelum filter ukuran -->
+                <div class="accordion" id="rating-filters">
                     <div class="accordion-item mb-4 pb-3">
                         <h5 class="accordion-header" id="accordion-heading-rating">
                             <button class="accordion-button p-0 border-0 fs-5 text-uppercase" type="button"
                                 data-bs-toggle="collapse" data-bs-target="#accordion-filter-rating" aria-expanded="true"
                                 aria-controls="accordion-filter-rating">
-                                Rating
+                                Ulasan Produk
                                 <svg class="accordion-button__icon type2" viewBox="0 0 10 6"
                                     xmlns="http://www.w3.org/2000/svg">
                                     <g aria-hidden="true" stroke="none" fill-rule="evenodd">
@@ -431,60 +725,56 @@
                         <div id="accordion-filter-rating" class="accordion-collapse collapse show border-0"
                             aria-labelledby="accordion-heading-rating" data-bs-parent="#rating-filters">
                             <div class="accordion-body px-0 pb-0 pt-3">
-                                <div class="d-flex flex-column">
-                                    @for ($i = 5; $i >= 1; $i--)
-                                        <label class="d-flex align-items-center">
-                                            <input type="checkbox" name="ratings[]" value="{{ $i }}"
-                                                class="chk-rating" @if (in_array($i, request()->input('ratings', []))) checked @endif />
-                                            <span class="me-2">{{ $i }} <i class="fa fa-star"
-                                                    style="color: #FFD700;"></i></span>
-                                            <span
-                                                class="text-secondary float-end">{{ $productCountByRating[$i] ?? 0 }}</span>
-                                        </label>
-                                    @endfor
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
+                                <div class="rating-filters">
+                                    <div class="rating-filter-badge mb-3">
+                                        <span class="badge bg-light text-dark border">Semua Ulasan</span>
+                                    </div>
 
-                <div class="accordion" id="color-filters">
-                    <div class="accordion-item mb-4 pb-3">
-                        <h5 class="accordion-header" id="accordion-heading-1">
-                            <button class="accordion-button p-0 border-0 fs-5 text-uppercase" type="button"
-                                data-bs-toggle="collapse" data-bs-target="#accordion-filter-2" aria-expanded="true"
-                                aria-controls="accordion-filter-2">
-                                Warna
-                                <svg class="accordion-button__icon type2" viewBox="0 0 10 6"
-                                    xmlns="http://www.w3.org/2000/svg">
-                                    <g aria-hidden="true" stroke="none" fill-rule="evenodd">
-                                        <path
-                                            d="M5.35668 0.159286C5.16235 -0.053094 4.83769 -0.0530941 4.64287 0.159286L0.147611 5.05963C-0.0492049 5.27473 -0.049205 5.62357 0.147611 5.83813C0.344427 6.05323 0.664108 6.05323 0.860924 5.83813L5 1.32706L9.13858 5.83867C9.33589 6.05378 9.65507 6.05378 9.85239 5.83867C10.0492 5.62357 10.0492 5.27473 9.85239 5.06018L5.35668 0.159286Z" />
-                                    </g>
-                                </svg>
-                            </button>
-                        </h5>
-                        <div id="accordion-filter-2" class="accordion-collapse collapse show border-0"
-                            aria-labelledby="accordion-heading-1" data-bs-parent="#color-filters">
-                            <div class="accordion-body px-0 pb-0">
-                                <div class="d-flex flex-wrap">
-                                    <a href="#" class="swatch-color js-filter" style="color: #0a2472"></a>
-                                    <a href="#" class="swatch-color js-filter" style="color: #d7bb4f"></a>
-                                    <a href="#" class="swatch-color js-filter" style="color: #282828"></a>
-                                    <a href="#" class="swatch-color js-filter" style="color: #b1d6e8"></a>
-                                    <a href="#" class="swatch-color js-filter" style="color: #9c7539"></a>
-                                    <a href="#" class="swatch-color js-filter" style="color: #d29b48"></a>
-                                    <a href="#" class="swatch-color js-filter" style="color: #e6ae95"></a>
-                                    <a href="#" class="swatch-color js-filter" style="color: #d76b67"></a>
-                                    <a href="#" class="swatch-color swatch_active js-filter"
-                                        style="color: #bababa"></a>
-                                    <a href="#" class="swatch-color js-filter" style="color: #bfdcc4"></a>
+                                    @for ($i = 5; $i >= 1; $i--)
+                                        <div class="rating-filter-item @if (in_array((string) $i, explode(',', request()->input('ratings', '')))) active @endif"
+                                            data-rating="{{ $i }}">
+                                            <div class="rating-stars">
+                                                @for ($j = 1; $j <= 5; $j++)
+                                                    <i
+                                                        class="fas fa-star @if ($j <= $i) text-warning @else text-muted @endif"></i>
+                                                @endfor
+                                                <span class="rating-count">({{ $productCountByRating[$i] ?? 0 }}
+                                                    produk)</span>
+                                            </div>
+                                            <div class="rating-progress">
+                                                <div class="progress">
+                                                    @php
+                                                        $totalProducts = array_sum($productCountByRating);
+                                                        $percentage =
+                                                            $totalProducts > 0
+                                                                ? (($productCountByRating[$i] ?? 0) / $totalProducts) *
+                                                                    100
+                                                                : 0;
+                                                    @endphp
+                                                    <div class="progress-bar" role="progressbar"
+                                                        style="width: {{ $percentage }}%"
+                                                        aria-valuenow="{{ $percentage }}" aria-valuemin="0"
+                                                        aria-valuemax="100"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endfor
+
+                                    @if (request()->has('ratings') && !empty(request()->input('ratings')))
+                                        <div class="clear-rating-filter mt-3">
+                                            <button type="button" id="clearRatingFilter"
+                                                class="btn btn-sm btn-outline-secondary w-100">
+                                                <i class="fas fa-times-circle me-1"></i> Hapus Filter Ulasan
+                                            </button>
+                                        </div>
+                                    @endif
                                 </div>
+                                <input type="hidden" id="selected-ratings" name="ratings"
+                                    value="{{ request()->input('ratings', '') }}">
                             </div>
                         </div>
                     </div>
                 </div>
-
 
                 <div class="accordion" id="size-filters">
                     <div class="accordion-item mb-4 pb-3">
@@ -798,6 +1088,159 @@
                     </div>
                 </div>
 
+
+
+                @if (request()->has('ratings') && !empty(request()->input('ratings')))
+                    <div class="filter-notification mb-4 animate__animated animate__fadeIn">
+                        <div class="alert alert-custom fade show" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="filter-icon-container me-3">
+                                    <i class="fas fa-filter"></i>
+                                </div>
+                                <div class="filter-content">
+                                    <h5 class="alert-heading mb-1">Filter Ulasan Aktif</h5>
+                                    <p class="mb-0 filter-text">
+                                        Menampilkan produk dengan rating:
+                                        <span class="rating-badge">
+                                            @php
+                                                $selectedRating = request()->input('ratings');
+                                            @endphp
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <i
+                                                    class="fas fa-star @if ($i <= $selectedRating) text-warning @else text-muted @endif"></i>
+                                            @endfor
+                                        </span>
+                                        <span class="product-count">({{ $products->total() }} produk)</span>
+                                    </p>
+                                </div>
+                                <a href="{{ route('shop.index') }}" class="btn btn-sm btn-outline-secondary ms-auto"
+                                    title="Hapus Filter">
+                                    <i class="fas fa-times-circle me-1"></i> Hapus Filter
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
+                <!-- Tampilan kosong jika tidak ada produk yang ditemukan -->
+                @if ($products->isEmpty() && request()->has('ratings'))
+                    <div class="no-products-found my-5 py-5 text-center">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3 class="mt-4">Tidak Ada Produk Ditemukan</h3>
+                            <p class="text-muted mb-4">Tidak ada produk dengan rating yang Anda pilih. Silakan coba filter
+                                lainnya.</p>
+                            <a href="{{ route('shop.index') }}" class="btn btn-primary">
+                                <i class="fas fa-undo me-2"></i> Tampilkan Semua Produk
+                            </a>
+                        </div>
+                    </div>
+                @endif
+
+                <style>
+                    .filter-notification {
+                        animation-duration: 0.5s;
+                    }
+
+                    .alert-custom {
+                        background-color: #f9f3ec;
+                        border-left: 4px solid #956a3b;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                        padding: 1rem 1.25rem;
+                    }
+
+                    .filter-icon-container {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        background-color: rgba(149, 106, 59, 0.1);
+                        color: #956a3b;
+                        font-size: 1.2rem;
+                    }
+
+                    .filter-content .alert-heading {
+                        color: #333;
+                        font-size: 1rem;
+                        font-weight: 600;
+                    }
+
+                    .filter-text {
+                        color: #666;
+                        font-size: 0.9rem;
+                        display: flex;
+                        align-items: center;
+                        flex-wrap: wrap;
+                    }
+
+                    .rating-badge {
+                        display: inline-flex;
+                        align-items: center;
+                        margin: 0 0.5rem;
+                    }
+
+                    .rating-badge i {
+                        margin-right: 2px;
+                    }
+
+                    .product-count {
+                        font-style: italic;
+                        color: #777;
+                    }
+
+                    .empty-state {
+                        padding: 2rem;
+                        max-width: 500px;
+                        margin: 0 auto;
+                    }
+
+                    .empty-state-icon {
+                        width: 80px;
+                        height: 80px;
+                        background-color: #f8f9fa;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto;
+                        color: #956a3b;
+                        font-size: 2rem;
+                    }
+
+                    .empty-state h3 {
+                        font-weight: 600;
+                        color: #333;
+                    }
+
+                    .empty-state .btn-primary {
+                        background-color: #956a3b;
+                        border-color: #956a3b;
+                    }
+
+                    .empty-state .btn-primary:hover {
+                        background-color: #7b582f;
+                        border-color: #7b582f;
+                    }
+
+                    /* Responsive adjustments */
+                    @media (max-width: 576px) {
+                        .filter-text {
+                            flex-direction: column;
+                            align-items: flex-start;
+                        }
+
+                        .rating-badge {
+                            margin: 0.5rem 0;
+                        }
+                    }
+                </style>
+
+
                 <div class="products-grid row row-cols-2 row-cols-md-3" id="products-grid">
                     @foreach ($products as $product)
                         <div class="product-card-wrapper">
@@ -930,43 +1373,6 @@
                                                 Tambahkan ke Keranjang
                                             </button>
                                         </div>
-                                        <!-- Toast Notification khusus untuk produk ini -->
-                                        <div id="cart-toast-{{ $product->id }}" class="toast" role="alert"
-                                            aria-live="assertive" aria-atomic="true" data-bs-delay="3000"
-                                            style="
-               position: absolute;
-               bottom: 50px; /* Jarak 50px di atas tombol */
-               left: 0;
-               z-index: 9999;
-               display: none;
-               min-width: 250px;
-               background-color: #fff;
-               border: 1px solid #e0e0e0;
-               border-radius: 8px;
-               box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            ">
-                                            <div class="toast-header"
-                                                style="
-                   background-color: #f9f9f9;
-                   color: #333;
-                   border-top-left-radius: 8px;
-                   border-top-right-radius: 8px;
-                   padding: 0.5rem 0.75rem;
-                   display: flex;
-                   align-items: center;
-                   justify-content: space-between;
-                ">
-                                                <strong class="me-auto" style="font-size: 14px;">Notifikasi</strong>
-                                                <small style="font-size: 12px;">Baru saja</small>
-                                                <button type="button" class="btn-close" data-bs-dismiss="toast"
-                                                    aria-label="Close" style="margin-left: 10px;"></button>
-                                            </div>
-                                            <div class="toast-body"
-                                                style="font-size: 14px; color: #555; padding: 0.75rem;">
-                                                Produk telah ditambahkan ke dalam keranjang.
-                                            </div>
-                                        </div>
-                                        <!-- End Toast Notification -->
                                     </form>
                                 </div>
 
@@ -1055,6 +1461,20 @@
                 </div>
             </div>
         </section>
+
+        <!-- Cart notification -->
+        <div class="cart-notification" id="cart-notification">
+            <div class="cart-notification__icon">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="cart-notification__content">
+                <div class="cart-notification__title" id="cart-notification-title">Ditambahkan ke Keranjang</div>
+                <div class="cart-notification__message" id="cart-notification-message"></div>
+            </div>
+            <button class="cart-notification__close" id="close-cart-notification">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
     </main>
 
     <form id="frmfilter" method="GET" action="{{ route('shop.index') }}">
@@ -1124,7 +1544,7 @@
                         ratings.push($(this).val());
                     });
                     $("#hdnRatings").val(ratings.join(
-                    ',')); // Update hidden input with selected ratings
+                        ',')); // Update hidden input with selected ratings
                     $("#frmfilter").submit(); // Submit the filter form
                 });
             });
@@ -1285,6 +1705,214 @@
                     }
                 });
             });
+        });
+    </script>
+
+    <!-- Notification -->
+    <script>
+        // Function to show cart notification
+        function showCartNotification(message, isSuccess = true) {
+            const notification = $('#cart-notification');
+            const title = $('#cart-notification-title');
+            const messageEl = $('#cart-notification-message');
+
+            // Set content
+            messageEl.text(message);
+
+            // Set type (success or error)
+            if (isSuccess) {
+                notification.removeClass('error').addClass('success');
+                title.text('Ditambahkan ke Keranjang');
+                $('.cart-notification__icon i').removeClass('fa-exclamation-circle').addClass('fa-shopping-cart');
+            } else {
+                notification.removeClass('success').addClass('error');
+                title.text('Gagal Ditambahkan');
+                $('.cart-notification__icon i').removeClass('fa-shopping-cart').addClass('fa-exclamation-circle');
+            }
+
+            // Show notification
+            notification.css('display', 'flex').addClass('show');
+
+            // Auto hide after 3 seconds
+            setTimeout(() => {
+                notification.removeClass('show');
+                setTimeout(() => notification.css('display', 'none'), 300);
+            }, 3000);
+        }
+
+        // Close notification button
+        $(document).on('click', '#close-cart-notification', function() {
+            const notification = $('#cart-notification');
+            notification.removeClass('show');
+            setTimeout(() => notification.css('display', 'none'), 300);
+        });
+
+        $(document).ready(function() {
+            // Hapus binding sebelumnya jika ada, untuk menghindari duplikasi
+            $('form[name="addtocart-form"]').off('submit').on('submit', function(e) {
+                e.preventDefault();
+                var form = $(this);
+                var url = form.attr('action');
+                var formData = form.serialize();
+
+                // Dapatkan nama produk untuk ditampilkan di notifikasi
+                var productName = form.find('input[name="name"]').val();
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        // Update jumlah item di navbar
+                        $('.js-cart-items-count').text(response.cartCount);
+
+                        // Tampilkan notifikasi dengan nama produk
+                        showCartNotification(productName +
+                            ' berhasil ditambahkan ke keranjang Anda.', true);
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        showCartNotification(errorMsg, false);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <!-- Filter Ulasan -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get all rating filter items
+            const ratingItems = document.querySelectorAll('.rating-filter-item');
+            const selectedRatingsInput = document.getElementById('selected-ratings');
+            const clearFilterBtn = document.getElementById('clearRatingFilter');
+            const allReviewsBadge = document.querySelector('.rating-filter-badge .badge');
+
+            // "Semua Ulasan" badge click handler
+            if (allReviewsBadge) {
+                allReviewsBadge.addEventListener('click', function() {
+                    // Clear rating filters and submit
+                    selectedRatingsInput.value = '';
+                    document.getElementById('hdnRatings').value = '';
+                    document.getElementById('frmfilter').submit();
+                });
+            }
+
+            // Clear filter button handler
+            if (clearFilterBtn) {
+                clearFilterBtn.addEventListener('click', function() {
+                    selectedRatingsInput.value = '';
+                    document.getElementById('hdnRatings').value = '';
+                    document.getElementById('frmfilter').submit();
+                });
+            }
+
+            // Add click event listener to each rating item
+            ratingItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    const rating = this.getAttribute('data-rating');
+
+                    // Set this rating as the only active one
+                    ratingItems.forEach(ri => ri.classList.remove('active'));
+                    this.classList.add('active');
+
+                    // Update hidden input with selected rating
+                    selectedRatingsInput.value = rating;
+
+                    // Update hdnRatings in the form and submit
+                    document.getElementById('hdnRatings').value = rating;
+                    document.getElementById('frmfilter').submit();
+                });
+            });
+
+            // Add filter count to the section title if filters are active
+            if (selectedRatingsInput.value) {
+                const ratingHeader = document.querySelector('#accordion-heading-rating .accordion-button');
+                if (ratingHeader && !ratingHeader.querySelector('.filter-active-status')) {
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = 'filter-active-status';
+                    statusBadge.innerHTML = '<i class="fas fa-filter me-1"></i> Filter Aktif';
+                    ratingHeader.appendChild(statusBadge);
+                }
+            }
+
+            // Update active filters in the page header
+            function updateActiveFiltersDisplay() {
+                const activeFilters = document.getElementById('activeFilters');
+                if (!activeFilters) return;
+
+                const activeFiltersTags = activeFilters.querySelector('.active-filters-tags');
+                if (!activeFiltersTags) return;
+
+                // Collect all active filters
+                let allActiveFilters = [];
+
+                // Add rating filters
+                const activeRating = selectedRatingsInput.value;
+                if (activeRating) {
+                    let ratingText = '';
+
+                    // Create visual stars for rating display
+                    for (let i = 1; i <= 5; i++) {
+                        if (i <= activeRating) {
+                            ratingText += '★'; // Filled star
+                        } else {
+                            ratingText += '☆'; // Empty star
+                        }
+                    }
+
+                    allActiveFilters.push({
+                        type: 'rating',
+                        id: activeRating,
+                        displayName: 'Ulasan: ' + ratingText
+                    });
+                }
+
+                // Show rating filter in active filters if exists
+                if (activeRating && allActiveFilters.length > 0) {
+                    activeFilters.classList.remove('d-none');
+
+                    // Find if rating filter tag already exists
+                    let ratingTag = Array.from(activeFiltersTags.children).find(tag =>
+                        tag.dataset.type === 'rating'
+                    );
+
+                    if (!ratingTag) {
+                        // Create new rating filter tag
+                        const filterInfo = allActiveFilters.find(f => f.type === 'rating');
+                        if (filterInfo) {
+                            const filterTag = document.createElement('div');
+                            filterTag.className = 'filter-tag';
+                            filterTag.dataset.type = 'rating';
+                            filterTag.dataset.id = filterInfo.id;
+
+                            filterTag.innerHTML = `
+                                ${filterInfo.displayName}
+                                <button type="button" class="btn-close btn-close-sm ms-2" aria-label="Remove filter"></button>
+                            `;
+
+                            activeFiltersTags.appendChild(filterTag);
+
+                            // Add click event to remove button
+                            const removeBtn = filterTag.querySelector('.btn-close-sm');
+                            if (removeBtn) {
+                                removeBtn.addEventListener('click', function() {
+                                    selectedRatingsInput.value = '';
+                                    document.getElementById('hdnRatings').value = '';
+                                    document.getElementById('frmfilter').submit();
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Call on page load
+            updateActiveFiltersDisplay();
         });
     </script>
 @endpush
