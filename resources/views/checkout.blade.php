@@ -584,6 +584,27 @@
             margin-left: 5px;
         }
 
+        /* Shipping info styling */
+        .shipping-info {
+            display: flex;
+            align-items: center;
+            background-color: rgba(149, 106, 59, 0.05);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #956a3b;
+        }
+
+        .shipping-info i {
+            margin-right: 8px;
+            font-size: 14px;
+            color: #956a3b;
+        }
+
+        .shipping-info span {
+            font-size: 14px;
+            color: #666;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 767px) {
             .billing-info__wrapper {
@@ -929,16 +950,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {{-- @foreach (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content() as $item)
-                                    <tr>
-                                        <td>
-                                            {{ $item->name }} x {{ $item->qty }}
-                                        </td>
-                                        <td class="text-right">
-                                            {{ formatRupiah($item->subTotal(0, '', '')) }}
-                                        </td>
-                                    </tr>
-                                    @endforeach --}}
                                         @php
                                             $cartItems = \Surfsidemedia\Shoppingcart\Facades\Cart::instance(
                                                 'cart',
@@ -947,11 +958,19 @@
 
                                         @foreach ($cartItems as $item)
                                             <tr>
-                                                <td>{{ $item->name }} x {{ $item->qty }}</td>
-                                                <td class="text-right">{{ formatRupiah($item->subTotal(0, '', '')) }}</td>
+                                                <td>
+                                                    {{ $item->name }} x {{ $item->qty }}
+                                                    @if(isset($item->options['size_name']))
+                                                    <br>
+                                                    <span class="text-muted" style="font-size: 0.85rem;">
+                                                        <i class="fas fa-ruler-combined me-1"></i>
+                                                        Ukuran: {{ $item->options['size_name'] }}
+                                                    </span>
+                                                    @endif
+                                                </td>
+                                                <td class="text-right">{{ formatRupiah($item->subtotal(0, '', '')) }}</td>
                                             </tr>
                                         @endforeach
-
                                     </tbody>
                                 </table>
                                 @if (Session::has('discounts'))
@@ -975,19 +994,18 @@
                                             </tr>
                                             <tr>
                                                 <th>Ongkos Kirim</th>
-                                                <input type="text" name="ongkir" id="ongkirinput">
-                                                <td class="text-right" id="ongkir-display">Rp 0</td>
+                                                <input type="hidden" name="ongkir" id="ongkirinput" value="0">
+                                                <td class="text-right">
+                                                    <div class="shipping-info" id="ongkir-display">
+                                                        <i class="fas fa-truck-loading"></i>
+                                                        <span>Dihitung berdasarkan pilihan kurir</span>
+                                                    </div>
+                                                </td>
                                             </tr>
-                                            {{-- <tr>
-                                        <th>PPN</th>
-                                        <td class="text-right">
-                                            {{ formatRupiah((float) Session('discounts')['tax']) }}
-                                        </td>
-                                    </tr> --}}
                                             <tr class="cart-total">
                                                 <th>Total</th>
                                                 <td class="text-right" id="total-price">
-                                                    {{ formatRupiah((float) Session('discounts')['total']) }}
+                                                    {{ formatRupiah((float) Session('discounts')['subtotal']) }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -1003,21 +1021,18 @@
                                             </tr>
                                             <tr>
                                                 <th>ONGKOS KIRIM</th>
-                                                <input type="hidden" name="ongkir" id="ongkirinput">
-                                                <td class="text-right" id="ongkir-display">Rp 0</td>
+                                                <input type="hidden" name="ongkir" id="ongkirinput" value="0">
+                                                <td class="text-right">
+                                                    <div class="shipping-info" id="ongkir-display">
+                                                        <i class="fas fa-truck-loading"></i>
+                                                        <span>Dihitung berdasarkan pilihan kurir</span>
+                                                    </div>
+                                                </td>
                                             </tr>
-                                            {{-- <tr>
-                                        <th>PPN</th>
-                                        <td class="text-right">
-                                            {{
-                                            formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->tax(0,
-                                            '', '')) }}
-                                        </td>
-                                    </tr> --}}
                                             <tr class="cart-total">
                                                 <th>TOTAL</th>
                                                 <td class="text-right" id="total-price">
-                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->total(0, '', '')) }}
+                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -1066,7 +1081,7 @@
                 let cityId = '';
                 let selectedAddressId = $('#address_selector').val();
                 let cartTotal = parseFloat(
-                    '{{ str_replace(',', '', \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->total(0, '', '')) }}'
+                    '{{ str_replace(',', '', \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}'
                 );
 
                 // 1. Load provinsi saat halaman dimuat
@@ -1331,10 +1346,28 @@
                 // Fungsi untuk memperbarui total harga
                 function updateTotal(shippingCost) {
                     shippingCost = Number(shippingCost); // pastikan bertipe angka
-                    const newTotal = cartTotal + shippingCost;
+
+                    // Dapatkan subtotal yang benar berdasarkan ada/tidaknya diskon
+                    let subtotal = 0;
+                    @if (Session::has('discounts'))
+                        subtotal = {{ (float) Session('discounts')['subtotal'] }};
+                    @else
+                        subtotal = cartTotal;
+                    @endif
+
+                    const newTotal = subtotal + shippingCost;
                     let courier = $('#courier').val();
 
-                    $('#ongkir-display').text(formatRupiah(shippingCost));
+                    // Update tampilan ongkir
+                    if (shippingCost > 0) {
+                        $('#ongkir-display').html(formatRupiah(shippingCost));
+                    } else {
+                        $('#ongkir-display').html(`
+                            <i class="fas fa-truck-loading"></i>
+                            <span>Dihitung berdasarkan pilihan kurir</span>
+                        `);
+                    }
+
                     $('#ongkirinput').val(shippingCost);
                     $('#kurirnya').val(courier);
                     $('#total-price').text(formatRupiah(newTotal));

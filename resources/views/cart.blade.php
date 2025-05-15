@@ -710,6 +710,18 @@
                 width: 100%;
             }
         }
+
+        /* Badge styling for product size */
+        .product-size-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            background-color: rgba(149, 106, 59, 0.1);
+            border-radius: 4px;
+            color: #956a3b;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 6px;
+        }
     </style>
 
     <main class="pt-90">
@@ -782,12 +794,12 @@
                                         <td>
                                             <div class="shopping-cart__product-item__detail">
                                                 <h4>{{ $cartItem->name }}</h4>
-                                                @foreach ($cartItems as $item)
-                                                <ul class="shopping-cart__product-item__options">
-                                                    <li>Ukuran: {{ $item->options->size_name ?? 'Tidak ada' }}</li>
-                                                    <li>Size: L</li>
-                                                    @endforeach
-                                                </ul>
+                                                @if(isset($cartItem->options['size_name']))
+                                                <div class="product-size-badge">
+                                                    <i class="fas fa-ruler-combined me-1"></i>
+                                                    Ukuran: {{ $cartItem->options['size_name'] }}
+                                                </div>
+                                                @endif
                                             </div>
                                         </td>
                                         <td>
@@ -814,7 +826,7 @@
                                         </td>
                                         <td>
                                             <span class="shopping-cart__subtotal">
-                                                {{ formatRupiah($cartItem->subTotal(0, '', '')) }}
+                                                {{ formatRupiah($cartItem->subtotal(0, '', '')) }}
                                             </span>
                                         </td>
                                         <td>
@@ -855,10 +867,10 @@
                                     @csrf
                                     @method('DELETE')
                                     <input class="form-control text-success fw-bold" type="text" name="coupon_code"
-                                        placeholder="Coupon Code" value="{{ session()->get('coupon')['code'] }} Applied!"
+                                        placeholder="Kupon Diskon" value="{{ session()->get('coupon')['code'] }} diterapkan!"
                                         readonly>
                                     <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4 text-danger"
-                                        type="submit" value="REMOVE COUPON">
+                                        type="submit" value="HAPUS KUPON">
                                 </form>
                             @endif
                             <form class="position-relative bg-body" method="POST" action="{{ route('cart.empty') }}">
@@ -901,15 +913,16 @@
                                             </tr>
                                             <tr>
                                                 <th>Ongkos Kirim</th>
-                                                <td class="text-right">...</td>
-                                            </tr>
-                                            <tr>
-                                                <th>PPN</th>
-                                                <td>{{ formatRupiah((float) Session('discounts')['tax']) }}</td>
+                                                <td class="shipping-cost">
+                                                    <div class="shipping-info">
+                                                        <i class="fas fa-truck-loading text-primary-light"></i>
+                                                        <span>Dihitung saat checkout</span>
+                                                    </div>
+                                                </td>
                                             </tr>
                                             <tr class="cart-total">
                                                 <th>Total</th>
-                                                <td>{{ formatRupiah((float) Session('discounts')['total']) }}</td>
+                                                <td>{{ formatRupiah((float) Session('discounts')['subtotal']) }}</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -924,18 +937,17 @@
                                             </tr>
                                             <tr>
                                                 <th>Ongkos Kirim</th>
-                                                <td class="text-right">...</td>
-                                            </tr>
-                                            <tr>
-                                                <th>PPN</th>
-                                                <td>
-                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->tax(0, '', '')) }}
+                                                <td class="shipping-cost">
+                                                    <div class="shipping-info">
+                                                        <i class="fas fa-truck-loading text-primary-light"></i>
+                                                        <span>Dihitung saat checkout</span>
+                                                    </div>
                                                 </td>
                                             </tr>
                                             <tr class="cart-total">
                                                 <th>Total</th>
                                                 <td>
-                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->total(0, '', '')) }}
+                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -959,20 +971,20 @@
                             <span></span><span></span><span></span>
                         </div>
 
-                        {{-- <div class="empty-cart-illustration">
+                        <div class="empty-cart-illustration">
                             <div class="cart-circle-pulse"></div>
                             <div class="cart-circle-inner"></div>
                             <i class="fas fa-shopping-basket"></i>
                             <div class="floating-item item-1"><i class="fas fa-leaf"></i></div>
                             <div class="floating-item item-2"><i class="fas fa-gift"></i></div>
                             <div class="floating-item item-3"><i class="fas fa-spa"></i></div>
-                        </div> --}}
+                        </div>
 
                         <h3 class="empty-cart-title">Keranjang Belanja Anda Kosong</h3>
-                        {{-- <p class="empty-cart-message">Temukan produk-produk dari Eceng Gondok untuk menambahkan ke
-                            keranjang Anda.</p> --}}
+                        <p class="empty-cart-message">Temukan produk-produk dari Eceng Gondok untuk menambahkan ke
+                            keranjang Anda.</p>
 
-                        {{-- <div class="cart-benefits">
+                        <div class="cart-benefits">
                             <div class="benefit-item">
                                 <div class="benefit-icon">
                                     <i class="fas fa-truck"></i>
@@ -991,7 +1003,7 @@
                                 </div>
                                 <span>Ramah Lingkungan</span>
                             </div>
-                        </div> --}}
+                        </div>
 
                         <div class="empty-cart-actions">
                             <a href="{{ route('shop.index') }}" class="btn btn-shop-now">
@@ -1069,5 +1081,32 @@
                 updateCheckoutStep(1);
             });
         </script>
+
+        <style>
+            /* Styling untuk informasi ongkos kirim */
+            .shipping-cost {
+                color: #555;
+            }
+
+            .shipping-info {
+                display: flex;
+                align-items: center;
+                background-color: rgba(149, 106, 59, 0.05);
+                padding: 6px 10px;
+                border-radius: 6px;
+                border-left: 3px solid #956a3b;
+            }
+
+            .shipping-info i {
+                margin-right: 8px;
+                font-size: 14px;
+                color: #956a3b;
+            }
+
+            .shipping-info span {
+                font-size: 14px;
+                color: #666;
+            }
+        </style>
     @endpush
 @endsection

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Size;
 use Carbon\Carbon;
 use Midtrans\Snap;
 use Midtrans\Config;
@@ -37,6 +38,12 @@ class CartController extends Controller
     }
 
     // ----------------- Add to Cart --------------------------------------------------------
+    /**
+     * Metode untuk menambahkan produk ke keranjang dengan dukungan ukuran
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function addToCart(Request $request)
     {
         $product = Product::findOrFail($request->id);
@@ -60,12 +67,99 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Total jumlah di keranjang melebihi stok yang tersedia.');
         }
 
-        // Jika sudah ada di keranjang, update qty
+        // Persiapkan options untuk menyimpan informasi ukuran jika ada
+        $options = [];
+        if ($request->has('size_id') && $request->size_id) {
+            $size = Size::find($request->size_id);
+            if ($size) {
+                $options['size_id'] = $size->id;
+                $options['size_name'] = $size->name;
+            }
+        }
+
+        // Jika sudah ada di keranjang dengan ukuran yang sama, update qty
         if ($cartItem) {
-            Cart::instance('cart')->update($cartItem->rowId, $totalRequestedQty);
+            // Cek apakah item dengan ukuran yang sama sudah ada
+            $existingItemWithSameSize = Cart::instance('cart')->content()->first(function ($item) use ($request) {
+                return $item->id == $request->id &&
+                    isset($item->options['size_id']) &&
+                    $item->options['size_id'] == $request->size_id;
+            });
+
+            if ($existingItemWithSameSize) {
+                // Update qty item yang sudah ada
+                Cart::instance('cart')->update($existingItemWithSameSize->rowId, $existingItemWithSameSize->qty + $request->quantity);
+            } else {
+                // Tambahkan sebagai item baru dengan ukuran berbeda
+                Cart::instance('cart')->add([
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'qty' => $request->quantity,
+                    'price' => $product->sale_price ?: $product->regular_price,
+                    'weight' => 0,
+                    'options' => $options,
+                ])->associate(Product::class);
+            }
         } else {
-            Cart::instance('cart')->add($request->id, $request->name, $request->quantity, $request->price)
-                ->associate('App\Models\Product');
+            // Tambahkan item baru ke keranjang
+            Cart::instance('cart')->add([
+                'id' => $product->id,
+                'name' => $product->name,
+                'qty' => $request->quantity,
+                'price' => $product->sale_price ?: $product->regular_price,
+                'weight' => 0,
+                'options' => $options,
+            ])->associate(Product::class);
+        }
+
+        // Jika user sudah login, simpan juga ke database
+        if (Auth::check()) {
+            $userId = Auth::id();
+
+            // Simpan atau update item di database
+            if (!empty($options)) {
+                // Cek apakah item dengan produk dan ukuran yang sama sudah ada
+                $dbCartItem = CartItem::where('user_id', $userId)
+                    ->where('product_id', $product->id)
+                    ->whereJsonContains('options->size_id', $options['size_id'])
+                    ->first();
+
+                if ($dbCartItem) {
+                    // Update qty item yang sudah ada
+                    $dbCartItem->quantity += $request->quantity;
+                    $dbCartItem->save();
+                } else {
+                    // Buat item baru
+                    CartItem::create([
+                        'user_id' => $userId,
+                        'product_id' => $product->id,
+                        'name' => $product->name,
+                        'quantity' => $request->quantity,
+                        'price' => $product->sale_price ?: $product->regular_price,
+                        'options' => $options
+                    ]);
+                }
+            } else {
+                // Tanpa ukuran, cek item yang sudah ada berdasarkan produk saja
+                $dbCartItem = CartItem::where('user_id', $userId)
+                    ->where('product_id', $product->id)
+                    ->whereNull('options')
+                    ->first();
+
+                if ($dbCartItem) {
+                    $dbCartItem->quantity += $request->quantity;
+                    $dbCartItem->save();
+                } else {
+                    CartItem::create([
+                        'user_id' => $userId,
+                        'product_id' => $product->id,
+                        'name' => $product->name,
+                        'quantity' => $request->quantity,
+                        'price' => $product->sale_price ?: $product->regular_price,
+                        'options' => null
+                    ]);
+                }
+            }
         }
 
         // Response
@@ -79,59 +173,8 @@ class CartController extends Controller
             return redirect()->route('cart.index');
         }
 
-        // Size
-        $request->validate([
-            'id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
-            'size_id' => 'required|exists:sizes,id',
-        ], [
-            'size_id.required' => 'Silakan pilih ukuran produk terlebih dahulu.',
-            'size_id.exists' => 'Ukuran produk tidak valid.',
-        ]);
-
-        $product = Product::findOrFail($request->id);
-
-        // Cek apakah ukuran tersedia untuk produk ini
-        $size = $product->sizes()->where('sizes.id', $request->size_id)->first();
-
-        if (!$size) {
-            return redirect()->back()->with('error', 'Ukuran produk tidak tersedia.');
-        }
-
-        // Ambil stok per ukuran jika ada
-        $availableStock = $size->pivot->stock;
-
-        // Hitung qty yang sudah ada di cart untuk produk dan ukuran ini
-        $cartItem = Cart::instance('cart')->content()->first(function ($cartItem) use ($request) {
-            return $cartItem->id == $request->id && $cartItem->options->size_id == $request->size_id;
-        });
-
-        $currentCartQty = $cartItem ? $cartItem->qty : 0;
-        $totalRequestedQty = $currentCartQty + $request->quantity;
-
-        if ($totalRequestedQty > $availableStock) {
-            return redirect()->back()->with('error', 'Jumlah pesanan melebihi stok yang tersedia untuk ukuran ini.');
-        }
-
-        if ($cartItem) {
-            Cart::instance('cart')->update($cartItem->rowId, $totalRequestedQty);
-        } else {
-            Cart::instance('cart')->add([
-                'id' => $product->id,
-                'name' => $product->name,
-                'qty' => $request->quantity,
-                'price' => $product->sale_price ?: $product->regular_price,
-                'weight' => 0,
-                'options' => [
-                    'size_id' => $size->id,
-                    'size_name' => $size->name,
-                ],
-            ])->associate(Product::class);
-        }
-
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang.');
     }
-
 
     // ----------------- Update Item Quantity -----------------------------------------------
     public function update_item_quantity(Request $request, $rowId)
