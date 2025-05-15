@@ -658,6 +658,54 @@
         }
     </style>
 
+    <style>
+        /* Style untuk filter ukuran */
+        .swatch-size {
+            min-width: 40px;
+            text-align: center;
+            border-radius: 4px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .swatch-size.active {
+            background-color: #956a3b;
+            border-color: #956a3b;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .swatch-size:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .swatch-size small {
+            font-size: 0.7rem;
+            opacity: 0.8;
+        }
+
+        /* Animasi untuk size yang baru ditambahkan atau dihapus */
+        @keyframes pulse-size {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.1);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .swatch-size.just-clicked {
+            animation: pulse-size 0.3s ease-in-out;
+        }
+    </style>
     <main class="pt-90">
         <section class="shop-main container d-flex pt-4 pt-xl-5">
             <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
@@ -796,18 +844,15 @@
                             aria-labelledby="accordion-heading-size" data-bs-parent="#size-filters">
                             <div class="accordion-body px-0 pb-0">
                                 <div class="d-flex flex-wrap">
-                                    <a href="#"
-                                        class="swatch-size btn btn-sm btn-outline-light mb-3 me-3 js-filter">XS</a>
-                                    <a href="#"
-                                        class="swatch-size btn btn-sm btn-outline-light mb-3 me-3 js-filter">S</a>
-                                    <a href="#"
-                                        class="swatch-size btn btn-sm btn-outline-light mb-3 me-3 js-filter">M</a>
-                                    <a href="#"
-                                        class="swatch-size btn btn-sm btn-outline-light mb-3 me-3 js-filter">L</a>
-                                    <a href="#"
-                                        class="swatch-size btn btn-sm btn-outline-light mb-3 me-3 js-filter">XL</a>
-                                    <a href="#"
-                                        class="swatch-size btn btn-sm btn-outline-light mb-3 me-3 js-filter">XXL</a>
+                                    @foreach ($sizes as $size_item)
+                                        <button type="button"
+                                            class="swatch-size btn btn-sm mb-3 me-3 js-filter-size {{ in_array($size_item->id, explode(',', $f_sizes ?? '')) ? 'active btn-primary' : 'btn-outline-light' }}"
+                                            data-size-id="{{ $size_item->id }}">
+                                            {{ $size_item->name }}
+                                            <small
+                                                class="d-block text-muted mt-1">({{ $productCountBySize[$size_item->id] ?? 0 }})</small>
+                                        </button>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -890,6 +935,7 @@
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <div class="shop-list flex-grow-1">
@@ -1009,7 +1055,7 @@
                         <!-- Filter Controls with improved layout -->
                         <div class="shop-controls__wrapper d-flex align-items-center flex-wrap gap-2 gap-md-3">
                             <!-- Display Options -->
-                            <div class="product-display-options d-flex align-items-center">
+                            {{-- <div class="product-display-options d-flex align-items-center">
                                 <label for="pagesize"
                                     class="fw-medium text-secondary me-2 d-none d-md-block">Tampilkan:</label>
                                 <div class="select-wrapper position-relative">
@@ -1021,7 +1067,7 @@
                                         <option value="102" {{ $size == 102 ? 'selected' : '' }}>102</option>
                                     </select>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="shop-controls__divider d-none d-md-block"></div>
 
@@ -1479,10 +1525,12 @@
 
     <form id="frmfilter" method="GET" action="{{ route('shop.index') }}">
         <input type="hidden" name="name" value="{{ $products->currentPage() }}" />
-        <input type="hidden" name="size" id="size" value="{{ $size }}" />
+        <input type="hidden" name="size" id="size" value="{{ $pageSize }}" />
+        <!-- Ubah $size menjadi $pageSize -->
         <input type="hidden" id="order" name="order" value="{{ $order }}" />
         <input type="hidden" name="brands" id="hdnBrands" />
         <input type="hidden" name="categories" id="hdnCategories" />
+        <input type="hidden" name="sizes" id="hdnSizes" value="{{ $f_sizes ?? '' }}" />
         <input type="hidden" name="min" id="hdnMinPrice" value="{{ $min_price }}" />
         <input type="hidden" name="max" id="hdnMaxPrice" value="{{ $max_price }}" />
         <input type="hidden" name="ratings" id="hdnRatings" />
@@ -1913,6 +1961,135 @@
 
             // Call on page load
             updateActiveFiltersDisplay();
+        });
+    </script>
+
+    <!-- Filter ukuran -->
+    <script>
+        // Tambahkan kode berikut di bagian scripts
+        $(function() {
+            // Kode event handler yang sudah ada...
+
+            // Handler untuk filter ukuran
+            $(".js-filter-size").on("click", function() {
+                // Toggle class active untuk visual feedback
+                $(this).toggleClass("active btn-primary btn-outline-light");
+
+                // Kumpulkan semua ukuran yang aktif
+                var sizes = "";
+                $(".js-filter-size.active").each(function() {
+                    if (sizes == "") {
+                        sizes += $(this).data("size-id");
+                    } else {
+                        sizes += "," + $(this).data("size-id");
+                    }
+                });
+
+                // Update hidden input untuk ukuran
+                $("#hdnSizes").val(sizes);
+
+                // Submit form filter
+                $("#frmfilter").submit();
+            });
+
+            // Tambahkan ini untuk menampilkan filter aktif
+            function updateActiveFilters() {
+                const activeFilters = [];
+
+                // Check for active category filters
+                $("input[name='categories']:checked").each(function() {
+                    const categoryName = $(this).closest("li").text().trim();
+                    activeFilters.push({
+                        type: 'category',
+                        id: $(this).val(),
+                        name: categoryName
+                    });
+                });
+
+                // Check for active brand filters
+                $("input[name='brands']:checked").each(function() {
+                    const brandName = $(this).closest("li").text().trim();
+                    activeFilters.push({
+                        type: 'brand',
+                        id: $(this).val(),
+                        name: brandName
+                    });
+                });
+
+                // Check for active size filters
+                $(".js-filter-size.active").each(function() {
+                    const sizeName = $(this).text().trim().split('(')[
+                        0]; // Get only the size name without count
+                    activeFilters.push({
+                        type: 'size',
+                        id: $(this).data("size-id"),
+                        name: "Ukuran: " + sizeName
+                    });
+                });
+
+                // If there are active filters, show the container
+                if (activeFilters.length > 0) {
+                    $("#activeFilters").removeClass("d-none");
+
+                    // Clear existing tags
+                    $(".active-filters-tags").empty();
+
+                    // Add a tag for each filter
+                    activeFilters.forEach(filter => {
+                        const $tag = $(`
+                <div class="filter-tag" data-type="${filter.type}" data-id="${filter.id}">
+                    ${filter.name}
+                    <button type="button" class="btn-close btn-close-sm ms-2" aria-label="Remove filter"></button>
+                </div>
+            `);
+
+                        $(".active-filters-tags").append($tag);
+                    });
+                } else {
+                    $("#activeFilters").addClass("d-none");
+                }
+            }
+
+            // Call updateActiveFilters on page load and when filters change
+            updateActiveFilters();
+
+            // Handle tag removal for sizes
+            $(document).on("click", ".filter-tag .btn-close", function() {
+                const $tag = $(this).closest(".filter-tag");
+                const type = $tag.data("type");
+                const id = $tag.data("id");
+
+                if (type === 'size') {
+                    // Find and click the size button to toggle it off
+                    $(`.js-filter-size[data-size-id="${id}"]`).removeClass("active btn-primary").addClass(
+                        "btn-outline-light");
+
+                    // Update hidden input
+                    var sizes = "";
+                    $(".js-filter-size.active").each(function() {
+                        if (sizes == "") {
+                            sizes += $(this).data("size-id");
+                        } else {
+                            sizes += "," + $(this).data("size-id");
+                        }
+                    });
+                    $("#hdnSizes").val(sizes);
+                    $("#frmfilter").submit();
+                }
+                // ...other filter tag removal handlers...
+            });
+
+            // Clear all filters should also clear sizes
+            $("#clearAllFilters").on("click", function() {
+                // Reset size filter buttons
+                $(".js-filter-size").removeClass("active btn-primary").addClass("btn-outline-light");
+                $("#hdnSizes").val("");
+
+                // Existing code for clearing other filters...
+
+                // Submit the form
+                $("#frmfilter").submit();
+            });
         });
     </script>
 @endpush

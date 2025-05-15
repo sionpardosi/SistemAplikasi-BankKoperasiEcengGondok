@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Size;
 use App\Models\Brand;
 use App\Models\Product;
 use App\Models\Category;
@@ -13,15 +14,18 @@ class ShopController extends Controller
     // Halaman User Produk
     public function index(Request $request)
     {
-        $size = $request->query('size') ? $request->query('size') : 12;
-        $order = $request->query('order') ? $request->query('order') : -1;
-        $f_brands = $request->query('brands');
-        $f_categories = $request->query('categories');
-        $min_price = $request->query('min') ? $request->query('min') : 1;
-        $max_price = $request->query('max') ? $request->query('max') : 10000000; // 10.000.000
-        $search = $request->query('search'); // Get search parameter
-        $ratings = $request->query('ratings'); // Get ratings filter
+    // Ubah nama variabel $size menjadi $pageSize untuk menghindari konflik
+    $pageSize = $request->query('size') ? $request->query('size') : 12;
+    $order = $request->query('order') ? $request->query('order') : -1;
+    $f_brands = $request->query('brands');
+    $f_categories = $request->query('categories');
+    $f_sizes = $request->query('sizes'); // Untuk filter ukuran
+    $min_price = $request->query('min') ? $request->query('min') : 1;
+    $max_price = $request->query('max') ? $request->query('max') : 10000000;
+    $search = $request->query('search');
+    $ratings = $request->query('ratings');
 
+        // Definisikan ordering
         switch ($order) {
             case 1:
                 $o_column = 'created_at';
@@ -40,12 +44,13 @@ class ShopController extends Controller
                 $o_order = 'DESC';
                 break;
             default:
-                // Misalnya, untuk default kita ingin urut berdasarkan created_at DESC
                 $o_column = 'id';
                 $o_order = 'DESC';
         }
+
         $brands = Brand::orderBy('name', 'ASC')->get();
         $categories = Category::orderBy('name', 'ASC')->get();
+        $sizes = Size::orderBy('name', 'ASC')->get(); // Ambil semua ukuran dari database
 
         $query = Product::where(function ($query) use ($f_brands) {
             $query->whereIn('brand_id', explode(',', $f_brands))->orWhereRaw("'" . $f_brands . "' = ''");
@@ -57,6 +62,14 @@ class ShopController extends Controller
                 $query->whereBetween('regular_price', [$min_price, $max_price])
                     ->orWhereBetween('sale_price', [$min_price, $max_price]);
             });
+
+        // Filter ukuran jika ada
+        if (!empty($f_sizes)) {
+            $sizeIds = explode(',', $f_sizes);
+            $query->whereHas('sizes', function ($q) use ($sizeIds) {
+                $q->whereIn('sizes.id', $sizeIds);
+            });
+        }
 
         // Filter berdasarkan rating jika ada
         if (!empty($ratings)) {
@@ -75,13 +88,21 @@ class ShopController extends Controller
             });
         }
 
-        $products = $query->orderBy($o_column, $o_order)->paginate($size);
+        $products = $query->orderBy($o_column, $o_order)->paginate($pageSize);
 
-        // Prepare rating filter counts - menghitung jumlah produk untuk tiap rating
+        // Prepare rating filter counts
         $productCountByRating = [];
         for ($i = 1; $i <= 5; $i++) {
             $productCountByRating[$i] = Product::whereHas('reviews', function ($query) use ($i) {
                 $query->where(DB::raw('FLOOR(rating)'), $i);
+            })->count();
+        }
+
+        // Count products by size for displaying in filter
+        $productCountBySize = [];
+        foreach ($sizes as $size) {
+            $productCountBySize[$size->id] = Product::whereHas('sizes', function ($q) use ($size) {
+                $q->where('sizes.id', $size->id);
             })->count();
         }
 
@@ -90,7 +111,7 @@ class ShopController extends Controller
 
         return view('shop', compact(
             'products',
-            'size',
+            'pageSize', // Ubah dari 'size' menjadi 'pageSize'
             'order',
             'brands',
             'f_brands',
@@ -100,7 +121,10 @@ class ShopController extends Controller
             'max_price',
             'search_query',
             'productCountByRating',
-            'ratings'
+            'ratings',
+            'sizes',
+            'f_sizes',
+            'productCountBySize'
         ));
     }
 
