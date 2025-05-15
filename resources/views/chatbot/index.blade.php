@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>WSP ChatBot</title>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css" />
+		<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+		<style>
+			#response {
+				margin-top: 20px;
+				padding: 10px;
+				min-height: 50px;
+			}
+			#response h3 {
+				color: #333;
+				font-size: 1.2em;
+			}
+			#response strong {
+				color: #d9534f;
+			}
+			#response ul {
+				padding-left: 20px;
+			}
+			#response li {
+				margin-bottom: 5px;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="container">
+			<h2>Free ChatBot</h2>
+			<div class="form-group">
+				<input
+					type="text"
+					class="form-control"
+					id="userInput"
+					placeholder="Enter your question" />
+			</div>
+			<button class="btn btn-success" onclick="sendMessage()">Ask!</button>
+			<div id="response"></div>
+		</div>
+		<script>
+			async function sendMessage() {
+				const input = document.getElementById('userInput').value;
+				const responseDiv = document.getElementById('response');
+				if (!input) {
+					responseDiv.innerHTML = 'Please enter a message.';
+					return;
+				}
+				responseDiv.innerHTML = 'Loading...';
+				try {
+					const response = await fetch(
+						'https://openrouter.ai/api/v1/chat/completions',
+						{
+							method: 'POST',
+							headers: {
+								Authorization: 'Bearer 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',
+								'HTTP-Referer': 'http://127.0.0.1:8000  ',
+								'X-Title': 'BankKoperasiEcengGondok',
+								'Content-Type': 'application/json',
+							},
+							body: JSON.stringify({
+								model: 'deepseek/deepseek-r1:free',
+								messages: [{ role: 'user', content: input }],
+							}),
+						},
+					);
+					const data = await response.json();
+					console.log(data);
+					const markdownText =
+						data.choices?.[0]?.message?.content || 'No response received.';
+					responseDiv.innerHTML = marked.parse(markdownText);
+				} catch (error) {
+					responseDiv.innerHTML = 'Error: ' + error.message;
+				}
+			}
+		</script>
+	</body>
+</html>
