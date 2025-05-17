@@ -176,14 +176,34 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'Produk berhasil ditambahkan ke keranjang.');
     }
 
-    // ----------------- Update Item Quantity -----------------------------------------------
+    // ----------------- Update Item Quantity Via AJAX -----------------------------------------------
     public function update_item_quantity(Request $request, $rowId)
     {
         $validated = $request->validate([
             'quantity' => 'required|integer|min:1',
         ]);
+
         Cart::instance('cart')->update($rowId, $validated['quantity']);
-        return redirect()->back();
+
+        // Update di database jika user login
+        if (Auth::check()) {
+            $cartItem = Cart::instance('cart')->get($rowId);
+            $dbCartItem = CartItem::where('user_id', Auth::id())
+                ->where('product_id', $cartItem->id)
+                ->first();
+
+            if ($dbCartItem) {
+                $dbCartItem->quantity = $validated['quantity'];
+                $dbCartItem->save();
+            }
+        }
+
+        $updatedItem = Cart::instance('cart')->get($rowId);
+        return response()->json([
+            'success' => true,
+            'quantity' => $updatedItem->qty,
+            'subtotal' => $updatedItem->subtotal(0, '', '')
+        ]);
     }
 
     // ----------------- Increase Item Quantity --------------------------------------------
@@ -294,6 +314,43 @@ class CartController extends Controller
         ]);
     }
 
+    // ----------------------------- Calculate Discount For Selected Items --------------------------------
+    public function calculateDiscountForSelectedItems($selectedItems)
+    {
+        $subtotal = 0;
+
+        // Hitung subtotal dari item yang dipilih
+        foreach ($selectedItems as $rowId) {
+            $item = Cart::instance('cart')->get($rowId);
+            if ($item) {
+                $subtotal += $item->subtotal(0, '', '');
+            }
+        }
+
+        $discount = 0;
+        if (Session::has('coupon')) {
+            $coupon = Session::get('coupon');
+            if ($coupon['type'] == 'fixed') {
+                $discount = floatval($coupon['value']);
+            } else {
+                $discount = ($subtotal * floatval($coupon['value'])) / 100;
+            }
+        }
+
+        $subtotalAfterDiscount = $subtotal - $discount;
+        $taxRate = floatval(config('cart.tax'));
+        $taxAfterDiscount = ($subtotalAfterDiscount * $taxRate) / 100;
+        $totalAfterDiscount = $subtotalAfterDiscount + $taxAfterDiscount;
+
+        return [
+            'subtotal' => $subtotal,
+            'discount' => $discount,
+            'subtotalAfterDiscount' => $subtotalAfterDiscount,
+            'tax' => $taxAfterDiscount,
+            'total' => $totalAfterDiscount
+        ];
+    }
+
     // Remove Coupon
     public function remove_coupon_code()
     {
@@ -307,11 +364,32 @@ class CartController extends Controller
     // CHECKOUT // ------------------------ Checkout Page -------------------------------------------------
     // ====================================================================================================
 
-    public function checkout()
+    public function checkout(Request $request)
     {
         if (!Auth::check()) {
             return redirect()->route("login");
         }
+
+        // Ambil item yang dipilih dari request
+        $selectedItems = $request->has('selected_items') ? json_decode($request->selected_items, true) : [];
+
+        // Jika tidak ada item yang dipilih, mungkin user mencoba akses langsung - redirect ke keranjang
+        if (empty($selectedItems)) {
+            // Cek apakah ada item di keranjang
+            if (Cart::instance('cart')->count() === 0) {
+                return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong');
+            }
+
+            // Jika tidak ada item yang dipilih tetapi ada item di keranjang,
+            // gunakan semua item (untuk backward compatibility)
+            $selectedItems = Cart::instance('cart')->content()->pluck('rowId')->toArray();
+        }
+
+        // Simpan item yang dipilih di session untuk digunakan saat checkout
+        session()->put('selected_cart_items', $selectedItems);
+
+        // Hitung ulang dan simpan jumlah untuk checkout berdasarkan item yang dipilih
+        $this->setAmountForCheckoutSelectedItems($selectedItems);
 
         // Ambil alamat default user
         $address = Address::where('user_id', Auth::user()->id)->where('isdefault', true)->first();
@@ -324,11 +402,13 @@ class CartController extends Controller
         // Ambil semua alamat user untuk ditampilkan di dropdown
         $userAddresses = Address::where('user_id', Auth::user()->id)->get();
 
-
-        // Hitung total berat dari keranjang (asumsi 1000g per item)
+        // Hitung total berat dari item yang dipilih (asumsi 500g per item)
         $weight = 0;
-        foreach (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content() as $item) {
-            $weight += (500 * $item->qty); // 1000g (1kg) per item
+        foreach ($selectedItems as $rowId) {
+            $item = Cart::instance('cart')->get($rowId);
+            if ($item) {
+                $weight += (500 * $item->qty); // 500g per item
+            }
         }
 
         // Jika tidak ada berat, gunakan berat default
@@ -347,6 +427,52 @@ class CartController extends Controller
         $bankAccounts = BankAccount::where('is_active', true)->get();
 
         return view('checkout', compact('address', 'userAddresses', 'bankAccounts', 'couriers', 'weight'));
+    }
+
+    // ----------------- Set Amount For Checkout Selected Items ------------------------------------------
+    public function setAmountForCheckoutSelectedItems($selectedItems)
+    {
+        if (empty($selectedItems)) {
+            session()->forget('checkout');
+            return;
+        }
+
+        $calculationResult = $this->calculateDiscountForSelectedItems($selectedItems);
+
+        session()->put('checkout', [
+            'discount' => $calculationResult['discount'],
+            'subtotal' => $calculationResult['subtotal'],
+            'tax' => $calculationResult['tax'],
+            'total' => $calculationResult['total']
+        ]);
+    }
+
+
+    // ====================================================================================================
+    // SET AMOUNT FOR CHECKOUT // ------------------------ Set Amount For Checkout ------------------------
+    // ====================================================================================================
+    public function setAmountForCheckout()
+    {
+        if (!Cart::instance('cart')->count() > 0) {
+            session()->forget('checkout');
+            return;
+        }
+
+        if (session()->has('coupon')) {
+            session()->put('checkout', [
+                'discount' => (float) session()->get('discounts')['discount'],
+                'subtotal' => (float) session()->get('discounts')['subtotal'],
+                'tax' => (float) session()->get('discounts')['tax'],
+                'total' => (float) session()->get('discounts')['total']
+            ]);
+        } else {
+            session()->put('checkout', [
+                'discount' => 0,
+                'subtotal' => (float) Cart::instance('cart')->subtotal(0, '', ''),
+                'tax' => (float) Cart::instance('cart')->tax(0, '', ''),
+                'total' => (float) Cart::instance('cart')->total(0, '', '')
+            ]);
+        }
     }
 
 
@@ -412,9 +538,20 @@ class CartController extends Controller
             }
         }
 
-        $this->setAmountForCheckout();
+        // Ambil item yang dipilih dari session (diset sebelumnya di checkout)
+        $selectedItems = session()->get('selected_cart_items', []);
 
-        // Proses order seperti sebelumnya
+        // Jika tidak ada item yang dipilih, redirect kembali ke cart
+        if (empty($selectedItems)) {
+            return redirect()->route('cart.index')->with('error', 'Tidak ada produk yang dipilih untuk checkout');
+        }
+
+        // Gunakan rincian pembayaran yang sudah dihitung sebelumnya
+        if (!session()->has('checkout')) {
+            $this->setAmountForCheckoutSelectedItems($selectedItems);
+        }
+
+        // Proses order
         $order = new Order();
         $order->user_id = $user_id;
         $order->subtotal = session()->get('checkout')['subtotal'];
@@ -434,14 +571,28 @@ class CartController extends Controller
         $order->kurir = $request->kurir;
         $order->save();
 
-        // Simpan order item
-        foreach (Cart::instance('cart')->content() as $item) {
-            $orderitem = new OrderItem();
-            $orderitem->product_id = $item->id;
-            $orderitem->order_id = $order->id;
-            $orderitem->price = $item->price;
-            $orderitem->quantity = $item->qty;
-            $orderitem->save();
+        // Simpan hanya item yang dipilih sebagai order item
+        foreach ($selectedItems as $rowId) {
+            $item = Cart::instance('cart')->get($rowId);
+            if ($item) {
+                $orderitem = new OrderItem();
+                $orderitem->product_id = $item->id;
+                $orderitem->order_id = $order->id;
+                $orderitem->price = $item->price;
+                $orderitem->quantity = $item->qty;
+                $orderitem->options = $item->options;
+                $orderitem->save();
+
+                // Hapus item dari keranjang setelah ditambahkan ke order
+                Cart::instance('cart')->remove($rowId);
+
+                // Hapus juga dari database jika user login
+                if (Auth::check()) {
+                    CartItem::where('user_id', $user_id)
+                        ->where('product_id', $item->id)
+                        ->delete();
+                }
+            }
         }
 
         // Gunakan invoice sebagai order_id yang tetap
@@ -513,24 +664,23 @@ class CartController extends Controller
 
         DB::beginTransaction();
         try {
-            // Simpan order dan order items (sudah ada di kode Anda)
-
             // Update reserved_quantity untuk setiap produk sesuai qty di order items
-            foreach (Cart::instance('cart')->content() as $item) {
-                $product = Product::lockForUpdate()->find($item->id); // Lock row untuk concurrency
-                $availableStock = $product->quantity - $product->reserved_quantity;
+            foreach ($selectedItems as $rowId) {
+                $item = Cart::instance('cart')->get($rowId);
+                if ($item) {
+                    $product = Product::lockForUpdate()->find($item->id); // Lock row untuk concurrency
+                    $availableStock = $product->quantity - $product->reserved_quantity;
 
-                if ($item->qty > $availableStock) {
-                    DB::rollBack();
-                    return redirect()->back()->with('error', "Stok produk {$product->name} tidak cukup.");
+                    if ($item->qty > $availableStock) {
+                        DB::rollBack();
+                        return redirect()->back()->with('error', "Stok produk {$product->name} tidak cukup.");
+                    }
+
+                    // Tambah reserved_quantity
+                    $product->reserved_quantity += $item->qty;
+                    $product->save();
                 }
-
-                // Tambah reserved_quantity
-                $product->reserved_quantity += $item->qty;
-                $product->save();
             }
-
-            // Simpan transaksi seperti kode Anda
 
             DB::commit();
         } catch (\Exception $e) {
@@ -539,43 +689,16 @@ class CartController extends Controller
             return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses pesanan.');
         }
 
-        // Bersihkan cart
-        CartItem::where('user_id', $user_id)->delete();
-        Cart::instance('cart')->destroy();
+        // Jika masih ada item di keranjang, tidak perlu destroy seluruh keranjang
+        if (Cart::instance('cart')->count() === 0) {
+            Cart::instance('cart')->destroy();
+        }
+
+        session()->forget('selected_cart_items');
         session()->forget('checkout');
-        session()->forget('coupon');
-        session()->forget('discounts');
         session()->put('order_id', $order->id);
 
         return redirect()->route('cart.confirmation');
-    }
-
-
-    // ====================================================================================================
-    // SET AMOUNT FOR CHECKOUT // ------------------------ Set Amount For Checkout ------------------------
-    // ====================================================================================================
-    public function setAmountForCheckout()
-    {
-        if (!Cart::instance('cart')->count() > 0) {
-            session()->forget('checkout');
-            return;
-        }
-
-        if (session()->has('coupon')) {
-            session()->put('checkout', [
-                'discount' => (float) session()->get('discounts')['discount'],
-                'subtotal' => (float) session()->get('discounts')['subtotal'],
-                'tax' => (float) session()->get('discounts')['tax'],
-                'total' => (float) session()->get('discounts')['total']
-            ]);
-        } else {
-            session()->put('checkout', [
-                'discount' => 0,
-                'subtotal' => (float) Cart::instance('cart')->subtotal(0, '', ''),
-                'tax' => (float) Cart::instance('cart')->tax(0, '', ''),
-                'total' => (float) Cart::instance('cart')->total(0, '', '')
-            ]);
-        }
     }
 
 
@@ -592,63 +715,3 @@ class CartController extends Controller
         return redirect()->route('cart.index');
     }
 }
-
-
-    // // Calculate Discounts
-    // public function apply_coupon_code(Request $request)
-    // {
-    //     $coupon_code = $request->coupon_code;
-    //     if(isset($coupon_code))
-    //     {
-    //         $coupon = Coupon::where('code',$coupon_code)->where('expiry_date','>=',Carbon::today())->where('cart_value','<=',Cart::instance('cart')->subtotal())->first();
-    //         if(!$coupon)
-    //         {
-    //             return back()->with('error','Invalid coupon code!');
-    //         }
-    //         session()->put('coupon',[
-    //             'code' => $coupon->code,
-    //             'type' => $coupon->type,
-    //             'value' => $coupon->value,
-    //             'cart_value' => $coupon->cart_value
-    //         ]);
-    //         $this->calculateDiscounts();
-    //         return back()->with('status','Coupon code has been applied!');
-    //     }
-    //     else{
-    //         return back()->with('error','Invalid coupon code!');
-    //     }
-    // }
-    // public function calculateDiscounts()
-    // {
-    //     $discount = 0;
-    //     if(session()->has('coupon'))
-    //     {
-    //         if(session()->get('coupon')['type'] == 'fixed')
-    //         {
-    //             $discount = session()->get('coupon')['value'];
-    //         }
-    //         else
-    //         {
-    //             $discount = (Cart::instance('cart')->subtotal() * session()->get('coupon')['value'])/100;
-    //         }
-
-    //         $subtotalAfterDiscount = Cart::instance('cart')->subtotal() - $discount;
-    //         $taxAfterDiscount = ($subtotalAfterDiscount * config('cart.tax'))/100;
-
-
-    //         $totalAfterDiscount = $subtotalAfterDiscount + $taxAfterDiscount;
-
-    //         session()->put('discounts',[
-    //             'discount' => number_format(floatval($discount),2,'.',''),
-    //             'subtotal' => number_format(floatval(Cart::instance('cart')->subtotal() - $discount),2,'.',''),
-    //             'tax' => number_format(floatval((($subtotalAfterDiscount * config('cart.tax'))/100)),2,'.',''),
-    //             'total' => number_format(floatval($subtotalAfterDiscount + $taxAfterDiscount),2,'.','')
-    //         ]);
-    //     }
-    // }
-    // public function removeCoupon()
-    // {
-    //     Session::forget('coupon');
-    //     Session::forget('discounts');
-    //     return back()->with('status', 'Coupon berhasil dihapus.');
-    // }

@@ -28,6 +28,31 @@
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
+        /* Checkbox styling */
+        .cart-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+        }
+
+        .select-all-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 8px 16px;
+            background-color: #fcf9f5;
+            border-radius: 8px;
+            border: 1px solid rgba(149, 106, 59, 0.15);
+        }
+
+        .select-all-container label {
+            margin-left: 8px;
+            font-weight: 500;
+            color: var(--text-medium);
+            cursor: pointer;
+        }
+
         /* Checkout Steps - Modern Design */
         .checkout-steps {
             display: flex;
@@ -210,6 +235,20 @@
             box-shadow: 0 6px 15px rgba(149, 106, 59, 0.15);
         }
 
+        /* Dimmed items - when not selected */
+        tr.cart-item-row.dimmed {
+            opacity: 0.5;
+            transition: opacity 0.3s ease;
+        }
+
+        /* Checkbox label */
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
         /* Responsive Design */
         @media (max-width: 992px) {
             .checkout-steps__item-number {
@@ -278,7 +317,6 @@
                 display: none;
             }
         }
-
 
         .empty-cart-container {
             padding: 40px 30px;
@@ -770,11 +808,17 @@
             <div class="shopping-cart">
                 @if ($cartItems->count() > 0)
                     <div class="cart-table__wrapper">
+                        <div class="select-all-container mb-3">
+                            <input type="checkbox" id="select-all" class="cart-checkbox" checked>
+                            <label for="select-all">Pilih Semua Produk</label>
+                        </div>
+
                         <table class="cart-table">
                             <thead>
                                 <tr>
-                                    <th>Produk</th>
-                                    <th></th>
+                                    <th style="width: 5%"></th>
+                                    <th style="width: 15%">Produk</th>
+                                    <th style="width: 25%"></th>
                                     <th>Harga</th>
                                     <th>Jumlah</th>
                                     <th>Sub Total</th>
@@ -783,7 +827,11 @@
                             </thead>
                             <tbody>
                                 @foreach ($cartItems as $cartItem)
-                                    <tr>
+                                    <tr class="cart-item-row" data-row-id="{{ $cartItem->rowId }}" data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}">
+                                        <td>
+                                            <input type="checkbox" class="cart-checkbox item-checkbox" name="selected_items[]" value="{{ $cartItem->rowId }}" checked
+                                                data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}" data-subtotal="{{ $cartItem->subtotal(0, '', '') }}">
+                                        </td>
                                         <td>
                                             <div class="shopping-cart__product-item">
                                                 <img loading="lazy"
@@ -809,7 +857,8 @@
                                         <td>
                                             <div class="qty-control position-relative">
                                                 <input type="number" name="quantity" value="{{ $cartItem->qty }}"
-                                                    min="1" class="qty-control__number text-center">
+                                                    min="1" class="qty-control__number text-center qty-input"
+                                                    data-row-id="{{ $cartItem->rowId }}">
                                                 <form method="POST"
                                                     action="{{ route('cart.reduce.qty', ['rowId' => $cartItem->rowId]) }}">
                                                     @csrf
@@ -893,73 +942,56 @@
                         <div class="sticky-content">
                             <div class="shopping-cart__totals">
                                 <h3>Detail Pembayaran</h3>
-                                @if (Session::has('discounts'))
-                                    <table class="cart-totals">
-                                        <tbody>
-                                            <tr>
-                                                <th>Subtotal</th>
-                                                <td>
+
+                                <table class="cart-totals">
+                                    <tbody>
+                                        <tr>
+                                            <th>Subtotal</th>
+                                            <td id="cart-subtotal">
+                                                {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}
+                                            </td>
+                                        </tr>
+                                        @if (Session::has('discounts'))
+                                        <tr>
+                                            <th>Diskon {{ Session('coupon')['code'] }}</th>
+                                            <td id="cart-discount">-{{ formatRupiah((float) Session('discounts')['discount']) }}</td>
+                                        </tr>
+                                        <tr>
+                                            <th>Subtotal Setelah Diskon</th>
+                                            <td id="cart-subtotal-after-discount">{{ formatRupiah((float) Session('discounts')['subtotal']) }}</td>
+                                        </tr>
+                                        @endif
+                                        <tr>
+                                            <th>Ongkos Kirim</th>
+                                            <td class="shipping-cost">
+                                                <div class="shipping-info">
+                                                    <i class="fas fa-truck-loading text-primary-light"></i>
+                                                    <span>Dihitung saat checkout</span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <tr class="cart-total">
+                                            <th>Total</th>
+                                            <td id="cart-total">
+                                                @if (Session::has('discounts'))
+                                                    {{ formatRupiah((float) Session('discounts')['subtotal']) }}
+                                                @else
                                                     {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>Diskon {{ Session('coupon')['code'] }}</th>
-                                                {{-- Nilai diskon disimpan di session sebagai string, kita cast ke float lalu format --}}
-                                                <td>-{{ formatRupiah((float) Session('discounts')['discount']) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Subtotal Setelah Diskon</th>
-                                                <td>{{ formatRupiah((float) Session('discounts')['subtotal']) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Ongkos Kirim</th>
-                                                <td class="shipping-cost">
-                                                    <div class="shipping-info">
-                                                        <i class="fas fa-truck-loading text-primary-light"></i>
-                                                        <span>Dihitung saat checkout</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr class="cart-total">
-                                                <th>Total</th>
-                                                <td>{{ formatRupiah((float) Session('discounts')['subtotal']) }}</td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                @else
-                                    <table class="cart-totals">
-                                        <tbody>
-                                            <tr>
-                                                <th>Subtotal</th>
-                                                <td>
-                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>Ongkos Kirim</th>
-                                                <td class="shipping-cost">
-                                                    <div class="shipping-info">
-                                                        <i class="fas fa-truck-loading text-primary-light"></i>
-                                                        <span>Dihitung saat checkout</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr class="cart-total">
-                                                <th>Total</th>
-                                                <td>
-                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                @endif
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                             <div class="mobile_fixed-btn_wrapper">
                                 <div class="button-wrapper container">
-                                    <a href="{{ route('cart.checkout') }}" class="btn btn-primary btn-checkout text-white"
-                                        style="background-color: #956a3b; border-color: #956a3b; color: #ffffff;">
-                                        LANJUTKAN KE PEMBAYARAN
-                                    </a>
+                                    <form id="checkout-form" action="{{ route('cart.checkout') }}" method="GET">
+                                        <input type="hidden" name="selected_items" id="selected-items-input">
+                                        <button type="submit" class="btn btn-primary btn-checkout text-white w-100" id="checkout-btn"
+                                            style="background-color: #956a3b; border-color: #956a3b; color: #ffffff;">
+                                            LANJUTKAN KE PEMBAYARAN
+                                        </button>
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -1027,14 +1059,157 @@
     @push('scripts')
         <script>
             $(function() {
+                // Update cart totals when checkboxes or quantities change
+                function updateCartTotals() {
+                    let subtotal = 0;
+                    let selectedItems = [];
+
+                    // Calculate totals based on selected items
+                    $('.item-checkbox:checked').each(function() {
+                        const rowId = $(this).val();
+                        const price = parseFloat($(this).data('price'));
+                        const qty = parseInt($(this).closest('tr').find('.qty-input').val());
+                        const itemSubtotal = price * qty;
+
+                        subtotal += itemSubtotal;
+                        selectedItems.push(rowId);
+                    });
+
+                    // Update the hidden input with selected items
+                    $('#selected-items-input').val(JSON.stringify(selectedItems));
+
+                    // Format the number to currency
+                    const formattedSubtotal = formatRupiah(subtotal);
+                    $('#cart-subtotal').text(formattedSubtotal);
+
+                    // If there's a coupon, recalculate discount
+                    @if(Session::has('discounts'))
+                        const discount = calculateDiscount(subtotal);
+                        const subtotalAfterDiscount = subtotal - discount;
+
+                        $('#cart-discount').text('-' + formatRupiah(discount));
+                        $('#cart-subtotal-after-discount').text(formatRupiah(subtotalAfterDiscount));
+                        $('#cart-total').text(formatRupiah(subtotalAfterDiscount));
+                    @else
+                        $('#cart-total').text(formattedSubtotal);
+                    @endif
+
+                    // Apply visual dimming to unselected items
+                    $('.cart-item-row').each(function() {
+                        const isChecked = $(this).find('.item-checkbox').is(':checked');
+                        $(this).toggleClass('dimmed', !isChecked);
+                    });
+
+                    // Disable checkout button if no items selected
+                    if (selectedItems.length === 0) {
+                        $('#checkout-btn').prop('disabled', true).css('opacity', '0.5');
+                    } else {
+                        $('#checkout-btn').prop('disabled', false).css('opacity', '1');
+                    }
+                }
+
+                // Calculate discount based on coupon type
+                function calculateDiscount(subtotal) {
+                    @if(Session::has('coupon'))
+                        const couponType = "{{ Session::get('coupon')['type'] }}";
+                        const couponValue = parseFloat("{{ Session::get('coupon')['value'] }}");
+
+                        if (couponType === 'fixed') {
+                            return couponValue;
+                        } else {
+                            return (subtotal * couponValue) / 100;
+                        }
+                    @else
+                        return 0;
+                    @endif
+                }
+
+                // Format number to Rupiah
+                function formatRupiah(number) {
+                    return 'Rp' + number.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+                }
+
+                // Select/deselect all items
+                $('#select-all').on('change', function() {
+                    const isChecked = $(this).is(':checked');
+                    $('.item-checkbox').prop('checked', isChecked);
+                    updateCartTotals();
+                });
+
+                // Individual item selection
+                $('.item-checkbox').on('change', function() {
+                    // Update "select all" checkbox based on individual selections
+                    if ($('.item-checkbox:checked').length === $('.item-checkbox').length) {
+                        $('#select-all').prop('checked', true);
+                    } else {
+                        $('#select-all').prop('checked', false);
+                    }
+
+                    updateCartTotals();
+                });
+
+                // Update totals when quantity changes
+                $('.qty-input').on('change', function() {
+                    const rowId = $(this).data('row-id');
+                    const newQty = $(this).val();
+
+                    // Update the cart via AJAX
+                    $.ajax({
+                        url: '{{ url("/cart/update-qty") }}/' + rowId,
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            _method: 'PUT',
+                            quantity: newQty
+                        },
+                        success: function(response) {
+                            // Update subtotal display for this item
+                            const price = parseFloat($(`tr[data-row-id="${rowId}"]`).data('price'));
+                            const newSubtotal = price * newQty;
+                            $(`tr[data-row-id="${rowId}"] .shopping-cart__subtotal`).text(formatRupiah(newSubtotal));
+
+                            // Update checkbox data attribute
+                            $(`input[value="${rowId}"]`).data('qty', newQty);
+                            $(`input[value="${rowId}"]`).data('subtotal', newSubtotal);
+
+                            updateCartTotals();
+                        }
+                    });
+                });
+
+                // Handle quantity buttons
                 $(".qty-control__increase").on("click", function() {
-                    $(this).closest('form').submit();
+                    const input = $(this).closest('td').find('.qty-input');
+                    input.val(parseInt(input.val()) + 1).trigger('change');
+
+                    // Don't submit the form as we're handling it via AJAX
+                    return false;
                 });
+
                 $(".qty-control__reduce").on("click", function() {
-                    $(this).closest('form').submit();
+                    const input = $(this).closest('td').find('.qty-input');
+                    const newVal = Math.max(1, parseInt(input.val()) - 1);
+                    input.val(newVal).trigger('change');
+
+                    // Don't submit the form as we're handling it via AJAX
+                    return false;
                 });
+
+                // Handle remove item
                 $('.remove-cart').on("click", function() {
                     $(this).closest('form').submit();
+                });
+
+                // Initialize totals on page load
+                updateCartTotals();
+
+                // Form submit handler for checkout
+                $('#checkout-form').on('submit', function(e) {
+                    const selectedItems = $('.item-checkbox:checked').length;
+                    if (selectedItems === 0) {
+                        e.preventDefault();
+                        alert('Silakan pilih setidaknya satu produk untuk checkout');
+                    }
                 });
             });
         </script>

@@ -32,7 +32,9 @@ Route::get('oauth/google', [OAuthController::class, 'redirectToGoogle'])->name('
 Route::get('oauth/google/callback', [OAuthController::class, 'handleGoogleCallback'])->name('oauth.google.callback');
 
 
-
+// ====================================================================================================
+// Api RajaOngkir
+// ====================================================================================================
 Route::get('/api/rajaongkir/provinces', 'RajaOngkirController@getProvinces');
 Route::get('/api/rajaongkir/cities/{province_id}', 'RajaOngkirController@getCities');
 Route::post('/api/rajaongkir/calculate', 'RajaOngkirController@calculateShipping');
@@ -88,7 +90,12 @@ Route::delete('/cart/clear', [CartController::class, 'empty_cart'])->name('cart.
 Route::post('/cart/apply-coupon', [CartController::class, 'apply_coupon_code'])->name('cart.coupon.apply');
 // Route untuk menghapus diskon
 Route::delete('/cart/remove-coupon', [CartController::class, 'remove_coupon_code'])->name('cart.coupon.remove');
+// Route menambah
 Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add');
+// route untuk menangani update kuantitas via AJAX
+Route::put('/cart/update-qty/{rowId}', [CartController::class, 'update_item_quantity'])->name('cart.update.qty');
+// buat route untuk menangani checkout dengan item terpilih
+Route::post('/checkout-selected', [CartController::class, 'checkoutSelected'])->name('cart.checkout.selected');
 
 
 // ====================================================================================================

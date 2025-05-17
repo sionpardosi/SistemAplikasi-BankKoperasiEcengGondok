@@ -31,6 +31,70 @@
             --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
+        /* Product List in Checkout */
+        .selected-product-list {
+            background-color: #fcfaf7;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(149, 106, 59, 0.1);
+        }
+
+        .selected-product-item {
+            border-bottom: 1px dashed rgba(149, 106, 59, 0.1);
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .selected-product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-image-small {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 1px solid rgba(149, 106, 59, 0.1);
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+
+        .product-specs {
+            display: flex;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--text-medium);
+            gap: 10px;
+        }
+
+        .product-specs span {
+            display: flex;
+            align-items: center;
+        }
+
+        .product-specs i {
+            margin-right: 4px;
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+
+        .product-price {
+            text-align: right;
+            white-space: nowrap;
+            margin-left: 15px;
+        }
+
         /* Checkout Steps - Modern Design */
         .checkout-steps {
             display: flex;
@@ -942,56 +1006,61 @@
                         <div class="sticky-content">
                             <div class="checkout__totals">
                                 <h3>PESANAN ANDA</h3>
-                                <table class="checkout-cart-items">
-                                    <thead>
-                                        <tr>
-                                            <th>PRODUK</th>
-                                            <th class="text-right">SUBTOTAL</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @php
-                                            $cartItems = \Surfsidemedia\Shoppingcart\Facades\Cart::instance(
-                                                'cart',
-                                            )->content();
-                                        @endphp
 
-                                        @foreach ($cartItems as $item)
-                                            <tr>
-                                                <td>
-                                                    {{ $item->name }} x {{ $item->qty }}
+                                <!-- Bagian ini menampilkan produk yang dipilih -->
+                                <div class="selected-product-list">
+                                    @php
+                                        // Ambil item yang dipilih dari session
+                                        $selectedItems = session()->get('selected_cart_items', []);
+                                        $cartItems = \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content();
+                                        $selectedCartItems = $cartItems->filter(function($item) use($selectedItems) {
+                                            return in_array($item->rowId, $selectedItems);
+                                        });
+                                    @endphp
+
+                                    @foreach ($selectedCartItems as $item)
+                                        <div class="selected-product-item">
+                                            <img src="{{ asset('uploads/products/thumbnails') }}/{{ $item->model->image }}"
+                                                 alt="{{ $item->name }}" class="product-image-small">
+                                            <div class="product-details">
+                                                <div class="product-name">{{ $item->name }}</div>
+                                                <div class="product-specs">
+                                                    <span><i class="fas fa-cubes"></i> Qty: {{ $item->qty }}</span>
                                                     @if(isset($item->options['size_name']))
-                                                    <br>
-                                                    <span class="text-muted" style="font-size: 0.85rem;">
-                                                        <i class="fas fa-ruler-combined me-1"></i>
-                                                        Ukuran: {{ $item->options['size_name'] }}
-                                                    </span>
+                                                    <span><i class="fas fa-ruler-combined"></i> Ukuran: {{ $item->options['size_name'] }}</span>
                                                     @endif
-                                                </td>
-                                                <td class="text-right">{{ formatRupiah($item->subtotal(0, '', '')) }}</td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                                @if (Session::has('discounts'))
+                                                </div>
+                                            </div>
+                                            <div class="product-price">
+                                                {{ formatRupiah($item->subtotal(0, '', '')) }}
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <!-- Perhitungan harga berdasarkan item yang dipilih -->
+                                @if (Session::has('checkout'))
                                     <table class="checkout-totals">
                                         <tbody>
                                             <tr>
                                                 <th>Subtotal</th>
                                                 <td class="text-right">
-                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}
+                                                    {{ formatRupiah(session()->get('checkout')['subtotal']) }}
                                                 </td>
                                             </tr>
+                                            @if (session()->get('checkout')['discount'] > 0)
                                             <tr>
-                                                <th>Diskon {{ Session('coupon')['code'] }}</th>
+                                                <th>Diskon {{ Session::has('coupon') ? Session('coupon')['code'] : '' }}</th>
                                                 <td class="text-right">
-                                                    -{{ formatRupiah((float) Session('discounts')['discount']) }}</td>
+                                                    -{{ formatRupiah(session()->get('checkout')['discount']) }}</td>
                                             </tr>
                                             <tr>
                                                 <th>Subtotal Setelah Diskon</th>
                                                 <td class="text-right">
-                                                    {{ formatRupiah((float) Session('discounts')['subtotal']) }}</td>
+                                                    {{ formatRupiah(session()->get('checkout')['subtotal'] - session()->get('checkout')['discount']) }}
+                                                </td>
                                             </tr>
+                                            @endif
                                             <tr>
                                                 <th>Ongkos Kirim</th>
                                                 <input type="hidden" name="ongkir" id="ongkirinput" value="0">
@@ -1005,40 +1074,19 @@
                                             <tr class="cart-total">
                                                 <th>Total</th>
                                                 <td class="text-right" id="total-price">
-                                                    {{ formatRupiah((float) Session('discounts')['subtotal']) }}
+                                                    {{ formatRupiah(session()->get('checkout')['total']) }}
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 @else
-                                    <table class="checkout-totals">
-                                        <tbody>
-                                            <tr>
-                                                <th>SUBTOTAL</th>
-                                                <td class="text-right">
-                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <th>ONGKOS KIRIM</th>
-                                                <input type="hidden" name="ongkir" id="ongkirinput" value="0">
-                                                <td class="text-right">
-                                                    <div class="shipping-info" id="ongkir-display">
-                                                        <i class="fas fa-truck-loading"></i>
-                                                        <span>Dihitung berdasarkan pilihan kurir</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                            <tr class="cart-total">
-                                                <th>TOTAL</th>
-                                                <td class="text-right" id="total-price">
-                                                    {{ formatRupiah(\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                                    <div class="alert alert-warning">
+                                        Terjadi kesalahan dalam menghitung total pembelian.
+                                        <a href="{{ route('cart.index') }}">Kembali ke keranjang</a>
+                                    </div>
                                 @endif
                             </div>
+
                             <div class="checkout__payment-methods">
                                 <div class="form-check">
                                     <input class="form-check-input form-check-input_fill" type="radio" name="mode"
@@ -1080,9 +1128,8 @@
                 let provinceId = '';
                 let cityId = '';
                 let selectedAddressId = $('#address_selector').val();
-                let cartTotal = parseFloat(
-                    '{{ str_replace(',', '', \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->subtotal(0, '', '')) }}'
-                );
+                // Menggunakan nilai dari session checkout untuk subtotal yang benar
+                let cartTotal = parseFloat('{{ session()->has('checkout') ? session()->get('checkout')['subtotal'] : 0 }}');
 
                 // 1. Load provinsi saat halaman dimuat
                 loadProvinces();
@@ -1347,12 +1394,11 @@
                 function updateTotal(shippingCost) {
                     shippingCost = Number(shippingCost); // pastikan bertipe angka
 
-                    // Dapatkan subtotal yang benar berdasarkan ada/tidaknya diskon
-                    let subtotal = 0;
-                    @if (Session::has('discounts'))
-                        subtotal = {{ (float) Session('discounts')['subtotal'] }};
+                    // Dapatkan subtotal dan discount dari session checkout
+                    @if (Session::has('checkout'))
+                        let subtotal = {{ session()->get('checkout')['subtotal'] - session()->get('checkout')['discount'] }};
                     @else
-                        subtotal = cartTotal;
+                        let subtotal = cartTotal;
                     @endif
 
                     const newTotal = subtotal + shippingCost;
