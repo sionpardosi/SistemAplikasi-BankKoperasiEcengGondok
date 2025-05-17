@@ -85,10 +85,10 @@
             }
 
             /* Pindahkan pagination ke atas sedikit */
-            .slideshow-pagination.slideshow-number-pagination {
+            /* .slideshow-pagination.slideshow-number-pagination {
                 bottom: 10px !important;
                 margin-bottom: 10px !important;
-            }
+            } */
 
             /* Mengatur tinggi slide */
             /* .swiper-slide .overflow-hidden {
