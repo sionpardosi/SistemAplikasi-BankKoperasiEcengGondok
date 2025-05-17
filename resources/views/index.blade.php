@@ -45,11 +45,10 @@
         @media (max-width: 767.98px) {
 
             /* Mengatur tinggi slider & memindahkan ke atas */
-            .swiper-container.slideshow {
+            /* .swiper-container.slideshow {
                 min-height: 420px !important;
                 margin-top: -20px !important;
-                /* Geser ke atas */
-            }
+            } */
 
             /* Memindahkan konten teks ke atas */
             /* .slideshow-text.container {
