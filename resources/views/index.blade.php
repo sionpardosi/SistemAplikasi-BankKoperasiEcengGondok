@@ -40,59 +40,62 @@
         }
     </style>
 
-<style>
-    /* Perbaikan untuk slider pada tampilan mobile - letakkan di bagian <style> */
-    @media (max-width: 767.98px) {
-        /* Mengatur tinggi slider & memindahkan ke atas */
-        .swiper-container.slideshow {
-            min-height: 420px !important;
-            margin-top: -20px !important;  /* Geser ke atas */
-        }
+    <style>
+        /* Perbaikan untuk slider pada tampilan mobile - letakkan di bagian <style> */
+        @media (max-width: 767.98px) {
 
-        /* Memindahkan konten teks ke atas */
-        .slideshow-text.container {
-            top: 35% !important;  /* Pindahkan dari 50% ke 35% */
-            transform: translate(-50%, -35%) !important;
-            padding: 0 15px !important;
-            width: 100% !important;
-        }
+            /* Mengatur tinggi slider & memindahkan ke atas */
+            .swiper-container.slideshow {
+                min-height: 420px !important;
+                margin-top: -20px !important;
+                /* Geser ke atas */
+            }
 
-        /* Menyesuaikan ukuran teks */
-        .slideshow-text h6.text_dash {
-            font-size: 0.8rem !important;
-            margin-bottom: 5px !important;
-        }
+            /* Memindahkan konten teks ke atas */
+            .slideshow-text.container {
+                top: 35% !important;
+                /* Pindahkan dari 50% ke 35% */
+                transform: translate(-50%, -35%) !important;
+                padding: 0 15px !important;
+                width: 100% !important;
+            }
 
-        .slideshow-text h2.h1 {
-            font-size: 1.5rem !important;
-            line-height: 1.2 !important;
-            margin-bottom: 8px !important;
-        }
+            /* Menyesuaikan ukuran teks */
+            .slideshow-text h6.text_dash {
+                font-size: 0.8rem !important;
+                margin-bottom: 5px !important;
+            }
 
-        /* Mengatur posisi gambar */
-        .slideshow-character {
-            bottom: 0 !important;
-            width: 45% !important;
-            right: 0 !important;
-        }
+            .slideshow-text h2.h1 {
+                font-size: 1.5rem !important;
+                line-height: 1.2 !important;
+                margin-bottom: 8px !important;
+            }
 
-        .slideshow-character__img {
-            max-height: 220px !important;
-            object-fit: contain !important;
-        }
+            /* Mengatur posisi gambar */
+            .slideshow-character {
+                bottom: 0 !important;
+                width: 45% !important;
+                right: 0 !important;
+            }
 
-        /* Pindahkan pagination ke atas sedikit */
-        .slideshow-pagination.slideshow-number-pagination {
-            bottom: 10px !important;
-            margin-bottom: 10px !important;
-        }
+            .slideshow-character__img {
+                max-height: 220px !important;
+                object-fit: contain !important;
+            }
 
-        /* Mengatur tinggi slide */
-        .swiper-slide .overflow-hidden {
-            height: 420px !important;
+            /* Pindahkan pagination ke atas sedikit */
+            .slideshow-pagination.slideshow-number-pagination {
+                bottom: 10px !important;
+                margin-bottom: 10px !important;
+            }
+
+            /* Mengatur tinggi slide */
+            /* .swiper-slide .overflow-hidden {
+                height: 420px !important;
+            } */
         }
-    }
-</style>
+    </style>
     <main>
 
         <section class="swiper-container js-swiper-slider swiper-number-pagination slideshow"
