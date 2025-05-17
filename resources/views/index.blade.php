@@ -52,13 +52,12 @@
             }
 
             /* Memindahkan konten teks ke atas */
-            .slideshow-text.container {
+            /* .slideshow-text.container {
                 top: 35% !important;
-                /* Pindahkan dari 50% ke 35% */
                 transform: translate(-50%, -35%) !important;
                 padding: 0 15px !important;
                 width: 100% !important;
-            }
+            } */
 
             /* Menyesuaikan ukuran teks */
             /* .slideshow-text h6.text_dash {
