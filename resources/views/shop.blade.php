@@ -708,118 +708,116 @@
     </style>
 
     <style>
-    /* CSS khusus untuk slider di mobile - tidak mempengaruhi card produk */
-    @media (max-width: 767.98px) {
-        /* Perbaikan spesifik untuk slider saja */
-        .slideshow_small {
-            margin-bottom: 1.5rem;
-            display: block !important;
-            height: auto !important;
-            position: relative;
-        }
+        /* CSS khusus untuk slider di mobile - tidak mempengaruhi card produk */
+        @media (max-width: 767.98px) {
 
-        .slideshow_split .swiper-slide {
-            visibility: visible !important;
-            opacity: 1 !important;
-        }
+            /* Perbaikan spesifik untuk slider saja */
+            .slideshow_small {
+                margin-bottom: 1.5rem;
+                display: block !important;
+                height: auto !important;
+                position: relative;
+            }
 
-        .slideshow_split .swiper-slide-active {
-            z-index: 2;
-        }
+            .slideshow_split .swiper-slide {
+                visibility: visible !important;
+                opacity: 1 !important;
+            }
 
-        .slide-split {
-            display: block !important;
-            height: auto !important;
-        }
+            .slideshow_split .swiper-slide-active {
+                z-index: 2;
+            }
 
-        .slide-split_text {
-            height: auto !important;
-            min-height: auto !important;
-            padding: 1.5rem 0 !important;
-        }
+            .slide-split {
+                display: block !important;
+                height: auto !important;
+            }
 
-        .slide-split_media {
-            height: 220px !important;
-        }
+            .slide-split_text {
+                height: auto !important;
+                min-height: auto !important;
+                padding: 1.5rem 0 !important;
+            }
 
-        .slideshow-bg {
-            height: 100% !important;
-        }
+            .slide-split_media {
+                height: 220px !important;
+            }
 
-        .slideshow-bg__img {
-            height: 100% !important;
-            object-fit: cover !important;
-            width: 100% !important;
-        }
+            .slideshow-bg {
+                height: 100% !important;
+            }
 
-        /* Perbaikan pagination */
-        .slideshow-pagination {
-            bottom: 10px !important;
-            left: 0 !important;
-            width: 100% !important;
-            justify-content: center !important;
-            z-index: 10 !important;
-        }
+            .slideshow-bg__img {
+                height: 100% !important;
+                object-fit: cover !important;
+                width: 100% !important;
+            }
 
-        /* Pastikan tombol scroll otomatis tidak tertimpa */
-        .btn-to-top {
-            z-index: 999 !important;
-            position: fixed !important;
-            bottom: 20px !important;
-            right: 20px !important;
+            /* Perbaikan pagination */
+            .slideshow-pagination {
+                bottom: 10px !important;
+                left: 0 !important;
+                width: 100% !important;
+                justify-content: center !important;
+                z-index: 10 !important;
+            }
+
+            /* Pastikan tombol scroll otomatis tidak tertimpa */
+            .btn-to-top {
+                z-index: 999 !important;
+                position: fixed !important;
+                bottom: 20px !important;
+                right: 20px !important;
+            }
         }
-    }
-</style>
+    </style>
 
 <style>
     /* Perbaikan khusus untuk tombol "Tambahkan ke Keranjang" pada mobile */
     @media (max-width: 767.98px) {
-        /* Memperbaiki tombol add to cart */
+        /* Memperbaiki container tombol add to cart */
         .product-single__addtocart {
             width: 100% !important;
-            bottom: 0 !important;
+            position: absolute !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: -15px !important;
+            text-align: center !important;
+            padding: 0 15px !important;
+            z-index: 15 !important;
         }
 
+        /* Memperbaiki tombol add to cart */
         .pc__atc.btn {
             width: 100% !important;
-            padding: 8px 10px !important;
-            font-size: 12px !important;
+            display: inline-block !important;
+            padding: 8px 12px !important;
+            font-size: 11px !important;
+            line-height: 1.4 !important;
+            letter-spacing: 0.5px !important;
             position: relative !important;
             opacity: 1 !important;
             visibility: visible !important;
             transform: none !important;
             border-radius: 4px !important;
-            margin-top: 5px !important;
+            text-align: center !important;
+            transition: all 0.3s ease !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1) !important;
+        }
+
+        /* Hover effect */
+        .pc__atc.btn:hover {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15) !important;
+            transform: translateY(-2px) !important;
         }
 
         /* Memperbaiki tampilan card produk agar tombol terlihat */
         .pc__img-wrapper {
             position: relative !important;
-            margin-bottom: 35px !important; /* Berikan ruang untuk tombol */
-        }
-
-        /* Animasi muncul tombol saat hover */
-        .product-card:hover .pc__atc.btn {
-            transform: none !important;
-            opacity: 1 !important;
-        }
-
-        /* Perbaiki posisi tombol */
-        .product-single__addtocart {
-            position: absolute !important;
-            bottom: -30px !important;
-            left: 0 !important;
-            right: 0 !important;
-            padding: 0 10px !important;
-            z-index: 10 !important;
-        }
-
-        /* Perbaiki ukuran text pada tombol untuk mobile */
-        .pc__atc.btn {
-            font-size: 11px !important;
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
+            margin-bottom: 40px !important; /* Berikan ruang untuk tombol */
         }
 
         /* Pastikan tombol selalu terlihat tidak seperti desktop yang hanya muncul saat hover */
@@ -827,26 +825,74 @@
             opacity: 1 !important;
             visibility: visible !important;
         }
+
+        /* Tampilan alternatif teks untuk layar mobile */
+        .pc__atc.btn:after {
+            content: "Tambah ke Keranjang";
+            position: absolute;
+            left: 0;
+            right: 0;
+            text-align: center;
+            opacity: 0;
+        }
+
+        /* Mengganti teks tombol dengan teks yang lebih pendek untuk layar kecil */
+        .pc__atc.btn span.mobile-text {
+            display: none;
+        }
+
+        /* Efek ripple saat klik untuk UX yang lebih baik */
+        .pc__atc.btn.ripple {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pc__atc.btn.ripple:after {
+            content: "";
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+            background-repeat: no-repeat;
+            background-position: 50%;
+            transform: scale(10, 10);
+            opacity: 0;
+            transition: transform .5s, opacity 1s;
+        }
+
+        .pc__atc.btn.ripple:active:after {
+            transform: scale(0, 0);
+            opacity: .3;
+            transition: 0s;
+        }
     }
 
-    /* Khusus untuk perangkat sangat kecil */
+    /* Responsive untuk layar sangat kecil */
     @media (max-width: 359px) {
         .pc__atc.btn {
             font-size: 10px !important;
-            padding: 6px 5px !important;
+            padding: 8px 10px !important;
+            border-radius: 4px !important;
         }
 
-        /* Alternatif: buat teks lebih pendek untuk layar sangat kecil */
-        .pc__atc.btn:after {
-            content: "Tambah ke Keranjang";
-            display: block;
+        /* Teks yang lebih pendek untuk layar sangat kecil */
+        .pc__atc.btn {
+            text-transform: none !important;
         }
 
-        .pc__atc.btn span {
-            display: none;
+        .pc__atc.btn .full-text {
+            display: none !important;
+        }
+
+        .pc__atc.btn .short-text {
+            display: inline-block !important;
         }
     }
-</style>
+    </style>
     <main class="pt-90">
         <section class="shop-main container d-flex pt-4 pt-xl-5">
             <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
@@ -1170,7 +1216,8 @@
                     </div>
 
                     <div class="container p-3 p-xl-5">
-                        <div class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2">
+                        <div
+                            class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2">
                         </div>
                     </div>
                 </div>
@@ -1551,11 +1598,10 @@
                                             <input type="hidden" name="quantity" value="1" />
                                             <input type="hidden" name="price"
                                                 value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                            <button type="submit"
-                                                class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart"
-                                                style="background-color: #956a3b; color: #ffffff;">
-                                                Tambahkan ke Keranjang
-                                            </button>
+                                                <button type="submit" class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart" style="background-color: #956a3b; color: #ffffff;">
+                                                    <span class="full-text">Tambahkan ke Keranjang</span>
+                                                    <span class="short-text" style="display:none;">+ Keranjang</span>
+                                                </button>
                                         </div>
                                     </form>
                                 </div>
@@ -2231,22 +2277,139 @@
         });
     </script>
 
+    <!-- responsive slide dan gambar -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Reinitialisasi Swiper setelah semuanya dimuat
+            setTimeout(function() {
+                // Cek apakah ada instance Swiper
+                var slideshowContainer = document.querySelector('.js-swiper-slider');
+                if (slideshowContainer && window.Swiper && typeof window.Swiper === 'function') {
+                    // Dapatkan instance Swiper jika sudah ada
+                    var swiperInstance = slideshowContainer.swiper;
+
+                    if (swiperInstance) {
+                        // Update size dan posisi slide
+                        swiperInstance.update();
+                    }
+                }
+            }, 500);
+        });
+    </script>
+
+    <!-- responsive tombol tambahkan keranjang ketika di mobile -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Periksa apakah dalam tampilan mobile
+            if (window.innerWidth <= 767.98) {
+                // Tambahkan class khusus untuk tampilan mobile
+                const addToCartButtons = document.querySelectorAll('.pc__atc.btn');
+                addToCartButtons.forEach(button => {
+                    button.classList.add('mobile-cart-btn');
+
+                    // Pastikan tombol terlihat tanpa perlu hover
+                    const productCard = button.closest('.product-card');
+                    if (productCard) {
+                        productCard.classList.add('show-cart-btn');
+                    }
+                });
+            }
+
+            // Resize handler untuk memastikan tombol tetap terlihat dengan baik saat resize
+            window.addEventListener('resize', function() {
+                const isMobile = window.innerWidth <= 767.98;
+                const addToCartButtons = document.querySelectorAll('.pc__atc.btn');
+
+                addToCartButtons.forEach(button => {
+                    if (isMobile) {
+                        button.classList.add('mobile-cart-btn');
+                        const productCard = button.closest('.product-card');
+                        if (productCard) {
+                            productCard.classList.add('show-cart-btn');
+                        }
+                    } else {
+                        button.classList.remove('mobile-cart-btn');
+                        const productCard = button.closest('.product-card');
+                        if (productCard) {
+                            productCard.classList.remove('show-cart-btn');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Reinitialisasi Swiper setelah semuanya dimuat
-        setTimeout(function() {
-            // Cek apakah ada instance Swiper
-            var slideshowContainer = document.querySelector('.js-swiper-slider');
-            if (slideshowContainer && window.Swiper && typeof window.Swiper === 'function') {
-                // Dapatkan instance Swiper jika sudah ada
-                var swiperInstance = slideshowContainer.swiper;
+        // Fungsi untuk memperbarui tampilan tombol di mobile
+        function updateCartButtons() {
+            const isMobile = window.innerWidth <= 767.98;
+            const isSmallMobile = window.innerWidth <= 359;
+            const buttons = document.querySelectorAll('.pc__atc.btn');
 
-                if (swiperInstance) {
-                    // Update size dan posisi slide
-                    swiperInstance.update();
+            buttons.forEach(button => {
+                // Tambahkan class ripple untuk efek klik
+                button.classList.add('ripple');
+
+                // Cek apakah sudah memiliki struktur short-text dan full-text
+                const hasShortText = button.querySelector('.short-text');
+                const hasFullText = button.querySelector('.full-text');
+
+                // Jika belum memiliki struktur teks yang diinginkan, buat ulang
+                if (!hasShortText && !hasFullText) {
+                    const originalText = button.textContent.trim();
+                    button.innerHTML = `
+                        <span class="full-text">${originalText}</span>
+                        <span class="short-text" style="display:none;">+ Keranjang</span>
+                    `;
                 }
+
+                // Tampilkan teks pendek di layar kecil
+                if (hasShortText && hasFullText) {
+                    const shortText = button.querySelector('.short-text');
+                    const fullText = button.querySelector('.full-text');
+
+                    if (isSmallMobile) {
+                        shortText.style.display = 'inline-block';
+                        fullText.style.display = 'none';
+                    } else {
+                        shortText.style.display = 'none';
+                        fullText.style.display = 'inline-block';
+                    }
+                }
+
+                // Pastikan tombol terlihat di mobile tanpa hover
+                const productCard = button.closest('.product-card');
+                if (productCard) {
+                    if (isMobile) {
+                        productCard.classList.add('show-mobile-cart-btn');
+                    } else {
+                        productCard.classList.remove('show-mobile-cart-btn');
+                    }
+                }
+            });
+        }
+
+        // Jalankan saat halaman dimuat
+        updateCartButtons();
+
+        // Jalankan saat ukuran window berubah
+        window.addEventListener('resize', updateCartButtons);
+
+        // Tambahkan efek ripple untuk tombol
+        document.addEventListener('click', function(e) {
+            if (e.target.classList.contains('pc__atc') || e.target.closest('.pc__atc')) {
+                const button = e.target.classList.contains('pc__atc') ? e.target : e.target.closest('.pc__atc');
+
+                // Tambahkan class untuk animasi klik
+                button.classList.add('clicked');
+
+                // Hapus class setelah animasi selesai
+                setTimeout(function() {
+                    button.classList.remove('clicked');
+                }, 600);
             }
-        }, 500);
+        });
     });
     </script>
 @endpush
