@@ -39,55 +39,17 @@
             color: #fff;
         }
     </style>
-<style>
-    /* CSS untuk menaikkan konten slider secara responsive */
-    .swiper-container.slideshow {
-        /* Default untuk desktop, tidak terlalu ke atas */
-        margin-top: 0px;
-        padding-top: 0;
-    }
-
-    /* Saat ukuran layar mobile/tablet, slider lebih naik ke atas */
-    @media (max-width: 991px) {
-        .swiper-container.slideshow {
-            margin-top: -80px;
-        }
-    }
-
-    /* Untuk layar sangat kecil, kurangi margin negatif */
-    @media (max-width: 575px) {
-        .swiper-container.slideshow {
-            margin-top: -100px;
-        }
-    }
-
-    /* Menyesuaikan posisi teks lebih ke atas */
-    .slideshow-text {
-        top: 40% !important;
-    }
-
-    /* Menyesuaikan posisi gambar */
-    .slideshow-character {
-        bottom: 1% !important;
-    }
-
-    /* Menyesuaikan posisi pagination */
-    .slideshow-pagination {
-        bottom: 20px !important;
-    }
-</style>
-
     <main>
 
         <section class="swiper-container js-swiper-slider swiper-number-pagination slideshow"
             data-settings='{
-    "autoplay": {
-      "delay": 5000
-    },
-    "slidesPerView": 1,
-    "effect": "fade",
-    "loop": true
-    }'>
+        "autoplay": {
+          "delay": 5000
+        },
+        "slidesPerView": 1,
+        "effect": "fade",
+        "loop": true
+      }'>
             <div class="swiper-wrapper">
                 @foreach ($slides as $slide)
                     <div class="swiper-slide">
@@ -126,7 +88,6 @@
                 </div>
             </div>
         </section>
-
         <div class="container mw-1620 bg-white border-radius-10">
             <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
             <section class="category-carousel container">
