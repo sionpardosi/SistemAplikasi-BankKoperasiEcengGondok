@@ -79,10 +79,10 @@
                 right: 0 !important;
             }
 
-            .slideshow-character__img {
+            /* .slideshow-character__img {
                 max-height: 220px !important;
                 object-fit: contain !important;
-            }
+            } */
 
             /* Pindahkan pagination ke atas sedikit */
             /* .slideshow-pagination.slideshow-number-pagination {
