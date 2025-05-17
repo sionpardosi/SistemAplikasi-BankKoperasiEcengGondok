@@ -771,75 +771,81 @@
         }
     </style>
 
-<style>
-    /* Solusi khusus untuk tombol "Tambahkan ke Keranjang" pada mobile */
-    @media (max-width: 767.98px) {
-        /* Layout 2 card per baris menggunakan grid */
-        #products-grid {
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 8px !important;
-            width: 100% !important;
-        }
+    <style>
+        /* Solusi khusus untuk tombol "Tambahkan ke Keranjang" pada mobile */
+        @media (max-width: 767.98px) {
 
-        #products-grid .product-card-wrapper {
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-        }
+            /* Layout 2 card per baris menggunakan grid */
+            #products-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 8px !important;
+                width: 100% !important;
+            }
 
-        /* Solusi untuk teks tombol: */
-        .product-single__addtocart .pc__atc {
-            font-size: 0.62rem !important; /* Font lebih kecil */
-            letter-spacing: -0.5px !important; /* Kurangi spasi antar huruf */
-            padding: 6px 4px !important; /* Padding horizontal lebih kecil */
-            width: 92% !important;
-            left: 4% !important;
-            bottom: 10px !important;
-            line-height: 1.1 !important; /* Line height lebih kecil */
-            text-align: center !important;
-            white-space: nowrap !important;
-            text-transform: none !important; /* Hilangkan kapital */
-        }
+            #products-grid .product-card-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
 
-        /* Alternatif: Jika ukuran font masih terlalu besar */
-        /* Gunakan salah satu dari opsi di bawah jika masih perlu penyesuaian */
+            /* Solusi untuk teks tombol: */
+            .product-single__addtocart .pc__atc {
+                font-size: 0.62rem !important;
+                /* Font lebih kecil */
+                letter-spacing: -0.5px !important;
+                /* Kurangi spasi antar huruf */
+                padding: 6px 4px !important;
+                /* Padding horizontal lebih kecil */
+                width: 92% !important;
+                left: 4% !important;
+                bottom: 10px !important;
+                line-height: 1.1 !important;
+                /* Line height lebih kecil */
+                text-align: center !important;
+                white-space: nowrap !important;
+                text-transform: none !important;
+                /* Hilangkan kapital */
+            }
 
-        /* Opsi 1: Buat menjadi 2 baris teks */
-        /*
-        .product-single__addtocart .pc__atc {
-            white-space: normal !important;
-            line-height: 1.1 !important;
-            height: auto !important;
-            padding-top: 4px !important;
-            padding-bottom: 4px !important;
-        }
-        */
+            /* Alternatif: Jika ukuran font masih terlalu besar */
+            /* Gunakan salah satu dari opsi di bawah jika masih perlu penyesuaian */
 
-        /* Opsi 2: Gunakan singkatan + ikon */
-        /*
-        .product-single__addtocart .pc__atc:before {
-            content: "🛒 ";
-            font-size: 0.8rem;
-        }
-        .product-single__addtocart .pc__atc {
-            content: "Tambah" !important;
-        }
-        */
-    }
-</style>
+            /* Opsi 1: Buat menjadi 2 baris teks */
+            /*
+            .product-single__addtocart .pc__atc {
+                white-space: normal !important;
+                line-height: 1.1 !important;
+                height: auto !important;
+                padding-top: 4px !important;
+                padding-bottom: 4px !important;
+            }
+            */
 
-{{-- <style>
+            /* Opsi 2: Gunakan singkatan + ikon */
+            /*
+            .product-single__addtocart .pc__atc:before {
+                content: "🛒 ";
+                font-size: 0.8rem;
+            }
+            .product-single__addtocart .pc__atc {
+                content: "Tambah" !important;
+            }
+            */
+        }
+    </style>
+
+    <style>
     /* Perbaikan posisi card agar seimbang di tengah pada mobile */
     @media (max-width: 767.98px) {
         /* Grid layout pusat dengan spacing yang sama */
         #products-grid {
             display: grid !important;
             grid-template-columns: repeat(2, 1fr) !important;
-            gap: 10px !important;
+            gap: 20px !important;
             width: 100% !important;
-            padding: 0 15px !important; /* Tambahkan padding container */
+            padding: 0 0px !important; /* Tambahkan padding container */
             box-sizing: border-box !important;
         }
 
@@ -860,8 +866,6 @@
 
         /* Pastikan container dan row memiliki margin 0 agar tidak ada offset */
         .container, .row {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
             margin-left: auto !important;
             margin-right: auto !important;
         }
@@ -871,8 +875,8 @@
             font-size: 0.62rem !important;
             letter-spacing: -0.5px !important;
             padding: 6px 4px !important;
-            width: 90% !important; /* Sedikit dikurangi */
-            left: 5% !important; /* Pusatkan dengan margin yang sama */
+            width: 90% !important;
+            left: 5% !important;
             right: 5% !important;
             bottom: 10px !important;
             text-align: center !important;
@@ -892,7 +896,7 @@
             padding-right: 0 !important;
         }
     }
-</style> --}}
+</style>
     <main class="pt-90">
         <section class="shop-main container d-flex pt-4 pt-xl-5">
             <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
