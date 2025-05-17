@@ -66,11 +66,11 @@
                 margin-bottom: 5px !important;
             }
 
-            .slideshow-text h2.h1 {
+            /* .slideshow-text h2.h1 {
                 font-size: 1.5rem !important;
                 line-height: 1.2 !important;
                 margin-bottom: 8px !important;
-            }
+            } */
 
             /* Mengatur posisi gambar */
             /* .slideshow-character {
