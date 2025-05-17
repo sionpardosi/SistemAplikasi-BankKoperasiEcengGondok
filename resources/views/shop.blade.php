@@ -706,8 +706,6 @@
             animation: pulse-size 0.3s ease-in-out;
         }
     </style>
-
-    
     <main class="pt-90">
         <section class="shop-main container d-flex pt-4 pt-xl-5">
             <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
@@ -943,48 +941,36 @@
             <div class="shop-list flex-grow-1">
                 <div class="swiper-container js-swiper-slider slideshow slideshow_small slideshow_split"
                     data-settings='{
-                        "autoplay": {
-                          "delay": 5000
-                        },
-                        "slidesPerView": 1,
-                        "effect": "slide",
-                        "loop": true,
-                        "pagination": {
-                          "el": ".slideshow-pagination",
-                          "type": "bullets",
-                          "clickable": true
-                        },
-                        "observer": true,
-                        "observeParents": true,
-                        "breakpoints": {
-                          "0": {
-                            "effect": "slide"
-                          },
-                          "768": {
-                            "effect": "fade"
-                          }
-                        }
-                    }'>
+            "autoplay": {
+              "delay": 5000
+            },
+            "slidesPerView": 1,
+            "effect": "fade",
+            "loop": true,
+            "pagination": {
+              "el": ".slideshow-pagination",
+              "type": "bullets",
+              "clickable": true
+            }
+          }'>
                     <div class="swiper-wrapper">
-                        <!-- Slide 1 -->
                         <div class="swiper-slide">
-                            <div class="slide-split h-100 d-flex flex-column flex-md-row overflow-hidden">
-                                <div class="slide-split_text position-relative order-2 order-md-1 d-flex align-items-center"
+                            <div class="slide-split h-100 d-block d-md-flex overflow-hidden">
+                                <div class="slide-split_text position-relative d-flex align-items-center"
                                     style="background-color: #f5e6e0;">
                                     <div class="slideshow-text container p-3 p-xl-5">
                                         <h2
                                             class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
-                                            BANK KOPERASI<br /><strong>ECENG GONDOK</strong>
-                                        </h2>
+                                            BANK KOPERASI<br /><strong>ECENG GONDOK</strong></h2>
                                         <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
                                             Bank Koperasi Eceng Gondok hadir untuk menggerakkan perekonomian bersama melalui
                                             layanan keuangan yang inovatif dan terpercaya. Bergabunglah bersama kami untuk
                                             meraih kemudahan dalam pengelolaan keuangan dan mewujudkan masa depan yang lebih
                                             cerah.
-                                        </p>
+                                            </h6>
                                     </div>
                                 </div>
-                                <div class="slide-split_media position-relative order-1 order-md-2">
+                                <div class="slide-split_media position-relative">
                                     <div class="slideshow-bg" style="background-color: #f5e6e0;">
                                         <img loading="lazy" src="assets/images/shop/shop_banner3.jpg" width="630"
                                             height="450" alt="Women's accessories"
@@ -994,23 +980,21 @@
                             </div>
                         </div>
 
-                        <!-- Slide 2 - Gunakan struktur yang sama -->
                         <div class="swiper-slide">
-                            <div class="slide-split h-100 d-flex flex-column flex-md-row overflow-hidden">
-                                <div class="slide-split_text position-relative order-2 order-md-1 d-flex align-items-center"
+                            <div class="slide-split h-100 d-block d-md-flex overflow-hidden">
+                                <div class="slide-split_text position-relative d-flex align-items-center"
                                     style="background-color: #f5e6e0;">
                                     <div class="slideshow-text container p-3 p-xl-5">
                                         <h2
                                             class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
-                                            BANK KOPERASI <br /><strong>ECENG GONDOK</strong>
-                                        </h2>
+                                            BANK KOPERASI <br /><strong>ECENG GONDOK</strong></h2>
                                         <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
                                             Nikmati berbagai kemudahan dalam pengelolaan keuangan melalui sistem layanan
                                             digital kami yang inovatif dan ramah pengguna.
-                                        </p>
+                                            </h6>
                                     </div>
                                 </div>
-                                <div class="slide-split_media position-relative order-1 order-md-2">
+                                <div class="slide-split_media position-relative">
                                     <div class="slideshow-bg" style="background-color: #f5e6e0;">
                                         <img loading="lazy" src="assets/images/shop/shop_banner1.jpg" width="630"
                                             height="450" alt="Women's accessories"
@@ -1020,23 +1004,21 @@
                             </div>
                         </div>
 
-                        <!-- Slide 3 - Gunakan struktur yang sama -->
                         <div class="swiper-slide">
-                            <div class="slide-split h-100 d-flex flex-column flex-md-row overflow-hidden">
-                                <div class="slide-split_text position-relative order-2 order-md-1 d-flex align-items-center"
+                            <div class="slide-split h-100 d-block d-md-flex overflow-hidden">
+                                <div class="slide-split_text position-relative d-flex align-items-center"
                                     style="background-color: #f5e6e0;">
                                     <div class="slideshow-text container p-3 p-xl-5">
                                         <h2
                                             class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
-                                            BANK KOPERASI <br /><strong>ECENG GONDOK</strong>
-                                        </h2>
+                                            BANK KOPERASI <br /><strong>ECENG GONDOK</strong></h2>
                                         <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
                                             Bergabunglah dengan komunitas Bank Koperasi Eceng Gondok dan rasakan pengalaman
                                             transaksi yang cepat, aman, dan terpercaya.
-                                        </p>
+                                            </h6>
                                     </div>
                                 </div>
-                                <div class="slide-split_media position-relative order-1 order-md-2">
+                                <div class="slide-split_media position-relative">
                                     <div class="slideshow-bg" style="background-color: #f5e6e0;">
                                         <img loading="lazy" src="assets/images/shop/shop_banner4.jpg" width="630"
                                             height="450" alt="Women's accessories"
@@ -1049,31 +1031,31 @@
 
                     <div class="container p-3 p-xl-5">
                         <div
-                            class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 start-0 w-100 mb-4 pb-xl-2 justify-content-center">
+                            class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2">
                         </div>
+
                     </div>
                 </div>
-            </div>
 
-            <div class="mb-3 pb-2 pb-xl-3"></div>
+                <div class="mb-3 pb-2 pb-xl-3"></div>
 
-            <div class="shop-controls bg-white rounded-3 shadow-sm mb-4 p-3 p-md-4">
-                <div class="d-flex justify-content-between align-items-center flex-wrap">
-                    <!-- Breadcrumb with improved styling -->
-                    <div class="breadcrumb mb-3 mb-md-0 d-flex align-items-center">
-                        <a href="{{ route('home.index') }}" class="menu-link menu-link_us-s text-uppercase fw-medium"
-                            aria-label="Navigate to Home">
-                            <i class="fas fa-home me-1" aria-hidden="true" style="font-size: 14px;"></i>Beranda
-                        </a>
-                        <span class="breadcrumb-separator menu-link fw-medium px-2" aria-hidden="true">/</span>
-                        <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium active"
-                            aria-current="page">Produk</a>
-                    </div>
+                <div class="shop-controls bg-white rounded-3 shadow-sm mb-4 p-3 p-md-4">
+                    <div class="d-flex justify-content-between align-items-center flex-wrap">
+                        <!-- Breadcrumb with improved styling -->
+                        <div class="breadcrumb mb-3 mb-md-0 d-flex align-items-center">
+                            <a href="{{ route('home.index') }}" class="menu-link menu-link_us-s text-uppercase fw-medium"
+                                aria-label="Navigate to Home">
+                                <i class="fas fa-home me-1" aria-hidden="true" style="font-size: 14px;"></i>Beranda
+                            </a>
+                            <span class="breadcrumb-separator menu-link fw-medium px-2" aria-hidden="true">/</span>
+                            <a href="#" class="menu-link menu-link_us-s text-uppercase fw-medium active"
+                                aria-current="page">Produk</a>
+                        </div>
 
-                    <!-- Filter Controls with improved layout -->
-                    <div class="shop-controls__wrapper d-flex align-items-center flex-wrap gap-2 gap-md-3">
-                        <!-- Display Options -->
-                        {{-- <div class="product-display-options d-flex align-items-center">
+                        <!-- Filter Controls with improved layout -->
+                        <div class="shop-controls__wrapper d-flex align-items-center flex-wrap gap-2 gap-md-3">
+                            <!-- Display Options -->
+                            {{-- <div class="product-display-options d-flex align-items-center">
                                 <label for="pagesize"
                                     class="fw-medium text-secondary me-2 d-none d-md-block">Tampilkan:</label>
                                 <div class="select-wrapper position-relative">
@@ -1087,436 +1069,442 @@
                                 </div>
                             </div> --}}
 
-                        <div class="shop-controls__divider d-none d-md-block"></div>
+                            <div class="shop-controls__divider d-none d-md-block"></div>
 
-                        <!-- Sort Options -->
-                        <div class="product-sort-options d-flex align-items-center">
-                            <label for="orderby" class="fw-medium text-secondary me-2 d-none d-md-block">Urutkan:</label>
-                            <div class="select-wrapper position-relative">
-                                <select class="custom-select ui-select" aria-label="Urutkan Produk" id="orderby">
-                                    <option value="-1" {{ $order == -1 ? 'selected' : '' }}>Rekomendasi</option>
-                                    <option value="1" {{ $order == 1 ? 'selected' : '' }}>Produk Terbaru</option>
-                                    <option value="2" {{ $order == 2 ? 'selected' : '' }}>Produk Terlama</option>
-                                    <option value="3" {{ $order == 3 ? 'selected' : '' }}>Harga Terendah</option>
-                                    <option value="4" {{ $order == 4 ? 'selected' : '' }}>Harga Tertinggi
-                                    </option>
-                                </select>
+                            <!-- Sort Options -->
+                            <div class="product-sort-options d-flex align-items-center">
+                                <label for="orderby"
+                                    class="fw-medium text-secondary me-2 d-none d-md-block">Urutkan:</label>
+                                <div class="select-wrapper position-relative">
+                                    <select class="custom-select ui-select" aria-label="Urutkan Produk" id="orderby">
+                                        <option value="-1" {{ $order == -1 ? 'selected' : '' }}>Rekomendasi</option>
+                                        <option value="1" {{ $order == 1 ? 'selected' : '' }}>Produk Terbaru</option>
+                                        <option value="2" {{ $order == 2 ? 'selected' : '' }}>Produk Terlama</option>
+                                        <option value="3" {{ $order == 3 ? 'selected' : '' }}>Harga Terendah</option>
+                                        <option value="4" {{ $order == 4 ? 'selected' : '' }}>Harga Tertinggi
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="shop-controls__divider d-none d-md-block"></div>
+
+                            <!-- View Mode Options with improved active state -->
+                            <div class="grid-view-options d-none d-lg-flex align-items-center">
+                                <span class="text-uppercase fw-medium me-2" aria-hidden="true">VIEW</span>
+                                <div class="btn-group" role="group" aria-label="Grid View Options">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm js-cols-size"
+                                        data-target="products-grid" data-cols="2"
+                                        aria-label="View in 2 columns">2</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm js-cols-size"
+                                        data-target="products-grid" data-cols="3"
+                                        aria-label="View in 3 columns">3</button>
+                                    <button type="button" class="btn btn-outline-secondary btn-sm js-cols-size"
+                                        data-target="products-grid" data-cols="4"
+                                        aria-label="View in 4 columns">4</button>
+                                </div>
+                            </div>
+
+                            <!-- Mobile Filter Button -->
+                            <div class="shop-filter d-flex align-items-center order-0 order-md-3 d-lg-none">
+                                <button class="btn-link btn-link_f d-flex align-items-center ps-0 js-open-aside"
+                                    data-aside="shopFilter">
+                                    <svg class="d-inline-block align-middle me-2" width="14" height="10"
+                                        viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <use href="#icon_filter" />
+                                    </svg>
+                                    <span class="text-uppercase fw-medium d-inline-block align-middle">Filter</span>
+                                </button>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="shop-controls__divider d-none d-md-block"></div>
-
-                        <!-- View Mode Options with improved active state -->
-                        <div class="grid-view-options d-none d-lg-flex align-items-center">
-                            <span class="text-uppercase fw-medium me-2" aria-hidden="true">VIEW</span>
-                            <div class="btn-group" role="group" aria-label="Grid View Options">
-                                <button type="button" class="btn btn-outline-secondary btn-sm js-cols-size"
-                                    data-target="products-grid" data-cols="2" aria-label="View in 2 columns">2</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm js-cols-size"
-                                    data-target="products-grid" data-cols="3" aria-label="View in 3 columns">3</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm js-cols-size"
-                                    data-target="products-grid" data-cols="4" aria-label="View in 4 columns">4</button>
+                    <!-- Active Filters Section (new) -->
+                    <div class="active-filters mt-3 d-none" id="activeFilters">
+                        <div class="d-flex align-items-center flex-wrap gap-2">
+                            <span class="text-secondary fw-medium me-2">Filter Aktif:</span>
+                            <div class="active-filters-tags d-flex flex-wrap gap-2">
+                                <!-- Tags will be added dynamically via JavaScript -->
                             </div>
-                        </div>
-
-                        <!-- Mobile Filter Button -->
-                        <div class="shop-filter d-flex align-items-center order-0 order-md-3 d-lg-none">
-                            <button class="btn-link btn-link_f d-flex align-items-center ps-0 js-open-aside"
-                                data-aside="shopFilter">
-                                <svg class="d-inline-block align-middle me-2" width="14" height="10"
-                                    viewBox="0 0 14 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <use href="#icon_filter" />
-                                </svg>
-                                <span class="text-uppercase fw-medium d-inline-block align-middle">Filter</span>
+                            <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto"
+                                id="clearAllFilters">
+                                Hapus Semua
                             </button>
                         </div>
                     </div>
                 </div>
 
-                <!-- Active Filters Section (new) -->
-                <div class="active-filters mt-3 d-none" id="activeFilters">
-                    <div class="d-flex align-items-center flex-wrap gap-2">
-                        <span class="text-secondary fw-medium me-2">Filter Aktif:</span>
-                        <div class="active-filters-tags d-flex flex-wrap gap-2">
-                            <!-- Tags will be added dynamically via JavaScript -->
+
+
+                @if (request()->has('ratings') && !empty(request()->input('ratings')))
+                    <div class="filter-notification mb-4 animate__animated animate__fadeIn">
+                        <div class="alert alert-custom fade show" role="alert">
+                            <div class="d-flex align-items-center">
+                                <div class="filter-icon-container me-3">
+                                    <i class="fas fa-filter"></i>
+                                </div>
+                                <div class="filter-content">
+                                    <h5 class="alert-heading mb-1">Filter Ulasan Aktif</h5>
+                                    <p class="mb-0 filter-text">
+                                        Menampilkan produk dengan rating:
+                                        <span class="rating-badge">
+                                            @php
+                                                $selectedRating = request()->input('ratings');
+                                            @endphp
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <i
+                                                    class="fas fa-star @if ($i <= $selectedRating) text-warning @else text-muted @endif"></i>
+                                            @endfor
+                                        </span>
+                                        <span class="product-count">({{ $products->total() }} produk)</span>
+                                    </p>
+                                </div>
+                                <a href="{{ route('shop.index') }}" class="btn btn-sm btn-outline-secondary ms-auto"
+                                    title="Hapus Filter">
+                                    <i class="fas fa-times-circle me-1"></i> Hapus Filter
+                                </a>
+                            </div>
                         </div>
-                        <button type="button" class="btn btn-link btn-sm text-danger p-0 ms-auto" id="clearAllFilters">
-                            Hapus Semua
-                        </button>
                     </div>
-                </div>
-            </div>
+                @endif
 
-
-
-            @if (request()->has('ratings') && !empty(request()->input('ratings')))
-                <div class="filter-notification mb-4 animate__animated animate__fadeIn">
-                    <div class="alert alert-custom fade show" role="alert">
-                        <div class="d-flex align-items-center">
-                            <div class="filter-icon-container me-3">
-                                <i class="fas fa-filter"></i>
+                <!-- Tampilan kosong jika tidak ada produk yang ditemukan -->
+                @if ($products->isEmpty() && request()->has('ratings'))
+                    <div class="no-products-found my-5 py-5 text-center">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-search"></i>
                             </div>
-                            <div class="filter-content">
-                                <h5 class="alert-heading mb-1">Filter Ulasan Aktif</h5>
-                                <p class="mb-0 filter-text">
-                                    Menampilkan produk dengan rating:
-                                    <span class="rating-badge">
-                                        @php
-                                            $selectedRating = request()->input('ratings');
-                                        @endphp
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            <i
-                                                class="fas fa-star @if ($i <= $selectedRating) text-warning @else text-muted @endif"></i>
-                                        @endfor
-                                    </span>
-                                    <span class="product-count">({{ $products->total() }} produk)</span>
-                                </p>
-                            </div>
-                            <a href="{{ route('shop.index') }}" class="btn btn-sm btn-outline-secondary ms-auto"
-                                title="Hapus Filter">
-                                <i class="fas fa-times-circle me-1"></i> Hapus Filter
+                            <h3 class="mt-4">Tidak Ada Produk Ditemukan</h3>
+                            <p class="text-muted mb-4">Tidak ada produk dengan rating yang Anda pilih. Silakan coba filter
+                                lainnya.</p>
+                            <a href="{{ route('shop.index') }}" class="btn btn-primary">
+                                <i class="fas fa-undo me-2"></i> Tampilkan Semua Produk
                             </a>
                         </div>
                     </div>
-                </div>
-            @endif
+                @endif
 
-            <!-- Tampilan kosong jika tidak ada produk yang ditemukan -->
-            @if ($products->isEmpty() && request()->has('ratings'))
-                <div class="no-products-found my-5 py-5 text-center">
-                    <div class="empty-state">
-                        <div class="empty-state-icon">
-                            <i class="fas fa-search"></i>
-                        </div>
-                        <h3 class="mt-4">Tidak Ada Produk Ditemukan</h3>
-                        <p class="text-muted mb-4">Tidak ada produk dengan rating yang Anda pilih. Silakan coba filter
-                            lainnya.</p>
-                        <a href="{{ route('shop.index') }}" class="btn btn-primary">
-                            <i class="fas fa-undo me-2"></i> Tampilkan Semua Produk
-                        </a>
-                    </div>
-                </div>
-            @endif
+                <style>
+                    .filter-notification {
+                        animation-duration: 0.5s;
+                    }
 
-            <style>
-                .filter-notification {
-                    animation-duration: 0.5s;
-                }
+                    .alert-custom {
+                        background-color: #f9f3ec;
+                        border-left: 4px solid #956a3b;
+                        border-radius: 8px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                        padding: 1rem 1.25rem;
+                    }
 
-                .alert-custom {
-                    background-color: #f9f3ec;
-                    border-left: 4px solid #956a3b;
-                    border-radius: 8px;
-                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-                    padding: 1rem 1.25rem;
-                }
+                    .filter-icon-container {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        background-color: rgba(149, 106, 59, 0.1);
+                        color: #956a3b;
+                        font-size: 1.2rem;
+                    }
 
-                .filter-icon-container {
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    background-color: rgba(149, 106, 59, 0.1);
-                    color: #956a3b;
-                    font-size: 1.2rem;
-                }
+                    .filter-content .alert-heading {
+                        color: #333;
+                        font-size: 1rem;
+                        font-weight: 600;
+                    }
 
-                .filter-content .alert-heading {
-                    color: #333;
-                    font-size: 1rem;
-                    font-weight: 600;
-                }
-
-                .filter-text {
-                    color: #666;
-                    font-size: 0.9rem;
-                    display: flex;
-                    align-items: center;
-                    flex-wrap: wrap;
-                }
-
-                .rating-badge {
-                    display: inline-flex;
-                    align-items: center;
-                    margin: 0 0.5rem;
-                }
-
-                .rating-badge i {
-                    margin-right: 2px;
-                }
-
-                .product-count {
-                    font-style: italic;
-                    color: #777;
-                }
-
-                .empty-state {
-                    padding: 2rem;
-                    max-width: 500px;
-                    margin: 0 auto;
-                }
-
-                .empty-state-icon {
-                    width: 80px;
-                    height: 80px;
-                    background-color: #f8f9fa;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    margin: 0 auto;
-                    color: #956a3b;
-                    font-size: 2rem;
-                }
-
-                .empty-state h3 {
-                    font-weight: 600;
-                    color: #333;
-                }
-
-                .empty-state .btn-primary {
-                    background-color: #956a3b;
-                    border-color: #956a3b;
-                }
-
-                .empty-state .btn-primary:hover {
-                    background-color: #7b582f;
-                    border-color: #7b582f;
-                }
-
-                /* Responsive adjustments */
-                @media (max-width: 576px) {
                     .filter-text {
-                        flex-direction: column;
-                        align-items: flex-start;
+                        color: #666;
+                        font-size: 0.9rem;
+                        display: flex;
+                        align-items: center;
+                        flex-wrap: wrap;
                     }
 
                     .rating-badge {
-                        margin: 0.5rem 0;
+                        display: inline-flex;
+                        align-items: center;
+                        margin: 0 0.5rem;
                     }
-                }
-            </style>
+
+                    .rating-badge i {
+                        margin-right: 2px;
+                    }
+
+                    .product-count {
+                        font-style: italic;
+                        color: #777;
+                    }
+
+                    .empty-state {
+                        padding: 2rem;
+                        max-width: 500px;
+                        margin: 0 auto;
+                    }
+
+                    .empty-state-icon {
+                        width: 80px;
+                        height: 80px;
+                        background-color: #f8f9fa;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin: 0 auto;
+                        color: #956a3b;
+                        font-size: 2rem;
+                    }
+
+                    .empty-state h3 {
+                        font-weight: 600;
+                        color: #333;
+                    }
+
+                    .empty-state .btn-primary {
+                        background-color: #956a3b;
+                        border-color: #956a3b;
+                    }
+
+                    .empty-state .btn-primary:hover {
+                        background-color: #7b582f;
+                        border-color: #7b582f;
+                    }
+
+                    /* Responsive adjustments */
+                    @media (max-width: 576px) {
+                        .filter-text {
+                            flex-direction: column;
+                            align-items: flex-start;
+                        }
+
+                        .rating-badge {
+                            margin: 0.5rem 0;
+                        }
+                    }
+                </style>
 
 
-            <div class="products-grid row row-cols-2 row-cols-md-3" id="products-grid">
-                @foreach ($products as $product)
-                    <div class="product-card-wrapper">
+                <div class="products-grid row row-cols-2 row-cols-md-3" id="products-grid">
+                    @foreach ($products as $product)
+                        <div class="product-card-wrapper">
 
-                        @if (isset($search_query) && !empty($search_query))
-                            <div class="search-results-notification mb-4">
-                                <div class="alert alert-custom fade show" role="alert">
-                                    <div class="d-flex align-items-center">
-                                        <div class="search-icon-container me-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
-                                                fill="currentColor" class="fas fa-search" viewBox="0 0 16 16">
-                                                <path
-                                                    d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
-                                            </svg>
+                            @if (isset($search_query) && !empty($search_query))
+                                <div class="search-results-notification mb-4">
+                                    <div class="alert alert-custom fade show" role="alert">
+                                        <div class="d-flex align-items-center">
+                                            <div class="search-icon-container me-3">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                                                    fill="currentColor" class="fas fa-search" viewBox="0 0 16 16">
+                                                    <path
+                                                        d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+                                                </svg>
+                                            </div>
+                                            <div class="search-content">
+                                                <h5 class="alert-heading mb-1">Hasil pencarian</h5>
+                                                <p class="mb-0 search-query-text">Menampilkan hasil untuk: "<span
+                                                        class="fw-medium">{{ $search_query }}</span>"</p>
+                                            </div>
+                                            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"
+                                                aria-label="Close"></button>
                                         </div>
-                                        <div class="search-content">
-                                            <h5 class="alert-heading mb-1">Hasil pencarian</h5>
-                                            <p class="mb-0 search-query-text">Menampilkan hasil untuk: "<span
-                                                    class="fw-medium">{{ $search_query }}</span>"</p>
-                                        </div>
-                                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert"
-                                            aria-label="Close"></button>
                                     </div>
                                 </div>
-                            </div>
 
-                            <style>
-                                .search-results-notification {
-                                    animation: fadeIn 0.5s ease-in-out;
-                                }
-
-                                .alert-custom {
-                                    background-color: #f8f9fa;
-                                    border-left: 4px solid #956a3b;
-                                    border-radius: 8px;
-                                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-                                    padding: 1rem 1.25rem;
-                                }
-
-                                .search-icon-container {
-                                    display: flex;
-                                    align-items: center;
-                                    justify-content: center;
-                                    width: 40px;
-                                    height: 40px;
-                                    border-radius: 50%;
-                                    background-color: rgba(149, 106, 59, 0.1);
-                                    color: #956a3b;
-                                }
-
-                                .search-content .alert-heading {
-                                    color: #333;
-                                    font-size: 1rem;
-                                    font-weight: 600;
-                                }
-
-                                .search-query-text {
-                                    color: #666;
-                                    font-size: 0.9rem;
-                                }
-
-                                .search-query-text .fw-medium {
-                                    color: #000;
-                                }
-
-                                @keyframes fadeIn {
-                                    from {
-                                        opacity: 0;
-                                        transform: translateY(-10px);
+                                <style>
+                                    .search-results-notification {
+                                        animation: fadeIn 0.5s ease-in-out;
                                     }
 
-                                    to {
-                                        opacity: 1;
-                                        transform: translateY(0);
+                                    .alert-custom {
+                                        background-color: #f8f9fa;
+                                        border-left: 4px solid #956a3b;
+                                        border-radius: 8px;
+                                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                                        padding: 1rem 1.25rem;
                                     }
-                                }
 
-                                .btn-close:focus {
-                                    box-shadow: 0 0 0 0.25rem rgba(149, 106, 59, 0.25);
-                                }
-                            </style>
-                        @endif
-                        <div class="product-card mb-3 mb-md-4 mb-xxl-5">
-                            <div class="pc__img-wrapper">
-                                <div class="swiper-container background-img js-swiper-slider"
-                                    data-settings='{"resizeObserver": true}'>
-                                    <div class="swiper-wrapper">
-                                        <div class="swiper-slide">
-                                            <a
-                                                href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">
-                                                <img loading="lazy"
-                                                    src="{{ asset('uploads/products') }}/{{ $product->image }}"
-                                                    width="330" height="400" alt="{{ $product->name }}"
-                                                    class="pc__img">
-                                            </a>
-                                        </div>
-                                        <div class="swiper-slide">
-                                            @foreach (explode(',', $product->images) as $gimg)
+                                    .search-icon-container {
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        width: 40px;
+                                        height: 40px;
+                                        border-radius: 50%;
+                                        background-color: rgba(149, 106, 59, 0.1);
+                                        color: #956a3b;
+                                    }
+
+                                    .search-content .alert-heading {
+                                        color: #333;
+                                        font-size: 1rem;
+                                        font-weight: 600;
+                                    }
+
+                                    .search-query-text {
+                                        color: #666;
+                                        font-size: 0.9rem;
+                                    }
+
+                                    .search-query-text .fw-medium {
+                                        color: #000;
+                                    }
+
+                                    @keyframes fadeIn {
+                                        from {
+                                            opacity: 0;
+                                            transform: translateY(-10px);
+                                        }
+
+                                        to {
+                                            opacity: 1;
+                                            transform: translateY(0);
+                                        }
+                                    }
+
+                                    .btn-close:focus {
+                                        box-shadow: 0 0 0 0.25rem rgba(149, 106, 59, 0.25);
+                                    }
+                                </style>
+                            @endif
+                            <div class="product-card mb-3 mb-md-4 mb-xxl-5">
+                                <div class="pc__img-wrapper">
+                                    <div class="swiper-container background-img js-swiper-slider"
+                                        data-settings='{"resizeObserver": true}'>
+                                        <div class="swiper-wrapper">
+                                            <div class="swiper-slide">
                                                 <a
                                                     href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">
                                                     <img loading="lazy"
-                                                        src="{{ asset('uploads/products') }}/{{ trim($gimg) }}"
+                                                        src="{{ asset('uploads/products') }}/{{ $product->image }}"
                                                         width="330" height="400" alt="{{ $product->name }}"
                                                         class="pc__img">
                                                 </a>
-                                            @endforeach
+                                            </div>
+                                            <div class="swiper-slide">
+                                                @foreach (explode(',', $product->images) as $gimg)
+                                                    <a
+                                                        href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">
+                                                        <img loading="lazy"
+                                                            src="{{ asset('uploads/products') }}/{{ trim($gimg) }}"
+                                                            width="330" height="400" alt="{{ $product->name }}"
+                                                            class="pc__img">
+                                                    </a>
+                                                @endforeach
+                                            </div>
                                         </div>
-                                    </div>
-                                    <span class="pc__img-prev"><svg width="7" height="11" viewBox="0 0 7 11"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <use href="#icon_prev_sm" />
-                                        </svg></span>
-                                    <span class="pc__img-next"><svg width="7" height="11" viewBox="0 0 7 11"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <use href="#icon_next_sm" />
-                                        </svg></span>
-                                </div>
-                                <!-- Selalu tampilkan form add-to-cart, tanpa kondisi untuk "Lihat Keranjang" -->
-                                <form name="addtocart-form" method="POST" action="{{ route('cart.add') }}">
-                                    @csrf
-                                    <div class="product-single__addtocart">
-                                        <input type="hidden" name="id" value="{{ $product->id }}" />
-                                        <input type="hidden" name="name" value="{{ $product->name }}" />
-                                        <input type="hidden" name="quantity" value="1" />
-                                        <input type="hidden" name="price"
-                                            value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                        <button type="submit"
-                                            class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart"
-                                            style="background-color: #956a3b; color: #ffffff;">
-                                            Tambahkan ke Keranjang
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-
-                            <div class="pc__info position-relative">
-                                <p class="pc__category">{{ $product->category->name }}</p>
-                                <h6 class="pc__title"><a
-                                        href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">{{ $product->name }}</a>
-                                </h6>
-                                <div class="product-card__price d-flex">
-                                    <span class="money price">
-                                        @if ($product->sale_price && $product->sale_price < $product->regular_price)
-                                            <s>{{ formatRupiah($product->regular_price) }}</s>
-                                            {{ formatRupiah($product->sale_price) }}
-                                        @else
-                                            {{ formatRupiah($product->regular_price) }}
-                                        @endif
-                                    </span>
-                                </div>
-
-                                <div class="product-card__review d-flex align-items-center">
-                                    @php
-                                        $averageRating = $product->reviews()->avg('rating');
-                                        $totalReviews = $product->reviews()->count();
-                                    @endphp
-
-                                    <div class="reviews-group d-flex">
-                                        {{-- Display stars dynamically based on the average rating --}}
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg"
-                                                style="fill: {{ $i <= $averageRating ? '#FFD700' : '#E0E0E0' }};">
-                                                <use href="#icon_star" />
-                                            </svg>
-                                        @endfor
-                                    </div>
-
-                                    {{-- Display total reviews count --}}
-                                    <span class="reviews-note text-lowercase text-secondary ms-1">
-                                        {{ $totalReviews > 1000 ? round($totalReviews / 1000, 1) . 'k+' : $totalReviews }}
-                                        Ulasan
-                                    </span>
-                                </div>
-
-                                <!-- Wishlist Button Section -->
-                                @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
-                                    <form method="POST"
-                                        action="{{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
-                                            title="Remove from Wishlist">
-                                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                        <span class="pc__img-prev"><svg width="7" height="11" viewBox="0 0 7 11"
                                                 xmlns="http://www.w3.org/2000/svg">
-                                                <use href="#icon_heart" />
-                                            </svg>
-                                        </button>
-                                    </form>
-                                @else
-                                    <form method="POST" action="{{ route('wishlist.add') }}">
-                                        @csrf
-                                        <input type="hidden" name="id" value="{{ $product->id }}" />
-                                        <input type="hidden" name="name" value="{{ $product->name }}" />
-                                        <input type="hidden" name="price"
-                                            value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                        <input type="hidden" name="quantity" value="1" />
-                                        <button type="submit"
-                                            class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
-                                            title="Tambahkan Ke Favorit">
-                                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                                <use href="#icon_prev_sm" />
+                                            </svg></span>
+                                        <span class="pc__img-next"><svg width="7" height="11" viewBox="0 0 7 11"
                                                 xmlns="http://www.w3.org/2000/svg">
-                                                <use href="#icon_heart" />
-                                            </svg>
-                                        </button>
+                                                <use href="#icon_next_sm" />
+                                            </svg></span>
+                                    </div>
+                                    <!-- Selalu tampilkan form add-to-cart, tanpa kondisi untuk "Lihat Keranjang" -->
+                                    <form name="addtocart-form" method="POST" action="{{ route('cart.add') }}">
+                                        @csrf
+                                        <div class="product-single__addtocart">
+                                            <input type="hidden" name="id" value="{{ $product->id }}" />
+                                            <input type="hidden" name="name" value="{{ $product->name }}" />
+                                            <input type="hidden" name="quantity" value="1" />
+                                            <input type="hidden" name="price"
+                                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                            <button type="submit"
+                                                class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart"
+                                                style="background-color: #956a3b; color: #ffffff;">
+                                                Tambahkan ke Keranjang
+                                            </button>
+                                        </div>
                                     </form>
-                                @endif
+                                </div>
+
+                                <div class="pc__info position-relative">
+                                    <p class="pc__category">{{ $product->category->name }}</p>
+                                    <h6 class="pc__title"><a
+                                            href="{{ route('shop.product.details', ['product_slug' => $product->slug]) }}">{{ $product->name }}</a>
+                                    </h6>
+                                    <div class="product-card__price d-flex">
+                                        <span class="money price">
+                                            @if ($product->sale_price && $product->sale_price < $product->regular_price)
+                                                <s>{{ formatRupiah($product->regular_price) }}</s>
+                                                {{ formatRupiah($product->sale_price) }}
+                                            @else
+                                                {{ formatRupiah($product->regular_price) }}
+                                            @endif
+                                        </span>
+                                    </div>
+
+                                    <div class="product-card__review d-flex align-items-center">
+                                        @php
+                                            $averageRating = $product->reviews()->avg('rating');
+                                            $totalReviews = $product->reviews()->count();
+                                        @endphp
+
+                                        <div class="reviews-group d-flex">
+                                            {{-- Display stars dynamically based on the average rating --}}
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <svg class="review-star" viewBox="0 0 9 9"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    style="fill: {{ $i <= $averageRating ? '#FFD700' : '#E0E0E0' }};">
+                                                    <use href="#icon_star" />
+                                                </svg>
+                                            @endfor
+                                        </div>
+
+                                        {{-- Display total reviews count --}}
+                                        <span class="reviews-note text-lowercase text-secondary ms-1">
+                                            {{ $totalReviews > 1000 ? round($totalReviews / 1000, 1) . 'k+' : $totalReviews }}
+                                            Ulasan
+                                        </span>
+                                    </div>
+
+                                    <!-- Wishlist Button Section -->
+                                    @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
+                                        <form method="POST"
+                                            action="{{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
+                                                title="Remove from Wishlist">
+                                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <use href="#icon_heart" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <form method="POST" action="{{ route('wishlist.add') }}">
+                                            @csrf
+                                            <input type="hidden" name="id" value="{{ $product->id }}" />
+                                            <input type="hidden" name="name" value="{{ $product->name }}" />
+                                            <input type="hidden" name="price"
+                                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                            <input type="hidden" name="quantity" value="1" />
+                                            <button type="submit"
+                                                class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
+                                                title="Tambahkan Ke Favorit">
+                                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                                    xmlns="http://www.w3.org/2000/svg">
+                                                    <use href="#icon_heart" />
+                                                </svg>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </div>
                         </div>
-                    </div>
-                @endforeach
-            </div>
+                    @endforeach
+                </div>
 
-            <div class="divider"></div>
-            <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
-                {{ $products->withQueryString()->links('pagination::bootstrap-5') }}
-            </div>
+                <div class="divider"></div>
+                <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
+                    {{ $products->withQueryString()->links('pagination::bootstrap-5') }}
+                </div>
             </div>
         </section>
 
