@@ -73,11 +73,11 @@
             }
 
             /* Mengatur posisi gambar */
-            .slideshow-character {
+            /* .slideshow-character {
                 bottom: 0 !important;
                 width: 45% !important;
                 right: 0 !important;
-            }
+            } */
 
             /* .slideshow-character__img {
                 max-height: 220px !important;
