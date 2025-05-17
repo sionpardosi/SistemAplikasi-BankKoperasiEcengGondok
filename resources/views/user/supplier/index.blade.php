@@ -2351,7 +2351,7 @@
                     const errorMessage = document.createElement('div');
                     errorMessage.className = 'invalid-feedback';
                     errorMessage.style.display = 'none';
-                    errorMessage.textContent = 'Jumlah eceng gondok tidak boleh 0 atau kosong';
+                    errorMessage.textContent = 'Jumlah eceng gondok tidak boleh kosong';
 
                     // Insert error message after the input group
                     weightInput.closest('.input-group').after(errorMessage);
