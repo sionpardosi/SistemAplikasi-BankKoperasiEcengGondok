@@ -23,7 +23,6 @@ class WishlistController extends Controller
         return view('wishlist', compact('cartItems'));
     }
 
-
     // Add to wishlist
     public function add_to_wishlist(Request $request)
     {
@@ -37,17 +36,44 @@ class WishlistController extends Controller
                 'price' => $request->price
             ]);
 
+            // Return JSON response for AJAX requests
+            if($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Silakan login terlebih dahulu untuk menambahkan ke favorit',
+                    'redirect' => route('login')
+                ], 401);
+            }
+
             // Redirect to login page with a return URL
             return redirect()->route('login')
-                ->with('message', 'Please login to add products to your wishlist');
+                ->with('message', 'Silakan login untuk menambahkan produk ke favorit Anda');
         }
 
         // User is logged in, add to both Cart instance and database
         $this->addToWishlistDatabase($request);
 
         // Add to Cart instance for current session
-        Cart::instance('wishlist')->add($request->id, $request->name, $request->quantity, $request->price)
+        $item = Cart::instance('wishlist')
+            ->add($request->id, $request->name, $request->quantity, $request->price)
             ->associate('App\Models\Product');
+
+        // Get the product
+        $product = Product::find($request->id);
+
+        // For AJAX requests, return JSON response
+        if($request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil ditambahkan ke favorit',
+                'count' => Cart::instance('wishlist')->count(),
+                'rowId' => $item->rowId,
+                'removeUrl' => route('wishlist.remove', ['rowId' => $item->rowId]),
+                'productId' => $product->id,
+                'productName' => $product->name,
+                'productPrice' => $product->sale_price ?: $product->regular_price
+            ]);
+        }
 
         return redirect()->back()->with('success_message', 'Item added to your wishlist');
     }
@@ -57,15 +83,30 @@ class WishlistController extends Controller
     {
         // Get the item information before removing it
         $item = Cart::instance('wishlist')->get($rowId);
+        $productId = $item ? $item->id : null;
+        $productName = $item ? $item->name : '';
+        $productPrice = $item ? $item->price : 0;
 
         // Remove from Cart instance
         Cart::instance('wishlist')->remove($rowId);
 
         // If user is logged in, also remove from database
-        if (Auth::check() && $item) {
+        if (Auth::check() && $productId) {
             WishlistItem::where('user_id', Auth::id())
-                ->where('product_id', $item->id)
+                ->where('product_id', $productId)
                 ->delete();
+        }
+
+        // For AJAX requests, return JSON response
+        if(request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil dihapus dari favorit',
+                'count' => Cart::instance('wishlist')->count(),
+                'productId' => $productId,
+                'productName' => $productName,
+                'productPrice' => $productPrice
+            ]);
         }
 
         return redirect()->back()->with('success_message', 'Item removed from wishlist');
@@ -82,6 +123,15 @@ class WishlistController extends Controller
             WishlistItem::where('user_id', Auth::id())->delete();
         }
 
+        // For AJAX requests, return JSON response
+        if(request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Semua item telah dihapus dari favorit',
+                'count' => 0
+            ]);
+        }
+
         return redirect()->back()->with('success_message', 'Wishlist cleared');
     }
 
@@ -91,6 +141,13 @@ class WishlistController extends Controller
         $item = Cart::instance('wishlist')->get($rowId);
 
         if (!$item) {
+            // For AJAX requests
+            if(request()->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Item tidak ditemukan dalam favorit'
+                ], 404);
+            }
             return redirect()->back()->with('error_message', 'Item not found in wishlist');
         }
 
@@ -105,6 +162,16 @@ class WishlistController extends Controller
             WishlistItem::where('user_id', Auth::id())
                 ->where('product_id', $item->id)
                 ->delete();
+        }
+
+        // For AJAX requests
+        if(request()->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Produk berhasil dipindahkan ke keranjang',
+                'wishlistCount' => Cart::instance('wishlist')->count(),
+                'cartCount' => Cart::instance('cart')->count()
+            ]);
         }
 
         return redirect()->back()->with('success_message', 'Item moved to cart');
@@ -131,6 +198,7 @@ class WishlistController extends Controller
             }
         }
     }
+
     // Add to wishlist database
     private function addToWishlistDatabase(Request $request)
     {
@@ -176,7 +244,7 @@ class WishlistController extends Controller
         return false;
     }
 
-    // New method to get wishlist count via AJAX
+    // Get wishlist count via AJAX
     public function getWishlistCount()
     {
         if (Auth::check()) {

@@ -6,10 +6,10 @@
         <!-- main-content-wrap -->
         <div class="main-content-wrap">
             <div class="flex items-center flex-wrap justify-between gap20 mb-27">
-                <h3>Add Product</h3>
+                <h3>Edit Produk</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
-                        <a href="index.html">
+                        <a href="{{ route('admin.index') }}">
                             <div class="text-tiny">Dashboard</div>
                         </a>
                     </li>
@@ -17,15 +17,15 @@
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <a href="{{ route('admin.products')}}">
-                            <div class="text-tiny">Products</div>
+                        <a href="{{ route('admin.products') }}">
+                            <div class="text-tiny">Produk</div>
                         </a>
                     </li>
                     <li>
                         <i class="icon-chevron-right"></i>
                     </li>
                     <li>
-                        <div class="text-tiny">Edit product</div>
+                        <div class="text-tiny">Edit produk</div>
                     </li>
                 </ul>
             </div>
@@ -37,25 +37,25 @@
                 @method('PUT')
                 <div class="wg-box">
                     <fieldset class="name">
-                        <div class="body-title mb-10">Product name <span class="tf-color-1">*</span></div>
-                        <input class="mb-10" type="text" placeholder="Enter product name" name="name" tabindex="0"
-                            value="{{ $product->name }}" aria-required="true" required="">
-                        <div class="text-tiny">Do not exceed 100 characters when entering the product name.</div>
+                        <div class="body-title mb-10">Nama Produk <span class="tf-color-1">*</span></div>
+                        <input class="mb-10" type="text" placeholder="Masukkan nama produk" name="name"
+                            tabindex="0" value="{{ $product->name }}" aria-required="true" required="">
+                        <div class="text-tiny">Jangan melebihi 100 karakter saat memasukkan nama produk.</div>
                     </fieldset>
 
                     <fieldset class="name">
                         <div class="body-title mb-10">Slug <span class="tf-color-1">*</span></div>
-                        <input class="mb-10" type="text" placeholder="Enter product slug" name="slug" tabindex="0"
-                            value="{{ $product->slug }}" aria-required="true" required="">
-                        <div class="text-tiny">Do not exceed 100 characters when entering the product name.</div>
+                        <input class="mb-10" type="text" placeholder="Masukkan slug produk" name="slug"
+                            tabindex="0" value="{{ $product->slug }}" aria-required="true" required="">
+                        <div class="text-tiny">Jangan melebihi 100 karakter saat memasukkan slug produk.</div>
                     </fieldset>
 
                     <div class="gap22 cols">
                         <fieldset class="category">
-                            <div class="body-title mb-10">Category <span class="tf-color-1">*</span></div>
+                            <div class="body-title mb-10">Kategori <span class="tf-color-1">*</span></div>
                             <div class="select">
                                 <select class="" name="category_id">
-                                    <option>Choose category</option>
+                                    <option value="">Pilih Kategori</option>
                                     @foreach ($categories as $category)
                                         <option value="{{ $category->id }}"
                                             {{ $product->category_id == $category->id ? 'selected' : '' }}>
@@ -65,10 +65,10 @@
                             </div>
                         </fieldset>
                         <fieldset class="brand">
-                            <div class="body-title mb-10">Brand <span class="tf-color-1">*</span></div>
+                            <div class="body-title mb-10">Merek <span class="tf-color-1">*</span></div>
                             <div class="select">
                                 <select class="" name="brand_id">
-                                    <option>Choose Brand</option>
+                                    <option value="">Pilih Merek</option>
                                     @foreach ($brands as $brand)
                                         <option value="{{ $brand->id }}"
                                             {{ $product->brand_id == $brand->id ? 'selected' : '' }}>{{ $brand->name }}
@@ -80,24 +80,21 @@
                     </div>
 
                     <fieldset class="shortdescription">
-                        <div class="body-title mb-10">Short Description <span class="tf-color-1">*</span></div>
-                        <textarea class="mb-10 ht-150" name="short_description" placeholder="Short Description" tabindex="0"
+                        <div class="body-title mb-10">Deskripsi Singkat <span class="tf-color-1">*</span></div>
+                        <textarea class="mb-10 ht-150" name="short_description" placeholder="Deskripsi Singkat" tabindex="0"
                             aria-required="true" required="">{{ $product->short_description }}</textarea>
-
-
-                        <div class="text-tiny">Do not exceed 100 characters when entering the product name.</div>
+                        <div class="text-tiny">Jangan melebihi 100 karakter saat memasukkan deskripsi singkat.</div>
                     </fieldset>
 
                     <fieldset class="description">
-                        <div class="body-title mb-10">Description <span class="tf-color-1">*</span></div>
-                        <textarea class="mb-10" name="description" placeholder="Description" tabindex="0" aria-required="true"
-                            required="">{{ $product->description }}</textarea>
-                        <div class="text-tiny">Do not exceed 100 characters when entering the product name.</div>
+                        <div class="body-title mb-10">Deskripsi <span class="tf-color-1">*</span></div>
+                        <textarea class="mb-10" name="description" placeholder="Deskripsi" tabindex="0" aria-required="true" required="">{{ $product->description }}</textarea>
+                        <div class="text-tiny">Isi dengan deskripsi lengkap produk.</div>
                     </fieldset>
                 </div>
                 <div class="wg-box">
                     <fieldset>
-                        <div class="body-title">Upload images <span class="tf-color-1">*</span></div>
+                        <div class="body-title">Unggah Gambar <span class="tf-color-1">*</span></div>
                         <div class="upload-image flex-grow">
                             @if ($product->image)
                                 <div class="item" id="imgpreview">
@@ -119,7 +116,7 @@
                     </fieldset>
 
                     <fieldset>
-                        <div class="body-title mb-10">Upload Gallery Images</div>
+                        <div class="body-title mb-10">Unggah Gambar Galeri</div>
                         <div class="upload-image mb-16">
                             @if ($product->images)
                                 @foreach (explode(',', $product->images) as $img)
@@ -146,60 +143,147 @@
                     <div class="cols gap22">
                         <!-- Tampilkan nilai awal dengan format rupiah menggunakan helper -->
                         <fieldset class="name">
-                            <div class="body-title mb-10">Regular Price <span class="tf-color-1">*</span></div>
-                            <input class="mb-10" type="text" placeholder="Enter regular price" name="regular_price"
-                                tabindex="0" value="{{ formatRupiah($product->regular_price) }}" aria-required="true"
-                                required="">
+                            <div class="body-title mb-10">Harga Normal <span class="tf-color-1">*</span></div>
+                            <input class="mb-10" type="text" placeholder="Masukkan harga normal"
+                                name="regular_price" tabindex="0" value="{{ formatRupiah($product->regular_price) }}"
+                                aria-required="true" required="">
                         </fieldset>
                         <fieldset class="name">
-                            <div class="body-title mb-10">Sale Price <span class="tf-color-1">*</span></div>
-                            <input class="mb-10" type="text" placeholder="Enter sale price" name="sale_price"
-                                tabindex="0" value="{{ formatRupiah($product->sale_price) }}" aria-required="true" required="">
+                            <div class="body-title mb-10">Harga Diskon <span class="tf-color-1">*</span></div>
+                            <input class="mb-10" type="text" placeholder="Masukkan harga diskon" name="sale_price"
+                                tabindex="0" value="{{ formatRupiah($product->sale_price) }}" aria-required="true"
+                                required="">
+                        </fieldset>
+                    </div>
+
+                    <!-- Bagian Ukuran Produk yang Diperbarui -->
+                    <div class="wg-box">
+                        <fieldset>
+                            <div class="d-flex align-items-center mb-3">
+                                <input type="checkbox" name="has_sizes" id="has_sizes" class="me-2"
+                                    {{ $product->sizes && $product->sizes->count() > 0 ? 'checked' : '' }}>
+                                <label for="has_sizes" class="body-title mb-0">Produk ini memiliki ukuran</label>
+                            </div>
+
+                            <!-- Bagian untuk ukuran dan stok (akan disembunyikan/ditampilkan dengan JavaScript) -->
+                            <div id="sizes-container"
+                                style="{{ $product->sizes && $product->sizes->count() > 0 ? '' : 'display: none;' }}">
+                                <div class="mb-3">
+                                    <div class="body-title mb-10">Ukuran Produk</div>
+                                    <small class="text-muted d-block mb-2">Pilih ukuran yang tersedia beserta
+                                        stoknya.</small>
+
+                                    <!-- Ukuran yang sudah ada dalam database -->
+                                    <div class="existing-sizes mb-4">
+                                        <div class="body-title mb-2" style="font-size: 14px;">Ukuran yang Tersedia</div>
+                                        <div class="row">
+                                            @php
+                                                $productSizes = $product->sizes
+                                                    ? $product->sizes->pluck('pivot.stock', 'id')->toArray()
+                                                    : [];
+                                            @endphp
+
+                                            @foreach ($sizes as $size)
+                                                <div class="col-md-4 mb-2">
+                                                    <div class="d-flex align-items-center">
+                                                        <input type="checkbox" name="sizes[]"
+                                                            id="size_{{ $size->id }}" value="{{ $size->id }}"
+                                                            class="size-checkbox me-2"
+                                                            {{ isset($productSizes[$size->id]) ? 'checked' : '' }}>
+                                                        <label for="size_{{ $size->id }}"
+                                                            class="me-2">{{ $size->name }}</label>
+                                                    </div>
+                                                    <div class="stock-input"
+                                                        style="{{ isset($productSizes[$size->id]) ? '' : 'display: none;' }}">
+                                                        <input type="number" name="stocks[{{ $size->id }}]"
+                                                            min="0" placeholder="Stok" class="form-control"
+                                                            value="{{ $productSizes[$size->id] ?? 0 }}">
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+
+                                    <!-- Bagian untuk menambahkan ukuran baru -->
+                                    <div class="new-sizes-section">
+                                        <div class="body-title mb-2" style="font-size: 14px;">Tambah Ukuran Baru</div>
+                                        <div id="new-sizes-container">
+                                            <div class="new-size-row d-flex align-items-center mb-2">
+                                                <input type="text" name="new_sizes[]" placeholder="Ukuran baru"
+                                                    class="form-control me-2" style="width: 150px;">
+                                                <input type="number" name="new_stocks[]" min="0"
+                                                    placeholder="Stok" class="form-control" style="width: 100px;"
+                                                    value="0">
+                                                <button type="button" class="btn btn-danger ms-2 remove-new-size"
+                                                    style="display:none;">Hapus</button>
+                                            </div>
+                                        </div>
+                                        <button type="button" id="add-new-size" class="btn btn-primary btn-sm mt-2">
+                                            Tambah Ukuran Baru
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            @error('sizes')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                            @error('stocks')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                            @error('new_sizes')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                            @error('new_stocks')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </fieldset>
                     </div>
 
                     <div class="cols gap22">
                         <fieldset class="name">
                             <div class="body-title mb-10">SKU <span class="tf-color-1">*</span></div>
-                            <input class="mb-10" type="text" placeholder="Enter SKU" name="SKU" tabindex="0"
-                                value="{{ $product->SKU }}" aria-required="true" required="">
+                            <input class="mb-10" type="text" placeholder="Masukkan SKU" name="SKU"
+                                tabindex="0" value="{{ $product->SKU }}" aria-required="true" required="">
                         </fieldset>
-                        <fieldset class="name">
-                            <div class="body-title mb-10">Quantity <span class="tf-color-1">*</span></div>
-                            <input class="mb-10" type="text" placeholder="Enter quantity" name="quantity"
+                        <fieldset class="name" id="quantity-field"
+                            style="{{ $product->sizes && $product->sizes->count() > 0 ? 'display: none;' : '' }}">
+                            <div class="body-title mb-10">Kuantitas <span class="tf-color-1">*</span></div>
+                            <input class="mb-10" type="text" placeholder="Masukkan kuantitas" name="quantity"
                                 tabindex="0" value="{{ $product->quantity }}" aria-required="true" required="">
                         </fieldset>
                     </div>
 
                     <div class="cols gap22">
                         <fieldset class="name">
-                            <div class="body-title mb-10">Stock</div>
+                            <div class="body-title mb-10">Stok</div>
                             <div class="select mb-10">
                                 <select class="" name="stock_status">
                                     <option value="instock" {{ $product->stock_status == 'instock' ? 'Selected' : '' }}>
-                                        InStock</option>
+                                        Tersedia</option>
                                     <option value="outofstock"
-                                        {{ $product->stock_status == 'outofstock' ? 'Selected' : '' }}>Out of Stock
+                                        {{ $product->stock_status == 'outofstock' ? 'Selected' : '' }}>Habis
                                     </option>
                                 </select>
                             </div>
                         </fieldset>
                         <fieldset class="name">
-                            <div class="body-title mb-10">Featured</div>
+                            <div class="body-title mb-10">Produk Unggulan</div>
                             <div class="select mb-10">
                                 <select class="" name="featured">
-                                    <option value="0" {{ $product->featured == '0' ? 'Selected' : '' }}>No</option>
-                                    <option value="1" {{ $product->featured == '1' ? 'Selected' : '' }}>Yes</option>
+                                    <option value="0" {{ $product->featured == '0' ? 'Selected' : '' }}>Tidak
+                                    </option>
+                                    <option value="1" {{ $product->featured == '1' ? 'Selected' : '' }}>Ya</option>
                                 </select>
                             </div>
                         </fieldset>
                     </div>
                     <div class="cols gap10">
-                        <button class="tf-button w-full" type="submit">Update product</button>
+                        <button class="tf-button w-full" type="submit">Perbarui Produk</button>
                     </div>
                 </div>
             </form>
-            <!-- /form-add-product -->
+            <!-- /form-edit-product -->
         </div>
         <!-- /main-content-wrap -->
     </div>
@@ -208,7 +292,7 @@
 @push('scripts')
     <script>
         $(function() {
-            // Untuk preview gambar utama
+            // Preview gambar utama
             $("#myFile").on("change", function(e) {
                 const [file] = this.files;
                 if (file) {
@@ -217,7 +301,7 @@
                 }
             });
 
-            // Untuk preview gallery images
+            // Preview gambar galeri
             $("#gFile").on("change", function(e) {
                 $(".gitems").remove();
                 const gphotos = this.files;
@@ -233,36 +317,124 @@
                 $("input[name='slug']").val(StringToSlug($(this).val()));
             });
 
-            // Saat input harga mendapatkan focus, hilangkan formatting agar user dapat mengedit angka mentah
-            $('input[name="regular_price"], input[name="sale_price"]').on('focus', function() {
-                let value = $(this).val();
-                // Hilangkan "Rp " dan karakter titik/thousands separator
-                let numeric = value.replace(/Rp\s?/g, '').replace(/\./g, '').replace(/,/g, '');
-                $(this).val(numeric);
-            });
-
-            // Format harga ke dalam format Rupiah saat input kehilangan fokus (blur)
-            $('input[name="regular_price"], input[name="sale_price"]').on('blur', function() {
-                let value = $(this).val();
-                // Hanya ambil angka dan koma
-                let numeric = value.replace(/[^0-9,]/g, '');
-                // Ganti koma menjadi titik untuk parsing
-                let number = parseFloat(numeric.replace(',', '.'));
-                if (!isNaN(number)) {
-                    // Format ke format Rupiah dengan maksimal dua angka desimal
-                    let formatted = number.toLocaleString('id-ID', {
-                        minimumFractionDigits: 0,
-                        maximumFractionDigits: 2
-                    });
-                    $(this).val('Rp ' + formatted);
+            // Toggle checkbox ukuran
+            $("#has_sizes").on("change", function() {
+                if ($(this).is(":checked")) {
+                    $("#sizes-container").slideDown();
+                    // Reset quantity field jika ukuran diaktifkan
+                    if ($(".size-checkbox:checked").length > 0 ||
+                        $("input[name='new_sizes[]']").filter(function() {
+                            return $(this).val() !== "";
+                        }).length > 0) {
+                        $("#quantity-field").hide();
+                    }
+                } else {
+                    $("#sizes-container").slideUp();
+                    $("#quantity-field").show();
                 }
             });
+
+            // Tampilkan input stok ketika ukuran dipilih
+            $(".size-checkbox").on("change", function() {
+                const stockInput = $(this).closest('.col-md-4').find('.stock-input');
+                if ($(this).is(":checked")) {
+                    stockInput.slideDown();
+                } else {
+                    stockInput.slideUp();
+                }
+
+                // Sembunyikan quantity field jika ada ukuran yang dipilih
+                toggleQuantityField();
+            });
+
+            // Tambah ukuran baru
+            $("#add-new-size").on("click", function() {
+                let container = $("#new-sizes-container");
+                let newRow = $(`
+                    <div class="new-size-row d-flex align-items-center mb-2">
+                        <input type="text" name="new_sizes[]" placeholder="Ukuran baru"
+                               class="form-control me-2" style="width: 150px;">
+                        <input type="number" name="new_stocks[]" min="0" placeholder="Stok"
+                               class="form-control" style="width: 100px;" value="0">
+                        <button type="button" class="btn btn-danger ms-2 remove-new-size">Hapus</button>
+                    </div>
+                `);
+                container.append(newRow);
+
+                // Tambahkan event listener untuk input ukuran baru
+                newRow.find("input[name='new_sizes[]']").on("input", toggleQuantityField);
+
+                // Tambahkan event listener untuk tombol hapus
+                newRow.find(".remove-new-size").on("click", function() {
+                    $(this).closest('.new-size-row').remove();
+                    toggleQuantityField();
+                });
+
+                // Update status quantity field
+                toggleQuantityField();
+            });
+
+            // Event handler untuk tombol hapus pada ukuran baru
+            $(".remove-new-size").on("click", function() {
+                $(this).closest('.new-size-row').remove();
+                toggleQuantityField();
+            });
+
+            // Event listener untuk input ukuran baru yang sudah ada
+            $("input[name='new_sizes[]']").on("input", toggleQuantityField);
+
+            // Fungsi untuk toggle quantity field berdasarkan status ukuran
+            function toggleQuantityField() {
+                if ($("#has_sizes").is(":checked")) {
+                    const hasExistingSizes = $(".size-checkbox:checked").length > 0;
+                    const hasNewSizes = $("input[name='new_sizes[]']").filter(function() {
+                        return $(this).val() !== "";
+                    }).length > 0;
+
+                    if (hasExistingSizes || hasNewSizes) {
+                        $("#quantity-field").hide();
+                    } else {
+                        $("#quantity-field").show();
+                    }
+                } else {
+                    $("#quantity-field").show();
+                }
+            }
+
+            // Format input ketika input kehilangan fokus (blur)
+            $('input[name="regular_price"], input[name="sale_price"]').on('blur', function() {
+                let value = $(this).val();
+                // Hapus karakter yang bukan angka atau koma
+                let numeric = value.replace(/[^0-9,]/g, '');
+                // Ubah nilai input menjadi format Rupiah
+                $(this).val(formatRupiah(numeric, 'Rp '));
+            });
+
+            // Run once at page load to set correct state
+            toggleQuantityField();
         });
 
         function StringToSlug(Text) {
             return Text.toLowerCase()
                 .replace(/[^\w ]+/g, "")
                 .replace(/ +/g, "-");
+        }
+
+        // Fungsi untuk format Rupiah di JavaScript
+        function formatRupiah(angka, prefix) {
+            var number_string = angka.replace(/[^,\d]/g, '').toString(),
+                split = number_string.split(','),
+                sisa = split[0].length % 3,
+                rupiah = split[0].substr(0, sisa),
+                ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+            if (ribuan) {
+                var separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
+            return prefix == undefined ? rupiah : (rupiah ? prefix + rupiah : '');
         }
     </script>
 @endpush

@@ -166,59 +166,76 @@
                         @enderror
                     </div>
 
+                    <!-- Bagian Ukuran Produk yang Diperbarui -->
                     <div class="wg-box">
                         <fieldset>
-                            <div class="body-title mb-10">Ukuran Produk <span class="tf-color-1">*</span></div>
-                            <small class="text-muted d-block mb-2">Pilih ukuran dan masukkan stok untuk masing-masing ukuran.</small>
+                            <div class="d-flex align-items-center mb-3">
+                                <input type="checkbox" name="has_sizes" id="has_sizes" class="me-2"
+                                       {{ old('has_sizes') ? 'checked' : '' }}>
+                                <label for="has_sizes" class="body-title mb-0">Produk ini memiliki ukuran</label>
+                            </div>
 
-                            @foreach ($sizes as $index => $size)
-                                <div class="d-flex align-items-center mb-2">
-                                    <input type="checkbox" name="sizes[]" id="size_{{ $size->id }}" value="{{ $size->id }}"
-                                        {{ (is_array(old('sizes')) && in_array($size->id, old('sizes'))) ? 'checked' : '' }} class="me-2">
-                                    <label for="size_{{ $size->id }}" class="me-3">{{ $size->name }}</label>
-                                    <input type="number" name="stocks[]" min="0" placeholder="Stok ukuran {{ $size->name }}" class="form-control w-25"
-                                        value="{{ old('stocks')[$index] ?? '' }}">
-                                </div>
-                            @endforeach
+                            <!-- Bagian untuk ukuran dan stok (akan disembunyikan/ditampilkan dengan JavaScript) -->
+                            <div id="sizes-container" style="{{ old('has_sizes') ? '' : 'display: none;' }}">
+                                <div class="mb-3">
+                                    <div class="body-title mb-10">Ukuran Produk</div>
+                                    <small class="text-muted d-block mb-2">Pilih ukuran yang tersedia beserta stoknya.</small>
 
-                            @error('sizes')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                            @error('stocks')
-                                <div class="text-danger">{{ $message }}</div>
-                            @enderror
-                        </fieldset>
-                    </div>
+                                    <!-- Ukuran yang sudah ada dalam database -->
+                                    <div class="existing-sizes mb-4">
+                                        <div class="body-title mb-2" style="font-size: 14px;">Ukuran yang Tersedia</div>
+                                        <div class="row">
+                                            @foreach ($sizes as $index => $size)
+                                                <div class="col-md-4 mb-2">
+                                                    <div class="d-flex align-items-center">
+                                                        <input type="checkbox" name="sizes[]" id="size_{{ $size->id }}"
+                                                               value="{{ $size->id }}" class="size-checkbox me-2"
+                                                               {{ (is_array(old('sizes')) && in_array($size->id, old('sizes'))) ? 'checked' : '' }}>
+                                                        <label for="size_{{ $size->id }}" class="me-2">{{ $size->name }}</label>
+                                                    </div>
+                                                    <div class="stock-input" style="{{ (is_array(old('sizes')) && in_array($size->id, old('sizes'))) ? '' : 'display: none;' }}">
+                                                        <input type="number" name="stocks[{{ $size->id }}]"
+                                                               min="0" placeholder="Stok" class="form-control"
+                                                               value="{{ old('stocks.'.$size->id, 0) }}">
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
 
-                    <div class="wg-box">
-                        <fieldset>
-                            <div class="body-title mb-10">Ukuran Produk <span class="tf-color-1">*</span></div>
-                            <small class="text-muted d-block mb-2">Pilih ukuran yang sudah ada dan/atau tambahkan ukuran baru beserta stoknya.</small>
-
-                            {{-- Ukuran Lama (checkbox) --}}
-                            @foreach ($sizes as $index => $size)
-                                <div class="d-flex align-items-center mb-2">
-                                    <input type="checkbox" name="sizes[]" id="size_{{ $size->id }}" value="{{ $size->id }}"
-                                        {{ (is_array(old('sizes')) && in_array($size->id, old('sizes'))) ? 'checked' : '' }} class="me-2">
-                                    <label for="size_{{ $size->id }}" class="me-3">{{ $size->name }}</label>
-                                    <input type="number" name="stocks[]" min="0" placeholder="Stok ukuran {{ $size->name }}" class="form-control w-25"
-                                        value="{{ old('stocks')[$index] ?? 0 }}">
-                                </div>
-                            @endforeach
-
-                            <hr>
-
-                            {{-- Ukuran Baru (dynamic input) --}}
-                            <div id="new-sizes-container">
-                                <label>Ukuran Baru</label>
-                                <small class="text-muted d-block mb-2">Masukkan ukuran baru dan stoknya (opsional)</small>
-                                <div class="new-size-row d-flex align-items-center mb-2">
-                                    <input type="text" name="new_sizes[]" placeholder="Masukkan ukuran baru" class="form-control me-2" style="width: 150px;">
-                                    <input type="number" name="stocks[]" min="0" placeholder="Stok ukuran baru" class="form-control w-25">
-                                    <button type="button" class="btn btn-danger ms-2 remove-new-size" style="display:none;">Hapus</button>
+                                    <!-- Bagian untuk menambahkan ukuran baru -->
+                                    <div class="new-sizes-section">
+                                        <div class="body-title mb-2" style="font-size: 14px;">Tambah Ukuran Baru</div>
+                                        <div id="new-sizes-container">
+                                            @if(old('new_sizes'))
+                                                @foreach(old('new_sizes') as $key => $newSize)
+                                                    @if(!empty($newSize))
+                                                    <div class="new-size-row d-flex align-items-center mb-2">
+                                                        <input type="text" name="new_sizes[]" placeholder="Ukuran baru"
+                                                               class="form-control me-2" style="width: 150px;" value="{{ $newSize }}">
+                                                        <input type="number" name="new_stocks[]" min="0" placeholder="Stok"
+                                                               class="form-control" style="width: 100px;"
+                                                               value="{{ old('new_stocks.'.$key, 0) }}">
+                                                        <button type="button" class="btn btn-danger ms-2 remove-new-size">Hapus</button>
+                                                    </div>
+                                                    @endif
+                                                @endforeach
+                                            @else
+                                                <div class="new-size-row d-flex align-items-center mb-2">
+                                                    <input type="text" name="new_sizes[]" placeholder="Ukuran baru"
+                                                           class="form-control me-2" style="width: 150px;">
+                                                    <input type="number" name="new_stocks[]" min="0" placeholder="Stok"
+                                                           class="form-control" style="width: 100px;" value="0">
+                                                    <button type="button" class="btn btn-danger ms-2 remove-new-size" style="display:none;">Hapus</button>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <button type="button" id="add-new-size" class="btn btn-primary btn-sm mt-2">
+                                            Tambah Ukuran Baru
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <button type="button" id="add-new-size" class="btn btn-primary btn-sm mt-2">Tambah Ukuran Baru</button>
 
                             @error('sizes')
                                 <div class="text-danger">{{ $message }}</div>
@@ -226,36 +243,14 @@
                             @error('stocks')
                                 <div class="text-danger">{{ $message }}</div>
                             @enderror
+                            @error('new_sizes')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
+                            @error('new_stocks')
+                                <div class="text-danger">{{ $message }}</div>
+                            @enderror
                         </fieldset>
                     </div>
-
-                    @push('scripts')
-                    <script>
-                        document.getElementById('add-new-size').addEventListener('click', function() {
-                            let container = document.getElementById('new-sizes-container');
-                            let newRow = document.createElement('div');
-                            newRow.classList.add('new-size-row', 'd-flex', 'align-items-center', 'mb-2');
-                            newRow.innerHTML = `
-                                <input type="text" name="new_sizes[]" placeholder="Masukkan ukuran baru" class="form-control me-2" style="width: 150px;">
-                                <input type="number" name="stocks[]" min="0" placeholder="Stok ukuran baru" class="form-control w-25">
-                                <button type="button" class="btn btn-danger ms-2 remove-new-size">Hapus</button>
-                            `;
-                            container.appendChild(newRow);
-
-                            // Tambah event listener untuk tombol hapus
-                            newRow.querySelector('.remove-new-size').addEventListener('click', function() {
-                                newRow.remove();
-                            });
-                        });
-
-                        // Event listener untuk tombol hapus pada baris pertama jika muncul (opsional)
-                        document.querySelectorAll('.remove-new-size').forEach(btn => {
-                            btn.addEventListener('click', function() {
-                                this.closest('.new-size-row').remove();
-                            });
-                        });
-                    </script>
-                    @endpush
 
                     <div class="cols gap22">
                         <fieldset class="name">
@@ -267,7 +262,7 @@
                             <span class="alert alert-danger text-center">{{ $message }}</span>
                         @enderror
 
-                        <fieldset class="name">
+                        <fieldset class="name" id="quantity-field">
                             <div class="body-title mb-10">Kuantitas <span class="tf-color-1">*</span></div>
                             <input class="mb-10" type="text" placeholder="Masukkan kuantitas" name="quantity"
                                 tabindex="0" value="{{ old('quantity') }}" aria-required="true">
@@ -320,6 +315,7 @@
 @push('scripts')
     <script>
         $(function() {
+            // Preview gambar produk
             $("#myFile").on("change", function(e) {
                 const photoInp = $("#myFile");
                 const [file] = this.files;
@@ -329,7 +325,7 @@
                 }
             });
 
-
+            // Preview gambar galeri
             $("#gFile").on("change", function(e) {
                 $(".gitems").remove();
                 const gFile = $("gFile");
@@ -337,15 +333,99 @@
                 $.each(gphotos, function(key, val) {
                     $("#galUpload").prepend(
                         `<div class="item gitems"><img src="${URL.createObjectURL(val)}" alt=""></div>`
-                        );
+                    );
                 });
             });
 
-
+            // Membuat slug otomatis dari nama produk
             $("input[name='name']").on("change", function() {
                 $("input[name='slug']").val(StringToSlug($(this).val()));
             });
 
+            // Toggle checkbox ukuran
+            $("#has_sizes").on("change", function() {
+                if ($(this).is(":checked")) {
+                    $("#sizes-container").slideDown();
+                    // Reset quantity field jika ukuran diaktifkan
+                    if ($(".size-checkbox:checked").length > 0 ||
+                        $("input[name='new_sizes[]']").filter(function() { return $(this).val() !== ""; }).length > 0) {
+                        $("#quantity-field").hide();
+                    }
+                } else {
+                    $("#sizes-container").slideUp();
+                    $("#quantity-field").show();
+                }
+            });
+
+            // Tampilkan input stok ketika ukuran dipilih
+            $(".size-checkbox").on("change", function() {
+                const stockInput = $(this).closest('.col-md-4').find('.stock-input');
+                if ($(this).is(":checked")) {
+                    stockInput.slideDown();
+                } else {
+                    stockInput.slideUp();
+                }
+
+                // Sembunyikan quantity field jika ada ukuran yang dipilih
+                toggleQuantityField();
+            });
+
+            // Tambah ukuran baru
+            $("#add-new-size").on("click", function() {
+                let container = $("#new-sizes-container");
+                let newRow = $(`
+                    <div class="new-size-row d-flex align-items-center mb-2">
+                        <input type="text" name="new_sizes[]" placeholder="Ukuran baru"
+                               class="form-control me-2" style="width: 150px;">
+                        <input type="number" name="new_stocks[]" min="0" placeholder="Stok"
+                               class="form-control" style="width: 100px;" value="0">
+                        <button type="button" class="btn btn-danger ms-2 remove-new-size">Hapus</button>
+                    </div>
+                `);
+                container.append(newRow);
+
+                // Tambahkan event listener untuk input ukuran baru
+                newRow.find("input[name='new_sizes[]']").on("input", toggleQuantityField);
+
+                // Tambahkan event listener untuk tombol hapus
+                newRow.find(".remove-new-size").on("click", function() {
+                    $(this).closest('.new-size-row').remove();
+                    toggleQuantityField();
+                });
+
+                // Update status quantity field
+                toggleQuantityField();
+            });
+
+            // Event handler untuk tombol hapus pada ukuran baru
+            $(".remove-new-size").on("click", function() {
+                $(this).closest('.new-size-row').remove();
+                toggleQuantityField();
+            });
+
+            // Event listener untuk input ukuran baru yang sudah ada
+            $("input[name='new_sizes[]']").on("input", toggleQuantityField);
+
+            // Fungsi untuk toggle quantity field berdasarkan status ukuran
+            function toggleQuantityField() {
+                if ($("#has_sizes").is(":checked")) {
+                    const hasExistingSizes = $(".size-checkbox:checked").length > 0;
+                    const hasNewSizes = $("input[name='new_sizes[]']").filter(function() {
+                        return $(this).val() !== "";
+                    }).length > 0;
+
+                    if (hasExistingSizes || hasNewSizes) {
+                        $("#quantity-field").hide();
+                    } else {
+                        $("#quantity-field").show();
+                    }
+                } else {
+                    $("#quantity-field").show();
+                }
+            }
+
+            // Run once at page load to set correct state
+            toggleQuantityField();
         });
 
         function StringToSlug(Text) {

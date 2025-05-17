@@ -302,9 +302,11 @@ class AdminController extends Controller
 
         return view('admin.product-add', compact('categories', 'brands', 'sizes'));
     }
+
     // Halaman Menyimpan Produk
     public function product_store(Request $request)
     {
+        // Validasi dasar tetap sama
         $request->validate([
             'name' => 'required',
             'slug' => 'required|unique:products,slug',
@@ -317,29 +319,29 @@ class AdminController extends Controller
             'SKU' => 'required',
             'stock_status' => 'required',
             'featured' => 'required',
-            'quantity' => 'required',
+            'quantity' => $request->has('has_sizes') ? 'nullable' : 'required', // Jika ukuran diaktifkan, quantity boleh kosong
             'image' => [
                 'required',
-                'file',                        // memastikan input adalah file
-                'mimetypes:image/*',           // menerima semua image MIME :contentReference[oaicite:1]{index=1}
-                'max:2048',                    // ukuran maksimal 2 MB
+                'file',
+                'mimetypes:image/*',
+                'max:2048',
             ],
-            // Validasi ukuran yang sudah ada (checkbox)
-            'sizes' => 'array',
+            // Validasi ukuran jika diaktifkan
+            'sizes' => $request->has('has_sizes') ? 'array' : 'nullable',
             'sizes.*' => 'exists:sizes,id',
-
-            // Validasi ukuran baru (input teks), optional
-            'new_sizes' => 'array',
-            'new_sizes.*' => 'nullable|string|max:50',
-
-            // Stok per ukuran (baik untuk ukuran lama dan baru)
-            'stocks' => 'required|array',
+            'stocks' => $request->has('has_sizes') ? 'array' : 'nullable',
             'stocks.*' => 'integer|min:0',
+            // Validasi ukuran baru
+            'new_sizes' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'new_sizes.*' => 'nullable|string|max:50',
+            'new_stocks' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'new_stocks.*' => 'nullable|integer|min:0',
         ], [
             'sizes.*.exists' => 'Ukuran yang dipilih tidak valid.',
-            'stocks.required' => 'Stok ukuran wajib diisi.',
             'stocks.*.integer' => 'Stok harus berupa angka.',
             'stocks.*.min' => 'Stok minimal 0.',
+            'new_stocks.*.integer' => 'Stok ukuran baru harus berupa angka.',
+            'new_stocks.*.min' => 'Stok ukuran baru minimal 0.',
         ]);
 
         $product = new Product();
@@ -348,23 +350,48 @@ class AdminController extends Controller
         $product->short_description = $request->short_description;
         $product->description = $request->description;
 
-        // Hapus format rupiah sehingga tersisa nilai numerik saja
+        // Hapus format rupiah
         $regular_price = str_replace(['Rp ', '.'], '', $request->regular_price);
         $sale_price = str_replace(['Rp ', '.'], '', $request->sale_price);
 
-        // Pastikan mengonversi ke tipe numeric, misalnya (float) atau (int) jika perlu
         $product->regular_price = (float)$regular_price;
         $product->sale_price = (float)$sale_price;
-
         $product->SKU = $request->SKU;
         $product->stock_status = $request->stock_status;
         $product->featured = $request->featured;
-        $product->quantity = $request->quantity;
+
+        // Set quantity hanya jika produk tidak memiliki ukuran
+        if (!$request->has('has_sizes')) {
+            $product->quantity = $request->quantity;
+        } else {
+            // Jika produk memiliki ukuran, quantity diambil dari total stok ukuran
+            $totalStock = 0;
+
+            // Hitung stok dari ukuran yang ada
+            if ($request->has('sizes') && is_array($request->sizes)) {
+                foreach ($request->sizes as $sizeId) {
+                    $totalStock += (int)($request->stocks[$sizeId] ?? 0);
+                }
+            }
+
+            // Hitung stok dari ukuran baru
+            if ($request->has('new_sizes') && is_array($request->new_sizes)) {
+                foreach ($request->new_sizes as $index => $newSize) {
+                    if (!empty($newSize) && isset($request->new_stocks[$index])) {
+                        $totalStock += (int)$request->new_stocks[$index];
+                    }
+                }
+            }
+
+            $product->quantity = $totalStock;
+        }
+
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
 
         $current_timestamp = Carbon::now()->timestamp;
 
+        // Proses upload gambar produk (tetap sama)
         if ($request->hasFile('image')) {
             if (File::exists(public_path('uploads/products') . '/' . $product->image)) {
                 File::delete(public_path('uploads/products') . '/' . $product->image);
@@ -380,21 +407,12 @@ class AdminController extends Controller
             $product->image = $imageName;
         }
 
+        // Proses gambar galeri (tetap sama)
         $gallery_arr = array();
         $gallery_images = "";
         $counter = 1;
 
         if ($request->hasFile('images')) {
-            $oldGImages = explode(",", $product->images);
-            foreach ($oldGImages as $gimage) {
-                if (File::exists(public_path('uploads/products') . '/' . trim($gimage))) {
-                    File::delete(public_path('uploads/products') . '/' . trim($gimage));
-                }
-
-                if (File::exists(public_path('uploads/products/thumbails') . '/' . trim($gimage))) {
-                    File::delete(public_path('uploads/products/thumbails') . '/' . trim($gimage));
-                }
-            }
             $allowedfileExtension = ['jpg', 'png', 'jpeg'];
             $files = $request->file('images');
             foreach ($files as $file) {
@@ -410,43 +428,41 @@ class AdminController extends Controller
             $gallery_images = implode(',', $gallery_arr);
         }
         $product->images = $gallery_images;
-        $product->category_id = $request->category_id;
-        $product->brand_id = $request->brand_id;
 
+        // Simpan produk terlebih dahulu
         $product->save();
 
-        // Siapkan array untuk sync pivot product_size
-        $syncData = [];
+        // Proses ukuran produk hanya jika fitur ukuran diaktifkan
+        if ($request->has('has_sizes')) {
+            $syncData = [];
 
-        // 1. Tangani ukuran lama (checkbox)
-        $sizes = $request->input('sizes', []);
-        $stocks = $request->input('stocks', []);
-
-        // 2. Tangani ukuran baru yang ditambahkan admin langsung di form
-        $newSizes = $request->input('new_sizes', []);
-        foreach ($newSizes as $index => $newSizeName) {
-            $newSizeName = trim($newSizeName);
-            if ($newSizeName !== '') {
-                // Cek apakah ukuran sudah ada, jika belum buat baru
-                $size = Size::firstOrCreate(['name' => $newSizeName]);
-                $sizes[] = $size->id;
-
-                // Pastikan stok baru juga ada, jika tidak ada stok untuk ukuran baru, set 0
-                if (!isset($stocks[$index])) {
-                    $stocks[$index] = 0;
+            // 1. Proses ukuran yang sudah ada
+            if ($request->has('sizes') && is_array($request->sizes)) {
+                foreach ($request->sizes as $sizeId) {
+                    $stock = isset($request->stocks[$sizeId]) ? (int) $request->stocks[$sizeId] : 0;
+                    $syncData[$sizeId] = ['stock' => $stock];
                 }
             }
+
+            // 2. Proses ukuran baru yang ditambahkan
+            if ($request->has('new_sizes') && is_array($request->new_sizes)) {
+                foreach ($request->new_sizes as $index => $newSizeName) {
+                    $newSizeName = trim($newSizeName);
+                    if (!empty($newSizeName)) {
+                        $size = Size::firstOrCreate(['name' => $newSizeName]);
+                        $stock = isset($request->new_stocks[$index]) ? (int) $request->new_stocks[$index] : 0;
+                        $syncData[$size->id] = ['stock' => $stock];
+                    }
+                }
+            }
+
+            // Sync dengan tabel pivot
+            $product->sizes()->sync($syncData);
         }
 
-        // Gabungkan ukuran dan stok ke dalam syncData
-        foreach ($sizes as $index => $sizeId) {
-            $stock = isset($stocks[$index]) ? (int) $stocks[$index] : 0;
-            $syncData[$sizeId] = ['stock' => $stock];
-        }
-
-        $product->sizes()->sync($syncData);
-        return redirect()->route('admin.products')->with('status', 'Berhasil Menyimpan Produk !');
+        return redirect()->route('admin.products')->with('status', 'Berhasil Menyimpan Produk!');
     }
+
     // Halaman Generate Thumbnail Image
     public function GenerateProductThumbailImage($image, $imageName)
     {
@@ -463,14 +479,18 @@ class AdminController extends Controller
             $constraint->aspectRatio();
         })->save($destinationPathThumbnail . '/' . $imageName);
     }
+
     // Halaman menampilkan Edit Produk
     public function edit_product($id)
     {
         $product = Product::find($id);
         $categories = Category::Select('id', 'name')->orderBy('name')->get();
         $brands = Brand::Select('id', 'name')->orderBy('name')->get();
-        return view('admin.product-edit', compact('product', 'categories', 'brands'));
+        $sizes = Size::orderBy('name')->get(); // Tambahkan baris ini
+
+        return view('admin.product-edit', compact('product', 'categories', 'brands', 'sizes')); // Tambahkan 'sizes' ke compact
     }
+
     // Halaman Update Produk
     public function update_product(Request $request)
     {
@@ -486,8 +506,24 @@ class AdminController extends Controller
             'SKU' => 'required',
             'stock_status' => 'required',
             'featured' => 'required',
-            'quantity' => 'required',
-            'image' => 'mimes:png,jpg,jpeg|max:2048'
+            'quantity' => $request->has('has_sizes') ? 'nullable' : 'required', // Jika ukuran diaktifkan, quantity boleh kosong
+            'image' => 'mimes:png,jpg,jpeg|max:2048',
+            // Validasi ukuran jika diaktifkan
+            'sizes' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'sizes.*' => 'exists:sizes,id',
+            'stocks' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'stocks.*' => 'integer|min:0',
+            // Validasi ukuran baru
+            'new_sizes' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'new_sizes.*' => 'nullable|string|max:50',
+            'new_stocks' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'new_stocks.*' => 'nullable|integer|min:0',
+        ], [
+            'sizes.*.exists' => 'Ukuran yang dipilih tidak valid.',
+            'stocks.*.integer' => 'Stok harus berupa angka.',
+            'stocks.*.min' => 'Stok minimal 0.',
+            'new_stocks.*.integer' => 'Stok ukuran baru harus berupa angka.',
+            'new_stocks.*.min' => 'Stok ukuran baru minimal 0.',
         ]);
 
         $product = Product::find($request->id);
@@ -495,6 +531,7 @@ class AdminController extends Controller
         $product->slug = Str::slug($request->name);
         $product->short_description = $request->short_description;
         $product->description = $request->description;
+
         // Bersihkan format rupiah dan konversi ke numeric
         $regular_price = str_replace(['Rp ', '.'], '', $request->regular_price);
         $sale_price = str_replace(['Rp ', '.'], '', $request->sale_price);
@@ -504,12 +541,39 @@ class AdminController extends Controller
         $product->SKU = $request->SKU;
         $product->stock_status = $request->stock_status;
         $product->featured = $request->featured;
-        $product->quantity = $request->quantity;
+
+        // Set quantity berdasarkan apakah produk memiliki ukuran atau tidak
+        if (!$request->has('has_sizes')) {
+            $product->quantity = $request->quantity;
+        } else {
+            // Jika produk memiliki ukuran, quantity diambil dari total stok ukuran
+            $totalStock = 0;
+
+            // Hitung stok dari ukuran yang ada
+            if ($request->has('sizes') && is_array($request->sizes)) {
+                foreach ($request->sizes as $sizeId) {
+                    $totalStock += (int)($request->stocks[$sizeId] ?? 0);
+                }
+            }
+
+            // Hitung stok dari ukuran baru
+            if ($request->has('new_sizes') && is_array($request->new_sizes)) {
+                foreach ($request->new_sizes as $index => $newSize) {
+                    if (!empty($newSize) && isset($request->new_stocks[$index])) {
+                        $totalStock += (int)$request->new_stocks[$index];
+                    }
+                }
+            }
+
+            $product->quantity = $totalStock;
+        }
+
         $product->category_id = $request->category_id;
         $product->brand_id = $request->brand_id;
 
         $current_timestamp = Carbon::now()->timestamp;
 
+        // Proses upload gambar (kode tetap sama)
         if ($request->hasFile('image')) {
             if (File::exists(public_path('uploads/products') . '/' . $product->image)) {
                 File::delete(public_path('uploads/products') . '/' . $product->image);
@@ -519,14 +583,11 @@ class AdminController extends Controller
             }
             $image = $request->file('image');
             $imageName = $current_timestamp . '.' . $image->extension();
-            // $file_extention = $request->file('image')->extension();
-            // $file_name = $current_timestamp . '.' . $file_extention;
-            // $path = $request->image->storeAs('products', $file_name, 'public_uploads');
-            // $product->image = $path;
-            $this->GenerateProductThumbailImage($image, $imageName); // <-- Gunakan method ini
-            $product->image = $request->image;
+            $this->GenerateProductThumbailImage($image, $imageName);
+            $product->image = $imageName;
         }
 
+        // Proses gambar galeri (kode tetap sama)
         $gallery_arr = array();
         $gallery_images = "";
         $counter = 1;
@@ -547,18 +608,52 @@ class AdminController extends Controller
                 $gcheck = in_array($gextension, $allowedfileExtension);
                 if ($gcheck) {
                     $gfilename = $current_timestamp . "-" . $counter . "." . $gextension;
-                    $this->GenerateProductThumbailImage($file, $gfilename); // <-- Gunakan method ini
-                    array_push($gallery_arr, $gfilename); // <-- Simpan nama file
+                    $this->GenerateProductThumbailImage($file, $gfilename);
+                    array_push($gallery_arr, $gfilename);
                     $counter = $counter + 1;
                 }
             }
-            $gallery_images = implode(', ', $gallery_arr);
+            $gallery_images = implode(',', $gallery_arr);
             $product->images = $gallery_images;
         }
 
+        // Simpan produk
         $product->save();
-        return redirect()->route('admin.products')->with('status', 'Produk Berhasil Di Perbaharui !');
+
+        // Jika fitur ukuran diaktifkan, proses data ukuran
+        if ($request->has('has_sizes')) {
+            $syncData = [];
+
+            // 1. Proses ukuran yang sudah ada
+            if ($request->has('sizes') && is_array($request->sizes)) {
+                foreach ($request->sizes as $sizeId) {
+                    $stock = isset($request->stocks[$sizeId]) ? (int) $request->stocks[$sizeId] : 0;
+                    $syncData[$sizeId] = ['stock' => $stock];
+                }
+            }
+
+            // 2. Proses ukuran baru yang ditambahkan
+            if ($request->has('new_sizes') && is_array($request->new_sizes)) {
+                foreach ($request->new_sizes as $index => $newSizeName) {
+                    $newSizeName = trim($newSizeName);
+                    if (!empty($newSizeName)) {
+                        $size = Size::firstOrCreate(['name' => $newSizeName]);
+                        $stock = isset($request->new_stocks[$index]) ? (int) $request->new_stocks[$index] : 0;
+                        $syncData[$size->id] = ['stock' => $stock];
+                    }
+                }
+            }
+
+            // Sync dengan tabel pivot (akan menghapus semua relasi yang tidak ada di $syncData)
+            $product->sizes()->sync($syncData);
+        } else {
+            // Jika fitur ukuran dinonaktifkan, hapus semua relasi ukuran
+            $product->sizes()->detach();
+        }
+
+        return redirect()->route('admin.products')->with('status', 'Produk Berhasil Di Perbaharui!');
     }
+
     // Halaman Delete Produk
     public function delete_product($id)
     {

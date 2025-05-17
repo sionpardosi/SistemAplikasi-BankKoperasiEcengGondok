@@ -642,6 +642,114 @@
             color: #956a3b;
             /* Hover menjadi coklat */
         }
+
+        /* Peningkatan desain notifikasi */
+        .cart-notification {
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease;
+            z-index: 9999;
+        }
+
+        /* Notifikasi error yang lebih mencolok */
+        .cart-notification.error {
+            background: #fff;
+            border-left: 4px solid #ff5252;
+        }
+
+        .cart-notification.error .cart-notification__icon {
+            background: #fff2f2;
+            color: #ff5252;
+        }
+
+        .cart-notification.error .cart-notification__title {
+            color: #ff5252;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* Tampilan stock level untuk indikator visual */
+        .stock-level-indicator {
+            height: 6px;
+            width: 100%;
+            background: #f0f0f0;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .stock-level-bar {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .stock-level-high {
+            background: linear-gradient(to right, #4CAF50, #8BC34A);
+        }
+
+        .stock-level-medium {
+            background: linear-gradient(to right, #FFC107, #FF9800);
+        }
+
+        .stock-level-low {
+            background: linear-gradient(to right, #FF5722, #F44336);
+        }
+
+        /* Desain tombol aksi di notifikasi */
+        .cart-notification__actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+            gap: 8px;
+        }
+
+        .cart-notification__action-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .cart-notification__primary-btn {
+            background-color: #956a3b;
+            color: white;
+        }
+
+        .cart-notification__primary-btn:hover {
+            background-color: #7d5931;
+        }
+
+        .cart-notification__secondary-btn {
+            background-color: transparent;
+            border-color: #6c757d;
+            color: #6c757d;
+        }
+
+        .cart-notification__secondary-btn:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Animasi untuk notifikasi */
+        @keyframes attention-pulse {
+            0% {
+                box-shadow: 0 5px 15px rgba(255, 82, 82, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 5px 20px rgba(255, 82, 82, 0.35);
+            }
+
+            100% {
+                box-shadow: 0 5px 15px rgba(255, 82, 82, 0.2);
+            }
+        }
+
+        .cart-notification.error.show {
+            animation: attention-pulse 1.5s ease-in-out infinite;
+        }
     </style>
 
     <main class="pt-90">
@@ -1350,6 +1458,19 @@
             <div class="cart-notification__content">
                 <div class="cart-notification__title" id="cart-notification-title">Ditambahkan ke Keranjang</div>
                 <div class="cart-notification__message" id="cart-notification-message"></div>
+
+                <!-- Indicator stok (opsional) -->
+                <div class="stock-level-indicator d-none" id="stock-level-indicator">
+                    <div class="stock-level-bar" id="stock-level-bar"></div>
+                </div>
+
+                <!-- Tombol aksi (opsional) -->
+                <div class="cart-notification__actions d-none" id="cart-notification-actions">
+                    <button class="cart-notification__action-btn cart-notification__secondary-btn"
+                        id="notification-dismiss">Tutup</button>
+                    <button class="cart-notification__action-btn cart-notification__primary-btn"
+                        id="notification-action">Lihat Keranjang</button>
+                </div>
             </div>
             <button class="cart-notification__close" id="close-cart-notification">
                 <i class="fas fa-times"></i>
@@ -1360,6 +1481,7 @@
 @endsection
 
 @push('scripts')
+    <!-- Function to show cart notification -->
     <script>
         // Function to show cart notification
         function showCartNotification(message, isSuccess = true) {
@@ -1391,14 +1513,227 @@
             }, 3000);
         }
 
+        // Fungsi notifikasi yang ditingkatkan
+        function showEnhancedStockNotification(availableStock, requestedQuantity, productName, isOutOfStock = false) {
+            // Dapatkan elemen notifikasi
+            const notification = $('#cart-notification');
+            const title = $('#cart-notification-title');
+            const messageEl = $('#cart-notification-message');
+            const stockIndicator = $('#stock-level-indicator');
+            const stockBar = $('#stock-level-bar');
+            const actions = $('#cart-notification-actions');
+
+            // Set judul dan pesan berdasarkan kondisi stok
+            if (isOutOfStock) {
+                // Stok habis total
+                title.text('Stok Tidak Tersedia');
+                messageEl.html(
+                    `<strong>${productName}</strong> sedang tidak tersedia. Silakan cek kembali nanti atau hubungi layanan pelanggan kami.`
+                );
+
+                // Tampilkan tombol aksi jika diinginkan
+                actions.removeClass('d-none');
+                $('#notification-action').text('Lihat Produk Serupa').attr('data-action', 'similar');
+            } else {
+                // Stok ada tapi kurang dari permintaan
+                title.text('Stok Terbatas');
+                messageEl.html(
+                    `Maksimal pembelian <strong>${availableStock} item</strong> untuk produk ini.<br>Jumlah permintaan Anda (${requestedQuantity}) melebihi stok yang tersedia.`
+                );
+
+                // Tampilkan indikator stok
+                stockIndicator.removeClass('d-none');
+
+                // Hitung persentase stok dan atur warna
+                const stockPercent = Math.min(availableStock / 10 * 100, 100); // Asumsi max stok 10 untuk indikator
+                stockBar.css('width', `${stockPercent}%`);
+
+                if (stockPercent > 60) {
+                    stockBar.addClass('stock-level-high').removeClass('stock-level-medium stock-level-low');
+                } else if (stockPercent > 30) {
+                    stockBar.addClass('stock-level-medium').removeClass('stock-level-high stock-level-low');
+                } else {
+                    stockBar.addClass('stock-level-low').removeClass('stock-level-high stock-level-medium');
+                }
+
+                // Tampilkan tombol aksi
+                actions.removeClass('d-none');
+                $('#notification-action').text('Sesuaikan Kuantitas').attr('data-action', 'adjust');
+            }
+
+            // Atur tampilan notifikasi
+            notification.removeClass('success').addClass('error');
+            $('.cart-notification__icon i').removeClass('fa-shopping-cart').addClass('fa-exclamation-triangle');
+
+            // Tampilkan notifikasi dengan animasi yang lebih menarik
+            notification.css({
+                'display': 'flex',
+                'transform': 'translateY(-20px)',
+                'opacity': '0'
+            }).addClass('show');
+
+            // Animasi masuk
+            setTimeout(() => {
+                notification.css({
+                    'transform': 'translateY(0)',
+                    'opacity': '1'
+                });
+            }, 10);
+
+            // Auto hide setelah 5 detik
+            setTimeout(() => {
+                notification.css({
+                    'transform': 'translateY(-20px)',
+                    'opacity': '0'
+                });
+                setTimeout(() => notification.css('display', 'none'), 300);
+            }, 5000);
+
+            // Hapus kelas show untuk memungkinkan notifikasi muncul lagi
+            setTimeout(() => {
+                notification.removeClass('show');
+            }, 5300);
+        }
+
+        // Fungsi pemeriksaan stok yang ditingkatkan
+        function enhancedStockCheck(requestedQuantity, availableStock, productName) {
+            if (availableStock <= 0) {
+                // Stok habis total
+                showEnhancedStockNotification(0, requestedQuantity, productName, true);
+
+                // Disable tombol dan berikan visual feedback
+                updateButtonsForOutOfStock(true);
+                return false;
+            } else if (requestedQuantity > availableStock) {
+                // Stok ada tapi tidak cukup
+                showEnhancedStockNotification(availableStock, requestedQuantity, productName, false);
+
+                // Auto-adjust quantity ke max available (opsional)
+                if ($('.modal-qty-input').length) {
+                    $('.modal-qty-input').val(availableStock).trigger('change');
+                }
+
+                return false;
+            }
+
+            return true;
+        }
+
+        // Fungsi untuk memperbarui tampilan tombol ketika stok habis
+        function updateButtonsForOutOfStock(isOutOfStock) {
+            if (isOutOfStock) {
+                // Disable tombol dan ubah tampilannya
+                $('#open-quantity-modal, #buy-now').prop('disabled', true)
+                    .addClass('out-of-stock')
+                    .css({
+                        'background-color': '#f5f5f5',
+                        'border-color': '#ddd',
+                        'color': '#aaa',
+                        'cursor': 'not-allowed'
+                    });
+
+                // Ubah teks tombol
+                $('#open-quantity-modal').html('<i class="fas fa-ban me-2"></i> Stok Habis');
+                $('#buy-now').html('<i class="fas fa-exclamation-circle me-2"></i> Tidak Tersedia');
+
+                // Tambahkan tooltip
+                $('#open-quantity-modal, #buy-now').attr('data-bs-toggle', 'tooltip')
+                    .attr('data-bs-placement', 'top')
+                    .attr('title', 'Produk ini sedang tidak tersedia. Silakan cek kembali nanti.');
+
+                // Initialize tooltips jika Bootstrap sudah dimuat
+                if (typeof bootstrap !== 'undefined') {
+                    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                    tooltipTriggerList.map(function(tooltipTriggerEl) {
+                        return new bootstrap.Tooltip(tooltipTriggerEl);
+                    });
+                }
+            } else {
+                // Kembalikan ke tampilan normal jika stok tersedia kembali
+                $('#open-quantity-modal, #buy-now').prop('disabled', false)
+                    .removeClass('out-of-stock')
+                    .removeAttr('data-bs-toggle')
+                    .removeAttr('data-bs-placement')
+                    .removeAttr('title');
+
+                $('#open-quantity-modal').html('<i class="fas fa-shopping-cart me-2"></i> Tambahkan ke Keranjang')
+                    .css({
+                        'background-color': 'rgba(149, 106, 59, 0.2)',
+                        'border': '1px solid #956a3b',
+                        'color': '#956a3b',
+                        'cursor': 'pointer'
+                    });
+
+                $('#buy-now').html('Beli Sekarang')
+                    .css({
+                        'background-color': '#956a3b',
+                        'border-color': '#956a3b',
+                        'color': '#ffffff',
+                        'cursor': 'pointer'
+                    });
+            }
+        }
+
         // Close notification button
         $('#close-cart-notification').on('click', function() {
             const notification = $('#cart-notification');
             notification.removeClass('show');
             setTimeout(() => notification.css('display', 'none'), 300);
         });
+
+        // Event handler untuk tombol aksi di notifikasi
+        $(document).ready(function() {
+            // Handler untuk tombol dismiss
+            $(document).on('click', '#notification-dismiss', function() {
+                $('#cart-notification').removeClass('show');
+                setTimeout(() => $('#cart-notification').css('display', 'none'), 300);
+            });
+
+            // Handler untuk tombol aksi utama
+            $(document).on('click', '#notification-action', function() {
+                const action = $(this).attr('data-action');
+
+                if (action === 'adjust') {
+                    // Buka kembali modal kuantitas dengan nilai maksimal
+                    $('#cart-notification').removeClass('show');
+                    setTimeout(() => {
+                        $('#cart-notification').css('display', 'none');
+                        $('#quantityModal').modal('show');
+                    }, 300);
+                } else if (action === 'similar') {
+                    // Redirect ke halaman produk serupa (kategori yang sama)
+                    window.location.href =
+                        "{{ route('shop.index', ['category' => $product->category->slug]) }}";
+                }
+            });
+
+            // Periksa stok saat halaman dimuat
+            const initialStock = {{ $product->quantity - $product->reserved_quantity }};
+
+            // Jika stok kosong, update tampilan tombol
+            if (initialStock <= 0) {
+                updateButtonsForOutOfStock(true);
+            }
+
+            // Jika stok sangat terbatas (misalnya kurang dari 5)
+            else if (initialStock < 5) {
+                // Tampilkan peringatan stok terbatas
+                const stockWarning = `
+            <div class="alert alert-warning mt-3 d-flex align-items-center" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <div>
+                    <strong>Stok Terbatas!</strong> Tersisa hanya ${initialStock} item.
+                </div>
+            </div>
+        `;
+                if (!$('.alert-warning').length) {
+                    $('.product-single__addtocart').before(stockWarning);
+                }
+            }
+        });
     </script>
 
+    <!-- Function to show cart notification Tombol Beli Sekarang -->
     <script>
         $(document).ready(function() {
             // Kode yang sudah ada tetap dipertahankan
@@ -1450,6 +1785,7 @@
         });
     </script>
 
+    <!-- Function modals -->
     <script>
         $(document).ready(function() {
             // Clear any existing event handlers to prevent conflicts
@@ -1534,6 +1870,7 @@
         });
     </script>
 
+    <!-- Function to initialize tooltips and track product navigation -->
     <script>
         $(document).ready(function() {
             // Initialize tooltips for product navigation
@@ -1563,82 +1900,72 @@
         });
     </script>
 
+    <!-- Function to handle size selection and stock updates -->
     <script>
         $(document).ready(function() {
-            // === SIZE SELECTOR HANDLING ===
+            // Inisialisasi variabel untuk simpan stok yang tersedia
             const hasProductSizes = {{ $product->sizes->count() > 0 ? 'true' : 'false' }};
+            let selectedSizeStock = 0;
 
-            // Handle size button clicks
+            // Fungsi untuk mengupdate informasi stok berdasarkan ukuran yang dipilih
+            function updateStockInfo(sizeId, sizeName, stock) {
+                // Simpan stok ukuran yang dipilih
+                selectedSizeStock = stock;
+                $('#selected-size-stock').val(stock);
+
+                // Update tampilan stok spesifik ukuran
+                $('#selected-size-stock-text').text(`Stok ${sizeName}: ${stock}`);
+                $('#size-specific-stock').removeClass('d-none');
+
+                // Update stok di modal
+                $('#modal-available-stock').text(stock);
+                $('.modal-qty-input').attr('max', stock);
+
+                // Reset nilai kuantitas ke 1 jika melebihi stok yang tersedia
+                if (parseInt($('.modal-qty-input').val()) > stock) {
+                    $('.modal-qty-input').val(1);
+                }
+            }
+
+            // Handle klik tombol ukuran
             $('.size-btn').on('click', function() {
-                // Hapus active class dari semua tombol
+                // Dapatkan informasi ukuran
+                const sizeId = $(this).data('size-id');
+                const sizeName = $(this).data('size-name');
+                const stock = $(this).data('stock');
+
+                // Reset semua tombol ukuran
                 $('.size-btn').removeClass('active')
                     .css({
                         'background-color': 'white',
                         'color': '#956a3b'
                     });
 
-                // Tambahkan active class ke tombol yang dipilih
+                // Aktifkan tombol ukuran yang dipilih
                 $(this).addClass('active')
                     .css({
                         'background-color': '#956a3b',
                         'color': 'white'
                     });
 
-                // Simpan size id yang dipilih
-                const sizeId = $(this).data('size-id');
-                const sizeName = $(this).data('size-name');
-                const sizeStock = $(this).data('stock');
-
-                // Update hidden inputs pada form
+                // Update hidden inputs
                 $('#selected-size-id').val(sizeId);
                 $('#cart-size-id').val(sizeId);
                 $('#buynow-size-id').val(sizeId);
 
-                // Tampilkan informasi ukuran yang dipilih
+                // Update informasi ukuran yang dipilih
                 $('#size-name').text(sizeName);
                 $('#selected-size-info').removeClass('d-none');
                 $('#size-error').addClass('d-none');
+
+                // Update informasi stok
+                updateStockInfo(sizeId, sizeName, stock);
+
+                // Perbarui informasi ukuran di modal
+                $('#modal-size-name').text(sizeName);
             });
 
-            // === MODAL HANDLING ===
-
-            // Handle "Tambahkan ke Keranjang" button to open modal
-            $('#open-quantity-modal').on('click', function() {
-                // Cek apakah produk punya ukuran dan ukuran sudah dipilih
-                if (hasProductSizes && !$('#selected-size-id').val()) {
-                    $('#size-error').removeClass('d-none');
-                    $('html, body').animate({
-                        scrollTop: $("#size-buttons").offset().top - 100
-                    }, 500);
-                    return;
-                }
-
-                // Update modal with selected size information
-                if (hasProductSizes) {
-                    const sizeId = $('#selected-size-id').val();
-                    const sizeName = $('#size-name').text();
-                    const sizeBtn = $(`.size-btn[data-size-id="${sizeId}"]`);
-
-                    // Update size info in modal
-                    $('#modal-size-name').text(sizeName);
-                    $('#modal-size-info').removeClass('d-none');
-
-                    // Update stock info in modal if this size has specific stock
-                    if (sizeBtn.length) {
-                        const availableStock = sizeBtn.data('stock');
-                        $('#modal-available-stock').text(availableStock);
-                        $('.modal-qty-input').attr('max', availableStock);
-                    }
-                }
-
-                // Reset quantity to 1
-                $('.modal-qty-input').val(1);
-
-                // Show the modal
-                $('#quantityModal').modal('show');
-            });
-
-            // Handle quantity control in modal
+            // Tombol tambah/kurang kuantitas di modal
             $('.modal-reduce-qty').on('click', function() {
                 let qty = parseInt($('.modal-qty-input').val());
                 if (qty > 1) {
@@ -1649,20 +1976,90 @@
             $('.modal-increase-qty').on('click', function() {
                 let qty = parseInt($('.modal-qty-input').val());
                 let max = parseInt($('.modal-qty-input').attr('max'));
+
+                // Pastikan max diset dengan benar
+                if (hasProductSizes) {
+                    max = selectedSizeStock;
+                }
+
                 if (qty < max) {
                     $('.modal-qty-input').val(qty + 1);
                 }
             });
 
-            // IMPORTANT: This is the fixed part - Handle "Tambahkan" button in modal
-            $('#confirmAddToCart').on('click', function() {
-                // Get quantity from modal
-                const quantity = $('.modal-qty-input').val();
+            // Validasi input kuantitas langsung
+            $('.modal-qty-input').on('change', function() {
+                let qty = parseInt($(this).val());
+                let max = parseInt($(this).attr('max'));
 
-                // Update quantity in the cart form
+                // Pastikan max diset dengan benar
+                if (hasProductSizes) {
+                    max = selectedSizeStock;
+                }
+
+                if (qty < 1) {
+                    $(this).val(1);
+                } else if (qty > max) {
+                    $(this).val(max);
+                    showCartNotification(`Stok hanya tersedia ${max} unit untuk ukuran ini`, false);
+                }
+            });
+
+            // Tombol buka modal quantity
+            $('#open-quantity-modal').on('click', function() {
+                // Cek apakah produk punya ukuran dan ukuran sudah dipilih
+                if (hasProductSizes && !$('#selected-size-id').val()) {
+                    $('#size-error').removeClass('d-none');
+                    $('html, body').animate({
+                        scrollTop: $("#size-buttons").offset().top - 100
+                    }, 500);
+                    return;
+                }
+
+                // Update modal dengan informasi ukuran yang dipilih
+                if (hasProductSizes) {
+                    const sizeId = $('#selected-size-id').val();
+                    const sizeName = $('#size-name').text();
+
+                    // Update UI modal
+                    $('#modal-size-name').text(sizeName);
+                    $('#modal-size-info').removeClass('d-none');
+
+                    // Update stok tersedia di modal
+                    $('#modal-available-stock').text(selectedSizeStock);
+                    $('.modal-qty-input').attr('max', selectedSizeStock);
+                }
+
+                // Reset quantity ke 1
+                $('.modal-qty-input').val(1);
+
+                // Tampilkan modal
+                $('#quantityModal').modal('show');
+            });
+
+            // Tombol konfirmasi tambah ke keranjang
+            $('#confirmAddToCart').on('click', function() {
+                // Ambil quantity dari modal
+                const quantity = parseInt($('.modal-qty-input').val());
+                const productName = "{{ $product->name }}";
+
+                // Validasi stok dengan fungsi yang ditingkatkan
+                let availableStock;
+                if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }}) {
+                    availableStock = parseInt(selectedSizeStock);
+                } else {
+                    availableStock = {{ $product->quantity - $product->reserved_quantity }};
+                }
+
+                // Periksa stok dengan fungsi baru kita
+                if (!enhancedStockCheck(quantity, availableStock, productName)) {
+                    return;
+                }
+
+                // Update quantity di form
                 $('#cart-quantity').val(quantity);
 
-                // Submit the form via AJAX
+                // Submit form via AJAX
                 const formData = $('#addtocart-form').serialize();
 
                 $.ajax({
@@ -1672,18 +2069,19 @@
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
-                            // Update cart count in navbar
+                            // Update cart count di navbar
                             $('.js-cart-items-count').text(response.cartCount);
 
-                            // Show success message
+                            // Tampilkan notifikasi sukses
                             showCartNotification(
                                 '{{ $product->name }} berhasil ditambahkan ke keranjang Anda.',
                                 true);
 
-                            // Close the modal
+                            // Tutup modal
                             $('#quantityModal').modal('hide');
                         } else {
-                            alert(response.message || 'Gagal menambahkan produk ke keranjang');
+                            showCartNotification(response.message ||
+                                'Gagal menambahkan produk ke keranjang', false);
                         }
                     },
                     error: function(xhr) {
@@ -1696,12 +2094,11 @@
                 });
             });
 
-            // === BUY NOW HANDLING ===
-
-            // Handle "Beli Sekarang" button
+            // Tombol Beli Sekarang
             $('#buy-now').on('click', function() {
                 // Cek apakah produk punya ukuran dan ukuran sudah dipilih
-                if (hasProductSizes && !$('#selected-size-id').val()) {
+                if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }} && !$('#selected-size-id')
+                    .val()) {
                     $('#size-error').removeClass('d-none');
                     $('html, body').animate({
                         scrollTop: $("#size-buttons").offset().top - 100
@@ -1709,11 +2106,27 @@
                     return;
                 }
 
-                // Set quantity (default to 1 if not set)
+                // Set default quantity
                 const quantity = 1;
+                const productName = "{{ $product->name }}";
+
+                // Validasi stok dengan fungsi yang ditingkatkan
+                let availableStock;
+                if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }}) {
+                    availableStock = parseInt(selectedSizeStock);
+                } else {
+                    availableStock = {{ $product->quantity - $product->reserved_quantity }};
+                }
+
+                // Periksa stok dengan fungsi baru kita
+                if (!enhancedStockCheck(quantity, availableStock, productName)) {
+                    return;
+                }
+
+                // Update quantity di form
                 $('#buynow-quantity').val(quantity);
 
-                // Submit the buy now form
+                // Submit form via AJAX
                 const formData = $('#buynow-form').serialize();
 
                 $.ajax({
@@ -1723,10 +2136,11 @@
                     dataType: 'json',
                     success: function(response) {
                         if (response.success) {
-                            // Redirect to cart/checkout
+                            // Redirect ke checkout
                             window.location.href = "{{ route('cart.index') }}";
                         } else {
-                            alert(response.message || 'Gagal menambahkan produk ke keranjang');
+                            showCartNotification(response.message ||
+                                'Gagal menambahkan produk ke keranjang', false);
                         }
                     },
                     error: function(xhr) {
@@ -1734,44 +2148,8 @@
                         if (xhr.responseJSON && xhr.responseJSON.message) {
                             errorMsg = xhr.responseJSON.message;
                         }
-                        alert(errorMsg);
+                        showCartNotification(errorMsg, false);
                     }
-                });
-            });
-
-            // Tambahkan untuk menangani form produk terkait
-            $(document).ready(function() {
-                // Tangani form untuk produk terkait
-                $('.related-product-form').off('submit').on('submit', function(e) {
-                    e.preventDefault();
-                    var form = $(this);
-                    var url = form.attr('action');
-                    var formData = form.serialize();
-
-                    // Dapatkan nama produk untuk ditampilkan di notifikasi
-                    var productName = form.find('input[name="name"]').val();
-
-                    $.ajax({
-                        url: url,
-                        type: 'POST',
-                        data: formData,
-                        dataType: 'json',
-                        success: function(response) {
-                            // Update jumlah item di navbar
-                            $('.js-cart-items-count').text(response.cartCount);
-
-                            // Tampilkan notifikasi dengan nama produk
-                            showCartNotification(productName +
-                                ' berhasil ditambahkan ke keranjang Anda.', true);
-                        },
-                        error: function(xhr) {
-                            let errorMsg = 'Gagal menambahkan produk ke keranjang';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMsg = xhr.responseJSON.message;
-                            }
-                            showCartNotification(errorMsg, false);
-                        }
-                    });
                 });
             });
         });
