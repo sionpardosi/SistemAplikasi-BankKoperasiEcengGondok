@@ -814,89 +814,93 @@
 
             /* Opsi 1: Buat menjadi 2 baris teks */
             /*
-            .product-single__addtocart .pc__atc {
-                white-space: normal !important;
-                line-height: 1.1 !important;
-                height: auto !important;
-                padding-top: 4px !important;
-                padding-bottom: 4px !important;
-            }
-            */
+                .product-single__addtocart .pc__atc {
+                    white-space: normal !important;
+                    line-height: 1.1 !important;
+                    height: auto !important;
+                    padding-top: 4px !important;
+                    padding-bottom: 4px !important;
+                }
+                */
 
             /* Opsi 2: Gunakan singkatan + ikon */
             /*
-            .product-single__addtocart .pc__atc:before {
-                content: "🛒 ";
-                font-size: 0.8rem;
-            }
-            .product-single__addtocart .pc__atc {
-                content: "Tambah" !important;
-            }
-            */
+                .product-single__addtocart .pc__atc:before {
+                    content: "🛒 ";
+                    font-size: 0.8rem;
+                }
+                .product-single__addtocart .pc__atc {
+                    content: "Tambah" !important;
+                }
+                */
         }
     </style>
 
     <style>
-    /* Perbaikan posisi card agar seimbang di tengah pada mobile */
-    @media (max-width: 767.98px) {
-        /* Grid layout pusat dengan spacing yang sama */
-        #products-grid {
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 20px !important;
-            width: 100% !important;
-            padding: 0 0px !important; /* Tambahkan padding container */
-            box-sizing: border-box !important;
-        }
+        /* Perbaikan posisi card agar seimbang di tengah pada mobile */
+        @media (max-width: 767.98px) {
 
-        /* Perbaiki ukuran dan spacing wrapper */
-        #products-grid .product-card-wrapper {
-            width: 100% !important;
-            max-width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-            box-sizing: border-box !important;
-        }
+            /* Grid layout pusat dengan spacing yang sama */
+            #products-grid {
+                display: grid !important;
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 20px !important;
+                width: 100% !important;
+                padding: 0 0px !important;
+                /* Tambahkan padding container */
+                box-sizing: border-box !important;
+            }
 
-        /* Perbaiki card */
-        .product-card {
-            margin: 0 auto 15px auto !important;
-            width: 100% !important;
-        }
+            /* Perbaiki ukuran dan spacing wrapper */
+            #products-grid .product-card-wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+            }
 
-        /* Pastikan container dan row memiliki margin 0 agar tidak ada offset */
-        .container, .row {
-            margin-left: auto !important;
-            margin-right: auto !important;
-        }
+            /* Perbaiki card */
+            .product-card {
+                margin: 0 auto 15px auto !important;
+                width: 100% !important;
+            }
 
-        /* Perbaiki tombol "Tambahkan ke Keranjang" */
-        .product-single__addtocart .pc__atc {
-            font-size: 0.62rem !important;
-            letter-spacing: -0.5px !important;
-            padding: 6px 4px !important;
-            width: 90% !important;
-            left: 5% !important;
-            right: 5% !important;
-            bottom: 10px !important;
-            text-align: center !important;
-            white-space: nowrap !important;
-            text-transform: none !important;
-        }
+            /* Pastikan container dan row memiliki margin 0 agar tidak ada offset */
+            .container,
+            .row {
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
 
-        /* Perbaiki tampilan gambar */
-        .pc__img-wrapper {
-            margin: 0 auto !important;
-            width: 100% !important;
-        }
+            /* Perbaiki tombol "Tambahkan ke Keranjang" */
+            .product-single__addtocart .pc__atc {
+                font-size: 0.62rem !important;
+                letter-spacing: -0.5px !important;
+                padding: 6px 4px !important;
+                width: 90% !important;
+                left: 5% !important;
+                right: 5% !important;
+                bottom: 10px !important;
+                text-align: center !important;
+                white-space: nowrap !important;
+                text-transform: none !important;
+            }
 
-        /* Hapus padding bawaan yang mungkin menyebabkan ketidakseimbangan */
-        .shop-list {
-            padding-left: 0 !important;
-            padding-right: 0 !important;
+            /* Perbaiki tampilan gambar */
+            .pc__img-wrapper {
+                margin: 0 auto !important;
+                width: 100% !important;
+            }
+
+            /* Hapus padding bawaan yang mungkin menyebabkan ketidakseimbangan */
+            .shop-list {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
         }
-    }
-</style>
+    </style>
+
     <main class="pt-90">
         <section class="shop-main container d-flex pt-4 pt-xl-5">
             <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
