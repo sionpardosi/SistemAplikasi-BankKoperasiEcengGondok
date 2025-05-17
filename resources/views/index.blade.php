@@ -61,10 +61,10 @@
             }
 
             /* Menyesuaikan ukuran teks */
-            .slideshow-text h6.text_dash {
+            /* .slideshow-text h6.text_dash {
                 font-size: 0.8rem !important;
                 margin-bottom: 5px !important;
-            }
+            } */
 
             /* .slideshow-text h2.h1 {
                 font-size: 1.5rem !important;
