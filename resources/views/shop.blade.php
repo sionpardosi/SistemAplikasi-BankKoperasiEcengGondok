@@ -786,7 +786,7 @@
         }
     </style>
 
-{{-- <style>
+<style>
     /* Solusi khusus untuk tombol "Tambahkan ke Keranjang" pada mobile */
     @media (max-width: 767.98px) {
         /* Layout 2 card per baris menggunakan grid */
@@ -843,7 +843,7 @@
         }
         */
     }
-</style> --}}
+</style>
 
 <style>
     /* Perbaikan posisi card agar seimbang di tengah pada mobile */
