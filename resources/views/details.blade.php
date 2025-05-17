@@ -74,6 +74,193 @@
             }
         }
 
+        /* Styling untuk notifikasi favorit - tambahkan ke CSS Anda */
+
+        /* Favorit notification - mirip dengan cart notification tapi posisi di kanan atas */
+        .favorit-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            z-index: 1000;
+            max-width: 350px;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease;
+            transform: translateY(-20px);
+            opacity: 0;
+            border-left: 4px solid #e53935;
+        }
+
+        .favorit-notification.success {
+            border-left-color: #e53935;
+        }
+
+        .favorit-notification.removed {
+            border-left-color: #607d8b;
+        }
+
+        .favorit-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .favorit-notification__icon {
+            margin-right: 15px;
+            width: 30px;
+            height: 30px;
+            background: #fff2f2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .favorit-notification.success .favorit-notification__icon {
+            color: #e53935;
+        }
+
+        .favorit-notification.removed .favorit-notification__icon {
+            color: #607d8b;
+            background: #f5f5f5;
+        }
+
+        .favorit-notification__content {
+            flex: 1;
+        }
+
+        .favorit-notification__title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+            color: #333;
+        }
+
+        .favorit-notification.success .favorit-notification__title {
+            color: #e53935;
+        }
+
+        .favorit-notification.removed .favorit-notification__title {
+            color: #607d8b;
+        }
+
+        .favorit-notification__message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .favorit-notification__close {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .favorit-notification__close:hover {
+            color: #e53935;
+        }
+
+        /* Heart animation */
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.2);
+            }
+
+            50% {
+                transform: scale(1);
+            }
+
+            75% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .heart-beat {
+            animation: heartbeat 0.8s ease-in-out;
+        }
+
+        /* Tambahkan styles untuk tombol wishlist yang lebih baik */
+        .wishlist-btn {
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .wishlist-btn.in-wishlist {
+            animation: pulse-heart 1s;
+        }
+
+        @keyframes pulse-heart {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Badge untuk counter di header */
+        .cart-amount,
+        .wishlist-amount {
+            font-size: 10px;
+            line-height: 15px;
+            background-color: #e53935;
+            color: white;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            text-align: center;
+            top: -5px;
+            right: -5px;
+            transition: all 0.3s ease;
+        }
+
+        .js-wishlist-count {
+            transition: all 0.3s ease;
+        }
+
+        /* Counter animation */
+        @keyframes count-pop {
+            0% {
+                transform: scale(0.5);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .counter-animation {
+            animation: count-pop 0.3s ease-out;
+        }
+
         .heart-beat {
             animation: heartbeat 0.8s ease-in-out;
         }
@@ -2155,27 +2342,914 @@
         });
     </script>
 
-    <!-- JavaScript for Wishlist and Share functionalities -->
+    <!-- JavaScript for Wishlist functionalities -->
     <script>
+        // Script untuk perbaikan favorit/wishlist
+
         $(document).ready(function() {
-            // Function to show custom notification
-            function showWishlistNotification(message, isSuccess = true) {
-                const notification = $('#wishlist-notification');
-                const title = $('#notification-title');
-                const messageEl = $('#notification-message');
+            // Function to show favorit notification di atas kanan seperti cart
+            function showFavoritNotification(message, isSuccess = true) {
+                // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
+                if (!$('#favorit-notification').length) {
+                    $('body').append(`
+                <div class="favorit-notification" id="favorit-notification">
+                    <div class="favorit-notification__icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="favorit-notification__content">
+                        <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
+                        <div class="favorit-notification__message" id="favorit-notification-message"></div>
+                    </div>
+                    <button class="favorit-notification__close" id="close-favorit-notification">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `);
+
+                    // Tambahkan event handler untuk tombol close
+                    $(document).on('click', '#close-favorit-notification', function() {
+                        $('#favorit-notification').removeClass('show');
+                        setTimeout(function() {
+                            $('#favorit-notification').css('display', 'none');
+                        }, 300);
+                    });
+                }
+
+                const notification = $('#favorit-notification');
+                const title = $('#favorit-notification-title');
+                const messageEl = $('#favorit-notification-message');
 
                 // Set content
                 messageEl.text(message);
 
-                // Set type (success or removed)
+                // Set type (success or error)
                 if (isSuccess) {
                     notification.removeClass('removed').addClass('success');
                     title.text('Ditambahkan ke Favorit');
-                    $('.wishlist-notification__icon i').removeClass('fa-trash').addClass('fa-heart');
+                    $('.favorit-notification__icon i').removeClass('fa-trash').addClass('fa-heart');
                 } else {
                     notification.removeClass('success').addClass('removed');
                     title.text('Dihapus dari Favorit');
-                    $('.wishlist-notification__icon i').removeClass('fa-heart').addClass('fa-trash');
+                    $('.favorit-notification__icon i').removeClass('fa-heart').addClass('fa-trash');
+                }
+
+                // Show notification
+                notification.css('display', 'flex').addClass('show');
+
+                // Auto hide after 3 seconds
+                setTimeout(function() {
+                    notification.removeClass('show');
+                    setTimeout(function() {
+                        notification.css('display', 'none');
+                    }, 300);
+                }, 3000);
+            }
+
+            // Function to update wishlist count in both desktop and mobile headers
+            function updateWishlistCount(count) {
+                $('.js-wishlist-items-count').text(count > 0 ? count : '');
+                $('.js-wishlist-count').text(count > 0 ? count : '');
+            }
+
+            // Handle add to wishlist button
+            $(document).on('click', '#add-to-wishlist', function(e) {
+                e.preventDefault();
+                const form = $('#wishlist-form');
+                const button = $(this);
+                const formData = form.serialize();
+
+                // Add loading state
+                button.prop('disabled', true).css('opacity', '0.7');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        // Remove loading state
+                        button.prop('disabled', false).css('opacity', '1');
+
+                        // Add heart beat animation
+                        button.find('svg').addClass('heart-beat');
+                        setTimeout(function() {
+                            button.find('svg').removeClass('heart-beat');
+                        }, 800);
+
+                        // Show success notification dengan style baru
+                        showFavoritNotification(
+                            'Produk berhasil ditambahkan ke daftar favorit Anda.', true);
+
+                        // Update wishlist count
+                        updateWishlistCount(response.count || parseInt($(
+                            '.js-wishlist-items-count').text()) + 1);
+
+                        // Replace the button with remove from wishlist button
+                        const removeForm = `
+                <form method="POST" action="${response.removeUrl || '#'}" id="frm-remove-item">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="rowId" value="${response.rowId || ''}">
+                    <button type="button" class="wishlist-btn in-wishlist" id="remove-from-wishlist">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="#e53935">
+                            <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
+                        </svg>
+                        <span>Hapus dari Favorit</span>
+                    </button>
+                </form>`;
+
+                        // Replace form
+                        $('#wishlist-form').replaceWith(removeForm);
+                    },
+                    error: function(xhr) {
+                        // Remove loading state
+                        button.prop('disabled', false).css('opacity', '1');
+
+                        let errorMsg = 'Gagal menambahkan ke favorit. Silakan coba lagi.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        // Show error notification
+                        showFavoritNotification(errorMsg, false);
+                    }
+                });
+            });
+
+            // Handle remove from wishlist button
+            $(document).on('click', '#remove-from-wishlist', function(e) {
+                e.preventDefault();
+                const form = $(this).closest('form');
+                const button = $(this);
+
+                // Add loading state
+                button.prop('disabled', true).css('opacity', '0.7');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        // Remove loading state
+                        button.prop('disabled', false).css('opacity', '1');
+
+                        // Show removed notification
+                        showFavoritNotification(
+                            'Produk berhasil dihapus dari daftar favorit Anda.', false);
+
+                        // Update wishlist count
+                        const currentCount = parseInt($('.js-wishlist-items-count').text());
+                        updateWishlistCount(response.count || Math.max(0, currentCount - 1));
+
+                        // Replace with add to wishlist button
+                        const productId = form.find('input[name="id"]').val() || response
+                            .productId;
+                        const productName = response.productName || '';
+                        const productPrice = response.productPrice || 0;
+
+                        const addForm = `
+                <form method="POST" action="/wishlist/add" id="wishlist-form">
+                    @csrf
+                    <input type="hidden" name="id" value="${productId}" />
+                    <input type="hidden" name="name" value="${productName}" />
+                    <input type="hidden" name="price" value="${productPrice}" />
+                    <input type="hidden" name="quantity" value="1" />
+                    <button type="button" class="wishlist-btn" id="add-to-wishlist">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="none" stroke="#555" stroke-width="1.5">
+                            <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
+                        </svg>
+                        <span>Tambahkan ke Favorit</span>
+                    </button>
+                </form>`;
+
+                        // Replace form
+                        form.replaceWith(addForm);
+                    },
+                    error: function(xhr) {
+                        // Remove loading state
+                        button.prop('disabled', false).css('opacity', '1');
+
+                        let errorMsg = 'Gagal menghapus dari favorit. Silakan coba lagi.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        // Show error notification
+                        showFavoritNotification(errorMsg, false);
+                    }
+                });
+            });
+
+            // Additional cleanup for wishlist form handling
+            $(document).on('submit', '#wishlist-form', function(e) {
+                e.preventDefault();
+                $('#add-to-wishlist').trigger('click');
+            });
+
+            $(document).on('submit', '#frm-remove-item', function(e) {
+                e.preventDefault();
+                $('#remove-from-wishlist').trigger('click');
+            });
+        });
+    </script>
+
+    <!-- JavaScript for Wishlist functionalities -->
+    <script>
+        // Menambahkan kode ini ke file JavaScript produk detail (misalnya di bawah script notifikasi Cart)
+
+        $(document).ready(function() {
+            // Perubahan untuk interaksi wishlist di halaman detail produk
+
+            // Tambah ke wishlist
+            $('#add-to-wishlist').on('click', function(e) {
+                e.preventDefault();
+                const form = $('#wishlist-form');
+                const formData = form.serialize();
+
+                // Tambahkan efek loading/disabled pada tombol
+                $(this).prop('disabled', true);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update jumlah wishlist di navbar
+                            $('.js-wishlist-items-count').text(response.count).addClass(
+                                'counter-animation');
+
+                            // Tampilkan notifikasi sukses
+                            showFavoritNotification(
+                                'Produk berhasil ditambahkan ke daftar favorit Anda.', true);
+
+                            // Ganti tombol Add dengan tombol Remove
+                            const removeForm = `
+                    <form method="POST" action="${response.removeUrl}" id="frm-remove-item">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" class="wishlist-btn in-wishlist" id="remove-from-wishlist">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="#e53935">
+                                <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
+                            </svg>
+                            <span>Hapus dari Favorit</span>
+                        </button>
+                    </form>`;
+
+                            $('#wishlist-form').replaceWith(removeForm);
+
+                            // Tambahkan event handler untuk tombol remove
+                            attachRemoveHandler();
+                        }
+                    },
+                    error: function(xhr) {
+                        // Tampilkan pesan error
+                        let errorMsg = 'Gagal menambahkan ke favorit. Silakan coba lagi.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        // Gunakan fungsi notifikasi
+                        showFavoritNotification(errorMsg, false);
+                    },
+                    complete: function() {
+                        // Hapus efek loading
+                        $('#add-to-wishlist').prop('disabled', false);
+                    }
+                });
+            });
+
+            // Fungsi untuk menambahkan event handler pada tombol remove
+            function attachRemoveHandler() {
+                $('#remove-from-wishlist').on('click', function(e) {
+                    e.preventDefault();
+                    const form = $('#frm-remove-item');
+
+                    // Tambahkan efek loading
+                    $(this).prop('disabled', true);
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                // Update jumlah wishlist di navbar
+                                $('.js-wishlist-items-count').text(response.count || '')
+                                    .addClass('counter-animation');
+
+                                // Tampilkan notifikasi sukses
+                                showFavoritNotification(
+                                    'Produk berhasil dihapus dari daftar favorit Anda.',
+                                    false);
+
+                                // Ganti tombol Remove dengan tombol Add
+                                const addForm = `
+                        <form method="POST" action="{{ route('wishlist.add') }}" id="wishlist-form">
+                            @csrf
+                            <input type="hidden" name="id" value="{{ $product->id }}" />
+                            <input type="hidden" name="name" value="{{ $product->name }}" />
+                            <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="button" class="wishlist-btn" id="add-to-wishlist">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="none" stroke="#555" stroke-width="1.5">
+                                    <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
+                                </svg>
+                                <span>Tambahkan ke Favorit</span>
+                            </button>
+                        </form>`;
+
+                                $('#frm-remove-item').replaceWith(addForm);
+
+                                // Tambahkan event handler untuk tombol add yang baru
+                                $('#add-to-wishlist').on('click', function() {
+                                    $(this).off(
+                                        'click'
+                                    ); // Hapus handler sebelumnya untuk menghindari duplikasi
+                                    $('#add-to-wishlist').trigger(
+                                        'click'); // Terapkan handler utama
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            // Tampilkan pesan error
+                            let errorMsg = 'Gagal menghapus dari favorit. Silakan coba lagi.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+
+                            // Gunakan fungsi notifikasi
+                            showFavoritNotification(errorMsg, false);
+                        },
+                        complete: function() {
+                            // Hapus efek loading
+                            $('#remove-from-wishlist').prop('disabled', false);
+                        }
+                    });
+                });
+            }
+
+            // Implementasi fungsi untuk menampilkan notifikasi favorit
+            function showFavoritNotification(message, isSuccess = true) {
+                // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
+                if (!$('#favorit-notification').length) {
+                    $('body').append(`
+                <div class="favorit-notification" id="favorit-notification">
+                    <div class="favorit-notification__icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="favorit-notification__content">
+                        <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
+                        <div class="favorit-notification__message" id="favorit-notification-message"></div>
+                    </div>
+                    <button class="favorit-notification__close" id="close-favorit-notification">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `);
+
+                    // Tambahkan event handler untuk tombol close
+                    $(document).on('click', '#close-favorit-notification', function() {
+                        $('#favorit-notification').removeClass('show');
+                        setTimeout(function() {
+                            $('#favorit-notification').css('display', 'none');
+                        }, 300);
+                    });
+                }
+
+                const notification = $('#favorit-notification');
+                const title = $('#favorit-notification-title');
+                const messageEl = $('#favorit-notification-message');
+
+                // Set content
+                messageEl.text(message);
+
+                // Set type (success or error)
+                if (isSuccess) {
+                    notification.removeClass('removed').addClass('success');
+                    title.text('Ditambahkan ke Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-trash').addClass('fa-heart');
+                } else {
+                    notification.removeClass('success').addClass('removed');
+                    title.text('Dihapus dari Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-heart').addClass('fa-trash');
+                }
+
+                // Show notification
+                notification.css('display', 'flex').addClass('show');
+
+                // Auto hide after 3 seconds
+                setTimeout(function() {
+                    notification.removeClass('show');
+                    setTimeout(function() {
+                        notification.css('display', 'none');
+                    }, 300);
+                }, 3000);
+            }
+
+            // Initialize handlers jika tombol sudah ada di halaman
+            if ($('#remove-from-wishlist').length) {
+                attachRemoveHandler();
+            }
+        });
+    </script>
+
+    <!-- JavaScript for Share functionalities -->
+    <script>
+        // Share button functionality
+        $(document).ready(function() {
+            // Initialize share button functionality
+            const shareButton = $('#shareButton');
+            const shareMenu = $('#shareMenu');
+            const closeShareMenu = $('#closeShareMenu');
+            const copyLinkBtn = $('#copyLink');
+            const copyFeedback = $('#copyFeedback');
+
+            // Toggle share menu
+            shareButton.on('click', function(e) {
+                e.stopPropagation();
+                shareMenu.toggleClass('active');
+            });
+
+            // Close share menu
+            closeShareMenu.on('click', function() {
+                shareMenu.removeClass('active');
+            });
+
+            // Close share menu when clicking outside
+            $(document).on('click', function(e) {
+                if (!shareButton[0].contains(e.target) && !shareMenu[0].contains(e.target)) {
+                    shareMenu.removeClass('active');
+                }
+            });
+
+            // Copy link functionality
+            copyLinkBtn.on('click', function() {
+                const url = $(this).data('url');
+
+                try {
+                    navigator.clipboard.writeText(url).then(function() {
+                        copyFeedback.addClass('active');
+                        setTimeout(() => {
+                            copyFeedback.removeClass('active');
+                        }, 2000);
+                    });
+                } catch (err) {
+                    // Fallback for older browsers
+                    const tempInput = $('<input>');
+                    $('body').append(tempInput);
+                    tempInput.val(url).select();
+                    document.execCommand('copy');
+                    tempInput.remove();
+
+                    copyFeedback.addClass('active');
+                    setTimeout(() => {
+                        copyFeedback.removeClass('active');
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // ======================================================================
+            // PERBAIKAN FUNGSI TAMBAH KE KERANJANG PADA PRODUK TERKAIT
+            // ======================================================================
+
+            // Mencegah form submit biasa dan menggunakan AJAX untuk tambah ke keranjang
+            $('.related-product-form').on('submit', function(e) {
+                e.preventDefault();
+
+                const formData = $(this).serialize();
+                const productId = $(this).find('input[name="id"]').val();
+                const productName = $(this).find('input[name="name"]').val();
+
+                // Ambil data produk untuk cek stok
+                $.ajax({
+                    url: `/api/product/${productId}/check-stock`,
+                    type: 'GET',
+                    success: function(response) {
+                        // Jika tidak ada API endpoint untuk cek stok, bisa menggunakan quantity dari form
+                        const availableStock = response ? response.available_stock : 1;
+
+                        if (availableStock <= 0) {
+                            // Tampilkan notifikasi stok kosong
+                            showCartNotification(`Stok produk ${productName} tidak tersedia.`,
+                                false);
+                            return;
+                        }
+
+                        // Lanjutkan dengan tambah ke keranjang jika stok tersedia
+                        $.ajax({
+                            url: '/cart/add',
+                            type: 'POST',
+                            data: formData,
+                            dataType: 'json',
+                            success: function(response) {
+                                if (response.success) {
+                                    // Update jumlah item di cart navbar
+                                    $('.js-cart-items-count').text(response
+                                        .cartCount);
+
+                                    // Tampilkan notifikasi sukses
+                                    showCartNotification(
+                                        `${productName} berhasil ditambahkan ke keranjang Anda.`,
+                                        true);
+                                } else {
+                                    showCartNotification(response.message ||
+                                        'Gagal menambahkan produk ke keranjang',
+                                        false);
+                                }
+                            },
+                            error: function(xhr) {
+                                let errorMsg =
+                                    'Gagal menambahkan produk ke keranjang';
+                                if (xhr.responseJSON && xhr.responseJSON.message) {
+                                    errorMsg = xhr.responseJSON.message;
+                                }
+                                showCartNotification(errorMsg, false);
+                            }
+                        });
+                    },
+                    error: function() {
+                        // Jika endpoint cek stok tidak ada, langsung lakukan tambah ke keranjang
+                        addToCartWithoutStockCheck(formData, productName);
+                    }
+                });
+            });
+
+            // Fungsi tambah ke keranjang tanpa cek stok (fallback)
+            function addToCartWithoutStockCheck(formData, productName) {
+                $.ajax({
+                    url: '/cart/add',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update jumlah item di cart navbar
+                            $('.js-cart-items-count').text(response.cartCount);
+
+                            // Tampilkan notifikasi sukses
+                            showCartNotification(
+                                `${productName} berhasil ditambahkan ke keranjang Anda.`, true);
+                        } else {
+                            showCartNotification(response.message ||
+                                'Gagal menambahkan produk ke keranjang', false);
+                        }
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        showCartNotification(errorMsg, false);
+                    }
+                });
+            }
+
+            // ======================================================================
+            // PERBAIKAN FUNGSI WISHLIST PADA PRODUK TERKAIT
+            // ======================================================================
+
+            // Fungsi untuk menangani klik pada ikon wishlist produk terkait
+            $('.pc__btn-wl').on('click', function(e) {
+                e.preventDefault();
+
+                const productCard = $(this).closest('.product-card');
+                const productId = productCard.find('input[name="id"]').val();
+                const productName = productCard.find('input[name="name"]').val();
+                const productPrice = productCard.find('input[name="price"]').val();
+
+                // Cek apakah sudah di wishlist (berdasarkan class)
+                const isInWishlist = $(this).hasClass('in-wishlist');
+
+                if (isInWishlist) {
+                    // Jika sudah di wishlist, hapus dari wishlist
+                    removeFromWishlist(this);
+                } else {
+                    // Jika belum di wishlist, tambahkan ke wishlist
+                    addToWishlist(this, productId, productName, productPrice);
+                }
+            });
+
+            // Fungsi untuk menambahkan ke wishlist
+            function addToWishlist(button, productId, productName, productPrice) {
+                const data = {
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    quantity: 1,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                };
+
+                $.ajax({
+                    url: '/wishlist/add',
+                    type: 'POST',
+                    data: data,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update tampilan button
+                            $(button).addClass('in-wishlist');
+                            $(button).find('svg').attr('fill', '#e53935').removeAttr('stroke');
+
+                            // Tambahkan animasi detak jantung
+                            $(button).find('svg').addClass('heart-beat');
+                            setTimeout(function() {
+                                $(button).find('svg').removeClass('heart-beat');
+                            }, 800);
+
+                            // Update counter wishlist di navbar
+                            $('.js-wishlist-items-count').text(response.count || parseInt($(
+                                '.js-wishlist-items-count').text()) + 1);
+
+                            // Tampilkan notifikasi
+                            showFavoritNotification(
+                                'Produk berhasil ditambahkan ke daftar favorit Anda.', true);
+                        } else {
+                            if (response.redirect) {
+                                // Jika perlu login terlebih dahulu
+                                window.location.href = response.redirect;
+                            } else {
+                                showFavoritNotification(response.message ||
+                                    'Gagal menambahkan ke favorit', false);
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        // Tampilkan pesan error
+                        let errorMsg = 'Gagal menambahkan ke favorit';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        // Jika perlu login, arahkan ke halaman login
+                        if (xhr.status === 401) {
+                            window.location.href = '/login';
+                        } else {
+                            showFavoritNotification(errorMsg, false);
+                        }
+                    }
+                });
+            }
+
+            // Fungsi untuk menghapus dari wishlist
+            function removeFromWishlist(button) {
+                const productCard = $(button).closest('.product-card');
+                const productId = productCard.find('input[name="id"]').val();
+
+                // Dapatkan rowId dari wishlist item
+                $.ajax({
+                    url: '/wishlist',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        const wishlistItems = response.items || [];
+
+                        // Cari item dengan product_id yang sama
+                        const item = wishlistItems.find(item => item.id === productId);
+
+                        if (item && item.rowId) {
+                            // Hapus dari wishlist menggunakan rowId
+                            $.ajax({
+                                url: `/wishlist/remove/${item.rowId}`,
+                                type: 'DELETE',
+                                data: {
+                                    _token: $('meta[name="csrf-token"]').attr('content')
+                                },
+                                dataType: 'json',
+                                success: function(response) {
+                                    if (response.success) {
+                                        // Update tampilan button
+                                        $(button).removeClass('in-wishlist');
+                                        $(button).find('svg').attr('fill', 'none').attr(
+                                            'stroke', '#555');
+
+                                        // Update counter wishlist di navbar
+                                        const currentCount = parseInt($(
+                                            '.js-wishlist-items-count').text());
+                                        $('.js-wishlist-items-count').text(response.count ||
+                                            Math.max(0, currentCount - 1));
+
+                                        // Tampilkan notifikasi
+                                        showFavoritNotification(
+                                            'Produk berhasil dihapus dari daftar favorit Anda.',
+                                            false);
+                                    } else {
+                                        showFavoritNotification(response.message ||
+                                            'Gagal menghapus dari favorit', false);
+                                    }
+                                },
+                                error: function(xhr) {
+                                    let errorMsg = 'Gagal menghapus dari favorit';
+                                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                                        errorMsg = xhr.responseJSON.message;
+                                    }
+                                    showFavoritNotification(errorMsg, false);
+                                }
+                            });
+                        } else {
+                            // Fallback jika rowId tidak ditemukan
+                            directRemoveFromWishlist(button, productId);
+                        }
+                    },
+                    error: function() {
+                        // Fallback jika endpoint tidak tersedia
+                        directRemoveFromWishlist(button, productId);
+                    }
+                });
+            }
+
+            // Fungsi fallback untuk menghapus dari wishlist
+            function directRemoveFromWishlist(button, productId) {
+                // Langsung update UI
+                $(button).removeClass('in-wishlist');
+                $(button).find('svg').attr('fill', 'none').attr('stroke', '#555');
+
+                // Update counter wishlist di navbar
+                const currentCount = parseInt($('.js-wishlist-items-count').text());
+                $('.js-wishlist-items-count').text(Math.max(0, currentCount - 1));
+
+                // Tampilkan notifikasi
+                showFavoritNotification('Produk berhasil dihapus dari daftar favorit Anda.', false);
+            }
+
+            // ======================================================================
+            // FUNGSI NOTIFIKASI
+            // ======================================================================
+
+            // Fungsi untuk menampilkan notifikasi keranjang
+            function showCartNotification(message, isSuccess = true) {
+                const notification = $('#cart-notification');
+                const title = $('#cart-notification-title');
+                const messageEl = $('#cart-notification-message');
+
+                // Set konten
+                messageEl.text(message);
+
+                // Set tipe (success atau error)
+                if (isSuccess) {
+                    notification.removeClass('error').addClass('success');
+                    title.text('Ditambahkan ke Keranjang');
+                    $('.cart-notification__icon i').removeClass('fa-exclamation-circle').addClass(
+                        'fa-shopping-cart');
+                } else {
+                    notification.removeClass('success').addClass('error');
+                    title.text('Gagal Ditambahkan');
+                    $('.cart-notification__icon i').removeClass('fa-shopping-cart').addClass(
+                        'fa-exclamation-circle');
+                }
+
+                // Tampilkan notifikasi
+                notification.css('display', 'flex').addClass('show');
+
+                // Auto hide setelah 3 detik
+                setTimeout(() => {
+                    notification.removeClass('show');
+                    setTimeout(() => notification.css('display', 'none'), 300);
+                }, 3000);
+            }
+
+            // Fungsi untuk menampilkan notifikasi favorit
+            function showFavoritNotification(message, isSuccess = true) {
+                // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
+                if (!$('#favorit-notification').length) {
+                    $('body').append(`
+                <div class="favorit-notification" id="favorit-notification">
+                    <div class="favorit-notification__icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="favorit-notification__content">
+                        <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
+                        <div class="favorit-notification__message" id="favorit-notification-message"></div>
+                    </div>
+                    <button class="favorit-notification__close" id="close-favorit-notification">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `);
+
+                    // Tambahkan event handler untuk tombol close
+                    $(document).on('click', '#close-favorit-notification', function() {
+                        $('#favorit-notification').removeClass('show');
+                        setTimeout(function() {
+                            $('#favorit-notification').css('display', 'none');
+                        }, 300);
+                    });
+                }
+
+                const notification = $('#favorit-notification');
+                const title = $('#favorit-notification-title');
+                const messageEl = $('#favorit-notification-message');
+
+                // Set konten
+                messageEl.text(message);
+
+                // Set tipe (success atau error)
+                if (isSuccess) {
+                    notification.removeClass('removed').addClass('success');
+                    title.text('Ditambahkan ke Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-trash').addClass('fa-heart');
+                } else {
+                    notification.removeClass('success').addClass('removed');
+                    title.text('Dihapus dari Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-heart').addClass('fa-trash');
+                }
+
+                // Tampilkan notifikasi
+                notification.css('display', 'flex').addClass('show');
+
+                // Auto hide setelah 3 detik
+                setTimeout(function() {
+                    notification.removeClass('show');
+                    setTimeout(function() {
+                        notification.css('display', 'none');
+                    }, 300);
+                }, 3000);
+            }
+
+            // ======================================================================
+            // INISIALISASI OTOMATIS - PENGECEKAN STATUS WISHLIST PRODUK TERKAIT
+            // ======================================================================
+
+            // Cek produk mana yang sudah ada di wishlist dan update tampilannya
+            function initializeWishlistUI() {
+                // Ambil data wishlist dari API atau localStorage jika ada
+                $.ajax({
+                    url: '/wishlist/count',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.count > 0) {
+                            // Jika ada item di wishlist, cek detail item
+                            $.ajax({
+                                url: '/wishlist',
+                                type: 'GET',
+                                dataType: 'json',
+                                success: function(wishlistResponse) {
+                                    const wishlistItems = wishlistResponse.items || [];
+                                    const wishlistProductIds = wishlistItems.map(item =>
+                                        item.id);
+
+                                    // Update tampilan ikon wishlist berdasarkan status
+                                    $('.product-card').each(function() {
+                                        const productId = $(this).find(
+                                            'input[name="id"]').val();
+
+                                        if (wishlistProductIds.includes(
+                                                productId)) {
+                                            // Produk ada di wishlist
+                                            const wishlistButton = $(this).find(
+                                                '.pc__btn-wl');
+                                            wishlistButton.addClass('in-wishlist');
+                                            wishlistButton.find('svg').attr('fill',
+                                                '#e53935').removeAttr('stroke');
+                                        }
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
+            }
+
+            // Panggil inisialisasi
+            initializeWishlistUI();
+        });
+    </script>
+
+    <script>
+        // Script untuk perbaikan produk terkait
+        $(document).ready(function() {
+            // ======================================================================
+            // 1. PERBAIKAN TAMBAH KE KERANJANG UNTUK PRODUK TERKAIT
+            // ======================================================================
+
+            // Fungsi untuk menampilkan notifikasi keranjang
+            function showCartNotification(message, isSuccess = true) {
+                const notification = $('#cart-notification');
+                const title = $('#cart-notification-title');
+                const messageEl = $('#cart-notification-message');
+
+                // Set konten
+                messageEl.text(message);
+
+                // Set type (success atau error)
+                if (isSuccess) {
+                    notification.removeClass('error').addClass('success');
+                    title.text('Ditambahkan ke Keranjang');
+                    $('.cart-notification__icon i').removeClass('fa-exclamation-circle').addClass(
+                        'fa-shopping-cart');
+                } else {
+                    notification.removeClass('success').addClass('error');
+                    title.text('Gagal Ditambahkan');
+                    $('.cart-notification__icon i').removeClass('fa-shopping-cart').addClass(
+                        'fa-exclamation-circle');
                 }
 
                 // Show notification
@@ -2188,193 +3262,444 @@
                 }, 3000);
             }
 
-            // Close notification button
-            $('#close-notification').on('click', function() {
-                const notification = $('#wishlist-notification');
-                notification.removeClass('show');
-                setTimeout(() => notification.css('display', 'none'), 300);
-            });
+            // Cek stok produk terkait dan perbarui UI
+            function checkRelatedProductsStock() {
+                $('.related-product-form').each(function() {
+                    const form = $(this);
+                    const productId = form.find('input[name="id"]').val();
+                    const submitButton = form.find('button[type="submit"]');
+                    const productName = form.find('input[name="name"]').val();
 
-            // Add to wishlist - with real-time UI updates
-            $('#add-to-wishlist').on('click', function() {
-                const form = $('#wishlist-form');
-                const formData = form.serialize();
-                const button = $(this);
-
-                $.ajax({
-                    url: form.attr('action'),
-                    type: 'POST',
-                    data: formData,
-                    dataType: 'json',
-                    success: function(response) {
-                        // Add heart animation
-                        button.find('svg').addClass('heart-beat');
-                        setTimeout(() => button.find('svg').removeClass('heart-beat'), 800);
-
-                        // Show success notification
-                        showWishlistNotification(
-                            '{{ $product->name }} berhasil ditambahkan ke daftar favorit Anda.',
-                            true);
-
-                        // Get the rowId from the response
-                        const newRowId = response.rowId;
-
-                        // The parent element that contains the form
-                        const container = button.closest('.product-single__addtolinks');
-
-                        // Replace the add form with the remove form
-                        const removeForm = `
-                        <form method="POST" action="" id="frm-remove-item">
-                            @csrf
-                            @method('DELETE')
-                            <button type="button" class="wishlist-btn in-wishlist" id="remove-from-wishlist">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="#e53935">
-                                    <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
-                                </svg>
-                                <span>Hapus dari Favorit</span>
-                            </button>
-                        </form>`;
-
-                        // Replace the existing form
-                        $('#wishlist-form').replaceWith(removeForm);
-
-                        // Attach event listener to the new button
-                        attachRemoveFromWishlistEvent();
-                    },
-                    error: function(xhr) {
-                        let errorMsg = 'Gagal menambahkan ke favorit. Silakan coba lagi.';
-                        if (xhr.responseJSON && xhr.responseJSON.message) {
-                            errorMsg = xhr.responseJSON.message;
-                        }
-                        showWishlistNotification(errorMsg, false);
-                    }
-                });
-            });
-
-            // Function to attach event listener to remove from wishlist button
-            function attachRemoveFromWishlistEvent() {
-                $('#remove-from-wishlist').on('click', function() {
-                    const form = $(this).closest('form');
-
+                    // Request AJAX untuk cek stok
                     $.ajax({
-                        url: form.attr('action'),
-                        type: 'POST', // We'll still use POST even though it's a DELETE request
-                        data: form.serialize(),
+                        url: `/api/product/${productId}/check-stock`,
+                        type: 'GET',
                         success: function(response) {
-                            // Show removed notification
-                            showWishlistNotification(
-                                'Produk berhasil dihapus dari daftar favorit Anda.', false);
+                            // Default jika tidak ada API adalah menganggap stok 0
+                            const availableStock = response ? response.available_stock : 0;
 
-                            // Replace the remove form with add form
-                            const addForm = `
-                            <form method="POST" action="{{ route('wishlist.add') }}" id="wishlist-form">
-                                @csrf
-                                <input type="hidden" name="id" value="{{ $product->id }}" />
-                                <input type="hidden" name="name" value="{{ $product->name }}" />
-                                <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                <input type="hidden" name="quantity" value="1" />
-                                <button type="button" class="wishlist-btn" id="add-to-wishlist">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="none" stroke="#555" stroke-width="1.5">
-                                        <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
-                                    </svg>
-                                    <span>Tambahkan ke Favorit</span>
-                                </button>
-                            </form>`;
-
-                            // Replace the current form
-                            form.replaceWith(addForm);
-
-                            // Add event listener to the new add button
-                            $('#add-to-wishlist').on('click', function() {
-                                const addForm = $('#wishlist-form');
-                                const formData = addForm.serialize();
-                                const button = $(this);
-
-                                $.ajax({
-                                    url: addForm.attr('action'),
-                                    type: 'POST',
-                                    data: formData,
-                                    dataType: 'json',
-                                    success: function(response) {
-                                        // Implementation would go here (similar to the add-to-wishlist handler above)
-                                        // For now, let's just reload the page to ensure everything is fresh
-                                        location.reload();
-                                    },
-                                    error: function(xhr) {
-                                        let errorMsg =
-                                            'Gagal menambahkan ke favorit. Silakan coba lagi.';
-                                        if (xhr.responseJSON && xhr
-                                            .responseJSON.message) {
-                                            errorMsg = xhr.responseJSON
-                                                .message;
-                                        }
-                                        showWishlistNotification(errorMsg,
-                                            false);
-                                    }
-                                });
-                            });
-                        },
-                        error: function(xhr) {
-                            let errorMsg = 'Gagal menghapus dari favorit. Silakan coba lagi.';
-                            if (xhr.responseJSON && xhr.responseJSON.message) {
-                                errorMsg = xhr.responseJSON.message;
+                            // Jika stok kosong atau habis
+                            if (availableStock <= 0) {
+                                // Disabled tombol dan ubah tampilannya
+                                submitButton.prop('disabled', true)
+                                    .removeClass('js-add-cart')
+                                    .addClass('out-of-stock')
+                                    .html('Stok Habis')
+                                    .css({
+                                        'background-color': '#f5f5f5',
+                                        'color': '#888',
+                                        'cursor': 'not-allowed',
+                                        'opacity': '0.7'
+                                    });
                             }
-                            showWishlistNotification(errorMsg, false);
+                        },
+                        error: function() {
+                            // Jika error, lakukan pendekatan alternatif
+                            // Coba ambil data dari tombol jika ada data-stock atau cek atribut lain
+                            const stockInfo = submitButton.attr('data-stock') || 0;
+                            if (parseInt(stockInfo) <= 0) {
+                                submitButton.prop('disabled', true)
+                                    .removeClass('js-add-cart')
+                                    .addClass('out-of-stock')
+                                    .html('Stok Habis')
+                                    .css({
+                                        'background-color': '#f5f5f5',
+                                        'color': '#888',
+                                        'cursor': 'not-allowed',
+                                        'opacity': '0.7'
+                                    });
+                            }
                         }
                     });
                 });
             }
 
-            // Initial attachment of remove event
-            attachRemoveFromWishlistEvent();
+            // Jalankan cek stok saat halaman dimuat
+            checkRelatedProductsStock();
 
-            // Share functionality
-            const shareButton = document.getElementById('shareButton');
-            const shareMenu = document.getElementById('shareMenu');
-            const closeShareMenu = document.getElementById('closeShareMenu');
-            const copyLinkBtn = document.getElementById('copyLink');
-            const copyFeedback = document.getElementById('copyFeedback');
+            // Mencegah form submit biasa dan menggunakan AJAX untuk tambah ke keranjang
+            $('.related-product-form').on('submit', function(e) {
+                e.preventDefault();
 
-            // Toggle share menu
-            shareButton.addEventListener('click', function() {
-                shareMenu.classList.toggle('active');
+                const form = $(this);
+                const formData = form.serialize();
+                const productId = form.find('input[name="id"]').val();
+                const productName = form.find('input[name="name"]').val();
+                const submitButton = form.find('button[type="submit"]');
+
+                // Jika tombol disabled (stok habis), jangan lakukan apa-apa
+                if (submitButton.prop('disabled')) {
+                    return false;
+                }
+
+                // Show loading state
+                submitButton.prop('disabled', true);
+                submitButton.html('<i class="fas fa-spinner fa-spin"></i> Proses...');
+
+                // Request AJAX untuk tambah ke keranjang
+                $.ajax({
+                    url: '/cart/add',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update cart count di navbar
+                            $('.js-cart-items-count').text(response.cartCount);
+
+                            // Tampilkan notifikasi sukses
+                            showCartNotification(
+                                `${productName} berhasil ditambahkan ke keranjang Anda.`,
+                                true);
+                        } else {
+                            // Jika response error (misal stok tidak cukup)
+                            showCartNotification(response.message ||
+                                'Gagal menambahkan produk ke keranjang', false);
+                        }
+                    },
+                    error: function(xhr) {
+                        // Handle error response
+                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        showCartNotification(errorMsg, false);
+                    },
+                    complete: function() {
+                        // Restore button state
+                        submitButton.prop('disabled', false);
+                        submitButton.html('Tambahkan ke Keranjang');
+                    }
+                });
             });
 
-            // Close share menu
-            closeShareMenu.addEventListener('click', function() {
-                shareMenu.classList.remove('active');
+            // ======================================================================
+            // 2. PERBAIKAN FUNGSI WISHLIST PADA PRODUK TERKAIT
+            // ======================================================================
+
+            // Fungsi untuk menampilkan notifikasi favorit
+            function showFavoritNotification(message, isSuccess = true) {
+                // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
+                if (!$('#favorit-notification').length) {
+                    $('body').append(`
+                    <div class="favorit-notification" id="favorit-notification">
+                        <div class="favorit-notification__icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="favorit-notification__content">
+                            <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
+                            <div class="favorit-notification__message" id="favorit-notification-message"></div>
+                        </div>
+                        <button class="favorit-notification__close" id="close-favorit-notification">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `);
+
+                    // Tambahkan event handler untuk tombol close
+                    $(document).on('click', '#close-favorit-notification', function() {
+                        $('#favorit-notification').removeClass('show');
+                        setTimeout(function() {
+                            $('#favorit-notification').css('display', 'none');
+                        }, 300);
+                    });
+                }
+
+                const notification = $('#favorit-notification');
+                const title = $('#favorit-notification-title');
+                const messageEl = $('#favorit-notification-message');
+
+                // Set konten
+                messageEl.text(message);
+
+                // Set type (success atau error)
+                if (isSuccess) {
+                    notification.removeClass('removed').addClass('success');
+                    title.text('Ditambahkan ke Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-trash').addClass('fa-heart');
+                } else {
+                    notification.removeClass('success').addClass('removed');
+                    title.text('Dihapus dari Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-heart').addClass('fa-trash');
+                }
+
+                // Tampilkan notifikasi
+                notification.css('display', 'flex').addClass('show');
+
+                // Auto hide setelah 3 detik
+                setTimeout(function() {
+                    notification.removeClass('show');
+                    setTimeout(function() {
+                        notification.css('display', 'none');
+                    }, 300);
+                }, 3000);
+            }
+
+            // Check status wishlist dan update UI
+            function initializeWishlistStatus() {
+                // Ambil wishlist dari server
+                $.ajax({
+                    url: '/wishlist',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        // Jika mendapatkan data wishlist
+                        if (response && response.items) {
+                            const wishlistItems = response.items;
+                            const wishlistProductIds = wishlistItems.map(item => item.id);
+
+                            // Loop semua tombol wishlist di produk terkait
+                            $('.pc__btn-wl').each(function() {
+                                const productCard = $(this).closest('.product-card');
+                                const productId = productCard.find('input[name="id"]').val();
+
+                                // Jika produk ini ada di wishlist
+                                if (wishlistProductIds.includes(parseInt(productId))) {
+                                    $(this).addClass('in-wishlist');
+                                    $(this).find('svg').attr('fill', '#e53935').removeAttr(
+                                        'stroke');
+                                }
+                            });
+                        }
+                    },
+                    error: function() {
+                        console.log('Gagal memuat data wishlist');
+                    }
+                });
+            }
+
+            // Initialize wishlist status
+            initializeWishlistStatus();
+
+            // Tambahkan data product-id ke tombol wishlist untuk tracking
+            $('.pc__btn-wl').each(function() {
+                const productCard = $(this).closest('.product-card');
+                const productId = productCard.find('input[name="id"]').val();
+                const productName = productCard.find('input[name="name"]').val();
+                const productPrice = productCard.find('input[name="price"]').val();
+
+                $(this).attr('data-product-id', productId);
+                $(this).attr('data-product-name', productName);
+                $(this).attr('data-product-price', productPrice);
             });
 
-            // Close share menu when clicking outside
-            document.addEventListener('click', function(event) {
-                if (!shareButton.contains(event.target) && !shareMenu.contains(event.target)) {
-                    shareMenu.classList.remove('active');
+            // Handle click event untuk tombol wishlist
+            $('.pc__btn-wl').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const $this = $(this);
+                const productId = $this.attr('data-product-id');
+                const productName = $this.attr('data-product-name');
+                const productPrice = $this.attr('data-product-price');
+
+                // Jika belum login, redirect ke login page
+                if (!$('meta[name="user-logged-in"]').attr('content') === 'true') {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                // Toggle class untuk visual feedback
+                const isInWishlist = $this.hasClass('in-wishlist');
+
+                if (isInWishlist) {
+                    // Jika sudah di wishlist, hapus dari wishlist
+                    removeFromWishlist($this);
+                } else {
+                    // Jika belum di wishlist, tambahkan ke wishlist
+                    addToWishlist($this, productId, productName, productPrice);
                 }
             });
 
-            // Copy link functionality
-            copyLinkBtn.addEventListener('click', function() {
-                const url = this.getAttribute('data-url');
-                navigator.clipboard.writeText(url).then(function() {
-                    copyFeedback.classList.add('active');
-                    setTimeout(() => {
-                        copyFeedback.classList.remove('active');
-                    }, 2000);
-                }).catch(function(err) {
-                    // Fallback for older browsers
-                    const tempInput = document.createElement('input');
-                    tempInput.value = url;
-                    document.body.appendChild(tempInput);
-                    tempInput.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(tempInput);
+            // Fungsi untuk menambahkan ke wishlist
+            function addToWishlist(button, productId, productName, productPrice) {
+                // Show loading state
+                button.addClass('loading');
 
-                    copyFeedback.classList.add('active');
-                    setTimeout(() => {
-                        copyFeedback.classList.remove('active');
-                    }, 2000);
+                // Data untuk AJAX request
+                const data = {
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    quantity: 1,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                };
+
+                // AJAX request
+                $.ajax({
+                    url: '/wishlist/add',
+                    type: 'POST',
+                    data: data,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update UI
+                            button.addClass('in-wishlist');
+                            button.find('svg').attr('fill', '#e53935').removeAttr('stroke');
+
+                            // Animasi heart beat
+                            button.find('svg').addClass('heart-beat');
+                            setTimeout(function() {
+                                button.find('svg').removeClass('heart-beat');
+                            }, 800);
+
+                            // Update counter di navbar
+                            $('.js-wishlist-items-count, .js-wishlist-count').text(response.count ||
+                                parseInt($('.js-wishlist-items-count').text()) + 1).addClass(
+                                'counter-animation');
+
+                            // Tampilkan notifikasi
+                            showFavoritNotification(
+                                `${productName} berhasil ditambahkan ke daftar favorit Anda.`, true);
+                        } else {
+                            // Jika gagal, tampilkan error
+                            showFavoritNotification(response.message || 'Gagal menambahkan ke favorit',
+                                false);
+
+                            // Jika perlu login
+                            if (response.redirect) {
+                                setTimeout(function() {
+                                    window.location.href = response.redirect;
+                                }, 2000);
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        // Handle error response
+                        let errorMsg = 'Gagal menambahkan ke favorit';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        showFavoritNotification(errorMsg, false);
+
+                        // Jika error 401 (unauthorized), redirect ke login
+                        if (xhr.status === 401) {
+                            setTimeout(function() {
+                                window.location.href = '/login';
+                            }, 2000);
+                        }
+                    },
+                    complete: function() {
+                        // Remove loading state
+                        button.removeClass('loading');
+                    }
                 });
-            });
-        });
-    </script>
-@endpush
+            }
+
+            // Fungsi untuk menghapus dari wishlist
+            function removeFromWishlist(button) {
+                // Show loading state
+                button.addClass('loading');
+
+                const productId = button.attr('data-product-id');
+                const productName = button.attr('data-product-name');
+
+                // Ambil wishlist dari server untuk mendapatkan rowId
+                $.ajax({
+                    url: '/wishlist',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response && response.items) {
+                            const item = response.items.find(item => item.id == productId);
+
+                            if (item && item.rowId) {
+                                // AJAX request untuk hapus dari wishlist
+                                $.ajax({
+                                    url: `/wishlist/remove/${item.rowId}`,
+                                    type: 'DELETE',
+                                    data: {
+                                        _token: $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    dataType: 'json',
+                                    success: function(response) {
+                                        if (response.success) {
+                                            // Update UI
+                                            button.removeClass('in-wishlist');
+                                            button.find('svg').attr('fill', 'none').attr(
+                                                'stroke', 'currentColor');
+
+                                            // Update counter di navbar
+                                            const currentCount = parseInt($(
+                                                '.js-wishlist-items-count').text());
+                                            $('.js-wishlist-items-count, .js-wishlist-count')
+                                                .text(response.count || Math.max(0,
+                                                    currentCount - 1));
+
+                                            // Tampilkan notifikasi
+                                            showFavoritNotification(
+                                                `${productName} berhasil dihapus dari daftar favorit Anda.`,
+                                                false);
+                                        } else {
+                                            showFavoritNotification(response.message ||
+                                                'Gagal menghapus dari favorit', false);
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        let errorMsg = 'Gagal menghapus dari favorit';
+                                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                                            errorMsg = xhr.responseJSON.message;
+                                        }
+                                        showFavoritNotification(errorMsg, false);
+                                    },
+                                    complete: function() {
+                                        button.removeClass('loading');
+                                    }
+                                });
+                            } else {
+                                // Fallback jika rowId tidak ditemukan
+                                directRemoveFromWishlist(button, productId, productName);
+                            }
+                        } else {
+                            // Fallback jika tidak bisa mengambil data wishlist
+                            directRemoveFromWishlist(button, productId, productName);
+                        }
+                    },
+                    error: function() {
+                        // Fallback jika error get wishlist
+                        directRemoveFromWishlist(button, productId, productName);
+                    }
+                });
+            }
+
+            // Fungsi fallback untuk remove wishlist
+            function directRemoveFromWishlist(button, productId, productName) {
+                // Update UI
+                button.removeClass('in-wishlist');
+                button.find('svg').attr('fill', 'none').attr('stroke', 'currentColor');
+
+                // Update counter di navbar
+                const currentCount = parseInt($('.js-wishlist-items-count').text());
+                $('.js-wishlist-items-count, .js-wishlist-count').text(Math.max(0, currentCount - 1));
+
+                // Tampilkan notifikasi
+                showFavoritNotification(`${productName} berhasil dihapus dari daftar favorit Anda.`, false);
+
+                // Remove loading state
+                button.removeClass('loading');
+            }
+
+            // Tambahkan meta tag untuk status login user (jika belum ada)
+            if (!$('meta[name="user-logged-in"]').length) {
+                // Cek dari keberadaan elemen yang menandakan user sudah login
+                const isLoggedIn = $('#userMenuButton').length > 0;
+                $('head').append(`<meta name="user-logged-in" content="${isLoggedIn}">`);
+            }
+
+            // Tambahkan styles untuk tombol wishlist
+            $('<style>').text(`
+            .pc__btn-wl.in-wishlist {
+                color: #e53935 !important;
+            }
+            .pc__btn-wl.loading {
+                opacity: 0.7;
+                pointer-events: none;
+            }
+            .heart-beat {
+                animation: heartbeat 0.8s ease-in-out;
+            }
+        `).appendTo('head');
+        }); <
+        script >
+        @endpush
