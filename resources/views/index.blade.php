@@ -39,6 +39,30 @@
             color: #fff;
         }
     </style>
+
+<style>
+    /* CSS untuk menaikkan seluruh konten slider ke atas */
+    .swiper-container.slideshow {
+        margin-top: -150px; /* Sesuaikan nilai ini untuk mengatur seberapa tinggi slider naik */
+        padding-top: 0;
+    }
+
+    /* Menyesuaikan posisi teks lebih ke atas */
+    .slideshow-text {
+        top: 40% !important; /* Sesuaikan nilai ini jika diperlukan */
+    }
+
+    /* Menyesuaikan posisi gambar */
+    .slideshow-character {
+        bottom: 1% !important; /* Naikkan posisi gambar dari bawah */
+    }
+
+    /* Menyesuaikan posisi pagination */
+    .slideshow-pagination {
+        bottom: 20px !important;
+    }
+</style>
+
     <main>
         <section class="swiper-container js-swiper-slider swiper-number-pagination slideshow"
             data-settings='{
