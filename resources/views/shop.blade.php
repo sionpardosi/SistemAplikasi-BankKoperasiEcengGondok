@@ -706,6 +706,70 @@
             animation: pulse-size 0.3s ease-in-out;
         }
     </style>
+
+    <style>
+    /* CSS khusus untuk slider di mobile - tidak mempengaruhi card produk */
+    @media (max-width: 767.98px) {
+        /* Perbaikan spesifik untuk slider saja */
+        .slideshow_small {
+            margin-bottom: 1.5rem;
+            display: block !important;
+            height: auto !important;
+            position: relative;
+        }
+
+        .slideshow_split .swiper-slide {
+            visibility: visible !important;
+            opacity: 1 !important;
+        }
+
+        .slideshow_split .swiper-slide-active {
+            z-index: 2;
+        }
+
+        .slide-split {
+            display: block !important;
+            height: auto !important;
+        }
+
+        .slide-split_text {
+            height: auto !important;
+            min-height: auto !important;
+            padding: 1.5rem 0 !important;
+        }
+
+        .slide-split_media {
+            height: 220px !important;
+        }
+
+        .slideshow-bg {
+            height: 100% !important;
+        }
+
+        .slideshow-bg__img {
+            height: 100% !important;
+            object-fit: cover !important;
+            width: 100% !important;
+        }
+
+        /* Perbaikan pagination */
+        .slideshow-pagination {
+            bottom: 10px !important;
+            left: 0 !important;
+            width: 100% !important;
+            justify-content: center !important;
+            z-index: 10 !important;
+        }
+
+        /* Pastikan tombol scroll otomatis tidak tertimpa */
+        .btn-to-top {
+            z-index: 999 !important;
+            position: fixed !important;
+            bottom: 20px !important;
+            right: 20px !important;
+        }
+    }
+</style>
     <main class="pt-90">
         <section class="shop-main container d-flex pt-4 pt-xl-5">
             <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
@@ -938,6 +1002,7 @@
 
             </div>
 
+            <!-- Bagian slider yang sudah diperbaiki, tanpa mengubah struktur dasar -->
             <div class="shop-list flex-grow-1">
                 <div class="swiper-container js-swiper-slider slideshow slideshow_small slideshow_split"
                     data-settings='{
@@ -963,11 +1028,9 @@
                                             class="text-uppercase section-title fw-normal mb-3 animate animate_fade animate_btt animate_delay-2">
                                             BANK KOPERASI<br /><strong>ECENG GONDOK</strong></h2>
                                         <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
-                                            Bank Koperasi Eceng Gondok hadir untuk menggerakkan perekonomian bersama melalui
-                                            layanan keuangan yang inovatif dan terpercaya. Bergabunglah bersama kami untuk
-                                            meraih kemudahan dalam pengelolaan keuangan dan mewujudkan masa depan yang lebih
-                                            cerah.
-                                            </h6>
+                                            Nikmati berbagai kemudahan dalam pengelolaan keuangan melalui sistem layanan
+                                            digital kami yang inovatif dan ramah pengguna.
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="slide-split_media position-relative">
@@ -991,7 +1054,7 @@
                                         <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
                                             Nikmati berbagai kemudahan dalam pengelolaan keuangan melalui sistem layanan
                                             digital kami yang inovatif dan ramah pengguna.
-                                            </h6>
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="slide-split_media position-relative">
@@ -1015,7 +1078,7 @@
                                         <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
                                             Bergabunglah dengan komunitas Bank Koperasi Eceng Gondok dan rasakan pengalaman
                                             transaksi yang cepat, aman, dan terpercaya.
-                                            </h6>
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="slide-split_media position-relative">
@@ -1030,10 +1093,8 @@
                     </div>
 
                     <div class="container p-3 p-xl-5">
-                        <div
-                            class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2">
+                        <div class="slideshow-pagination d-flex align-items-center position-absolute bottom-0 mb-4 pb-xl-2">
                         </div>
-
                     </div>
                 </div>
 
@@ -2091,5 +2152,24 @@
                 $("#frmfilter").submit();
             });
         });
+    </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Reinitialisasi Swiper setelah semuanya dimuat
+        setTimeout(function() {
+            // Cek apakah ada instance Swiper
+            var slideshowContainer = document.querySelector('.js-swiper-slider');
+            if (slideshowContainer && window.Swiper && typeof window.Swiper === 'function') {
+                // Dapatkan instance Swiper jika sudah ada
+                var swiperInstance = slideshowContainer.swiper;
+
+                if (swiperInstance) {
+                    // Update size dan posisi slide
+                    swiperInstance.update();
+                }
+            }
+        }, 500);
+    });
     </script>
 @endpush
