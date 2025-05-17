@@ -41,108 +41,156 @@
     </style>
 
     <style>
-        /* Perbaikan untuk slider pada tampilan mobile - letakkan di bagian <style> */
-        @media (max-width: 767.98px) {
+        /* Penyesuaian untuk slider utama */
+        .slideshow {
+            min-height: 500px;
+            /* Kontrol tinggi minimum slideshow */
+            margin-top: -20px;
+            /* Geser slideshow ke atas */
+        }
 
-            /* Mengatur tinggi slider & memindahkan ke atas */
-            .swiper-container.slideshow {
-                min-height: 420px !important;
-                margin-top: -20px !important;
+        /* Penyesuaian posisi teks di slideshow */
+        .slideshow-text {
+            transform: translate(-50%, -65%) !important;
+            /* Geser teks ke atas dari posisi tengah */
+        }
+
+        /* Penyesuaian posisi gambar karakter */
+        .slideshow-character {
+            bottom: 10% !important;
+            /* Naikkan posisi gambar */
+        }
+
+        /* Penyesuaian pagination */
+        .slideshow-pagination {
+            bottom: 0 !important;
+            margin-bottom: 2rem !important;
+            /* Sesuaikan jarak pagination dari bawah */
+        }
+
+        /* Responsif untuk mobile */
+        @media (max-width: 768px) {
+            .slideshow {
+                min-height: 400px;
             }
 
-            /* Memindahkan konten teks ke atas */
-            .slideshow-text.container {
-                top: 35% !important;
-                transform: translate(-50%, -35%) !important;
-                padding: 0 15px !important;
-                width: 100% !important;
+            .slideshow-text {
+                transform: translate(-50%, -60%) !important;
+                width: 90%;
+                /* Lebar konten pada mobile */
             }
 
-            /* Menyesuaikan ukuran teks */
-            .slideshow-text h6.text_dash {
-                font-size: 0.8rem !important;
-                margin-bottom: 5px !important;
-            }
-
-            /* .slideshow-text h2.h1 {
+            .slideshow-text h2 {
                 font-size: 1.5rem !important;
-                line-height: 1.2 !important;
-                margin-bottom: 8px !important;
-            } */
+                /* Ukuran judul lebih kecil di mobile */
+            }
 
-            /* Mengatur posisi gambar */
             .slideshow-character {
-                bottom: 0 !important;
-                width: 45% !important;
+                bottom: 5% !important;
                 right: 0 !important;
+                width: 100%;
+                text-align: center;
             }
 
-            /* .slideshow-character__img {
-                max-height: 220px !important;
-                object-fit: contain !important;
-            } */
-
-            /* Pindahkan pagination ke atas sedikit */
-            .slideshow-pagination.slideshow-number-pagination {
-                bottom: 10px !important;
-                margin-bottom: 10px !important;
+            .slideshow-character__img {
+                max-height: 200px;
+                /* Batasi tinggi gambar di mobile */
+                width: auto;
             }
+        }
 
-            /* Mengatur tinggi slide */
-            /* .swiper-slide .overflow-hidden {
-                height: 420px !important;
-            } */
+        /* Animasi tambahan untuk meningkatkan tampilan */
+        .slideshow-text h2 {
+            margin-bottom: 0.5rem;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+            /* Bayangan teks untuk keterbacaan lebih baik */
+        }
+
+        .btn-link_lg.default-underline {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            padding: 5px 0;
+            transition: all 0.3s ease;
+        }
+
+        .btn-link_lg.default-underline:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: currentColor;
+            transform: scaleX(0);
+            transform-origin: right;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-link_lg.default-underline:hover:after {
+            transform: scaleX(1);
+            transform-origin: left;
         }
     </style>
+
     <main>
 
         <section class="swiper-container js-swiper-slider swiper-number-pagination slideshow"
             data-settings='{
-        "autoplay": {
-          "delay": 5000
-        },
-        "slidesPerView": 1,
-        "effect": "fade",
-        "loop": true
-      }'>
+            "autoplay": {
+              "delay": 5000
+            },
+            "slidesPerView": 1,
+            "effect": "fade",
+            "loop": true
+          }'>
             <div class="swiper-wrapper">
                 @foreach ($slides as $slide)
                     <div class="swiper-slide">
                         <div class="overflow-hidden position-relative h-100">
+                            <!-- Karakter/Gambar Slide -->
                             <div class="slideshow-character position-absolute bottom-0 pos_right-center">
-                                <img loading="lazy" src="{{ asset('uploads/slides') }}/{{ $slide->image }}" alt="picture slide"
+                                <img loading="lazy" src="{{ asset('uploads/slides') }}/{{ $slide->image }}"
+                                    alt="{{ $slide->title }}"
                                     class="slideshow-character__img animate animate_fade animate_btt animate_delay-9 w-auto h-auto">
-
                                 <div class="character_markup type2">
                                     <p
                                         class="text-uppercase font-sofia mark-grey-color animate animate_fade animate_btt animate_delay-10 mb-0">
-                                        {{ $slide->tagline }}</p>
+                                        {{ $slide->tagline }}
+                                    </p>
                                 </div>
                             </div>
+
+                            <!-- Teks Slide -->
                             <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
                                 <h6
                                     class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
-                                    {{ $slide->tagline }}</h6>
+                                    {{ $slide->tagline }}
+                                </h6>
                                 <h2 class="h1 fw-normal mb-0 animate animate_fade animate_btt animate_delay-5">
                                     {{ $slide->title }}
                                 </h2>
                                 <h2 class="h1 fw-bold animate animate_fade animate_btt animate_delay-5">
-                                    {{ $slide->subtitle }}</h2>
+                                    {{ $slide->subtitle }}
+                                </h2>
                                 <a href="{{ $slide->link }}"
-                                    class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">BELANJA
-                                    SEKARANG!</a>
+                                    class="btn-link btn-link_lg default-underline fw-medium animate animate_fade animate_btt animate_delay-7">
+                                    BELANJA SEKARANG!
+                                </a>
                             </div>
                         </div>
                     </div>
                 @endforeach
             </div>
 
+            <!-- Pagination -->
             <div class="container">
                 <div
                     class="slideshow-pagination slideshow-number-pagination d-flex align-items-center position-absolute bottom-0 mb-5">
                 </div>
             </div>
         </section>
+
         <div class="container mw-1620 bg-white border-radius-10">
             <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
             <section class="category-carousel container">
