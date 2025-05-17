@@ -39,22 +39,36 @@
             color: #fff;
         }
     </style>
-
 <style>
-    /* CSS untuk menaikkan seluruh konten slider ke atas */
+    /* CSS untuk menaikkan konten slider secara responsive */
     .swiper-container.slideshow {
-        margin-top: -150px; /* Sesuaikan nilai ini untuk mengatur seberapa tinggi slider naik */
+        /* Default untuk desktop, tidak terlalu ke atas */
+        margin-top: 0px;
         padding-top: 0;
+    }
+
+    /* Saat ukuran layar mobile/tablet, slider lebih naik ke atas */
+    @media (max-width: 991px) {
+        .swiper-container.slideshow {
+            margin-top: -80px;
+        }
+    }
+
+    /* Untuk layar sangat kecil, kurangi margin negatif */
+    @media (max-width: 575px) {
+        .swiper-container.slideshow {
+            margin-top: -100px;
+        }
     }
 
     /* Menyesuaikan posisi teks lebih ke atas */
     .slideshow-text {
-        top: 40% !important; /* Sesuaikan nilai ini jika diperlukan */
+        top: 40% !important;
     }
 
     /* Menyesuaikan posisi gambar */
     .slideshow-character {
-        bottom: 1% !important; /* Naikkan posisi gambar dari bawah */
+        bottom: 1% !important;
     }
 
     /* Menyesuaikan posisi pagination */
@@ -64,6 +78,7 @@
 </style>
 
     <main>
+
         <section class="swiper-container js-swiper-slider swiper-number-pagination slideshow"
             data-settings='{
     "autoplay": {
@@ -77,7 +92,7 @@
                 @foreach ($slides as $slide)
                     <div class="swiper-slide">
                         <div class="overflow-hidden position-relative h-100">
-                            <div class="slideshow-character position-absolute bottom-0 pos_right-center" style="bottom: 5%;">
+                            <div class="slideshow-character position-absolute bottom-0 pos_right-center">
                                 <img loading="lazy" src="{{ asset('uploads/slides') }}/{{ $slide->image }}" alt="picture slide"
                                     class="slideshow-character__img animate animate_fade animate_btt animate_delay-9 w-auto h-auto">
 
@@ -87,8 +102,7 @@
                                         {{ $slide->tagline }}</p>
                                 </div>
                             </div>
-                            <div class="slideshow-text container position-absolute start-50 translate-middle"
-                                style="top: 40%;">
+                            <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
                                 <h6
                                     class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
                                     {{ $slide->tagline }}</h6>
@@ -107,8 +121,8 @@
             </div>
 
             <div class="container">
-                <div class="slideshow-pagination slideshow-number-pagination d-flex align-items-center position-absolute bottom-0 mb-5"
-                    style="bottom: 10px !important;">
+                <div
+                    class="slideshow-pagination slideshow-number-pagination d-flex align-items-center position-absolute bottom-0 mb-5">
                 </div>
             </div>
         </section>
