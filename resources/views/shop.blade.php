@@ -770,6 +770,83 @@
         }
     }
 </style>
+
+<style>
+    /* Perbaikan khusus untuk tombol "Tambahkan ke Keranjang" pada mobile */
+    @media (max-width: 767.98px) {
+        /* Memperbaiki tombol add to cart */
+        .product-single__addtocart {
+            width: 100% !important;
+            bottom: 0 !important;
+        }
+
+        .pc__atc.btn {
+            width: 100% !important;
+            padding: 8px 10px !important;
+            font-size: 12px !important;
+            position: relative !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            transform: none !important;
+            border-radius: 4px !important;
+            margin-top: 5px !important;
+        }
+
+        /* Memperbaiki tampilan card produk agar tombol terlihat */
+        .pc__img-wrapper {
+            position: relative !important;
+            margin-bottom: 35px !important; /* Berikan ruang untuk tombol */
+        }
+
+        /* Animasi muncul tombol saat hover */
+        .product-card:hover .pc__atc.btn {
+            transform: none !important;
+            opacity: 1 !important;
+        }
+
+        /* Perbaiki posisi tombol */
+        .product-single__addtocart {
+            position: absolute !important;
+            bottom: -30px !important;
+            left: 0 !important;
+            right: 0 !important;
+            padding: 0 10px !important;
+            z-index: 10 !important;
+        }
+
+        /* Perbaiki ukuran text pada tombol untuk mobile */
+        .pc__atc.btn {
+            font-size: 11px !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* Pastikan tombol selalu terlihat tidak seperti desktop yang hanya muncul saat hover */
+        .product-card .product-single__addtocart {
+            opacity: 1 !important;
+            visibility: visible !important;
+        }
+    }
+
+    /* Khusus untuk perangkat sangat kecil */
+    @media (max-width: 359px) {
+        .pc__atc.btn {
+            font-size: 10px !important;
+            padding: 6px 5px !important;
+        }
+
+        /* Alternatif: buat teks lebih pendek untuk layar sangat kecil */
+        .pc__atc.btn:after {
+            content: "Tambah ke Keranjang";
+            display: block;
+        }
+
+        .pc__atc.btn span {
+            display: none;
+        }
+    }
+</style>
     <main class="pt-90">
         <section class="shop-main container d-flex pt-4 pt-xl-5">
             <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
