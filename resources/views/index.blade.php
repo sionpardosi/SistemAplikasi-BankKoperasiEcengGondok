@@ -40,21 +40,20 @@
         }
     </style>
     <main>
-
         <section class="swiper-container js-swiper-slider swiper-number-pagination slideshow"
             data-settings='{
-        "autoplay": {
-          "delay": 5000
-        },
-        "slidesPerView": 1,
-        "effect": "fade",
-        "loop": true
-      }'>
+    "autoplay": {
+      "delay": 5000
+    },
+    "slidesPerView": 1,
+    "effect": "fade",
+    "loop": true
+    }'>
             <div class="swiper-wrapper">
                 @foreach ($slides as $slide)
                     <div class="swiper-slide">
                         <div class="overflow-hidden position-relative h-100">
-                            <div class="slideshow-character position-absolute bottom-0 pos_right-center">
+                            <div class="slideshow-character position-absolute bottom-0 pos_right-center" style="bottom: 5%;">
                                 <img loading="lazy" src="{{ asset('uploads/slides') }}/{{ $slide->image }}" alt="picture slide"
                                     class="slideshow-character__img animate animate_fade animate_btt animate_delay-9 w-auto h-auto">
 
@@ -64,7 +63,8 @@
                                         {{ $slide->tagline }}</p>
                                 </div>
                             </div>
-                            <div class="slideshow-text container position-absolute start-50 top-50 translate-middle">
+                            <div class="slideshow-text container position-absolute start-50 translate-middle"
+                                style="top: 40%;">
                                 <h6
                                     class="text_dash text-uppercase fs-base fw-medium animate animate_fade animate_btt animate_delay-3">
                                     {{ $slide->tagline }}</h6>
@@ -83,11 +83,12 @@
             </div>
 
             <div class="container">
-                <div
-                    class="slideshow-pagination slideshow-number-pagination d-flex align-items-center position-absolute bottom-0 mb-5">
+                <div class="slideshow-pagination slideshow-number-pagination d-flex align-items-center position-absolute bottom-0 mb-5"
+                    style="bottom: 10px !important;">
                 </div>
             </div>
         </section>
+
         <div class="container mw-1620 bg-white border-radius-10">
             <div class="mb-3 mb-xl-5 pt-1 pb-4"></div>
             <section class="category-carousel container">
