@@ -768,21 +768,6 @@
                 margin-right: 0 !important;
             }
 
-            /* Reset flex properties */
-            .row-cols-2 {
-                display: flex !important;
-                flex-wrap: wrap !important;
-            }
-
-            .row-cols-2>* {
-                flex: 0 0 auto !important;
-                width: 50% !important;
-            }
-
-            /* Membuat slider terlihat baik */
-            .swiper-container {
-                overflow: hidden !important;
-            }
         }
     </style>
 
@@ -845,7 +830,7 @@
     }
 </style>
 
-<style>
+{{-- <style>
     /* Perbaikan posisi card agar seimbang di tengah pada mobile */
     @media (max-width: 767.98px) {
         /* Grid layout pusat dengan spacing yang sama */
@@ -907,7 +892,7 @@
             padding-right: 0 !important;
         }
     }
-</style>
+</style> --}}
     <main class="pt-90">
         <section class="shop-main container d-flex pt-4 pt-xl-5">
             <div class="shop-sidebar side-sticky bg-body" id="shopFilter">
@@ -1166,9 +1151,7 @@
                                             BANK KOPERASI<br /><strong>ECENG GONDOK</strong></h2>
                                         <p class="mb-0 animate animate_fade animate_btt animate_delay-5">
                                             Bank Koperasi Eceng Gondok hadir untuk menggerakkan perekonomian bersama melalui
-                                            layanan keuangan yang inovatif dan terpercaya. Bergabunglah bersama kami untuk
-                                            meraih kemudahan dalam pengelolaan keuangan dan mewujudkan masa depan yang lebih
-                                            cerah.
+                                            layanan keuangan yang inovatif dan terpercaya.
                                         </p>
                                     </div>
                                 </div>
