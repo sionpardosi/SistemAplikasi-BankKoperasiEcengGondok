@@ -45,24 +45,24 @@
         @media (max-width: 767.98px) {
 
             /* Mengatur tinggi slider & memindahkan ke atas */
-            /* .swiper-container.slideshow {
+            .swiper-container.slideshow {
                 min-height: 420px !important;
                 margin-top: -20px !important;
-            } */
+            }
 
             /* Memindahkan konten teks ke atas */
-            /* .slideshow-text.container {
+            .slideshow-text.container {
                 top: 35% !important;
                 transform: translate(-50%, -35%) !important;
                 padding: 0 15px !important;
                 width: 100% !important;
-            } */
+            }
 
             /* Menyesuaikan ukuran teks */
-            /* .slideshow-text h6.text_dash {
+            .slideshow-text h6.text_dash {
                 font-size: 0.8rem !important;
                 margin-bottom: 5px !important;
-            } */
+            }
 
             /* .slideshow-text h2.h1 {
                 font-size: 1.5rem !important;
@@ -71,16 +71,16 @@
             } */
 
             /* Mengatur posisi gambar */
-            /* .slideshow-character {
+            .slideshow-character {
                 bottom: 0 !important;
                 width: 45% !important;
                 right: 0 !important;
-            } */
+            }
 
-            /* .slideshow-character__img {
+            .slideshow-character__img {
                 max-height: 220px !important;
                 object-fit: contain !important;
-            } */
+            }
 
             /* Pindahkan pagination ke atas sedikit */
             /* .slideshow-pagination.slideshow-number-pagination {
