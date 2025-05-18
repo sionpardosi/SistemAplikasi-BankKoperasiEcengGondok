@@ -1,11 +1,11 @@
-    <?php
+<?php
 
     namespace App\Http\Controllers\Auth;
 
     use App\Http\Controllers\Controller;
     use App\Http\Controllers\WishlistController;
     use Illuminate\Foundation\Auth\AuthenticatesUsers;
-    use Illuminate\Http\Request;               // ← Tambahkan ini
+    use Illuminate\Http\Request;
     use Illuminate\Support\Facades\Auth;
 
     class LoginController extends Controller
