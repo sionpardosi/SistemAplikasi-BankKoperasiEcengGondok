@@ -52,6 +52,12 @@
 
         protected function authenticated(Request $request, $user)
         {
+            // Regenerasi ID session setelah login untuk mencegah session fixation attack
+            $request->session()->regenerate();
+
+            // Kode yang sudah ada tetap dipertahankan
+            $form = $request->session()->pull('post_login_redirect');
+
             // Ambil dan hapus flag form dari session :contentReference[oaicite:5]{index=5}
             $form = $request->session()->pull('post_login_redirect');
 
