@@ -5,6 +5,10 @@
         .text-danger {
             color: #e53935 !important;
         }
+
+        .grecaptcha-badge {
+            visibility: hidden;
+        }
     </style>
     <main class="pt-90">
         <div class="mb-4 pb-4"></div>
