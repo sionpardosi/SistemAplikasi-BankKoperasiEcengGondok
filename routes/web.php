@@ -18,6 +18,7 @@ use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\StokBahanBakuController;
 use App\Http\Controllers\SupplierRequestController;
 use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\PenjadwalanPenjemputanController;
 
 
@@ -43,7 +44,8 @@ Route::post('/api/rajaongkir/calculate', 'RajaOngkirController@calculateShipping
 // ====================================================================================================
 // Halaman Verifikasi Email
 // ====================================================================================================
-Route::post('/verification/send', [App\Http\Controllers\Auth\EmailVerificationController::class, 'sendVerificationCode'])->name('verification.send');
+// Ubah route register menjadi:
+Route::post('/verification/send', [EmailVerificationController::class, 'sendVerificationCode'])->middleware('recaptcha')->name('verification.send');
 // Rute untuk menampilkan form verifikasi email
 Route::get('/verification/form', [App\Http\Controllers\Auth\EmailVerificationController::class, 'showVerificationForm'])->name('verification.form');
 // Rute untuk memverifikasi kode yang dikirimkan ke email

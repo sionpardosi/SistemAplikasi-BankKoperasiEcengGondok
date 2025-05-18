@@ -179,6 +179,17 @@
                                 Google berlaku.
                             </small>
                         </div>
+
+                        <div class="password-feedback mt-1" id="password-feedback-container">
+                            <small class="text-muted">Kata sandi harus:</small>
+                            <ul class="small mb-0 ps-3" id="password-feedback">
+                                <li>Minimal 8 karakter</li>
+                                <li>Mengandung huruf kecil</li>
+                                <li>Mengandung huruf besar</li>
+                                <li>Mengandung angka</li>
+                                <li>Mengandung karakter khusus</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -236,32 +247,77 @@
                 const strengthBar = document.getElementById('password-strength-bar');
                 const strengthText = document.getElementById('password-strength-text');
 
-                // Password strength calculation
+                // Di dalam script yang sudah ada
                 function checkPasswordStrength(password) {
                     let strength = 0;
-                    if (password.length >= 8) strength += 20;
-                    if (password.match(/[a-z]+/)) strength += 20;
-                    if (password.match(/[A-Z]+/)) strength += 20;
-                    if (password.match(/[0-9]+/)) strength += 20;
-                    if (password.match(/[^a-zA-Z0-9]+/)) strength += 20;
+                    const feedback = [];
 
-                    return strength;
+                    // Panjang minimal 8 karakter
+                    if (password.length >= 8) {
+                        strength += 20;
+                    } else {
+                        feedback.push("Minimal 8 karakter");
+                    }
+
+                    // Harus mengandung huruf kecil
+                    if (password.match(/[a-z]+/)) {
+                        strength += 20;
+                    } else {
+                        feedback.push("Tambahkan huruf kecil");
+                    }
+
+                    // Harus mengandung huruf besar
+                    if (password.match(/[A-Z]+/)) {
+                        strength += 20;
+                    } else {
+                        feedback.push("Tambahkan huruf besar");
+                    }
+
+                    // Harus mengandung angka
+                    if (password.match(/[0-9]+/)) {
+                        strength += 20;
+                    } else {
+                        feedback.push("Tambahkan angka");
+                    }
+
+                    // Harus mengandung karakter khusus
+                    if (password.match(/[^a-zA-Z0-9]+/)) {
+                        strength += 20;
+                    } else {
+                        feedback.push("Tambahkan karakter khusus");
+                    }
+
+                    return {
+                        strength,
+                        feedback
+                    };
                 }
 
-                // Update strength meter
+                // Update the password strength meter
                 passwordInput.addEventListener('input', function() {
-                    const strength = checkPasswordStrength(this.value);
+                    const {
+                        strength,
+                        feedback
+                    } = checkPasswordStrength(this.value);
                     strengthBar.style.width = strength + '%';
 
                     if (strength < 40) {
                         strengthBar.className = 'progress-bar bg-danger';
-                        strengthText.textContent = 'Lemah';
+                        strengthText.innerHTML = '<span class="text-danger">Lemah</span>';
                     } else if (strength < 80) {
                         strengthBar.className = 'progress-bar bg-warning';
-                        strengthText.textContent = 'Sedang';
+                        strengthText.innerHTML = '<span class="text-warning">Sedang</span>';
                     } else {
                         strengthBar.className = 'progress-bar bg-success';
-                        strengthText.textContent = 'Kuat';
+                        strengthText.innerHTML = '<span class="text-success">Kuat</span>';
+                    }
+
+                    // Display feedback
+                    const feedbackList = document.getElementById('password-feedback');
+                    if (feedbackList) {
+                        feedbackList.innerHTML = feedback.length > 0 ?
+                            feedback.map(item => `<li>${item}</li>`).join('') :
+                            '<li class="text-success">Kata sandi memenuhi semua persyaratan</li>';
                     }
                 });
 
