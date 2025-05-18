@@ -178,6 +178,44 @@
     </main>
 
     @push('scripts')
+        <!-- Load reCAPTCHA v3 JavaScript -->
+        <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Kode JavaScript yang sudah ada tetap dipertahankan
+
+                // reCAPTCHA handling
+                const form = document.querySelector('.needs-validation');
+                form.addEventListener('submit', function(event) {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    } else {
+                        event.preventDefault();
+
+                        // Execute reCAPTCHA
+                        grecaptcha.execute('{{ env('RECAPTCHA_SITE_KEY') }}', {
+                                action: 'register'
+                            })
+                            .then(function(token) {
+                                // Add token to form
+                                let recaptchaInput = document.createElement('input');
+                                recaptchaInput.setAttribute('type', 'hidden');
+                                recaptchaInput.setAttribute('name', 'g-recaptcha-response');
+                                recaptchaInput.setAttribute('value', token);
+                                form.appendChild(recaptchaInput);
+
+                                // Submit form
+                                form.submit();
+                            });
+                    }
+
+                    form.classList.add('was-validated');
+                });
+            });
+        </script>
+
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // Form validation
