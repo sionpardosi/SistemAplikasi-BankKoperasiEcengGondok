@@ -22,23 +22,30 @@ class VerifyRecaptcha
             return $next($request);
         }
 
-        // Verify reCAPTCHA
-        if ($request->has('g-recaptcha-response')) {
-            $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
-                'secret' => env('RECAPTCHA_SECRET_KEY'),
-                'response' => $request->input('g-recaptcha-response'),
-                'remoteip' => $request->ip()
-            ]);
-
-            $body = $response->json();
-
-            if ($body['success'] && $body['score'] >= 0.5 && $body['action'] === 'register') {
-                return $next($request);
-            }
+        // Periksa apakah response reCAPTCHA ada
+        if (!$request->has('g-recaptcha-response') || empty($request->input('g-recaptcha-response'))) {
+            return redirect()->back()
+                ->withInput($request->except('password', 'password_confirmation'))
+                ->withErrors(['g-recaptcha-response' => 'Silakan verifikasi bahwa Anda bukan robot.']);
         }
 
+        // Verifikasi reCAPTCHA secara manual menggunakan HTTP request
+        $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => env('NOCAPTCHA_SECRET'),
+            'response' => $request->input('g-recaptcha-response'),
+            'remoteip' => $request->ip()
+        ]);
+
+        $body = $response->json();
+
+        // Jika verifikasi berhasil
+        if (isset($body['success']) && $body['success']) {
+            return $next($request);
+        }
+
+        // Jika verifikasi gagal
         return redirect()->back()
             ->withInput($request->except('password', 'password_confirmation'))
-            ->with('error', 'Verifikasi keamanan gagal. Silakan coba lagi.');
+            ->withErrors(['g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal. Silakan coba lagi.']);
     }
 }

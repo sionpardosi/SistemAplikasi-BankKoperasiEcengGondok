@@ -107,7 +107,7 @@
                                     </span>
                                 @else
                                     <div class="invalid-feedback">
-                                        Kata sandi minimal 8 karakter dengan kombinasi huruf besar, kecil, angka, dan karakter khusus
+                                        Kata sandi minimal 8 karakter
                                     </div>
                                     <div class="password-strength mt-1" id="password-strength">
                                         <div class="progress" style="height: 5px;">
@@ -116,16 +116,6 @@
                                             </div>
                                         </div>
                                         <small class="text-muted" id="password-strength-text">Kekuatan kata sandi</small>
-                                    </div>
-                                    <div class="password-feedback mt-1" id="password-feedback-container">
-                                        <small class="text-muted">Kata sandi harus:</small>
-                                        <ul class="small mb-0 ps-3" id="password-feedback">
-                                            <li>Minimal 8 karakter</li>
-                                            <li>Mengandung huruf kecil</li>
-                                            <li>Mengandung huruf besar</li>
-                                            <li>Mengandung angka</li>
-                                            <li>Mengandung karakter khusus</li>
-                                        </ul>
                                     </div>
                                 @enderror
                             </div>
@@ -171,14 +161,6 @@
                                 <i class="fa fa-arrow-right ms-2"></i>
                             </button>
 
-                            <div class="mt-3 text-center">
-                                <small class="text-muted">
-                                    Situs ini dilindungi oleh reCAPTCHA dan
-                                    <a href="https://policies.google.com/privacy" target="_blank">Kebijakan Privasi</a>
-                                    serta <a href="https://policies.google.com/terms" target="_blank">Persyaratan Layanan</a> Google berlaku.
-                                </small>
-                            </div>
-
                             <div class="customer-option mt-4 text-center">
                                 <span class="text-secondary">Sudah punya akun?</span>
                                 <a href="{{ route('login') }}" class="btn-text js-show-register">Masuk ke Akun Anda</a>
@@ -192,9 +174,6 @@
     </main>
 
     @push('scripts')
-        <!-- Load reCAPTCHA v3 JavaScript -->
-        <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
-
         <script>
             document.addEventListener('DOMContentLoaded', function() {
                 // Form validation
@@ -206,72 +185,33 @@
                 const passwordConfirm = document.getElementById('password-confirm');
                 const strengthBar = document.getElementById('password-strength-bar');
                 const strengthText = document.getElementById('password-strength-text');
-                const feedbackList = document.getElementById('password-feedback');
 
                 // Password strength calculation
                 function checkPasswordStrength(password) {
                     let strength = 0;
-                    const feedback = [];
+                    if (password.length >= 8) strength += 20;
+                    if (password.match(/[a-z]+/)) strength += 20;
+                    if (password.match(/[A-Z]+/)) strength += 20;
+                    if (password.match(/[0-9]+/)) strength += 20;
+                    if (password.match(/[^a-zA-Z0-9]+/)) strength += 20;
 
-                    // Minimal 8 karakter
-                    if (password.length >= 8) {
-                        strength += 20;
-                    } else {
-                        feedback.push("Minimal 8 karakter");
-                    }
-
-                    // Harus mengandung huruf kecil
-                    if (password.match(/[a-z]+/)) {
-                        strength += 20;
-                    } else {
-                        feedback.push("Tambahkan huruf kecil");
-                    }
-
-                    // Harus mengandung huruf besar
-                    if (password.match(/[A-Z]+/)) {
-                        strength += 20;
-                    } else {
-                        feedback.push("Tambahkan huruf besar");
-                    }
-
-                    // Harus mengandung angka
-                    if (password.match(/[0-9]+/)) {
-                        strength += 20;
-                    } else {
-                        feedback.push("Tambahkan angka");
-                    }
-
-                    // Harus mengandung karakter khusus
-                    if (password.match(/[^a-zA-Z0-9]+/)) {
-                        strength += 20;
-                    } else {
-                        feedback.push("Tambahkan karakter khusus");
-                    }
-
-                    return { strength, feedback };
+                    return strength;
                 }
 
                 // Update strength meter
                 passwordInput.addEventListener('input', function() {
-                    const { strength, feedback } = checkPasswordStrength(this.value);
+                    const strength = checkPasswordStrength(this.value);
                     strengthBar.style.width = strength + '%';
 
                     if (strength < 40) {
                         strengthBar.className = 'progress-bar bg-danger';
-                        strengthText.innerHTML = '<span class="text-danger">Lemah</span>';
+                        strengthText.textContent = 'Lemah';
                     } else if (strength < 80) {
                         strengthBar.className = 'progress-bar bg-warning';
-                        strengthText.innerHTML = '<span class="text-warning">Sedang</span>';
+                        strengthText.textContent = 'Sedang';
                     } else {
                         strengthBar.className = 'progress-bar bg-success';
-                        strengthText.innerHTML = '<span class="text-success">Kuat</span>';
-                    }
-
-                    // Display feedback
-                    if (feedbackList) {
-                        feedbackList.innerHTML = feedback.length > 0
-                            ? feedback.map(item => `<li>${item}</li>`).join('')
-                            : '<li class="text-success">Kata sandi memenuhi semua persyaratan</li>';
+                        strengthText.textContent = 'Kuat';
                     }
                 });
 
@@ -305,37 +245,11 @@
                     }
                 });
 
-                // Form validation before submit with reCAPTCHA
+                // Form validation before submit
                 form.addEventListener('submit', function(event) {
                     if (!form.checkValidity()) {
                         event.preventDefault();
                         event.stopPropagation();
-                    } else {
-                        event.preventDefault();
-
-                        // Disable submit button to prevent multiple submissions
-                        submitButton.disabled = true;
-                        submitButton.innerHTML = '<span>Memproses...</span> <i class="fa fa-spinner fa-spin ms-2"></i>';
-
-                        // Execute reCAPTCHA
-                        grecaptcha.execute('{{ env('RECAPTCHA_SITE_KEY') }}', {action: 'register'})
-                            .then(function(token) {
-                                // Add token to form
-                                let recaptchaInput = document.createElement('input');
-                                recaptchaInput.setAttribute('type', 'hidden');
-                                recaptchaInput.setAttribute('name', 'g-recaptcha-response');
-                                recaptchaInput.setAttribute('value', token);
-                                form.appendChild(recaptchaInput);
-
-                                // Submit form
-                                form.submit();
-                            })
-                            .catch(function(error) {
-                                console.error('reCAPTCHA error:', error);
-                                submitButton.disabled = false;
-                                submitButton.innerHTML = '<span>Lanjutkan</span> <i class="fa fa-arrow-right ms-2"></i>';
-                                alert('Terjadi kesalahan saat memverifikasi keamanan. Silakan coba lagi.');
-                            });
                     }
 
                     form.classList.add('was-validated');
@@ -360,10 +274,6 @@
 
     @push('styles')
         <style>
-            .text-danger {
-                color: #e53935 !important;
-            }
-
             .btn-text {
                 color: #956a3b;
                 text-decoration: none;
@@ -456,16 +366,6 @@
                 background-color: #e9ecef;
             }
 
-            /* Password feedback list */
-            .password-feedback ul {
-                margin-top: 5px;
-                padding-left: 1.5rem;
-            }
-
-            .password-feedback li {
-                margin-bottom: 2px;
-            }
-
             /* Button styling */
             .btn-primary {
                 background-color: #956a3b;
@@ -503,11 +403,6 @@
 
             .btn-register:hover {
                 animation: button-pulse 1.5s infinite;
-            }
-
-            /* reCAPTCHA badge hiding */
-            .grecaptcha-badge {
-                visibility: hidden;
             }
         </style>
     @endpush

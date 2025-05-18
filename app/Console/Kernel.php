@@ -8,7 +8,7 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 class Kernel extends ConsoleKernel
 {
     /**
-     * Define the application's command schedule.
+     * Define the application's command schedule.   
      */
     protected function schedule(Schedule $schedule): void
     {
@@ -24,14 +24,4 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
-
-    protected $middlewareAliases = [
-        // Middleware lain yang sudah ada
-        'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
-    ];
-
-    protected $middleware = [
-        // Middleware lain yang sudah ada
-        \App\Http\Middleware\SecurityHeaders::class,
-    ];
 }
