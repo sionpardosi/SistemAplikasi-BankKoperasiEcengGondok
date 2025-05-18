@@ -25,8 +25,13 @@ class Kernel extends ConsoleKernel
         require base_path('routes/console.php');
     }
 
-    protected $routeMiddleware = [
+    protected $middlewareAliases = [
         // Middleware lain yang sudah ada
         'recaptcha' => \App\Http\Middleware\VerifyRecaptcha::class,
+    ];
+
+    protected $middleware = [
+        // Middleware lain yang sudah ada
+        \App\Http\Middleware\SecurityHeaders::class,
     ];
 }

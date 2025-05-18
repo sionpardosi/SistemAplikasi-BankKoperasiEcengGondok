@@ -44,9 +44,9 @@ Route::post('/api/rajaongkir/calculate', 'RajaOngkirController@calculateShipping
 // ====================================================================================================
 // Halaman Verifikasi Email
 // ====================================================================================================
-// Ubah route register menjadi:
-Route::post('/verification/send', [EmailVerificationController::class, 'sendVerificationCode'])->middleware('recaptcha')->name('verification.send');
-// Rute untuk menampilkan form verifikasi email
+Route::post('/verification/send', [EmailVerificationController::class, 'sendVerificationCode'])
+    ->middleware(['recaptcha', 'throttle:5,1'])
+    ->name('verification.send');// Rute untuk menampilkan form verifikasi email
 Route::get('/verification/form', [App\Http\Controllers\Auth\EmailVerificationController::class, 'showVerificationForm'])->name('verification.form');
 // Rute untuk memverifikasi kode yang dikirimkan ke email
 Route::post('/verification/verify-code', [App\Http\Controllers\Auth\EmailVerificationController::class, 'verifyCode'])->name('verification.verify-code');
