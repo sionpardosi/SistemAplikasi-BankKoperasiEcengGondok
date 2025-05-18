@@ -325,7 +325,8 @@
             color: var(--primary);
         }
 
-        .address-detail, .shipping-detail {
+        .address-detail,
+        .shipping-detail {
             background-color: #f9f7f5;
             border-radius: 12px;
             padding: 20px;
@@ -697,9 +698,10 @@
                             <div class="recipient-name">{{ $order->name }}</div>
                             <p><i class="fas fa-map-marker-alt"></i> <span>{{ $order->address }}</span></p>
                             <p><i class="fas fa-road"></i> <span>{{ $order->locality }}</span></p>
-                            <p><i class="fas fa-city"></i> <span>{{ $order->city }}, {{ $order->state }}, {{ $order->zip }}</span></p>
+                            <p><i class="fas fa-city"></i> <span>{{ $order->city }}, {{ $order->state }},
+                                    {{ $order->zip }}</span></p>
                             <p><i class="fas fa-phone"></i> <span>{{ $order->phone }}</span></p>
-                            @if($order->landmark)
+                            @if ($order->landmark)
                                 <p><i class="fas fa-landmark"></i> <span>Patokan: {{ $order->landmark }}</span></p>
                             @endif
                         </div>
@@ -714,9 +716,11 @@
                                         $courierNames = [
                                             'jne' => 'JNE',
                                             'pos' => 'POS Indonesia',
-                                            'tiki' => 'TIKI'
+                                            'tiki' => 'TIKI',
                                         ];
-                                        $courierName = isset($courierNames[$order->kurir]) ? $courierNames[$order->kurir] : strtoupper($order->kurir);
+                                        $courierName = isset($courierNames[$order->kurir])
+                                            ? $courierNames[$order->kurir]
+                                            : strtoupper($order->kurir);
                                     @endphp
                                     {{ $courierName }}
                                 </p>
@@ -751,10 +755,12 @@
                             @foreach ($order->orderItems as $item)
                                 <div class="order-product-item">
                                     <div class="order-product-item__image">
-                                        @if($item->product && $item->product->image)
-                                            <img src="{{ asset('assets/imgs/products/'.$item->product->image) }}" alt="{{ $item->product->name }}">
+                                        @if ($item->product && $item->product->image)
+                                            <img src="{{ asset('assets/imgs/products/' . $item->product->image) }}"
+                                                alt="{{ $item->product->name }}">
                                         @else
-                                            <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f0f0f0;">
+                                            <div
+                                                style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f0f0f0;">
                                                 <i class="fas fa-image" style="font-size:24px;color:#ccc;"></i>
                                             </div>
                                         @endif
@@ -766,11 +772,18 @@
                                                 <i class="fas fa-box"></i> Jumlah: {{ $item->quantity }}
                                             </span>
 
-                                            @if(isset($item->options) && !empty($item->options))
-                                                @php $options = json_decode($item->options, true); @endphp
-                                                @if(isset($options['size_name']))
+                                            @if ($item->options)
+                                                @php
+                                                    if (is_string($item->options)) {
+                                                        $options = json_decode($item->options, true);
+                                                    } else {
+                                                        $options = $item->options;
+                                                    }
+                                                @endphp
+                                                @if (isset($options['size_name']))
                                                     <span class="order-product-item__meta-item">
-                                                        <i class="fas fa-ruler-combined"></i> Ukuran: {{ $options['size_name'] }}
+                                                        <i class="fas fa-ruler-combined"></i> Ukuran:
+                                                        {{ $options['size_name'] }}
                                                     </span>
                                                 @endif
                                             @endif
@@ -792,11 +805,11 @@
                                         <th>Subtotal Produk</th>
                                         <td>{{ formatRupiah($order->subtotal) }}</td>
                                     </tr>
-                                    @if($order->discount > 0)
-                                    <tr>
-                                        <th>Diskon</th>
-                                        <td>-{{ formatRupiah($order->discount) }}</td>
-                                    </tr>
+                                    @if ($order->discount > 0)
+                                        <tr>
+                                            <th>Diskon</th>
+                                            <td>-{{ formatRupiah($order->discount) }}</td>
+                                        </tr>
                                     @endif
                                     <tr>
                                         <th>Ongkos Kirim</th>
@@ -812,13 +825,20 @@
 
                         <!-- Payment Button -->
                         <div class="payment-actions">
-                            <button id="pay-button" class="btn-pay">
-                                <i class="fas fa-credit-card"></i> BAYAR SEKARANG
-                            </button>
+                            @if ($order->transaction && $order->transaction->status === 'pending')
+                                <button id="pay-button" class="btn-pay">
+                                    <i class="fas fa-credit-card"></i> BAYAR SEKARANG
+                                </button>
 
-                            <div class="payment-info">
-                                <i class="fas fa-info-circle"></i> Setelah pembayaran berhasil, pesanan Anda akan segera diproses. Detil pembayaran dan status pesanan dapat dilihat di halaman akun Anda.
-                            </div>
+                                <div class="payment-info">
+                                    <i class="fas fa-info-circle"></i> Setelah pembayaran berhasil, pesanan Anda akan segera
+                                    diproses. Detil pembayaran dan status pesanan dapat dilihat di halaman akun Anda.
+                                </div>
+                            @else
+                                <a href="{{ route('account-orders') }}" class="btn-pay">
+                                    <i class="fas fa-user"></i> LIHAT PESANAN SAYA
+                                </a>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -826,36 +846,38 @@
         </section>
     </main>
 
-    <!-- Midtrans Script -->
-    <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
-    <script type="text/javascript">
-        document.getElementById('pay-button').addEventListener('click', function() {
-            snap.pay('{{ $snaptoken }}', {
-                onSuccess: function(result) {
-                    console.log("Success", result);
-                    alert("Pembayaran berhasil!");
-                    window.location.href = '{{ url('payment_success') }}';
-                },
-                onPending: function(result) {
-                    console.log("Pending", result);
-                    alert("Pembayaran sedang diproses.");
-                    window.location.href = '{{ url('payment_pending') }}';
-                },
-                onError: function(result) {
-                    console.log("Error", result);
-                    alert("Terjadi kesalahan saat pembayaran.");
-                },
-                onClose: function() {
-                    alert("Anda menutup popup tanpa menyelesaikan pembayaran.");
-                }
+    @if ($order->transaction && $order->transaction->snap_token && $order->transaction->status === 'pending')
+        <!-- Midtrans Script -->
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}">
+        </script>
+        <script type="text/javascript">
+            document.getElementById('pay-button').addEventListener('click', function() {
+                snap.pay('{{ $order->transaction->snap_token }}', {
+                    onSuccess: function(result) {
+                        console.log("Success", result);
+                        alert("Pembayaran berhasil!");
+                        window.location.href = '{{ url('payment_success') }}';
+                    },
+                    onPending: function(result) {
+                        console.log("Pending", result);
+                        alert("Pembayaran sedang diproses.");
+                        window.location.href = '{{ url('payment_pending') }}';
+                    },
+                    onError: function(result) {
+                        console.log("Error", result);
+                        alert("Terjadi kesalahan saat pembayaran.");
+                    },
+                    onClose: function() {
+                        alert("Anda menutup popup tanpa menyelesaikan pembayaran.");
+                    }
+                });
             });
-        });
-    </script>
+        </script>
+    @endif
 
     @push('scripts')
         <!-- JavaScript for Step Navigation -->
         <script>
-            // Script untuk mengelola navigasi langkah checkout
             document.addEventListener('DOMContentLoaded', function() {
                 // Pada halaman konfirmasi, set langkah ke-3
                 updateCheckoutStep(3);
