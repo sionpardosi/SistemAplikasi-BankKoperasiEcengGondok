@@ -11,6 +11,9 @@ use Illuminate\Support\Facades\Log;
 
 class MidtransCallbackController extends Controller
 {
+    /**
+     * Perbaikan pada metode MidtransCallbackController
+     */
     public function handle(Request $request)
     {
         $payload = json_decode($request->getContent(), true);
@@ -51,8 +54,8 @@ class MidtransCallbackController extends Controller
             switch ($transactionStatus) {
                 case 'capture':
                 case 'settlement':
-                    // Update transaksi dan order status
-                    $transaction->status = 'paid';
+                    // Update transaksi dan order status setelah pembayaran sukses
+                    $transaction->status = 'approved';  // Ubah 'paid' menjadi 'approved' untuk konsistensi
                     $transaction->save();
 
                     $order->status = 'confirmed';
@@ -81,8 +84,8 @@ class MidtransCallbackController extends Controller
                 case 'expire':
                 case 'cancel':
                 case 'deny':
-                    // Update transaksi dan order status
-                    $transaction->status = 'failed';
+                    // Update transaksi dan order status untuk pembayaran yang gagal
+                    $transaction->status = 'declined';  // Ubah 'failed' menjadi 'declined' untuk konsistensi
                     $transaction->save();
 
                     $order->status = 'canceled';

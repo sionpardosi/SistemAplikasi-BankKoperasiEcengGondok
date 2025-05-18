@@ -315,16 +315,39 @@ class CartController extends Controller
     }
 
     // ----------------------------- Calculate Discount For Selected Items --------------------------------
+    /**
+     * Perubahan pada fungsi calculateDiscountForSelectedItems
+     * untuk mengatasi item yang tidak ada di keranjang
+     */
     public function calculateDiscountForSelectedItems($selectedItems)
     {
         $subtotal = 0;
+        $validItems = [];
 
-        // Hitung subtotal dari item yang dipilih
+        // Hitung subtotal dari item yang dipilih dan masih ada di keranjang
         foreach ($selectedItems as $rowId) {
-            $item = Cart::instance('cart')->get($rowId);
-            if ($item) {
-                $subtotal += $item->subtotal(0, '', '');
+            try {
+                $item = Cart::instance('cart')->get($rowId);
+                if ($item) {
+                    $subtotal += $item->subtotal(0, '', '');
+                    $validItems[] = $rowId;
+                }
+            } catch (\Surfsidemedia\Shoppingcart\Exceptions\InvalidRowIDException $e) {
+                // Item tidak ditemukan di keranjang, skip item ini
+                continue;
             }
+        }
+
+        // Jika tidak ada item valid, kembalikan nilai default
+        if (empty($validItems)) {
+            return [
+                'subtotal' => 0,
+                'discount' => 0,
+                'subtotalAfterDiscount' => 0,
+                'tax' => 0,
+                'total' => 0,
+                'validItems' => $validItems
+            ];
         }
 
         $discount = 0;
@@ -347,10 +370,10 @@ class CartController extends Controller
             'discount' => $discount,
             'subtotalAfterDiscount' => $subtotalAfterDiscount,
             'tax' => $taxAfterDiscount,
-            'total' => $totalAfterDiscount
+            'total' => $totalAfterDiscount,
+            'validItems' => $validItems
         ];
     }
-
     // Remove Coupon
     public function remove_coupon_code()
     {
@@ -364,6 +387,10 @@ class CartController extends Controller
     // CHECKOUT // ------------------------ Checkout Page -------------------------------------------------
     // ====================================================================================================
 
+    /**
+     * Perubahan pada fungsi checkout
+     * untuk mengatasi item yang tidak ada di keranjang
+     */
     public function checkout(Request $request)
     {
         if (!Auth::check()) {
@@ -373,23 +400,16 @@ class CartController extends Controller
         // Ambil item yang dipilih dari request
         $selectedItems = $request->has('selected_items') ? json_decode($request->selected_items, true) : [];
 
-        // Jika tidak ada item yang dipilih, mungkin user mencoba akses langsung - redirect ke keranjang
-        if (empty($selectedItems)) {
-            // Cek apakah ada item di keranjang
-            if (Cart::instance('cart')->count() === 0) {
-                return redirect()->route('cart.index')->with('error', 'Keranjang Anda kosong');
-            }
+        // Proses item yang dipilih dan dapatkan hanya item valid yang masih ada di keranjang
+        $validItems = $this->setAmountForCheckoutSelectedItems($selectedItems);
 
-            // Jika tidak ada item yang dipilih tetapi ada item di keranjang,
-            // gunakan semua item (untuk backward compatibility)
-            $selectedItems = Cart::instance('cart')->content()->pluck('rowId')->toArray();
+        // Jika tidak ada item valid, redirect ke keranjang dengan pesan error
+        if (empty($validItems)) {
+            return redirect()->route('cart.index')->with('error', 'Item yang dipilih tidak ditemukan di keranjang. Silakan pilih item lagi.');
         }
 
-        // Simpan item yang dipilih di session untuk digunakan saat checkout
-        session()->put('selected_cart_items', $selectedItems);
-
-        // Hitung ulang dan simpan jumlah untuk checkout berdasarkan item yang dipilih
-        $this->setAmountForCheckoutSelectedItems($selectedItems);
+        // Simpan item yang valid di session untuk digunakan saat checkout
+        session()->put('selected_cart_items', $validItems);
 
         // Ambil alamat default user
         $address = Address::where('user_id', Auth::user()->id)->where('isdefault', true)->first();
@@ -404,10 +424,15 @@ class CartController extends Controller
 
         // Hitung total berat dari item yang dipilih (asumsi 500g per item)
         $weight = 0;
-        foreach ($selectedItems as $rowId) {
-            $item = Cart::instance('cart')->get($rowId);
-            if ($item) {
-                $weight += (500 * $item->qty); // 500g per item
+        foreach ($validItems as $rowId) {
+            try {
+                $item = Cart::instance('cart')->get($rowId);
+                if ($item) {
+                    $weight += (500 * $item->qty); // 500g per item
+                }
+            } catch (\Exception $e) {
+                // Skip jika item tidak ditemukan
+                continue;
             }
         }
 
@@ -430,22 +455,37 @@ class CartController extends Controller
     }
 
     // ----------------- Set Amount For Checkout Selected Items ------------------------------------------
+    /**
+     * Perubahan pada fungsi setAmountForCheckoutSelectedItems
+     * untuk mengatasi item yang tidak ada di keranjang
+     */
     public function setAmountForCheckoutSelectedItems($selectedItems)
     {
         if (empty($selectedItems)) {
             session()->forget('checkout');
-            return;
+            return [];
         }
 
         $calculationResult = $this->calculateDiscountForSelectedItems($selectedItems);
 
+        // Jika tidak ada item valid, hapus checkout dari session
+        if (empty($calculationResult['validItems'])) {
+            session()->forget('checkout');
+            return [];
+        }
+
+        // Simpan hasil perhitungan ke session
         session()->put('checkout', [
             'discount' => $calculationResult['discount'],
             'subtotal' => $calculationResult['subtotal'],
             'tax' => $calculationResult['tax'],
             'total' => $calculationResult['total']
         ]);
+
+        // Kembalikan array item yang valid untuk diproses
+        return $calculationResult['validItems'];
     }
+
 
 
     // ====================================================================================================
@@ -479,6 +519,9 @@ class CartController extends Controller
     // ====================================================================================================
     // PLACE ORDER // ------------------------ Place Order -----------------------------------------------
     // ====================================================================================================
+    /**
+     * Perbaikan pada metode place_order di CartController.php
+     */
     public function place_order(Request $request)
     {
         $user_id = Auth::user()->id;
@@ -548,7 +591,10 @@ class CartController extends Controller
 
         // Gunakan rincian pembayaran yang sudah dihitung sebelumnya
         if (!session()->has('checkout')) {
-            $this->setAmountForCheckoutSelectedItems($selectedItems);
+            $validItems = $this->setAmountForCheckoutSelectedItems($selectedItems);
+            if (empty($validItems)) {
+                return redirect()->route('cart.index')->with('error', 'Item yang dipilih tidak ditemukan di keranjang. Silakan pilih item lagi.');
+            }
         }
 
         // Proses order
@@ -569,30 +615,45 @@ class CartController extends Controller
         $order->zip = $address->zip;
         $order->ongkir = $request->ongkir;
         $order->kurir = $request->kurir;
+        $order->status = 'pending'; // Pastikan status awal adalah pending
         $order->save();
 
         // Simpan hanya item yang dipilih sebagai order item
+        $validItems = [];
         foreach ($selectedItems as $rowId) {
-            $item = Cart::instance('cart')->get($rowId);
-            if ($item) {
-                $orderitem = new OrderItem();
-                $orderitem->product_id = $item->id;
-                $orderitem->order_id = $order->id;
-                $orderitem->price = $item->price;
-                $orderitem->quantity = $item->qty;
-                $orderitem->options = $item->options;
-                $orderitem->save();
+            try {
+                $item = Cart::instance('cart')->get($rowId);
+                if ($item) {
+                    $orderitem = new OrderItem();
+                    $orderitem->product_id = $item->id;
+                    $orderitem->order_id = $order->id;
+                    $orderitem->price = $item->price;
+                    $orderitem->quantity = $item->qty;
+                    $orderitem->options = $item->options;
+                    $orderitem->save();
 
-                // Hapus item dari keranjang setelah ditambahkan ke order
-                Cart::instance('cart')->remove($rowId);
+                    // Hapus item dari keranjang setelah ditambahkan ke order
+                    Cart::instance('cart')->remove($rowId);
 
-                // Hapus juga dari database jika user login
-                if (Auth::check()) {
-                    CartItem::where('user_id', $user_id)
-                        ->where('product_id', $item->id)
-                        ->delete();
+                    // Hapus juga dari database jika user login
+                    if (Auth::check()) {
+                        CartItem::where('user_id', $user_id)
+                            ->where('product_id', $item->id)
+                            ->delete();
+                    }
+
+                    $validItems[] = $rowId;
                 }
+            } catch (\Exception $e) {
+                // Skip item yang tidak ditemukan
+                continue;
             }
+        }
+
+        // Jika tidak ada item valid yang bisa diproses, batalkan order
+        if (empty($validItems)) {
+            $order->delete();
+            return redirect()->route('cart.index')->with('error', 'Tidak ada produk yang valid untuk diproses');
         }
 
         // Gunakan invoice sebagai order_id yang tetap
@@ -635,13 +696,13 @@ class CartController extends Controller
             }
         }
 
-        // Simpan transaksi
+        // Simpan transaksi dengan status 'pending'
         $transaction = [
             'user_id' => $user_id,
             'order_id' => $order->id,
             'invoice' => $invoice,
             'mode' => $request->mode,
-            'status' => 'pending',
+            'status' => 'pending', // Pastikan status awal transaksi adalah pending
             'snap_token' => $snapToken,
             'created_at' => now(),
             'updated_at' => now(),
@@ -665,20 +726,25 @@ class CartController extends Controller
         DB::beginTransaction();
         try {
             // Update reserved_quantity untuk setiap produk sesuai qty di order items
-            foreach ($selectedItems as $rowId) {
-                $item = Cart::instance('cart')->get($rowId);
-                if ($item) {
-                    $product = Product::lockForUpdate()->find($item->id); // Lock row untuk concurrency
-                    $availableStock = $product->quantity - $product->reserved_quantity;
+            foreach ($validItems as $rowId) {
+                try {
+                    $item = Cart::instance('cart')->get($rowId);
+                    if ($item) {
+                        $product = Product::lockForUpdate()->find($item->id); // Lock row untuk concurrency
+                        $availableStock = $product->quantity - $product->reserved_quantity;
 
-                    if ($item->qty > $availableStock) {
-                        DB::rollBack();
-                        return redirect()->back()->with('error', "Stok produk {$product->name} tidak cukup.");
+                        if ($item->qty > $availableStock) {
+                            DB::rollBack();
+                            return redirect()->back()->with('error', "Stok produk {$product->name} tidak cukup.");
+                        }
+
+                        // Tambah reserved_quantity
+                        $product->reserved_quantity += $item->qty;
+                        $product->save();
                     }
-
-                    // Tambah reserved_quantity
-                    $product->reserved_quantity += $item->qty;
-                    $product->save();
+                } catch (\Exception $e) {
+                    // Skip item yang tidak ditemukan
+                    continue;
                 }
             }
 
