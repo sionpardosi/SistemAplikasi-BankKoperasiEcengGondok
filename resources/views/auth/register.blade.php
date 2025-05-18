@@ -171,6 +171,14 @@
                             </div>
 
                         </form>
+                        <div class="mt-3 text-center">
+                            <small class="text-muted">
+                                Situs ini dilindungi oleh reCAPTCHA dan <a href="https://policies.google.com/privacy"
+                                    target="_blank">Kebijakan Privasi</a>
+                                serta <a href="https://policies.google.com/terms" target="_blank">Persyaratan Layanan</a>
+                                Google berlaku.
+                            </small>
+                        </div>
                     </div>
                 </div>
             </div>
