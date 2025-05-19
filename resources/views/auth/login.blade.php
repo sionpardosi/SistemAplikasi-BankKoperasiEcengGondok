@@ -29,79 +29,80 @@
                             @csrf
 
                             <div class="form-floating mb-4 input-group-custom">
-                                <input id="email" type="email"
-                                    class="form-control form-control_gray @error('email') is-invalid @enderror"
-                                    name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-                                <label for="email">Alamat Email <span class="text-danger">*</span></label>
-                                <span class="input-icon">
-                                    <i class="fa fa-envelope"></i>
-                                </span>
-                                @error('email')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
+                                <div class="form-floating mb-4 input-group-custom">
+                                    <input id="email" type="email"
+                                        class="form-control form-control_gray @error('email') is-invalid @enderror"
+                                        name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                                    <label for="email">Alamat Email <span class="text-danger">*</span></label>
+                                    <span class="input-icon">
+                                        <i class="fa fa-envelope"></i>
                                     </span>
-                                @else
-                                    <div class="invalid-feedback">
-                                        Masukkan alamat email yang valid
-                                    </div>
-                                @enderror
-                            </div>
-
-                            <div class="form-floating mb-4 password-container">
-                                <input id="password" type="password"
-                                    class="form-control form-control_gray @error('password') is-invalid @enderror"
-                                    name="password" required autocomplete="current-password">
-                                <label for="password">Kata Sandi <span class="text-danger">*</span></label>
-                                <span class="password-toggle" onclick="togglePassword('password')">
-                                    <i class="fa fa-eye-slash" id="password-icon"></i>
-                                </span>
-                                <span class="input-icon">
-                                    <i class="fa fa-lock"></i>
-                                </span>
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @else
-                                    <div class="invalid-feedback">
-                                        Kata sandi harus diisi
-                                    </div>
-                                @enderror
-                            </div>
-
-                            <div class="d-flex justify-content-between mb-4">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="remember"
-                                        {{ old('remember') ? 'checked' : '' }}>
-                                    <label class="form-check-label" for="remember">
-                                        Ingat saya
-                                    </label>
+                                    @error('email')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @else
+                                        <div class="invalid-feedback">
+                                            Alamat email harus diisi
+                                        </div>
+                                    @enderror
                                 </div>
-                                @if (Route::has('password.request'))
-                                    <a href="{{ route('password.request') }}" class="forgot-password-link">
-                                        Lupa kata sandi?
-                                    </a>
-                                @endif
-                            </div>
 
-                            <button class="btn btn-primary btn-login w-100 text-uppercase" type="submit">
-                                <span>Masuk Sekarang</span>
-                                <i class="fa fa-arrow-right ms-2"></i>
-                            </button>
+                                <div class="form-floating mb-4 password-container">
+                                    <input id="password" type="password"
+                                        class="form-control form-control_gray @error('password') is-invalid @enderror"
+                                        name="password" required autocomplete="current-password">
+                                    <label for="password">Kata Sandi <span class="text-danger">*</span></label>
+                                    <span class="password-toggle" onclick="togglePassword('password')">
+                                        <i class="fa fa-eye-slash" id="password-icon"></i>
+                                    </span>
+                                    <span class="input-icon">
+                                        <i class="fa fa-lock"></i>
+                                    </span>
+                                    @error('password')
+                                        <span class="invalid-feedback" role="alert">
+                                            <strong>{{ $message }}</strong>
+                                        </span>
+                                    @else
+                                        <div class="invalid-feedback">
+                                            Kata sandi harus diisi
+                                        </div>
+                                    @enderror
+                                </div>
 
-                            <div class="separator my-4">
-                                <span>atau</span>
-                            </div>
+                                <div class="d-flex justify-content-between mb-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="remember" id="remember"
+                                            {{ old('remember') ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="remember">
+                                            Ingat saya
+                                        </label>
+                                    </div>
+                                    @if (Route::has('password.request'))
+                                        <a href="{{ route('password.request') }}" class="forgot-password-link">
+                                            Lupa kata sandi?
+                                        </a>
+                                    @endif
+                                </div>
 
-                            <a href="{{ route('oauth.google') }}" class="btn btn-google w-100">
-                                <i class="fab fa-google me-2"></i>
-                                <span>Masuk dengan Google</span>
-                            </a>
+                                <button class="btn btn-primary btn-login w-100 text-uppercase" type="submit">
+                                    <span>Masuk Sekarang</span>
+                                    <i class="fa fa-arrow-right ms-2"></i>
+                                </button>
 
-                            <div class="customer-option mt-4 text-center">
-                                <span class="text-secondary">Belum punya akun?</span>
-                                <a href="{{ route('register') }}" class="btn-text">Buat Akun</a>
-                            </div>
+                                <div class="separator my-4">
+                                    <span>atau</span>
+                                </div>
+
+                                <a href="{{ route('oauth.google') }}" class="btn btn-google w-100">
+                                    <i class="fab fa-google me-2"></i>
+                                    <span>Masuk dengan Google</span>
+                                </a>
+
+                                <div class="customer-option mt-4 text-center">
+                                    <span class="text-secondary">Belum punya akun?</span>
+                                    <a href="{{ route('register') }}" class="btn-text">Buat Akun</a>
+                                </div>
                         </form>
                     </div>
                 </div>
