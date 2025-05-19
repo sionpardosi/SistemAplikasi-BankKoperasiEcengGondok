@@ -827,10 +827,13 @@
                             </thead>
                             <tbody>
                                 @foreach ($cartItems as $cartItem)
-                                    <tr class="cart-item-row" data-row-id="{{ $cartItem->rowId }}" data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}">
+                                    <tr class="cart-item-row" data-row-id="{{ $cartItem->rowId }}"
+                                        data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}">
                                         <td>
-                                            <input type="checkbox" class="cart-checkbox item-checkbox" name="selected_items[]" value="{{ $cartItem->rowId }}" checked
-                                                data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}" data-subtotal="{{ $cartItem->subtotal(0, '', '') }}">
+                                            <input type="checkbox" class="cart-checkbox item-checkbox"
+                                                name="selected_items[]" value="{{ $cartItem->rowId }}" checked
+                                                data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}"
+                                                data-subtotal="{{ $cartItem->subtotal(0, '', '') }}">
                                         </td>
                                         <td>
                                             <div class="shopping-cart__product-item">
@@ -842,11 +845,11 @@
                                         <td>
                                             <div class="shopping-cart__product-item__detail">
                                                 <h4>{{ $cartItem->name }}</h4>
-                                                @if(isset($cartItem->options['size_name']))
-                                                <div class="product-size-badge">
-                                                    <i class="fas fa-ruler-combined me-1"></i>
-                                                    Ukuran: {{ $cartItem->options['size_name'] }}
-                                                </div>
+                                                @if (isset($cartItem->options['size_name']))
+                                                    <div class="product-size-badge">
+                                                        <i class="fas fa-ruler-combined me-1"></i>
+                                                        Ukuran: {{ $cartItem->options['size_name'] }}
+                                                    </div>
                                                 @endif
                                             </div>
                                         </td>
@@ -916,8 +919,8 @@
                                     @csrf
                                     @method('DELETE')
                                     <input class="form-control text-success fw-bold" type="text" name="coupon_code"
-                                        placeholder="Kupon Diskon" value="{{ session()->get('coupon')['code'] }} diterapkan!"
-                                        readonly>
+                                        placeholder="Kupon Diskon"
+                                        value="{{ session()->get('coupon')['code'] }} diterapkan!" readonly>
                                     <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4 text-danger"
                                         type="submit" value="HAPUS KUPON">
                                 </form>
@@ -952,14 +955,16 @@
                                             </td>
                                         </tr>
                                         @if (Session::has('discounts'))
-                                        <tr>
-                                            <th>Diskon {{ Session('coupon')['code'] }}</th>
-                                            <td id="cart-discount">-{{ formatRupiah((float) Session('discounts')['discount']) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Subtotal Setelah Diskon</th>
-                                            <td id="cart-subtotal-after-discount">{{ formatRupiah((float) Session('discounts')['subtotal']) }}</td>
-                                        </tr>
+                                            <tr>
+                                                <th>Diskon {{ Session('coupon')['code'] }}</th>
+                                                <td id="cart-discount">
+                                                    -{{ formatRupiah((float) Session('discounts')['discount']) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Subtotal Setelah Diskon</th>
+                                                <td id="cart-subtotal-after-discount">
+                                                    {{ formatRupiah((float) Session('discounts')['subtotal']) }}</td>
+                                            </tr>
                                         @endif
                                         <tr>
                                             <th>Ongkos Kirim</th>
@@ -986,7 +991,8 @@
                                 <div class="button-wrapper container">
                                     <form id="checkout-form" action="{{ route('cart.checkout') }}" method="GET">
                                         <input type="hidden" name="selected_items" id="selected-items-input">
-                                        <button type="submit" class="btn btn-primary btn-checkout text-white w-100" id="checkout-btn"
+                                        <button type="submit" class="btn btn-primary btn-checkout text-white w-100"
+                                            id="checkout-btn"
                                             style="background-color: #956a3b; border-color: #956a3b; color: #ffffff;">
                                             LANJUTKAN KE PEMBAYARAN
                                         </button>
@@ -1082,7 +1088,7 @@
                     $('#cart-subtotal').text(formattedSubtotal);
 
                     // If there's a coupon, recalculate discount
-                    @if(Session::has('discounts'))
+                    @if (Session::has('discounts'))
                         const discount = calculateDiscount(subtotal);
                         const subtotalAfterDiscount = subtotal - discount;
 
@@ -1109,7 +1115,7 @@
 
                 // Calculate discount based on coupon type
                 function calculateDiscount(subtotal) {
-                    @if(Session::has('coupon'))
+                    @if (Session::has('coupon'))
                         const couponType = "{{ Session::get('coupon')['type'] }}";
                         const couponValue = parseFloat("{{ Session::get('coupon')['value'] }}");
 
@@ -1154,7 +1160,7 @@
 
                     // Update the cart via AJAX
                     $.ajax({
-                        url: '{{ url("/cart/update-qty") }}/' + rowId,
+                        url: '{{ url('/cart/update-qty') }}/' + rowId,
                         method: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
@@ -1165,7 +1171,8 @@
                             // Update subtotal display for this item
                             const price = parseFloat($(`tr[data-row-id="${rowId}"]`).data('price'));
                             const newSubtotal = price * newQty;
-                            $(`tr[data-row-id="${rowId}"] .shopping-cart__subtotal`).text(formatRupiah(newSubtotal));
+                            $(`tr[data-row-id="${rowId}"] .shopping-cart__subtotal`).text(
+                                formatRupiah(newSubtotal));
 
                             // Update checkbox data attribute
                             $(`input[value="${rowId}"]`).data('qty', newQty);
@@ -1280,6 +1287,589 @@
             .shipping-info span {
                 font-size: 14px;
                 color: #666;
+            }
+        </style>
+
+        <style>
+            /* ====== PREMIUM MOBILE CART UI - INSPIRED BY ZALORA & MODERN E-COMMERCE ====== */
+            @media (max-width: 768px) {
+
+                /* ===== BASE STYLING & TYPOGRAPHY ===== */
+                :root {
+                    --spacing-xs: 4px;
+                    --spacing-sm: 8px;
+                    --spacing-md: 16px;
+                    --spacing-lg: 24px;
+                    --spacing-xl: 32px;
+                }
+
+                body {
+                    -webkit-font-smoothing: antialiased;
+                    -moz-osx-font-smoothing: grayscale;
+                }
+
+                .container {
+                    padding-left: 16px;
+                    padding-right: 16px;
+                }
+
+                /* Elegant page header */
+                .page-title {
+                    font-size: 24px;
+                    font-weight: 600;
+                    letter-spacing: 0.5px;
+                    margin-top: 24px !important;
+                    margin-bottom: 16px !important;
+                    position: relative;
+                    padding-bottom: 16px;
+                }
+
+                .page-title:after {
+                    content: '';
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 36px;
+                    height: 3px;
+                    background: var(--primary);
+                    border-radius: 2px;
+                }
+
+                /* ===== MODERN CHECKOUT STEPS ===== */
+                .checkout-steps {
+                    margin-bottom: 24px;
+                    padding: 0 4px;
+                }
+
+                .checkout-steps__item {
+                    border-radius: 12px;
+                    padding: 14px 16px;
+                    margin-bottom: 10px;
+                    background-color: #f9f9f9;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+                    transition: all 0.25s ease;
+                }
+
+                .checkout-steps__item.active {
+                    background-color: rgba(149, 106, 59, 0.08);
+                    transform: translateY(-1px);
+                    box-shadow: 0 3px 10px rgba(149, 106, 59, 0.1);
+                }
+
+                .checkout-steps__item-number {
+                    width: 32px;
+                    height: 32px;
+                    font-size: 14px;
+                    margin: 0 12px 0 0;
+                    font-weight: 600;
+                }
+
+                .checkout-steps__item-title span {
+                    font-size: 15px;
+                    font-weight: 600;
+                }
+
+                /* ===== SELECT ALL CONTAINER ===== */
+                .select-all-container {
+                    display: flex;
+                    align-items: center;
+                    padding: 14px 16px;
+                    background-color: #ffffff;
+                    border-radius: 12px;
+                    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+                    margin-bottom: 14px;
+                    border: none;
+                }
+
+                .select-all-container label {
+                    font-size: 14px;
+                    font-weight: 500;
+                    margin-left: 10px;
+                }
+
+                .cart-checkbox {
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 4px;
+                }
+
+                /* ===== PRODUCT CARDS REDESIGN ===== */
+                .cart-table {
+                    display: block;
+                    border-collapse: separate;
+                    border-spacing: 0 12px;
+                }
+
+                .cart-table thead {
+                    display: none;
+                }
+
+                .cart-table tbody {
+                    display: block;
+                }
+
+                /* Premium card design */
+                .cart-table tbody tr {
+                    display: flex;
+                    flex-wrap: wrap;
+                    position: relative;
+                    background-color: #ffffff;
+                    border-radius: 14px;
+                    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+                    padding: 16px;
+                    margin-bottom: 16px;
+                    transition: transform 0.2s ease, box-shadow 0.2s ease;
+                    border: 1px solid rgba(0, 0, 0, 0.03);
+                }
+
+                .cart-table tbody tr:active {
+                    transform: scale(0.99);
+                }
+
+                .cart-table tbody td {
+                    border: none;
+                    padding: 0;
+                }
+
+                /* CHECKBOX - Top left position */
+                .cart-table tbody td:nth-child(1) {
+                    position: absolute;
+                    left: 12px;
+                    top: 12px;
+                    z-index: 5;
+                }
+
+                /* PRODUCT IMAGE - Clean with shadow and rounded corners */
+                .cart-table tbody td:nth-child(2) {
+                    width: 35%;
+                    padding-left: 30px;
+                    padding-top: 4px;
+                }
+
+                .shopping-cart__product-item img {
+                    width: 90px;
+                    height: 90px;
+                    object-fit: cover;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+                    transition: transform 0.3s ease;
+                }
+
+                /* PRODUCT TITLE & DETAILS - Clean typography */
+                .cart-table tbody td:nth-child(3) {
+                    width: 65%;
+                    padding-right: 30px;
+                    padding-bottom: 14px;
+                }
+
+                .shopping-cart__product-item__detail h4 {
+                    font-size: 15px;
+                    font-weight: 500;
+                    line-height: 1.4;
+                    color: #333;
+                    margin-bottom: 6px;
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                }
+
+                .product-size-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    background: rgba(149, 106, 59, 0.08);
+                    color: var(--primary);
+                    font-size: 12px;
+                    font-weight: 500;
+                    padding: 3px 8px;
+                    border-radius: 6px;
+                    letter-spacing: 0.2px;
+                }
+
+                .product-size-badge i {
+                    margin-right: 4px;
+                    font-size: 10px;
+                }
+
+                /* PRICE DISPLAY - Clear hierarchy */
+                .cart-table tbody td:nth-child(4) {
+                    width: 50%;
+                    margin-top: 6px;
+                    padding-left: 30px;
+                }
+
+                .cart-table tbody td:nth-child(4)::before {
+                    content: "Harga";
+                    display: block;
+                    font-size: 12px;
+                    color: #888;
+                    margin-bottom: 4px;
+                    font-weight: 500;
+                }
+
+                .shopping-cart__product-price {
+                    font-size: 15px;
+                    font-weight: 600;
+                    color: #333;
+                }
+
+                /* QUANTITY SELECTOR - Thumb-friendly */
+                .cart-table tbody td:nth-child(5) {
+                    width: 100%;
+                    margin-top: 16px;
+                    padding-left: 30px;
+                }
+
+                .cart-table tbody td:nth-child(5)::before {
+                    content: "Jumlah";
+                    display: block;
+                    font-size: 12px;
+                    color: #888;
+                    margin-bottom: 6px;
+                    font-weight: 500;
+                }
+
+                .qty-control {
+                    width: 120px;
+                    height: 40px;
+                    border-radius: 8px;
+                    display: flex;
+                    align-items: center;
+                    background-color: #f7f7f7;
+                    overflow: hidden;
+                    border: 1px solid #eeeeee;
+                }
+
+                .qty-input {
+                    flex: 1;
+                    height: 100%;
+                    border: none;
+                    text-align: center;
+                    font-size: 15px;
+                    font-weight: 500;
+                    color: #333;
+                    background-color: transparent;
+                }
+
+                .qty-control__reduce,
+                .qty-control__increase {
+                    width: 40px;
+                    height: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                    font-weight: 500;
+                    color: #666;
+                    user-select: none;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    position: relative;
+                }
+
+                /* Modern + - buttons with visual feedback */
+                .qty-control__reduce:after,
+                .qty-control__increase:after {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background-color: var(--primary);
+                    opacity: 0;
+                    transition: opacity 0.2s;
+                }
+
+                .qty-control__reduce:active:after,
+                .qty-control__increase:active:after {
+                    opacity: 0.1;
+                }
+
+                /* SUBTOTAL SECTION */
+                .cart-table tbody td:nth-child(6) {
+                    width: 50%;
+                    margin-top: 6px;
+                    text-align: right;
+                    padding-right: 10px;
+                }
+
+                .cart-table tbody td:nth-child(6)::before {
+                    content: "Subtotal";
+                    display: block;
+                    font-size: 12px;
+                    color: #888;
+                    margin-bottom: 4px;
+                    font-weight: 500;
+                }
+
+                .shopping-cart__subtotal {
+                    font-weight: 600;
+                    color: var(--primary);
+                    font-size: 15px;
+                }
+
+                /* REMOVE BUTTON - Thumb-friendly top-right */
+                .cart-table tbody td:nth-child(7) {
+                    position: absolute;
+                    top: 12px;
+                    right: 12px;
+                }
+
+                .remove-cart {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 30px;
+                    height: 30px;
+                    border-radius: 50%;
+                    background-color: rgba(0, 0, 0, 0.03);
+                    transition: all 0.2s;
+                }
+
+                .remove-cart:active {
+                    background-color: rgba(0, 0, 0, 0.08);
+                    transform: scale(0.95);
+                }
+
+                .remove-cart svg {
+                    width: 12px;
+                    height: 12px;
+                    opacity: 0.6;
+                }
+
+                /* ===== COUPON SECTION ===== */
+                .cart-table-footer {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 12px;
+                    margin-bottom: 30px;
+                }
+
+                .cart-table-footer form {
+                    width: 100%;
+                }
+
+                /* Redesigned coupon input */
+                .cart-table-footer .form-control {
+                    height: 46px;
+                    border-radius: 10px;
+                    border: 1px solid #e0e0e0;
+                    font-size: 14px;
+                    padding: 0 16px;
+                    transition: border-color 0.2s;
+                    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+                }
+
+                .cart-table-footer .form-control:focus {
+                    border-color: rgba(149, 106, 59, 0.4);
+                    box-shadow: 0 2px 8px rgba(149, 106, 59, 0.1);
+                }
+
+                /* Apply coupon button */
+                .cart-table-footer .btn-link {
+                    height: 46px;
+                    font-size: 13px;
+                    font-weight: 600;
+                    padding-left: 16px !important;
+                    padding-right: 16px !important;
+                    border-radius: 0 10px 10px 0;
+                    transition: all 0.2s;
+                    letter-spacing: 0.3px;
+                }
+
+                /* Empty cart button */
+                .cart-table-footer .btn-light {
+                    height: 46px;
+                    border-radius: 10px;
+                    font-size: 13px;
+                    font-weight: 500;
+                    letter-spacing: 0.3px;
+                    border: 1px solid #e0e0e0;
+                    background: #f8f8f8;
+                    color: #666;
+                    transition: all 0.2s;
+                }
+
+                .cart-table-footer .btn-light:active {
+                    background: #f0f0f0;
+                    transform: translateY(1px);
+                }
+
+                /* ===== ORDER SUMMARY SECTION ===== */
+                .shopping-cart__totals-wrapper {
+                    width: 100%;
+                }
+
+                /* Elegant payment details box */
+                .shopping-cart__totals {
+                    background-color: #fff;
+                    border-radius: 14px;
+                    padding: 20px;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+                    margin-bottom: 20px;
+                    border: 1px solid rgba(149, 106, 59, 0.08);
+                }
+
+                .shopping-cart__totals h3 {
+                    font-size: 16px;
+                    font-weight: 600;
+                    margin-bottom: 18px;
+                    color: #333;
+                    padding-bottom: 12px;
+                    border-bottom: 1px dashed rgba(149, 106, 59, 0.15);
+                    letter-spacing: 0.3px;
+                }
+
+                .cart-totals {
+                    width: 100%;
+                }
+
+                .cart-totals tr {
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 12px;
+                }
+
+                .cart-totals tr th {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: #666;
+                }
+
+                .cart-totals tr td {
+                    font-size: 14px;
+                    font-weight: 500;
+                    color: #333;
+                    text-align: right;
+                }
+
+                /* Highlight discount */
+                #cart-discount {
+                    color: #278c04;
+                }
+
+                /* Total row highlight */
+                .cart-totals tr.cart-total {
+                    margin-top: 15px;
+                    padding-top: 15px;
+                    border-top: 1px solid rgba(149, 106, 59, 0.12);
+                }
+
+                .cart-totals tr.cart-total th,
+                .cart-totals tr.cart-total td {
+                    font-size: 17px;
+                    font-weight: 700;
+                    color: var(--primary);
+                }
+
+                /* Shipping info style */
+                .shipping-info {
+                    padding: 8px 12px;
+                    border-radius: 8px;
+                    border-left: 3px solid var(--primary);
+                    background-color: rgba(149, 106, 59, 0.06);
+                }
+
+                .shipping-info span {
+                    font-size: 13px;
+                }
+
+                /* ===== CHECKOUT BUTTON FIXED ===== */
+                .mobile_fixed-btn_wrapper {
+                    position: fixed;
+                    bottom: 65px;
+                    /* Adjusted for bottom navbar */
+                    left: 0;
+                    width: 100%;
+                    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.9), #ffffff);
+                    padding: 15px;
+                    box-shadow: 0 -5px 15px rgba(0, 0, 0, 0.08);
+                    z-index: 999;
+                    backdrop-filter: blur(5px);
+                    -webkit-backdrop-filter: blur(5px);
+                }
+
+                /* Premium checkout button */
+                .btn-checkout {
+                    height: 48px;
+                    font-size: 14px;
+                    font-weight: 600;
+                    letter-spacing: 0.5px;
+                    border-radius: 12px;
+                    background: linear-gradient(to right, var(--primary), #a87c4f);
+                    border: none;
+                    box-shadow: 0 6px 15px rgba(149, 106, 59, 0.2);
+                    transition: all 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+
+                .btn-checkout:active {
+                    transform: translateY(2px);
+                    box-shadow: 0 2px 8px rgba(149, 106, 59, 0.2);
+                }
+
+                /* Add space at bottom to account for fixed checkout button + navbar */
+                .shopping-cart {
+                    padding-bottom: 120px;
+                }
+
+                /* ===== VISUAL FEEDBACK FOR INTERACTIONS ===== */
+                .cart-item-row.dimmed {
+                    opacity: 0.5;
+                    transform: scale(0.985);
+                }
+
+                /* Smooth transitions */
+                .cart-item-row {
+                    transition: all 0.25s ease-out;
+                }
+
+                /* Empty notification - error/success message */
+                .text-success,
+                .text-danger {
+                    padding: 10px 15px;
+                    border-radius: 10px;
+                    font-size: 14px;
+                    margin: 15px 0;
+                    display: block;
+                }
+
+                .text-success {
+                    background-color: rgba(39, 140, 4, 0.08);
+                }
+
+                .text-danger {
+                    background-color: rgba(220, 53, 69, 0.08);
+                }
+            }
+
+            /* Extra small device enhancements */
+            @media (max-width: 380px) {
+                .cart-table tbody td:nth-child(2) {
+                    width: 32%;
+                }
+
+                .cart-table tbody td:nth-child(3) {
+                    width: 68%;
+                }
+
+                .shopping-cart__product-item img {
+                    width: 80px;
+                    height: 80px;
+                }
+
+                .checkout-steps__item-title span {
+                    font-size: 13px;
+                }
+
+                .checkout-steps__item-number {
+                    width: 28px;
+                    height: 28px;
+                    font-size: 12px;
+                }
             }
         </style>
     @endpush
