@@ -35,7 +35,7 @@ class LoginController extends Controller
     protected function sendFailedLoginResponse(Request $request)
     {
         throw ValidationException::withMessages([
-            $this->username() => ['Kredensial yang Anda masukkan tidak cocok dengan data kami.'],
+            $this->username() => ['Email atau kata sandi yang Anda masukkan salah.'],
         ]);
     }
 
