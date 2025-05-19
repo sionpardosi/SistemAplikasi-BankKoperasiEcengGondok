@@ -79,7 +79,7 @@
         /* Favorit notification - mirip dengan cart notification tapi posisi di kanan atas */
         .favorit-notification {
             position: fixed;
-            top: 20px;
+            top: 190px;
             right: 20px;
             background: white;
             border-radius: 10px;
@@ -739,7 +739,7 @@
         /* Cart notification */
         .cart-notification {
             position: fixed;
-            top: 20px;
+            top: 130px;
             /* Tetap di atas */
             right: 20px;
             /* Diubah ke posisi kanan */
@@ -936,6 +936,69 @@
 
         .cart-notification.error.show {
             animation: attention-pulse 1.5s ease-in-out infinite;
+        }
+
+        /* ===== RESPONSIVE ADJUSTMENTS ===== */
+
+        /* Untuk header yang lebih tinggi */
+        @media (min-width: 1200px) {
+
+            .cart-notification,
+            .favorit-notification {
+                top: 130px;
+                /* Sesuaikan jika header lebih tinggi di desktop */
+                right: 30px;
+            }
+        }
+
+        /* Untuk tablet */
+        @media (max-width: 991px) {
+
+            .cart-notification,
+            .favorit-notification {
+                top: 70px;
+                /* Header biasanya lebih pendek di tablet */
+                right: 15px;
+                max-width: 350px;
+                min-width: 280px;
+            }
+        }
+
+        /* Untuk mobile */
+        @media (max-width: 767px) {
+
+            .cart-notification,
+            .favorit-notification {
+                top: 130px;
+                /* Header mobile biasanya lebih kompak */
+                right: 10px;
+                left: 10px;
+                /* Full width di mobile dengan margin */
+                max-width: none;
+                min-width: auto;
+                width: calc(100% - 20px);
+            }
+        }
+
+        /* Untuk mobile sangat kecil */
+        @media (max-width: 480px) {
+
+            .cart-notification,
+            .favorit-notification {
+                top: 55px;
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .cart-notification__title,
+            .favorit-notification__title {
+                font-size: 13px;
+            }
+
+            .cart-notification__message,
+            .favorit-notification__message {
+                font-size: 12px;
+            }
         }
     </style>
 
@@ -3382,19 +3445,19 @@
                 // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
                 if (!$('#favorit-notification').length) {
                     $('body').append(`
-                    <div class="favorit-notification" id="favorit-notification">
-                        <div class="favorit-notification__icon">
-                            <i class="fas fa-heart"></i>
+                        <div class="favorit-notification" id="favorit-notification">
+                            <div class="favorit-notification__icon">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <div class="favorit-notification__content">
+                                <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
+                                <div class="favorit-notification__message" id="favorit-notification-message"></div>
+                            </div>
+                            <button class="favorit-notification__close" id="close-favorit-notification">
+                                <i class="fas fa-times"></i>
+                            </button>
                         </div>
-                        <div class="favorit-notification__content">
-                            <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
-                            <div class="favorit-notification__message" id="favorit-notification-message"></div>
-                        </div>
-                        <button class="favorit-notification__close" id="close-favorit-notification">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </div>
-                `);
+                    `);
 
                     // Tambahkan event handler untuk tombol close
                     $(document).on('click', '#close-favorit-notification', function() {
@@ -3689,17 +3752,17 @@
 
             // Tambahkan styles untuk tombol wishlist
             $('<style>').text(`
-            .pc__btn-wl.in-wishlist {
-                color: #e53935 !important;
-            }
-            .pc__btn-wl.loading {
-                opacity: 0.7;
-                pointer-events: none;
-            }
-            .heart-beat {
-                animation: heartbeat 0.8s ease-in-out;
-            }
-        `).appendTo('head');
+                .pc__btn-wl.in-wishlist {
+                    color: #e53935 !important;
+                }
+                .pc__btn-wl.loading {
+                    opacity: 0.7;
+                    pointer-events: none;
+                }
+                .heart-beat {
+                    animation: heartbeat 0.8s ease-in-out;
+                }
+            `).appendTo('head');
         }); <
         script >
         @endpush
