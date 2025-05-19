@@ -39,9 +39,26 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+
+        $blacklistedDomains = ['ezweb.ne.jp', 'ne.jp'];
+
         return Validator::make($data, [
             'name' => ['required', 'string', 'min:3', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users',
+                function ($attribute, $value, $fail) use ($blacklistedDomains) {
+                    $domain = explode('@', $value)[1] ?? '';
+                    foreach ($blacklistedDomains as $blacklisted) {
+                        if (str_ends_with($domain, $blacklisted)) {
+                            $fail('Email dari domain ini tidak diizinkan.');
+                        }
+                    }
+                },
+            ],
             'mobile' => [
                 'required',
                 'string',
