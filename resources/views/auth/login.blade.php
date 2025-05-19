@@ -29,7 +29,8 @@
                             @csrf
 
                             <div class="form-floating mb-4 input-group-custom">
-                                <input id="email" type="email" class="form-control form-control_gray @error('email') is-invalid @enderror"
+                                <input id="email" type="email"
+                                    class="form-control form-control_gray @error('email') is-invalid @enderror"
                                     name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
                                 <label for="email">Alamat Email <span class="text-danger">*</span></label>
                                 <span class="input-icon">
@@ -70,7 +71,8 @@
 
                             <div class="d-flex justify-content-between mb-4">
                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                                    <input class="form-check-input" type="checkbox" name="remember" id="remember"
+                                        {{ old('remember') ? 'checked' : '' }}>
                                     <label class="form-check-label" for="remember">
                                         Ingat saya
                                     </label>
@@ -112,16 +114,49 @@
             document.addEventListener('DOMContentLoaded', function() {
                 // Form validation
                 const form = document.querySelector('.needs-validation');
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
 
                 // Form validation before submit
                 form.addEventListener('submit', function(event) {
-                    if (!form.checkValidity()) {
-                        event.preventDefault();
-                        event.stopPropagation();
+                    let isValid = true;
+
+                    // Validate email
+                    if (!emailInput.value.trim()) {
+                        emailInput.classList.add('is-invalid');
+                        emailInput.classList.remove('is-valid');
+                        isValid = false;
+                    } else if (!isValidEmail(emailInput.value)) {
+                        emailInput.classList.add('is-invalid');
+                        emailInput.classList.remove('is-valid');
+                        isValid = false;
+                    } else {
+                        emailInput.classList.remove('is-invalid');
+                        emailInput.classList.add('is-valid');
                     }
 
-                    form.classList.add('was-validated');
+                    // Validate password
+                    if (!passwordInput.value.trim()) {
+                        passwordInput.classList.add('is-invalid');
+                        passwordInput.classList.remove('is-valid');
+                        isValid = false;
+                    } else {
+                        passwordInput.classList.remove('is-invalid');
+                        passwordInput.classList.add('is-valid');
+                    }
+
+                    if (!isValid) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        form.classList.add('was-validated');
+                    }
                 });
+
+                // Email validation function
+                function isValidEmail(email) {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    return emailRegex.test(email);
+                }
 
                 // Add floating label behavior
                 const inputs = document.querySelectorAll('.form-control');
@@ -137,6 +172,10 @@
                         } else {
                             this.classList.remove('has-value');
                         }
+
+                        // Reset validation status when user starts typing
+                        this.classList.remove('is-valid');
+                        this.classList.remove('is-invalid');
                     });
                 });
             });
@@ -241,7 +280,7 @@
                 z-index: 10;
             }
 
-            .form-floating > label {
+            .form-floating>label {
                 padding-left: 2.5rem;
                 color: #6c757d;
                 font-weight: 400;
@@ -438,9 +477,17 @@
 
             /* Animation for focus */
             @keyframes input-focus {
-                0% { box-shadow: 0 0 0 0 rgba(149, 106, 59, 0.4); }
-                70% { box-shadow: 0 0 0 10px rgba(149, 106, 59, 0); }
-                100% { box-shadow: 0 0 0 0 rgba(149, 106, 59, 0); }
+                0% {
+                    box-shadow: 0 0 0 0 rgba(149, 106, 59, 0.4);
+                }
+
+                70% {
+                    box-shadow: 0 0 0 10px rgba(149, 106, 59, 0);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 0 rgba(149, 106, 59, 0);
+                }
             }
 
             .form-control:focus {
@@ -449,9 +496,17 @@
 
             /* Button animation */
             @keyframes button-pulse {
-                0% { box-shadow: 0 0 0 0 rgba(149, 106, 59, 0.4); }
-                70% { box-shadow: 0 0 0 10px rgba(149, 106, 59, 0); }
-                100% { box-shadow: 0 0 0 0 rgba(149, 106, 59, 0); }
+                0% {
+                    box-shadow: 0 0 0 0 rgba(149, 106, 59, 0.4);
+                }
+
+                70% {
+                    box-shadow: 0 0 0 10px rgba(149, 106, 59, 0);
+                }
+
+                100% {
+                    box-shadow: 0 0 0 0 rgba(149, 106, 59, 0);
+                }
             }
 
             .btn-login:hover {
