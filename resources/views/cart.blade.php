@@ -965,7 +965,6 @@
                                             <th>Ongkos Kirim</th>
                                             <td class="shipping-cost">
                                                 <div class="shipping-info">
-                                                    <i class="fas fa-truck-loading text-primary-light"></i>
                                                     <span>Dihitung saat checkout</span>
                                                 </div>
                                             </td>

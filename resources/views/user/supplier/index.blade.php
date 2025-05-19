@@ -925,7 +925,7 @@
 
         <!-- Persyaratan Card -->
         <section class="container mb-5" data-aos="fade-up">
-            <div class="requirements-card p-4 rounded" data-bs-toggle="modal" data-bs-target="#supplierModal">
+            <div class="requirements-card p-4 rounded">
                 <div class="row align-items-center">
                     <div class="col-md-8">
                         <h3 class="mb-3">Syarat &amp; Ketentuan Pemasok</h3>
