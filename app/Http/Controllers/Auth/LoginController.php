@@ -7,6 +7,7 @@ use App\Http\Controllers\WishlistController;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Http\Request;               // ← Tambahkan ini
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class LoginController extends Controller
 {
@@ -76,6 +77,12 @@ class LoginController extends Controller
             return redirect($url);
         }
 
+        if (Session::has('redirect_after_login')) {
+            $redirect = Session::get('redirect_after_login');
+            Session::forget('redirect_after_login');
+            return redirect($redirect);
+        }
+
         // Process any pending wishlist items
         $wishlistController = new WishlistController();
         $added = $wishlistController->processPendingWishlistItem();
@@ -87,6 +94,6 @@ class LoginController extends Controller
         }
 
         // Jika tidak ada flag, pakai intended URL atau fallback $redirectTo :contentReference[oaicite:9]{index=9}
-        return redirect()->intended($this->redirectTo);
+        return redirect()->intended($this->redirectPath());
     }
 }

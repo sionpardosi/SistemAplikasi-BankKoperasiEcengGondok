@@ -4,6 +4,7 @@ use App\Http\Middleware\AuthAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Models\PenjadwalanPenjemputan;
+use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\HomeController;
@@ -96,6 +97,18 @@ Route::post('/cart/add', [CartController::class, 'addToCart'])->name('cart.add')
 Route::put('/cart/update-qty/{rowId}', [CartController::class, 'update_item_quantity'])->name('cart.update.qty');
 // buat route untuk menangani checkout dengan item terpilih
 Route::post('/checkout-selected', [CartController::class, 'checkoutSelected'])->name('cart.checkout.selected');
+// Route menambah item ke keranjang
+Route::middleware(['auth'])->group(function () {
+    Route::get('/auth/redirect', function () {
+        if (Session::has('redirect_after_login')) {
+            $redirect = Session::get('redirect_after_login');
+            Session::forget('redirect_after_login');
+            return redirect($redirect);
+        }
+
+        return redirect('/');
+    })->name('auth.redirect');
+});
 
 
 // ====================================================================================================

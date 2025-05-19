@@ -79,13 +79,15 @@ class EventServiceProvider extends ServiceProvider
             // Load cart dari database
             $userCartItems = CartItem::where('user_id', $user->id)->get();
             foreach ($userCartItems as $item) {
+                // PERBAIKAN: Parameter ke-5 harus array, bukan integer
+                $options = is_array($item->options) ? $item->options : [];
+
                 Cart::instance('cart')->add(
                     $item->product_id,
                     $item->name,
                     $item->quantity,
                     $item->price,
-                    0,
-                    $item->options
+                    $options
                 )->associate(Product::class);
             }
 
@@ -114,14 +116,15 @@ class EventServiceProvider extends ServiceProvider
                             $existingCartItem->qty + $item['qty']
                         );
                     } else {
-                        // Tambahkan item baru
+                        // PERBAIKAN: Parameter ke-5 harus array, bukan integer
+                        $options = is_array($item['options']) ? $item['options'] : [];
+
                         Cart::instance('cart')->add(
                             $item['id'],
                             $item['name'],
                             $item['qty'],
                             $item['price'],
-                            0,
-                            $item['options']
+                            $options
                         )->associate(Product::class);
                     }
 
