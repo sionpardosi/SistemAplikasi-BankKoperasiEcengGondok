@@ -54,10 +54,11 @@ class MidtransCallbackController extends Controller
             switch ($transactionStatus) {
                 case 'capture':
                 case 'settlement':
-                    // Update transaksi dan order status setelah pembayaran sukses
-                    $transaction->status = 'approved';  // Ubah 'paid' menjadi 'approved' untuk konsistensi
+                    // Pembayaran berhasil: update status transaksi dan order
+                    $transaction->status = 'approved';
                     $transaction->save();
 
+                    // Ubah status dari 'awaiting_payment' menjadi 'confirmed'
                     $order->status = 'confirmed';
                     $order->confirmed_date = now();
                     $order->save();
@@ -65,53 +66,46 @@ class MidtransCallbackController extends Controller
                     // Kurangi stok permanen dan reserved_quantity
                     foreach ($order->orderItems as $item) {
                         $product = Product::lockForUpdate()->find($item->product_id);
-
-                        // Pastikan stok cukup (jika tidak, bisa log error)
-                        if ($product->quantity < $item->quantity) {
-                            Log::error("Stok produk {$product->name} tidak cukup saat konfirmasi pembayaran.");
-                            continue;
+                        if ($product) {
+                            $product->quantity -= $item->quantity;
+                            $product->reserved_quantity -= $item->quantity;
+                            if ($product->reserved_quantity < 0) {
+                                $product->reserved_quantity = 0;
+                            }
+                            $product->save();
                         }
-
-                        $product->quantity -= $item->quantity;
-                        $product->reserved_quantity -= $item->quantity;
-                        if ($product->reserved_quantity < 0) {
-                            $product->reserved_quantity = 0; // safety
-                        }
-                        $product->save();
                     }
                     break;
 
                 case 'expire':
                 case 'cancel':
                 case 'deny':
-                    // Update transaksi dan order status untuk pembayaran yang gagal
-                    $transaction->status = 'declined';  // Ubah 'failed' menjadi 'declined' untuk konsistensi
+                    // Pembayaran gagal: update status dan kembalikan stok
+                    $transaction->status = 'declined';
                     $transaction->save();
 
                     $order->status = 'canceled';
                     $order->canceled_date = now();
                     $order->save();
 
-                    // Kembalikan reserved_quantity ke stok permanen (hapus reserved)
+                    // Kembalikan reserved_quantity
                     foreach ($order->orderItems as $item) {
                         $product = Product::lockForUpdate()->find($item->product_id);
-
-                        $product->reserved_quantity -= $item->quantity;
-                        if ($product->reserved_quantity < 0) {
-                            $product->reserved_quantity = 0;
+                        if ($product) {
+                            $product->reserved_quantity -= $item->quantity;
+                            if ($product->reserved_quantity < 0) {
+                                $product->reserved_quantity = 0;
+                            }
+                            $product->save();
                         }
-                        $product->save();
                     }
                     break;
 
                 case 'pending':
-                    // Status pending, tidak kurangi stok permanen, hanya tunggu pembayaran
+                    // Tetap dalam status menunggu pembayaran
                     $transaction->status = 'pending';
                     $transaction->save();
-                    break;
-
-                default:
-                    // Status lain, biarkan seperti semula
+                    // Order tetap dalam status 'awaiting_payment'
                     break;
             }
             DB::commit();

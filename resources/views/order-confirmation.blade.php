@@ -651,6 +651,7 @@
 
             <div class="order-complete">
                 <!-- Success Message -->
+                <!-- Di resources/views/order-confirmation.blade.php -->
                 <div class="order-complete__message text-center">
                     <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
                         <circle cx="40" cy="40" r="40" fill="#B9A16B" />
@@ -658,7 +659,8 @@
                             stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                     <h3>PESANAN ANDA TELAH DITERIMA</h3>
-                    <p>Terima kasih! Pesanan Anda telah berhasil kami terima dan sedang diproses. Silakan selesaikan
+                    <p>Terima kasih! Pesanan Anda telah berhasil kami terima dan sedang <strong>menunggu
+                            pembayaran</strong>. Silakan selesaikan
                         pembayaran untuk konfirmasi.</p>
                 </div>
 
@@ -753,46 +755,47 @@
                         <!-- Product Items -->
                         <div class="order-products">
                             @foreach ($order->orderItems as $item)
-                            <div class="order-product-item">
-                                <div class="order-product-item__image">
-                                    @if ($item->product && $item->product->image)
-                                        <img src="{{ asset('uploads/products/thumbnails/' . $item->product->image) }}"
-                                             alt="{{ $item->product->name }}">
-                                    @else
-                                        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f0f0f0;">
-                                            <i class="fas fa-image" style="font-size:24px;color:#ccc;"></i>
-                                        </div>
-                                    @endif
-                                </div>
-                                <div class="order-product-item__details">
-                                    <span class="order-product-item__name">{{ $item->product->name }}</span>
-                                    <div class="order-product-item__meta">
-                                        <span class="order-product-item__meta-item">
-                                            <i class="fas fa-box"></i> Jumlah: {{ $item->quantity }}
-                                        </span>
-
-                                        @if ($item->options)
-                                            @php
-                                                if (is_string($item->options)) {
-                                                    $options = json_decode($item->options, true);
-                                                } else {
-                                                    $options = $item->options;
-                                                }
-                                            @endphp
-                                            @if (isset($options['size_name']))
-                                                <span class="order-product-item__meta-item">
-                                                    <i class="fas fa-ruler-combined"></i> Ukuran:
-                                                    {{ $options['size_name'] }}
-                                                </span>
-                                            @endif
+                                <div class="order-product-item">
+                                    <div class="order-product-item__image">
+                                        @if ($item->product && $item->product->image)
+                                            <img src="{{ asset('uploads/products/thumbnails/' . $item->product->image) }}"
+                                                alt="{{ $item->product->name }}">
+                                        @else
+                                            <div
+                                                style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#f0f0f0;">
+                                                <i class="fas fa-image" style="font-size:24px;color:#ccc;"></i>
+                                            </div>
                                         @endif
                                     </div>
+                                    <div class="order-product-item__details">
+                                        <span class="order-product-item__name">{{ $item->product->name }}</span>
+                                        <div class="order-product-item__meta">
+                                            <span class="order-product-item__meta-item">
+                                                <i class="fas fa-box"></i> Jumlah: {{ $item->quantity }}
+                                            </span>
+
+                                            @if ($item->options)
+                                                @php
+                                                    if (is_string($item->options)) {
+                                                        $options = json_decode($item->options, true);
+                                                    } else {
+                                                        $options = $item->options;
+                                                    }
+                                                @endphp
+                                                @if (isset($options['size_name']))
+                                                    <span class="order-product-item__meta-item">
+                                                        <i class="fas fa-ruler-combined"></i> Ukuran:
+                                                        {{ $options['size_name'] }}
+                                                    </span>
+                                                @endif
+                                            @endif
+                                        </div>
+                                    </div>
+                                    <div class="order-product-item__price">
+                                        {{ formatRupiah($item->price) }}
+                                    </div>
                                 </div>
-                                <div class="order-product-item__price">
-                                    {{ formatRupiah($item->price) }}
-                                </div>
-                            </div>
-                        @endforeach
+                            @endforeach
                         </div>
 
                         <!-- Order Totals -->

@@ -615,7 +615,7 @@ class CartController extends Controller
         $order->zip = $address->zip;
         $order->ongkir = $request->ongkir;
         $order->kurir = $request->kurir;
-        $order->status = 'pending'; // Pastikan status awal adalah pending
+        $order->status = 'awaiting_payment'; // Status baru yang lebih spesifik
         $order->save();
 
         // Simpan hanya item yang dipilih sebagai order item

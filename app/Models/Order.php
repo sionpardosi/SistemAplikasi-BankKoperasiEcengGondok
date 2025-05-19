@@ -27,6 +27,7 @@ class Order extends Model
         'type',
         'status',
         'is_shipping_different',
+        'awaiting_payment',
         'confirmed_date',
         'processing_date',
         'shipped_date',
@@ -55,7 +56,8 @@ class Order extends Model
     public function getStatusBadgeAttribute()
     {
         return match($this->status) {
-            'pending' => '<span class="badge bg-warning">Menunggu</span>',
+            'awaiting_payment' => '<span class="badge bg-info">Menunggu Pembayaran</span>',
+            'pending' => '<span class="badge bg-warning">Menunggu Diproses</span>',
             'confirmed' => '<span class="badge bg-info">Dikonfirmasi</span>',
             'processing' => '<span class="badge bg-primary">Diproses</span>',
             'shipped' => '<span class="badge bg-secondary">Dikirim</span>',
