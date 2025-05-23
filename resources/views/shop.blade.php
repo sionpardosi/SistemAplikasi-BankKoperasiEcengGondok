@@ -555,7 +555,23 @@
             animation: progressGrow 1s ease-out forwards;
         }
 
+
         /* Filter badges */
+
+        /* Warna untuk bintang yang tidak aktif - transparan dengan hint kuning */
+        .rating-stars i.text-transparent,
+        .rating-badge i.text-transparent,
+        .filter-content i.text-transparent {
+            color: rgba(255, 215, 0, 0.2) !important;
+        }
+
+        /* Pastikan bintang aktif tetap kuning cerah */
+        .rating-stars i.text-warning,
+        .rating-badge i.text-warning,
+        .filter-content i.text-warning {
+            color: #FFD700 !important;
+        }
+
         .rating-filter-badge {
             padding: 0 15px;
         }
@@ -814,25 +830,25 @@
 
             /* Opsi 1: Buat menjadi 2 baris teks */
             /*
-                .product-single__addtocart .pc__atc {
-                    white-space: normal !important;
-                    line-height: 1.1 !important;
-                    height: auto !important;
-                    padding-top: 4px !important;
-                    padding-bottom: 4px !important;
-                }
-                */
+                    .product-single__addtocart .pc__atc {
+                        white-space: normal !important;
+                        line-height: 1.1 !important;
+                        height: auto !important;
+                        padding-top: 4px !important;
+                        padding-bottom: 4px !important;
+                    }
+                    */
 
             /* Opsi 2: Gunakan singkatan + ikon */
             /*
-                .product-single__addtocart .pc__atc:before {
-                    content: "🛒 ";
-                    font-size: 0.8rem;
-                }
-                .product-single__addtocart .pc__atc {
-                    content: "Tambah" !important;
-                }
-                */
+                    .product-single__addtocart .pc__atc:before {
+                        content: "🛒 ";
+                        font-size: 0.8rem;
+                    }
+                    .product-single__addtocart .pc__atc {
+                        content: "Tambah" !important;
+                    }
+                    */
         }
     </style>
 
@@ -979,7 +995,7 @@
                                             <div class="rating-stars">
                                                 @for ($j = 1; $j <= 5; $j++)
                                                     <i
-                                                        class="fas fa-star @if ($j <= $i) text-warning @else text-muted @endif"></i>
+                                                        class="fas fa-star @if ($j <= $i) text-warning @else text-transparent @endif"></i>
                                                 @endfor
                                                 <span class="rating-count">({{ $productCountByRating[$i] ?? 0 }}
                                                     produk)</span>
@@ -1326,8 +1342,6 @@
                     </div>
                 </div>
 
-
-
                 @if (request()->has('ratings') && !empty(request()->input('ratings')))
                     <div class="filter-notification mb-4 animate__animated animate__fadeIn">
                         <div class="alert alert-custom fade show" role="alert">
@@ -1345,7 +1359,7 @@
                                             @endphp
                                             @for ($i = 1; $i <= 5; $i++)
                                                 <i
-                                                    class="fas fa-star @if ($i <= $selectedRating) text-warning @else text-muted @endif"></i>
+                                                    class="fas fa-star @if ($i <= $selectedRating) text-warning @else text-transparent @endif"></i>
                                             @endfor
                                         </span>
                                         <span class="product-count">({{ $products->total() }} produk)</span>

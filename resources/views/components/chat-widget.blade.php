@@ -1,541 +1,208 @@
 <!-- Bank Eceng Gondok Chatbot Widget -->
-<div id="eceng-chatbot-container" class="chat-widget-container">
-    <!-- Chat Widget Button - Floating and Draggable -->
-    <div id="chatbotButton" class="chat-button">
-        <div class="button-label">Chat dengan AI</div>
-        <div class="button-circle">
-            <div class="button-icon">
-                <i class="fas fa-robot"></i>
+<div
+    style="position: fixed; bottom: 50px; right: 50px; z-index: 9999; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+    <!-- Chat Widget Button - Circular with Label -->
+    <div id="chatbotButton"
+        style="position: absolute; bottom: 0; right: 0; display: flex; align-items: center; cursor: pointer; transition: all 0.3s ease;"
+        aria-label="Chat dengan AI Bank Eceng Gondok" role="button" tabindex="0">
+        <!-- Text Label -->
+        <div class="button-label"
+            style="background: linear-gradient(135deg, #956a3b, #7a552f); color: #ffffff; padding: 8px 16px; border-radius: 20px; margin-right: 10px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); font-weight: 500; font-size: 14px; opacity: 1; transition: all 0.3s ease;">
+            Chat dengan AI
+        </div>
+        <!-- Button Circle -->
+        <div
+            style="width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #956a3b, #7a552f); color: #ffffff; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15); display: flex; align-items: center; justify-content: center; position: relative;">
+            <div
+                style="position: relative; width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <div
+                    style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2;">
+                    <i class="fas fa-robot" style="font-size: 24px; color: #ffffff;"></i>
+                </div>
+                <div id="buttonPulse"
+                    style="position: absolute; width: 100%; height: 100%; border-radius: 50%; background: rgba(255, 255, 255, 0.2); z-index: 1; animation: pulse 2s infinite;">
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Chat Widget Box -->
-    <div id="chatbotBox" class="chat-box">
+    <div id="chatbotBox"
+        style="position: absolute; bottom: 80px; right: 0; width: 380px; height: 550px; background: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12); display: flex; flex-direction: column; opacity: 0; transform: translateY(20px) scale(0.9); pointer-events: none; transition: all 0.3s ease; border: 1px solid #e9ecef;">
         <!-- Chat Header -->
-        <div class="chat-header">
-            <div class="header-avatar">
-                <div class="avatar-circle">
-                    <i class="fas fa-robot"></i>
+        <div
+            style="background: linear-gradient(135deg, #956a3b, #7a552f); color: #ffffff; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div
+                    style="width: 40px; height: 40px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-robot" style="font-size: 20px;"></i>
                 </div>
-                <div class="header-info">
-                    <span class="header-title">Asisten AI Bank Eceng Gondok</span>
-                    <span class="header-status">
-                        <span class="status-dot"></span>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 600; font-size: 16px;">Asisten AI Bank Eceng Gondok</span>
+                    <span style="font-size: 12px; opacity: 0.8; display: flex; align-items: center;">
+                        <span
+                            style="content: ''; display: inline-block; width: 8px; height: 8px; background: #00D9C5; border-radius: 50%; margin-right: 5px; animation: blink 2s infinite;"></span>
                         Online
                     </span>
                 </div>
             </div>
-            <div class="header-controls">
-                <button id="chatMinimize" aria-label="Minimize">
+            <div style="display: flex; gap: 10px;">
+                <button id="chatMinimize"
+                    style="background: transparent; border: none; color: #ffffff; cursor: pointer; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease;"
+                    aria-label="Minimize">
                     <i class="fas fa-minus"></i>
                 </button>
-                <button id="chatClose" aria-label="Close">
+                <button id="chatClose"
+                    style="background: transparent; border: none; color: #ffffff; cursor: pointer; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: all 0.3s ease;"
+                    aria-label="Close">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
         </div>
 
         <!-- Chat Quick Options -->
-        <div id="quickOptions" class="quick-options">
-            <div class="options-header">
-                <i class="fas fa-lightbulb"></i> Apa yang ingin Anda ketahui?
+        <div id="quickOptions" style="padding: 15px; background-color: #f0f2f5; border-bottom: 1px solid #e9ecef;">
+            <div
+                style="font-size: 14px; color: #343a40; margin-bottom: 12px; font-weight: 500; display: flex; align-items: center; gap: 6px;">
+                <i class="fas fa-lightbulb" style="color: #956a3b;"></i> Apa yang ingin Anda ketahui?
             </div>
-            <div class="options-grid">
-                <button class="quick-option" data-query="Bagaimana cara menjadi pemasok eceng gondok?">
-                    <i class="fas fa-leaf"></i>
-                    <span>Jadi Pemasok</span>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button class="quick-option" data-query="Bagaimana cara menjadi pemasok eceng gondok?"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; background: #ffffff; border-radius: 12px; border: 1px solid #e9ecef; transition: all 0.3s ease; cursor: pointer; text-align: center;">
+                    <i class="fas fa-leaf" style="font-size: 18px; margin-bottom: 6px; color: #956a3b;"></i>
+                    <span style="font-size: 12px; font-weight: 500; color: #343a40;">Jadi Pemasok</span>
                 </button>
-                <button class="quick-option" data-query="Berapa harga per kg eceng gondok?">
-                    <i class="fas fa-coins"></i>
-                    <span>Harga Eceng</span>
+                <button class="quick-option" data-query="Berapa harga per kg eceng gondok?"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; background: #ffffff; border-radius: 12px; border: 1px solid #e9ecef; transition: all 0.3s ease; cursor: pointer; text-align: center;">
+                    <i class="fas fa-coins" style="font-size: 18px; margin-bottom: 6px; color: #956a3b;"></i>
+                    <span style="font-size: 12px; font-weight: 500; color: #343a40;">Harga Eceng</span>
                 </button>
-                <button class="quick-option" data-query="Apa produk kerajinan yang dibuat?">
-                    <i class="fas fa-shopping-bag"></i>
-                    <span>Produk Kerajinan</span>
+                <button class="quick-option" data-query="Apa produk kerajinan yang dibuat?"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; background: #ffffff; border-radius: 12px; border: 1px solid #e9ecef; transition: all 0.3s ease; cursor: pointer; text-align: center;">
+                    <i class="fas fa-shopping-bag" style="font-size: 18px; margin-bottom: 6px; color: #956a3b;"></i>
+                    <span style="font-size: 12px; font-weight: 500; color: #343a40;">Produk Kerajinan</span>
                 </button>
-                <button class="quick-option" data-query="Kapan jadwal penjemputan eceng gondok?">
-                    <i class="fas fa-truck"></i>
-                    <span>Jadwal Jemput</span>
+                <button class="quick-option" data-query="Kapan jadwal penjemputan eceng gondok?"
+                    style="display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px; background: #ffffff; border-radius: 12px; border: 1px solid #e9ecef; transition: all 0.3s ease; cursor: pointer; text-align: center;">
+                    <i class="fas fa-truck" style="font-size: 18px; margin-bottom: 6px; color: #956a3b;"></i>
+                    <span style="font-size: 12px; font-weight: 500; color: #343a40;">Jadwal Jemput</span>
                 </button>
             </div>
         </div>
 
         <!-- Chat Content -->
-        <div id="content" class="chat-content">
-            <div class="welcome-message">
-                <div class="welcome-avatar">
-                    <i class="fas fa-robot"></i>
+        <div id="content"
+            style="flex: 1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background-color: #f8f9fa;">
+            <div
+                style="display: flex; background: #f8f9fa; border-radius: 12px; padding: 15px; margin-bottom: 15px; animation: fadeIn 0.5s ease-out;">
+                <div
+                    style="width: 50px; height: 50px; min-width: 50px; background: rgba(149, 106, 59, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 15px;">
+                    <i class="fas fa-robot" style="font-size: 24px; color: #956a3b;"></i>
                 </div>
-                <div class="welcome-text">
-                    <h4>Selamat Datang di Bank Koperasi Eceng Gondok!</h4>
-                    <p>Saya asisten AI yang siap membantu Anda dengan informasi seputar program pemasok eceng gondok dan produk kerajinan kami. Bergabunglah dengan kami dalam melestarikan Danau Toba! 👋</p>
+                <div>
+                    <h4 style="margin: 0 0 8px 0; color: #343a40; font-size: 16px;">Selamat Datang di Bank Koperasi
+                        Eceng Gondok!</h4>
+                    <p style="margin: 0; color: #6c757d; font-size: 14px; line-height: 1.5;">Saya asisten AI yang siap
+                        membantu Anda dengan informasi seputar program pemasok eceng gondok dan produk kerajinan kami.
+                        Bergabunglah dengan kami dalam melestarikan Danau Toba! 👋</p>
                 </div>
             </div>
-            <div class="message bot-message">
-                <i class="fas fa-robot"></i>
-                <div class="message-bubble">Silakan pilih topik di atas atau ketik pertanyaan Anda langsung.</div>
+            <div
+                style="display: flex; align-items: flex-start; max-width: 85%; align-self: flex-start; animation: messageIn 0.3s ease-out forwards;">
+                <i class="fas fa-robot"
+                    style="width: 32px; height: 32px; background: rgba(149, 106, 59, 0.1); color: #956a3b; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 16px;"></i>
+                <div
+                    style="padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; word-wrap: break-word; background: #ffffff; color: #343a40; border-top-left-radius: 4px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);">
+                    Silakan pilih topik di atas atau ketik pertanyaan Anda langsung.</div>
             </div>
             <!-- Messages will be added here dynamically -->
         </div>
 
         <!-- Chat Footer/Form -->
-        <div class="chat-footer">
-            <div class="input-container">
-                <input type="text" id="chatInput" placeholder="Ketik pesan Anda di sini..." autocomplete="off">
-                <button class="attachment-button" aria-label="Attachment">
-                    <i class="fas fa-paperclip"></i>
-                </button>
+        <div style="display: flex; padding: 15px; background: #ffffff; border-top: 1px solid #e9ecef; gap: 10px;">
+            <div
+                style="flex: 1; position: relative; display: flex; background: #f8f9fa; border-radius: 24px; overflow: hidden; transition: all 0.3s ease; border: 1px solid #e9ecef;">
+                <input type="text" id="chatInput" placeholder="Ketik pesan Anda di sini..." autocomplete="off"
+                    style="flex: 1; border: none; background: transparent; padding: 12px 15px; outline: none; font-size: 14px;">
+                <div style="display: flex; align-items: center; padding-right: 10px;">
+                    <button
+                        style="background: transparent; border: none; color: #6c757d; cursor: pointer; padding: 5px; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;"
+                        aria-label="Attachment">
+                        <i class="fas fa-paperclip"></i>
+                    </button>
+                </div>
             </div>
-            <button id="sendButton" class="send-button" aria-label="Send">
+            <button id="sendButton"
+                style="width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #956a3b, #7a552f); color: #ffffff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);"
+                aria-label="Send">
                 <i class="fas fa-paper-plane"></i>
             </button>
         </div>
 
         <!-- Powered By Section -->
-        <div class="powered-by">
+        <div
+            style="padding: 10px; text-align: center; font-size: 12px; color: #6c757d; background: #ffffff; border-top: 1px solid #e9ecef;">
             <span>Didukung oleh</span>
             <strong>AI Assistant for Eceng Gondok @2025</strong>
         </div>
     </div>
 </div>
 
+<!-- Include FontAwesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
 <style>
-    /* Base Reset */
-    #eceng-chatbot-container * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-    }
-
-    /* Container for the entire chatbot */
-    .chat-widget-container {
-        position: fixed;
-        bottom: 30px;
-        right: 30px;
-        z-index: 9999;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        user-select: none;
-    }
-
-    /* Draggable Chat Button */
-    .chat-button {
-        position: absolute;
-        bottom: 0;
-        right: 0;
-        cursor: grab;
-        display: flex;
-        align-items: center;
-        transition: all 0.3s ease;
-    }
-
-    .chat-button:active {
-        cursor: grabbing;
-    }
-
-    /* Button Label */
-    .button-label {
-        background: linear-gradient(135deg, #956a3b, #7a552f);
-        color: #ffffff;
-        padding: 8px 16px;
-        border-radius: 20px;
-        margin-right: 10px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        font-weight: 500;
-        font-size: 14px;
-        opacity: 0;
-        transform: translateX(10px);
-        transition: all 0.3s ease;
-        pointer-events: none;
-    }
-
-    /* Button Circle */
-    .button-circle {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #956a3b, #7a552f);
-        color: #ffffff;
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        z-index: 1;
-    }
-
-    .button-circle::before {
-        content: '';
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.2);
-        z-index: -1;
-        animation: pulse 2s infinite;
-    }
-
-    .button-icon {
-        width: 40px;
-        height: 40px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .button-icon i {
-        font-size: 22px;
-        color: #ffffff;
-    }
-
-    /* Chat Box */
-    .chat-box {
-        position: absolute;
-        bottom: 80px;
-        right: 0;
-        width: 350px;
-        height: 500px;
-        background: #ffffff;
-        border-radius: 16px;
-        overflow: hidden;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        display: flex;
-        flex-direction: column;
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-        pointer-events: none;
-        transition: all 0.3s ease;
-        border: 1px solid #e9ecef;
-    }
-
-    /* Chat Header */
-    .chat-header {
-        background: linear-gradient(135deg, #956a3b, #7a552f);
-        color: #ffffff;
-        padding: 15px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .header-avatar {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-    }
-
-    .avatar-circle {
-        width: 36px;
-        height: 36px;
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .avatar-circle i {
-        font-size: 18px;
-    }
-
-    .header-info {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .header-title {
-        font-weight: 600;
-        font-size: 15px;
-    }
-
-    .header-status {
-        font-size: 12px;
-        opacity: 0.8;
-        display: flex;
-        align-items: center;
-    }
-
-    .status-dot {
-        content: '';
-        display: inline-block;
-        width: 8px;
-        height: 8px;
-        background: #00D9C5;
-        border-radius: 50%;
-        margin-right: 5px;
-        animation: blink 2s infinite;
-    }
-
-    .header-controls {
-        display: flex;
-        gap: 8px;
-    }
-
-    .header-controls button {
-        background: transparent;
-        border: none;
-        color: #ffffff;
-        cursor: pointer;
-        width: 28px;
-        height: 28px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        transition: all 0.3s ease;
-    }
-
-    /* Quick Options */
-    .quick-options {
-        padding: 15px;
-        background-color: #f0f2f5;
-        border-bottom: 1px solid #e9ecef;
-    }
-
-    .options-header {
-        font-size: 14px;
-        color: #343a40;
-        margin-bottom: 12px;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-
-    .options-header i {
-        color: #956a3b;
-    }
-
-    .options-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-    }
-
-    .quick-option {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 12px;
-        background: #ffffff;
-        border-radius: 12px;
-        border: 1px solid #e9ecef;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        text-align: center;
-    }
-
-    .quick-option i {
-        font-size: 18px;
-        margin-bottom: 6px;
-        color: #956a3b;
-    }
-
-    .quick-option span {
-        font-size: 12px;
-        font-weight: 500;
-        color: #343a40;
-    }
-
-    /* Chat Content */
-    .chat-content {
-        flex: 1;
-        padding: 15px;
-        overflow-y: auto;
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        background-color: #f8f9fa;
-    }
-
-    .welcome-message {
-        display: flex;
-        background: #f8f9fa;
-        border-radius: 12px;
-        padding: 15px;
-        margin-bottom: 10px;
-        animation: fadeIn 0.5s ease-out;
-    }
-
-    .welcome-avatar {
-        width: 45px;
-        height: 45px;
-        min-width: 45px;
-        background: rgba(149, 106, 59, 0.1);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 15px;
-    }
-
-    .welcome-avatar i {
-        font-size: 22px;
-        color: #956a3b;
-    }
-
-    .welcome-text h4 {
-        margin: 0 0 8px 0;
-        color: #343a40;
-        font-size: 15px;
-    }
-
-    .welcome-text p {
-        margin: 0;
-        color: #6c757d;
-        font-size: 13px;
-        line-height: 1.5;
-    }
-
-    .message {
-        display: flex;
-        align-items: flex-start;
-        max-width: 85%;
-        animation: messageIn 0.3s ease-out forwards;
-    }
-
-    .bot-message {
-        align-self: flex-start;
-    }
-
-    .user-message {
-        align-self: flex-end;
-        flex-direction: row-reverse;
-    }
-
-    .message i {
-        width: 30px;
-        height: 30px;
-        background: rgba(149, 106, 59, 0.1);
-        color: #956a3b;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 8px;
-        font-size: 14px;
-    }
-
-    .user-message i {
-        margin-right: 0;
-        margin-left: 8px;
-        background: #956a3b;
-        color: #ffffff;
-    }
-
-    .message-bubble {
-        padding: 10px 14px;
-        border-radius: 18px;
-        font-size: 14px;
-        line-height: 1.5;
-        word-wrap: break-word;
-        background: #ffffff;
-        color: #343a40;
-        border-top-left-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .user-message .message-bubble {
-        background: #956a3b;
-        color: #ffffff;
-        border-top-left-radius: 18px;
-        border-top-right-radius: 4px;
-    }
-
-    /* Chat Footer */
-    .chat-footer {
-        display: flex;
-        padding: 12px 15px;
-        background: #ffffff;
-        border-top: 1px solid #e9ecef;
-        gap: 10px;
-    }
-
-    .input-container {
-        flex: 1;
-        position: relative;
-        display: flex;
-        background: #f8f9fa;
-        border-radius: 24px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        border: 1px solid #e9ecef;
-    }
-
-    .input-container:focus-within {
-        border-color: rgba(149, 106, 59, 0.5);
-        box-shadow: 0 0 0 2px rgba(149, 106, 59, 0.1);
-    }
-
-    #chatInput {
-        flex: 1;
-        border: none;
-        background: transparent;
-        padding: 10px 15px;
-        outline: none;
-        font-size: 14px;
-    }
-
-    .attachment-button {
-        background: transparent;
-        border: none;
-        color: #6c757d;
-        cursor: pointer;
-        padding: 5px 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-    }
-
-    .send-button {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #956a3b, #7a552f);
-        color: #ffffff;
-        border: none;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.3s ease;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    /* Powered By */
-    .powered-by {
-        padding: 8px;
-        text-align: center;
-        font-size: 11px;
-        color: #6c757d;
-        background: #ffffff;
-        border-top: 1px solid #e9ecef;
-    }
-
-    /* Animations */
     @keyframes pulse {
         0% {
             transform: scale(0.95);
             opacity: 0.7;
         }
+
         50% {
             transform: scale(1.1);
             opacity: 0.3;
         }
+
         100% {
             transform: scale(0.95);
             opacity: 0.7;
         }
     }
 
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+    }
+
+    @keyframes slideOut {
+        from {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateY(20px) scale(0.9);
+        }
+    }
+
     @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.4; }
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.4;
+        }
     }
 
     @keyframes fadeIn {
@@ -543,6 +210,7 @@
             opacity: 0;
             transform: translateY(10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -554,517 +222,362 @@
             opacity: 0;
             transform: translateY(10px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
         }
     }
 
-    /* Hover Effects */
-    .header-controls button:hover {
+    @keyframes bounce {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-10px);
+        }
+    }
+
+    /* Animation for button label */
+    @keyframes labelFadeIn {
+        from {
+            opacity: 0;
+            transform: translateX(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    @keyframes labelFadeOut {
+        from {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        to {
+            opacity: 0;
+            transform: translateX(10px);
+        }
+    }
+
+    /* Hover effect for button */
+    #chatbotButton:hover .button-label {
+        animation: labelFadeIn 0.3s forwards;
+    }
+
+    /* Chat button hover effects */
+    #chatMinimize:hover,
+    #chatClose:hover {
         background: rgba(255, 255, 255, 0.1);
     }
 
+    /* Quick option hover effects */
     .quick-option:hover {
         background: #f8f9fa;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         transform: translateY(-2px);
     }
-
-    .chat-button:hover .button-label {
-        opacity: 1;
-        transform: translateX(0);
-    }
-
-    .chat-button:hover .button-circle {
-        transform: scale(1.05);
-        box-shadow: 0 8px 25px rgba(149, 106, 59, 0.3);
-    }
-
-    .send-button:hover {
-        transform: scale(1.05);
-        box-shadow: 0 5px 15px rgba(149, 106, 59, 0.3);
-    }
-
-    .attachment-button:hover {
-        color: #956a3b;
-    }
-
-    /* Responsive Adjustments */
-    @media (max-width: 576px) {
-        .chat-box {
-            width: 300px;
-            height: 450px;
-            bottom: 70px;
-        }
-
-        .button-circle {
-            width: 50px;
-            height: 50px;
-        }
-
-        .button-icon {
-            width: 35px;
-            height: 35px;
-        }
-
-        .button-icon i {
-            font-size: 18px;
-        }
-
-        .chat-widget-container {
-            bottom: 20px;
-            right: 20px;
-        }
-    }
 </style>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // API Key Configuration
-        const API_KEY = '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';
+    // API Key Configuration
+    const API_KEY = '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';
 
-        // DOM Elements
-        const chatbotButton = document.getElementById('chatbotButton');
-        const chatbotBox = document.getElementById('chatbotBox');
-        const chatMinimize = document.getElementById('chatMinimize');
-        const chatClose = document.getElementById('chatClose');
-        const content = document.getElementById('content');
-        const chatInput = document.getElementById('chatInput');
-        const sendButton = document.getElementById('sendButton');
-        const quickOptions = document.querySelectorAll('.quick-option');
-        const chatbotContainer = document.getElementById('eceng-chatbot-container');
+    // DOM Elements
+    const chatbotButton = document.getElementById('chatbotButton');
+    const chatbotBox = document.getElementById('chatbotBox');
+    const chatMinimize = document.getElementById('chatMinimize');
+    const chatClose = document.getElementById('chatClose');
+    const content = document.getElementById('content');
+    const chatInput = document.getElementById('chatInput');
+    const sendButton = document.getElementById('sendButton');
+    const quickOptions = document.querySelectorAll('.quick-option');
+    const buttonLabel = document.querySelector('.button-label');
 
-        // State Variables
-        let isAnswerLoading = false;
-        let answerSectionId = 0;
-        let chatHistory = [];
-        let isChatOpen = false;
+    // State Variables
+    let isAnswerLoading = false;
+    let answerSectionId = 0;
+    let chatHistory = [];
+    let isChatOpen = false;
 
-        // Draggable functionality
-        let isDragging = false;
-        let offsetX, offsetY;
-        let currentX = 0, currentY = 0;
+    // Initialize chat state
+    function initializeChatState() {
+        isChatOpen = false;
+        chatbotBox.style.opacity = '0';
+        chatbotBox.style.transform = 'translateY(20px) scale(0.9)';
+        chatbotBox.style.pointerEvents = 'none';
+        buttonLabel.style.opacity = '1';
+        buttonLabel.style.display = 'block';
+    }
 
-        // Draggable Implementation
-        function initDraggable() {
-            // Mouse events
-            chatbotButton.addEventListener('mousedown', startDrag);
-            document.addEventListener('mousemove', drag);
-            document.addEventListener('mouseup', endDrag);
-
-            // Touch events for mobile
-            chatbotButton.addEventListener('touchstart', startDragTouch);
-            document.addEventListener('touchmove', dragTouch);
-            document.addEventListener('touchend', endDrag);
+    // Toggle Chatbox Visibility - Improved function
+    function toggleChatbox() {
+        if (isChatOpen) {
+            closeChatbox();
+        } else {
+            openChatbox();
         }
+    }
 
-        function startDrag(e) {
-            e.preventDefault();
-            isDragging = true;
+    // Open chatbox
+    function openChatbox() {
+        isChatOpen = true;
+        chatbotBox.style.opacity = '1';
+        chatbotBox.style.transform = 'translateY(0) scale(1)';
+        chatbotBox.style.pointerEvents = 'all';
+        chatbotBox.style.animation = 'slideIn 0.3s forwards';
 
-            // Get the current position of the chat button
-            const rect = chatbotContainer.getBoundingClientRect();
+        // Hide the label with animation
+        buttonLabel.style.animation = 'labelFadeOut 0.3s forwards';
+        setTimeout(() => {
+            buttonLabel.style.opacity = '0';
+            buttonLabel.style.display = 'none';
+        }, 300);
 
-            // Calculate the offset from the mouse position to the container position
-            offsetX = e.clientX - rect.left;
-            offsetY = e.clientY - rect.top;
+        // Focus on input when opened
+        setTimeout(() => chatInput.focus(), 300);
+    }
 
-            // Change cursor to grabbing
-            chatbotButton.style.cursor = 'grabbing';
-        }
+    // Close chatbox
+    function closeChatbox() {
+        isChatOpen = false;
+        chatbotBox.style.animation = 'slideOut 0.3s forwards';
 
-        function startDragTouch(e) {
-            // For touch devices
-            if (e.touches.length === 1) {
-                isDragging = true;
-
-                const touch = e.touches[0];
-                const rect = chatbotContainer.getBoundingClientRect();
-
-                offsetX = touch.clientX - rect.left;
-                offsetY = touch.clientY - rect.top;
-            }
-        }
-
-        function drag(e) {
-            if (!isDragging) return;
-
-            // Calculate new position
-            currentX = e.clientX - offsetX;
-            currentY = e.clientY - offsetY;
-
-            // Apply constraints to keep the chat on screen
-            const maxX = window.innerWidth - chatbotContainer.offsetWidth;
-            const maxY = window.innerHeight - chatbotContainer.offsetHeight;
-
-            currentX = Math.min(Math.max(0, currentX), maxX);
-            currentY = Math.min(Math.max(0, currentY), maxY);
-
-            // Set the new position
-            chatbotContainer.style.left = currentX + 'px';
-            chatbotContainer.style.top = currentY + 'px';
-            chatbotContainer.style.bottom = 'auto';
-            chatbotContainer.style.right = 'auto';
-        }
-
-        function dragTouch(e) {
-            if (!isDragging || e.touches.length !== 1) return;
-
-            const touch = e.touches[0];
-
-            // Calculate new position
-            currentX = touch.clientX - offsetX;
-            currentY = touch.clientY - offsetY;
-
-            // Apply constraints
-            const maxX = window.innerWidth - chatbotContainer.offsetWidth;
-            const maxY = window.innerHeight - chatbotContainer.offsetHeight;
-
-            currentX = Math.min(Math.max(0, currentX), maxX);
-            currentY = Math.min(Math.max(0, currentY), maxY);
-
-            // Set the new position
-            chatbotContainer.style.left = currentX + 'px';
-            chatbotContainer.style.top = currentY + 'px';
-            chatbotContainer.style.bottom = 'auto';
-            chatbotContainer.style.right = 'auto';
-
-            // Prevent scrolling when dragging
-            e.preventDefault();
-        }
-
-        function endDrag() {
-            isDragging = false;
-            chatbotButton.style.cursor = 'grab';
-        }
-
-        // Initialize chat state
-        function initializeChatState() {
-            isChatOpen = false;
+        setTimeout(() => {
             chatbotBox.style.opacity = '0';
-            chatbotBox.style.transform = 'translateY(20px) scale(0.95)';
+            chatbotBox.style.transform = 'translateY(20px) scale(0.9)';
             chatbotBox.style.pointerEvents = 'none';
-        }
+        }, 100);
 
-        // Toggle Chatbox Visibility
-        function toggleChatbox(e) {
-            // Prevent handling this event if we were dragging
-            if (isDragging) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
+        // Show the label with animation
+        buttonLabel.style.display = 'block';
+        buttonLabel.style.animation = 'labelFadeIn 0.3s forwards';
+        setTimeout(() => {
+            buttonLabel.style.opacity = '1';
+        }, 100);
+    }
+
+    // Minimize Chatbox - Same as close
+    function minimizeChatbox() {
+        closeChatbox();
+    }
+
+    // Event Listeners - Fixed to prevent multiple listeners
+    function setupEventListeners() {
+        // Remove existing listeners if any
+        chatbotButton.removeEventListener('click', toggleChatbox);
+        chatMinimize.removeEventListener('click', minimizeChatbox);
+        chatClose.removeEventListener('click', closeChatbox);
+
+        // Add new listeners
+        chatbotButton.addEventListener('click', toggleChatbox);
+        chatMinimize.addEventListener('click', minimizeChatbox);
+        chatClose.addEventListener('click', closeChatbox);
+
+        sendButton.addEventListener('click', handleSendMessage);
+        chatInput.addEventListener('keypress', event => {
+            if (event.key === 'Enter') {
+                handleSendMessage();
             }
+        });
 
-            if (isChatOpen) {
-                closeChatbox();
-            } else {
-                openChatbox();
-            }
-        }
-
-        // Open chatbox
-        function openChatbox() {
-            isChatOpen = true;
-            chatbotBox.style.opacity = '1';
-            chatbotBox.style.transform = 'translateY(0) scale(1)';
-            chatbotBox.style.pointerEvents = 'all';
-
-            // Focus on input when opened
-            setTimeout(() => chatInput.focus(), 300);
-        }
-
-        // Close chatbox
-        function closeChatbox() {
-            isChatOpen = false;
-            chatbotBox.style.opacity = '0';
-            chatbotBox.style.transform = 'translateY(20px) scale(0.95)';
-            chatbotBox.style.pointerEvents = 'none';
-        }
-
-        // Handle Send Message
-        function handleSendMessage() {
-            // Get the user input and remove leading/trailing space
-            const question = chatInput.value.trim();
-
-            // Prevent sending empty message
-            if (question === '' || isAnswerLoading) return;
-
-            // Disable UI send button
-            sendButton.style.opacity = '0.5';
-            sendButton.style.cursor = 'not-allowed';
-            sendButton.style.backgroundColor = '#6c757d';
-
-            // Add question to chat history
-            chatHistory.push({
-                role: 'user',
-                content: question
-            });
-
-            // Hide quick options after first message
-            document.getElementById('quickOptions').style.display = 'none';
-
-            // Display the question
-            addQuestionSection(question);
-            chatInput.value = '';
-            chatInput.focus();
-
-            // Get answer from API
-            getAnswer(question);
-        }
-
-        // Add Question to Chat
-        function addQuestionSection(message) {
-            // Create question element with animation
-            const sectionElement = document.createElement('div');
-            sectionElement.className = 'message user-message';
-
-            sectionElement.innerHTML = `
-                <i class="fas fa-user"></i>
-                <div class="message-bubble">${message}</div>
-            `;
-
-            content.appendChild(sectionElement);
-
-            // Add temporary answer section
-            addAnswerSection();
-            scrollToBottom();
-        }
-
-        // Add Answer Loading Placeholder
-        function addAnswerSection() {
-            // Increment answer section ID for tracking
-            answerSectionId++;
-
-            // Create loading answer section
-            const sectionElement = document.createElement('div');
-            sectionElement.className = 'message bot-message';
-            sectionElement.id = `answer-${answerSectionId}`;
-
-            sectionElement.innerHTML = `
-                <i class="fas fa-robot"></i>
-                <div class="message-bubble loading-bubble">
-                    <span class="loading-dot"></span>
-                    <span class="loading-dot"></span>
-                    <span class="loading-dot"></span>
-                </div>
-            `;
-
-            content.appendChild(sectionElement);
-
-            // Add loading dots animation with CSS
-            const style = document.createElement('style');
-            style.textContent = `
-                .loading-dot {
-                    width: 8px;
-                    height: 8px;
-                    border-radius: 50%;
-                    background-color: #956a3b;
-                    display: inline-block;
-                    margin-right: 3px;
-                }
-
-                .loading-dot:nth-child(1) {
-                    animation: bounce 1.5s infinite ease-in-out;
-                }
-
-                .loading-dot:nth-child(2) {
-                    animation: bounce 1.5s infinite ease-in-out 0.2s;
-                }
-
-                .loading-dot:nth-child(3) {
-                    animation: bounce 1.5s infinite ease-in-out 0.4s;
-                }
-
-                @keyframes bounce {
-                    0%, 100% { transform: translateY(0); }
-                    50% { transform: translateY(-8px); }
-                }
-            `;
-            document.head.appendChild(style);
-        }
-
-        // Get Answer from API
-        function getAnswer(question) {
-            isAnswerLoading = true;
-
-            fetch("https://openrouter.ai/api/v1/chat/completions", {
-                    method: "POST",
-                    headers: {
-                        "Authorization": `Bearer ${API_KEY}`,
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        "model": "deepseek/deepseek-r1-distill-llama-70b:free",
-                        "messages": [
-                            // System message
-                            {
-                                "role": "system",
-                                "content": "Anda adalah asisten AI Bank Koperasi Eceng Gondok yang ramah, profesional, dan berpengetahuan luas."
-                            },
-                            // Previous messages for context
-                            ...chatHistory.slice(-4), // Include up to 4 previous messages
-                            // Current question
-                            {
-                                "role": "user",
-                                "content": question
-                            }
-                        ]
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Get response message
-                    const resultData = data.choices[0].message.content;
-
-                    // Add answer to chat history
-                    chatHistory.then(data => {
-                    // Get response message
-                    const resultData = data.choices[0].message.content;
-
-                    // Add answer to chat history
-                    chatHistory.push({
-                        role: 'assistant',
-                        content: resultData
-                    });
-
-                    // Update the answer in chat
-                    isAnswerLoading = false;
-                    updateAnswerSection(resultData);
-                })
-                .catch(error => {
-                    console.error("Error fetching answer:", error);
-                    isAnswerLoading = false;
-                    updateAnswerSection("Maaf, terjadi kesalahan saat menghubungi layanan. Silakan coba lagi nanti.");
-                })
-                .finally(() => {
-                    scrollToBottom();
-                    sendButton.style.opacity = '1';
-                    sendButton.style.cursor = 'pointer';
-                    sendButton.style.background = 'linear-gradient(135deg, #956a3b, #7a552f)';
-                });
-        }
-
-        // Update Answer with Response
-        function updateAnswerSection(message) {
-            const answerSectionElement = document.getElementById(`answer-${answerSectionId}`);
-            if (answerSectionElement) {
-                const loadingBubble = answerSectionElement.querySelector('.loading-bubble');
-                loadingBubble.innerHTML = message;
-                loadingBubble.style.display = 'block';
-
-                // Remove the loading dots animation
-                loadingBubble.classList.remove('loading-bubble');
-            }
-        }
-
-        // Scroll Chat to Bottom
-        function scrollToBottom() {
-            content.scrollTo({
-                top: content.scrollHeight,
-                behavior: 'smooth'
-            });
-        }
-
-        // Handle Quick Option Click
-        function handleQuickOption(query) {
-            chatInput.value = query;
-            handleSendMessage();
-        }
-
-        // Setup Event Listeners
-        function setupEventListeners() {
-            // Button events
-            chatbotButton.addEventListener('click', toggleChatbox);
-            chatMinimize.addEventListener('click', closeChatbox);
-            chatClose.addEventListener('click', closeChatbox);
-
-            // Send message events
-            sendButton.addEventListener('click', handleSendMessage);
-            chatInput.addEventListener('keypress', event => {
-                if (event.key === 'Enter') {
+        // Setup Quick Options
+        quickOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const query = option.getAttribute('data-query');
+                if (query) {
+                    chatInput.value = query;
                     handleSendMessage();
                 }
             });
+        });
 
-            // Quick option events
-            quickOptions.forEach(option => {
-                option.addEventListener('click', () => {
-                    const query = option.getAttribute('data-query');
-                    if (query) {
-                        handleQuickOption(query);
-                    }
+        // Hover effects for button
+        chatbotButton.addEventListener('mouseenter', () => {
+            if (!isChatOpen) {
+                buttonLabel.style.display = 'block';
+                buttonLabel.style.animation = 'labelFadeIn 0.3s forwards';
+                buttonLabel.style.opacity = '1';
+            }
+        });
+    }
+
+    // Handle Send Message
+    function handleSendMessage() {
+        // Get the user input and remove leading/trailing space
+        const question = chatInput.value.trim();
+
+        // Prevent sending empty message
+        if (question === '' || isAnswerLoading) return;
+
+        // Disable UI send button
+        sendButton.style.opacity = '0.5';
+        sendButton.style.cursor = 'not-allowed';
+        sendButton.style.backgroundColor = '#6c757d';
+
+        // Add question to chat history
+        chatHistory.push({
+            role: 'user',
+            content: question
+        });
+
+        // Hide quick options after first message
+        document.getElementById('quickOptions').style.display = 'none';
+
+        // Display the question
+        addQuestionSection(question);
+        chatInput.value = '';
+        chatInput.focus();
+
+        // Get answer from API
+        getAnswer(question);
+    }
+
+    // Get Answer from API
+    function getAnswer(question) {
+        isAnswerLoading = true;
+
+        fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    "model": "deepseek/deepseek-r1-distill-llama-70b:free",
+                    "messages": [
+                        // System message
+                        {
+                            "role": "system",
+                            "content": "Anda adalah asisten AI Bank Koperasi Eceng Gondok yang ramah, profesional, dan berpengetahuan luas. Tugas utama Anda adalah memberikan informasi akurat dan bantuan terkait program pemasok eceng gondok, kerajinan eceng gondok, dan dampak positif dari inisiatif kami terhadap ekosistem Danau Toba. Tentang Bank Koperasi Eceng Gondok: Didirikan pada akhir 2023 oleh Sumondang Tabita Nainggolan di Sitanggang Bau, Pangururan, Samosir Merupakan inisiatif inovatif untuk mengatasi masalah lingkungan eceng gondok yang merusak ekosistem Danau Toba Mengubah eceng gondok dari gulma menjadi produk kerajinan bernilai tinggi Memberdayakan masyarakat lokal melalui kerajinan dan program pemasok Mengembangkan sistem koperasi digital terintegrasi untuk efisiensi operasional Program Pemasok Eceng Gondok: Pembayaran langsung: Rp 60.000 per kilogram eceng gondok Alternatif: Diskon spesial untuk pembelian produk kerajinan kami Penjemputan gratis ke lokasi pemasok Kontak langsung melalui WhatsApp setelah pengisian formulir Minimal 1 kg untuk diterima Penjemputan setiap hari Sabtu, pukul 08.00-17.00 WIB Area layanan: Samosir dan sekitarnya Dampak Eceng Gondok di Danau Toba: Menutupi 60% permukaan air, menghalangi sinar matahari Mengurangi oksigen yang penting bagi kehidupan akuatik Pertumbuhan pesat dalam hitungan hari, merusak keindahan panorama Setiap tanaman menyerap hingga 20 liter air per hari Mengganggu keseimbangan ekosistem danau Produk Kerajinan Eceng Gondok: Sandal Tas Keranjang Aksesori rumah Produk dekoratif Sovenir khas Danau Toba Proses Produksi: Pengeringan eceng gondok Penghalusan material Penganyaman dengan teknik tradisional Finishing dan quality control Pemasaran lokal dan online Tips Cara Menjawab: Selalu gunakan bahasa Indonesia yang sopan dan ramah Berikan informasi singkat, padat, dan bermanfaat Tawarkan bantuan lebih lanjut jika diperlukan Sisipkan fakta menarik tentang eceng gondok atau Danau Toba Ajak pengguna untuk bergabung sebagai pemasok atau membeli produk kerajinan Tekankan manfaat lingkungan dari program pemasok eceng gondok Tunjukkan bagaimana program ini membantu masyarakat lokal Berikan informasi kontak jika ada pertanyaan lebih lanjut Ingatlah bahwa Anda adalah wajah digital dari Bank Koperasi Eceng Gondok yang mendorong pelestarian lingkungan dan pemberdayaan masyarakat. Berikan layanan terbaik dan informasi yang akurat kepada semua pengguna yang berinteraksi dengan Anda."
+                        },
+                        // Previous messages for context
+                        ...chatHistory.slice(-4), // Include up to 4 previous messages
+                        // Current question
+                        {
+                            "role": "user",
+                            "content": question
+                        }
+                    ]
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Get response message
+                const resultData = data.choices[0].message.content;
+
+                // Add answer to chat history
+                chatHistory.push({
+                    role: 'assistant',
+                    content: resultData
                 });
-            });
 
-            // Hide quick options when user starts typing
-            chatInput.addEventListener('input', () => {
-                if (chatInput.value.trim().length > 0) {
-                    document.getElementById('quickOptions').style.display = 'none';
-                }
+                // Update the answer in chat
+                isAnswerLoading = false;
+                updateAnswerSection(resultData);
+            })
+            .catch(error => {
+                console.error("Error fetching answer:", error);
+                isAnswerLoading = false;
+                updateAnswerSection("Maaf, terjadi kesalahan saat menghubungi layanan. Silakan coba lagi nanti.");
+            })
+            .finally(() => {
+                scrollToBottom();
+                sendButton.style.opacity = '1';
+                sendButton.style.cursor = 'pointer';
+                sendButton.style.background = 'linear-gradient(135deg, #956a3b, #7a552f)';
             });
+    }
 
-            // Button hover effects
-            chatbotButton.addEventListener('mouseenter', () => {
-                const buttonLabel = chatbotButton.querySelector('.button-label');
-                if (!isChatOpen && buttonLabel) {
-                    buttonLabel.style.opacity = '1';
-                    buttonLabel.style.transform = 'translateX(0)';
-                }
-            });
+    // Add Question to Chat
+    function addQuestionSection(message) {
+        // Create question element with animation
+        const sectionElement = document.createElement('div');
+        sectionElement.style.display = 'flex';
+        sectionElement.style.alignItems = 'flex-start';
+        sectionElement.style.maxWidth = '85%';
+        sectionElement.style.alignSelf = 'flex-end';
+        sectionElement.style.flexDirection = 'row-reverse';
+        sectionElement.style.animation = 'messageIn 0.3s ease-out forwards';
+        sectionElement.style.marginBottom = '15px';
 
-            chatbotButton.addEventListener('mouseleave', () => {
-                const buttonLabel = chatbotButton.querySelector('.button-label');
-                if (!isChatOpen && buttonLabel) {
-                    buttonLabel.style.opacity = '0';
-                    buttonLabel.style.transform = 'translateX(10px)';
-                }
-            });
+        sectionElement.innerHTML = `
+          <i class="fas fa-user" style="width: 32px; height: 32px; background: #956a3b; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-left: 10px; font-size: 16px;"></i>
+          <div style="padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; word-wrap: break-word; background: #956a3b; color: #ffffff; border-top-right-radius: 4px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);">${message}</div>
+      `;
 
-            // Make sure the draggable doesn't interfere with button clicks
-            chatbotButton.addEventListener('click', (e) => {
-                if (!isDragging) {
-                    toggleChatbox(e);
-                }
-            });
+        content.appendChild(sectionElement);
+
+        // Add temporary answer section
+        addAnswerSection();
+        scrollToBottom();
+    }
+
+    // Add Answer Loading Placeholder
+    function addAnswerSection() {
+        // Increment answer section ID for tracking
+        answerSectionId++;
+
+        // Create loading answer section
+        const sectionElement = document.createElement('div');
+        sectionElement.style.display = 'flex';
+        sectionElement.style.alignItems = 'flex-start';
+        sectionElement.style.maxWidth = '85%';
+        sectionElement.style.alignSelf = 'flex-start';
+        sectionElement.style.animation = 'messageIn 0.3s ease-out forwards';
+        sectionElement.style.marginBottom = '15px';
+        sectionElement.id = `answer-${answerSectionId}`;
+
+        sectionElement.innerHTML = `
+          <i class="fas fa-robot" style="width: 32px; height: 32px; background: rgba(149, 106, 59, 0.1); color: #956a3b; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 10px; font-size: 16px;"></i>
+          <div class="loading-bubble" style="padding: 12px 16px; border-radius: 18px; font-size: 14px; line-height: 1.5; word-wrap: break-word; background: #ffffff; color: #343a40; border-top-left-radius: 4px; box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); display: flex; gap: 5px; align-items: center;">
+              <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #956a3b; animation: bounce 1.5s infinite ease-in-out;"></span>
+              <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #956a3b; animation: bounce 1.5s infinite ease-in-out; animation-delay: 0.2s;"></span>
+              <span style="width: 8px; height: 8px; border-radius: 50%; background-color: #956a3b; animation: bounce 1.5s infinite ease-in-out; animation-delay: 0.4s;"></span>
+          </div>
+      `;
+
+        content.appendChild(sectionElement);
+    }
+
+    // Update Answer with Response
+    function updateAnswerSection(message) {
+        const answerSectionElement = document.getElementById(`answer-${answerSectionId}`);
+        if (answerSectionElement) {
+            const loadingBubble = answerSectionElement.querySelector('.loading-bubble');
+            loadingBubble.innerHTML = message;
+            loadingBubble.style.display = 'block';
         }
+    }
 
-        // Reset position when window is resized
-        function handleWindowResize() {
-            window.addEventListener('resize', () => {
-                // If the chatbot is positioned off-screen after resize, reset its position
-                const rect = chatbotContainer.getBoundingClientRect();
-                const windowWidth = window.innerWidth;
-                const windowHeight = window.innerHeight;
+    // Scroll Chat to Bottom
+    function scrollToBottom() {
+        content.scrollTo({
+            top: content.scrollHeight,
+            behavior: 'smooth'
+        });
+    }
 
-                if (rect.right > windowWidth || rect.bottom > windowHeight) {
-                    // Reset to default bottom-right position
-                    chatbotContainer.style.left = 'auto';
-                    chatbotContainer.style.top = 'auto';
-                    chatbotContainer.style.right = '30px';
-                    chatbotContainer.style.bottom = '30px';
-                }
-            });
-        }
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        // Initialize chat state
+        initializeChatState();
 
-        // Initialize Everything
-        function init() {
-            // Set initial state
-            initializeChatState();
+        // Setup event listeners
+        setupEventListeners();
 
-            // Setup draggable functionality
-            initDraggable();
-
-            // Setup all event listeners
-            setupEventListeners();
-
-            // Handle window resize
-            handleWindowResize();
-
-            // Add fade-in animation to chatbot button
-            chatbotButton.style.animation = 'fadeIn 0.5s ease-out forwards';
-        }
-
-        // Start everything when DOM is loaded
-        init();
+        // Hide quick options when user starts typing
+        chatInput.addEventListener('input', () => {
+            if (chatInput.value.trim().length > 0) {
+                document.getElementById('quickOptions').style.display = 'none';
+            }
+        });
     });
+</script>
+

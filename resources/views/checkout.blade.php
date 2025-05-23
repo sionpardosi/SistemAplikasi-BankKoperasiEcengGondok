@@ -1066,7 +1066,6 @@
                                                 <input type="hidden" name="ongkir" id="ongkirinput" value="0">
                                                 <td class="text-right">
                                                     <div class="shipping-info" id="ongkir-display">
-                                                        <i class="fas fa-truck-loading"></i>
                                                         <span>Dihitung berdasarkan pilihan kurir</span>
                                                     </div>
                                                 </td>
