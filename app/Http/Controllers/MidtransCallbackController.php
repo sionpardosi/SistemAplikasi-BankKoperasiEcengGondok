@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 class MidtransCallbackController extends Controller
 {
     /**
-     * Perbaikan pada metode MidtransCallbackController
+     * metode MidtransCallbackController
      */
     public function handle(Request $request)
     {
@@ -45,36 +45,38 @@ class MidtransCallbackController extends Controller
             return response()->json(['message' => 'Transaction not found'], 404);
         }
 
-        $order = $transaction->order;
-        if (!$order) {
-            Log::error('Order tidak ditemukan untuk transaksi: ' . $orderId);
-            return response()->json(['message' => 'Order not found'], 404);
-        }
-
         DB::beginTransaction();
         try {
             switch ($transactionStatus) {
                 case 'capture':
                 case 'settlement':
-                    // Pembayaran berhasil: update status transaksi dan order
-                    $transaction->status = 'approved';
-                    $transaction->save();
+                    // PERUBAHAN: Konversi pending order menjadi order sesungguhnya
+                    if ($transaction->pending_order_id) {
+                        $pendingOrder = PendingOrder::with(['items', 'stockReservations'])->find($transaction->pending_order_id);
 
-                    // Ubah status dari 'awaiting_payment' menjadi 'confirmed'
-                    $order->status = 'confirmed';
-                    $order->confirmed_date = now();
-                    $order->save();
+                        if ($pendingOrder && $pendingOrder->status === 'pending_payment') {
+                            // Konversi ke order sesungguhnya
+                            $order = $pendingOrder->convertToOrder();
 
-                    // Kurangi stok permanen dan reserved_quantity
-                    foreach ($order->orderItems as $item) {
-                        $product = Product::lockForUpdate()->find($item->product_id);
-                        if ($product) {
-                            $product->quantity -= $item->quantity;
-                            $product->reserved_quantity -= $item->quantity;
-                            if ($product->reserved_quantity < 0) {
-                                $product->reserved_quantity = 0;
+                            // Update transaksi
+                            $transaction->order_id = $order->id;
+                            $transaction->status = 'approved';
+                            $transaction->save();
+
+                            Log::info("Pending order {$pendingOrder->id} converted to order {$order->id}");
+                        }
+                    } else {
+                        // Fallback untuk transaksi lama
+                        $transaction->status = 'approved';
+                        $transaction->save();
+
+                        if ($transaction->order_id) {
+                            $order = Order::find($transaction->order_id);
+                            if ($order) {
+                                $order->status = 'confirmed';
+                                $order->confirmed_date = now();
+                                $order->save();
                             }
-                            $product->save();
                         }
                     }
                     break;
@@ -82,38 +84,48 @@ class MidtransCallbackController extends Controller
                 case 'expire':
                 case 'cancel':
                 case 'deny':
-                    // Pembayaran gagal: update status dan kembalikan stok
-                    $transaction->status = 'declined';
-                    $transaction->save();
+                    // PERUBAHAN: Release semua reservasi stok
+                    if ($transaction->pending_order_id) {
+                        $pendingOrder = PendingOrder::with('stockReservations')->find($transaction->pending_order_id);
 
-                    $order->status = 'canceled';
-                    $order->canceled_date = now();
-                    $order->save();
-
-                    // Kembalikan reserved_quantity
-                    foreach ($order->orderItems as $item) {
-                        $product = Product::lockForUpdate()->find($item->product_id);
-                        if ($product) {
-                            $product->reserved_quantity -= $item->quantity;
-                            if ($product->reserved_quantity < 0) {
-                                $product->reserved_quantity = 0;
+                        if ($pendingOrder) {
+                            // Release semua stock reservations
+                            foreach ($pendingOrder->stockReservations()->where('status', 'active')->get() as $reservation) {
+                                $reservation->release();
                             }
-                            $product->save();
+
+                            $pendingOrder->status = 'expired';
+                            $pendingOrder->save();
+
+                            Log::info("Pending order {$pendingOrder->id} expired and stock released");
+                        }
+                    } else {
+                        // Fallback untuk transaksi lama
+                        if ($transaction->order_id) {
+                            $order = Order::find($transaction->order_id);
+                            if ($order) {
+                                $order->status = 'canceled';
+                                $order->canceled_date = now();
+                                $order->save();
+                            }
                         }
                     }
+
+                    $transaction->status = 'declined';
+                    $transaction->save();
                     break;
 
                 case 'pending':
                     // Tetap dalam status menunggu pembayaran
                     $transaction->status = 'pending';
                     $transaction->save();
-                    // Order tetap dalam status 'awaiting_payment'
                     break;
             }
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error update stok Midtrans webhook: ' . $e->getMessage());
+            Log::error('Error Midtrans webhook: ' . $e->getMessage());
             return response()->json(['message' => 'Internal server error'], 500);
         }
 
@@ -121,7 +133,6 @@ class MidtransCallbackController extends Controller
 
         return response()->json(['message' => 'Callback handled']);
     }
-
 
     public function paymentSuccess()
     {
