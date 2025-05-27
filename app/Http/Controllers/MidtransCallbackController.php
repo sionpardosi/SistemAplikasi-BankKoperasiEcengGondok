@@ -6,6 +6,8 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use App\Models\PendingOrder;
+use App\Models\StockReservation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
