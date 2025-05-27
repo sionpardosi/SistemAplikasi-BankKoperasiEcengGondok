@@ -766,10 +766,12 @@ class CartController extends Controller
     // ====================================================================================================
     public function confirmation()
     {
-        if (Session::has('order_id')) {
-            $order = Order::find(Session::get('order_id'));
-            $snaptoken = DB::table('transactions')->where('order_id', $order->id)->first()->snap_token;
-            return view('order-confirmation', compact('order', 'snaptoken'));
+        if (Session::has('pending_order_id')) {
+            $pendingOrder = PendingOrder::with(['items.product', 'transaction'])->find(Session::get('pending_order_id'));
+            if ($pendingOrder) {
+                $transaction = $pendingOrder->transaction;
+                return view('order-confirmation', compact('pendingOrder', 'transaction'));
+            }
         }
         return redirect()->route('cart.index');
     }
