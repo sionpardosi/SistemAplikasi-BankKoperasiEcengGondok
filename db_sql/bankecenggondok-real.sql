@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3307
--- Waktu pembuatan: 15 Bulan Mei 2025 pada 13.42
+-- Waktu pembuatan: 27 Bulan Mei 2025 pada 03.41
 -- Versi server: 10.4.24-MariaDB
 -- Versi PHP: 8.2.26
 
@@ -71,7 +71,9 @@ CREATE TABLE `addresses` (
   `locality` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `address` text COLLATE utf8mb4_unicode_ci NOT NULL,
   `city` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `idcity` int(11) NOT NULL,
   `state` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `idstate` int(11) NOT NULL,
   `country` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `landmark` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `zip` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
@@ -85,8 +87,12 @@ CREATE TABLE `addresses` (
 -- Dumping data untuk tabel `addresses`
 --
 
-INSERT INTO `addresses` (`id`, `user_id`, `name`, `phone`, `locality`, `address`, `city`, `state`, `country`, `landmark`, `zip`, `type`, `isdefault`, `created_at`, `updated_at`) VALUES
-(1, 1, 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'other', 1, '2025-05-12 17:20:15', '2025-05-14 08:42:30');
+INSERT INTO `addresses` (`id`, `user_id`, `name`, `phone`, `locality`, `address`, `city`, `idcity`, `state`, `idstate`, `country`, `landmark`, `zip`, `type`, `isdefault`, `created_at`, `updated_at`) VALUES
+(1, 1, 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 0, 'balige', 0, 'Indonesia', 'dsfdsf', '22312', 'other', 0, '2025-05-12 17:20:15', '2025-05-23 08:23:00'),
+(2, 1, 'sas', '082323123', 'asa', 'asa', 'Lebak', 232, 'Banten', 3, 'Indonesia', 'as', '22312', 'home', 0, '2025-05-15 13:54:42', '2025-05-23 08:23:00'),
+(3, 1, 'sas', '082323123', 'asa', 'asa', 'Lebak', 232, 'Banten', 3, 'Indonesia', 'as', '22312', 'home', 0, '2025-05-15 13:58:37', '2025-05-23 08:23:00'),
+(4, 1, 'Ana Muliyana', '082284351321', 'jl.lintas sumatera', 'rumah kenangan', 'Toba Samosir', 481, 'Sumatera Utara', 34, 'Indonesia', 'tugu kuning', '22381', 'home', 1, '2025-05-16 04:18:15', '2025-05-23 08:23:00'),
+(5, 5, 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 481, 'Sumatera Utara', 34, 'Indonesia', 'Balige', '22312', 'home', 1, '2025-05-18 05:34:52', '2025-05-18 05:34:52');
 
 -- --------------------------------------------------------
 
@@ -143,16 +149,18 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('asrisirait2004@gmail.com|127.0.0.1', 'i:1;', 1747211186),
-('asrisirait2004@gmail.com|127.0.0.1:timer', 'i:1747211186;', 1747211186),
-('lalistramanoban@gmail.com|127.0.0.1', 'i:2;', 1747232793),
-('lalistramanoban@gmail.com|127.0.0.1:timer', 'i:1747232793;', 1747232793),
-('lalistramanoban27@gmai.com|127.0.0.1', 'i:1;', 1747190581),
-('lalistramanoban27@gmai.com|127.0.0.1:timer', 'i:1747190581;', 1747190581),
-('listra.sidabutar@gmail.com|127.0.0.1', 'i:2;', 1747103531),
-('listra.sidabutar@gmail.com|127.0.0.1:timer', 'i:1747103531;', 1747103531),
-('sumondang@gmail.com|127.0.0.1', 'i:1;', 1747189987),
-('sumondang@gmail.com|127.0.0.1:timer', 'i:1747189987;', 1747189987);
+('5c785c036466adea360111aa28563bfd556b5fba', 'i:1;', 1747537493),
+('5c785c036466adea360111aa28563bfd556b5fba:timer', 'i:1747537493;', 1747537493),
+('sionpardosi0307@gmail.com|127.0.0.1', 'i:1;', 1747558433),
+('sionpardosi0307@gmail.com|127.0.0.1:timer', 'i:1747558433;', 1747558433),
+('spardosi12@gmaihunhl.com|127.0.0.1', 'i:1;', 1747987063),
+('spardosi12@gmaihunhl.com|127.0.0.1:timer', 'i:1747987063;', 1747987063),
+('spardosi12@gmail.comw|127.0.0.1', 'i:1;', 1747658406),
+('spardosi12@gmail.comw|127.0.0.1:timer', 'i:1747658406;', 1747658406),
+('spardosi12@gmasail.com|127.0.0.1', 'i:1;', 1747659173),
+('spardosi12@gmasail.com|127.0.0.1:timer', 'i:1747659173;', 1747659173),
+('sumondang@gmail.com|127.0.0.1', 'i:1;', 1747711408),
+('sumondang@gmail.com|127.0.0.1:timer', 'i:1747711408;', 1747711408);
 
 -- --------------------------------------------------------
 
@@ -280,6 +288,14 @@ CREATE TABLE `email_verifications` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `email_verifications`
+--
+
+INSERT INTO `email_verifications` (`id`, `email`, `name`, `mobile`, `password`, `token`, `expires_at`, `created_at`, `updated_at`) VALUES
+(6, 'spadas@gmail.ne.jp', 'Sion Pae', '824235324214', 'spadas@gmail.ne.jp', '903000', '2025-05-19 06:40:43', '2025-05-19 06:30:43', '2025-05-19 06:30:43'),
+(7, 'asadd@gmail.com', 'asadd@gmail.com', '854235234324', 'asadd@gmail.com', '699415', '2025-05-19 06:43:26', '2025-05-19 06:31:24', '2025-05-19 06:33:26');
 
 -- --------------------------------------------------------
 
@@ -446,7 +462,11 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (47, '2025_05_14_222727_add_bank_info_to_transactions_table', 4),
 (48, '2025_05_15_012225_add_reserved_quantity_to_products_table', 5),
 (49, '2025_05_15_102329_create_sizes_table', 6),
-(50, '2025_05_15_102447_create_product_size_table', 6);
+(50, '2025_05_15_102447_create_product_size_table', 6),
+(51, '2025_05_15_205414_add_idcity_and_idstate_to_addresses_table', 7),
+(52, '2025_02_15_205716_add_ongkir_and_kurir_to_orders_table', 8),
+(53, '2025_05_16_054057_add_options_to_user_cart_items', 9),
+(54, '2025_05_19_230412_add_awaiting_payment_status_to_orders_table', 10);
 
 -- --------------------------------------------------------
 
@@ -502,7 +522,45 @@ INSERT INTO `notifications` (`idnotification`, `pesan`, `waktu`, `status`) VALUE
 (23, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-14', '2025-05-15 08:18:02', 'unread'),
 (24, 'Pesanan Baru Dari sion dengan Invoice ORDER-15-6d95497e-3694-4107-849a-d6142acf2c21 dengan status pending', '2025-05-15 08:20:46', 'unread'),
 (25, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-15', '2025-05-15 08:23:19', 'unread'),
-(26, 'Pesanan Baru Dari sion dengan Invoice ORDER-16-082be840-4fd9-45ec-a85a-523b0e0c6e66 dengan status pending', '2025-05-15 11:01:53', 'unread');
+(26, 'Pesanan Baru Dari sion dengan Invoice ORDER-16-082be840-4fd9-45ec-a85a-523b0e0c6e66 dengan status pending', '2025-05-15 11:01:53', 'unread'),
+(27, 'Pesanan Baru Dari sas dengan Invoice ORDER-17-70202558-0f56-4df4-86c1-106653edd43f dengan status pending', '2025-05-15 20:58:39', 'unread'),
+(28, 'Pesanan Baru Dari sas dengan Invoice ORDER-18-5acb134c-480d-45c0-a91b-37b6908ce343 dengan status pending', '2025-05-16 05:49:39', 'unread'),
+(29, 'Pesanan Baru Dari sas dengan Invoice ORDER-19-3db49c23-afef-48b2-9942-abdb6e5b99d6 dengan status pending', '2025-05-16 06:09:34', 'unread'),
+(30, 'Pesanan Baru Dari sas dengan Invoice ORDER-20-0c68865b-defc-4464-af2e-35a33f291634 dengan status pending', '2025-05-16 10:57:33', 'unread'),
+(31, 'Pesanan Baru Dari sas dengan Invoice ORDER-21-b4e442c2-a2c3-414a-931f-128e2030acc3 dengan status pending', '2025-05-16 11:11:15', 'unread'),
+(32, 'Pesanan Baru Dari Ana Muliyana dengan Invoice ORDER-22-8f8b7fa1-4fcd-4a67-aad7-9d715462d4ff dengan status pending', '2025-05-16 11:18:16', 'unread'),
+(33, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-23-2fe8c126-a432-40cf-84a9-4f6e4aebf281 dengan status pending', '2025-05-18 12:34:53', 'unread'),
+(34, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-24-b37c2de2-4468-4577-8a5f-eaaf5ad15b36 dengan status pending', '2025-05-18 13:54:32', 'unread'),
+(35, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-25-195964a5-120f-4606-b5be-e183fb869e62 dengan status pending', '2025-05-18 15:26:05', 'unread'),
+(36, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-26-cabcad16-1fa7-44e8-ac4e-329a57a23f67 dengan status pending', '2025-05-18 15:33:42', 'unread'),
+(37, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-27-2742e732-8fef-4f4d-bd5d-67b6cb0339ed dengan status pending', '2025-05-18 15:36:51', 'unread'),
+(38, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-28-0717814b-f766-4488-b858-181062d1fa70 dengan status pending', '2025-05-18 15:37:56', 'unread'),
+(39, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-29-d7e9e77e-cc0d-48f0-b9c8-b8618da93c77 dengan status pending', '2025-05-18 15:40:23', 'unread'),
+(40, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-30-98efe668-4395-4f46-9f8f-c2d0cf63c7ba dengan status pending', '2025-05-18 15:45:29', 'unread'),
+(41, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-31-eabc441a-904e-4a5c-b39a-eebbb48741ba dengan status pending', '2025-05-18 15:50:07', 'unread'),
+(42, 'Pesanan Baru Dari sas dengan Invoice ORDER-32-27fd7058-0253-4d51-a088-6f20549d97cf dengan status pending', '2025-05-18 15:55:30', 'unread'),
+(43, 'Pesanan telah dikonfirmasi untuk Invoice ORDER-32', '2025-05-18 15:56:39', 'unread'),
+(44, 'Pesanan sedang diproses untuk Invoice ORDER-32', '2025-05-18 15:56:55', 'unread'),
+(45, 'Pesanan telah dikirim untuk Invoice ORDER-32', '2025-05-18 15:57:37', 'unread'),
+(46, 'Pesanan telah diterima oleh admin untuk Invoice ORDER-32', '2025-05-18 15:57:45', 'unread'),
+(47, 'Pesanan Baru Dari sas dengan Invoice ORDER-33-55d927d2-7518-451e-98ce-659d9e9a080c dengan status pending', '2025-05-19 21:44:12', 'unread'),
+(48, 'Pesanan Baru Dari Ana Muliyana dengan Invoice ORDER-34-f2c0b36a-ca39-455f-a11f-b2be982952ce dengan status pending', '2025-05-19 21:50:36', 'unread'),
+(49, 'Pesanan Baru Dari sas dengan Invoice ORDER-35-0c510db3-3141-401c-bdad-d2a5a08daa2e dengan status pending', '2025-05-19 21:54:18', 'unread'),
+(50, 'Pesanan Baru Dari sas dengan Invoice ORDER-36-3cafac17-1584-4bca-9de1-db2ff73b0e27 dengan status pending', '2025-05-19 22:02:19', 'unread'),
+(51, 'Pesanan Baru Dari sas dengan Invoice ORDER-37-5cc96b73-7922-4caa-a186-05cf21bca42b dengan status pending', '2025-05-19 22:24:12', 'unread'),
+(52, 'Pesanan Baru Dari sas dengan Invoice ORDER-38-9094e50d-73cc-4ca6-bad9-8be4f2bfbc03 dengan status pending', '2025-05-19 23:12:16', 'unread'),
+(53, 'Pesanan telah dikonfirmasi untuk Invoice ORDER-38', '2025-05-19 23:16:03', 'unread'),
+(54, 'Pesanan Baru Dari sas dengan Invoice ORDER-39-13a830e4-3f62-4d41-9f9b-5a6512764932 dengan status pending', '2025-05-20 10:20:32', 'unread'),
+(55, 'Pesanan Baru Dari sas dengan Invoice ORDER-40-0ef45b61-dacb-4fdf-badb-2f36fe084379 dengan status pending', '2025-05-20 14:07:13', 'unread'),
+(56, 'Pesanan Baru Dari sas dengan Invoice ORDER-41-0bbd04bd-55b8-421c-a795-2839d652baad dengan status pending', '2025-05-20 14:31:10', 'unread'),
+(57, 'Pesanan Baru Dari sas dengan Invoice ORDER-42-39937c41-4dc1-4d35-b01a-8e5d78fd8093 dengan status pending', '2025-05-20 16:21:09', 'unread'),
+(58, 'Pesanan Baru Dari sas dengan Invoice ORDER-43-e3f0f856-d128-4f92-89c8-b9ffde748ae5 dengan status pending', '2025-05-20 16:28:55', 'unread'),
+(59, 'Pesanan Baru Dari sas dengan Invoice ORDER-46-718b7eff-18d2-4919-83be-659951462554 dengan status pending', '2025-05-21 16:18:05', 'unread'),
+(60, 'Pesanan Baru Dari sas dengan Invoice ORDER-47-b6b90b8a-f0e0-4997-ad80-4c6b492743a3 dengan status pending', '2025-05-23 13:53:36', 'unread'),
+(61, 'Pesanan Baru Dari sas dengan Invoice ORDER-48-791e1b91-fdcb-4b34-b054-06e03d69b836 dengan status pending', '2025-05-23 13:56:18', 'unread'),
+(62, 'Pesanan Baru Dari Ana Muliyana dengan Invoice ORDER-49-39cdb9f3-afca-4be7-98e0-553cc75915c7 dengan status pending', '2025-05-26 12:59:50', 'unread'),
+(63, 'Pesanan Baru Dari Ana Muliyana dengan Invoice ORDER-50-d43b93f5-c0f2-4823-96fc-808ee7bf6ad8 dengan status pending', '2025-05-26 16:53:47', 'unread'),
+(64, 'Pesanan Baru Dari Ana Muliyana dengan Invoice ORDER-51-b2fb3d87-6f97-4a81-b26f-54ace76149c3 dengan status pending', '2025-05-26 17:07:47', 'unread');
 
 -- --------------------------------------------------------
 
@@ -526,8 +584,10 @@ CREATE TABLE `orders` (
   `country` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `landmark` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `zip` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ongkir` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `kurir` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL,
   `type` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'home',
-  `status` enum('pending','confirmed','processing','shipped','delivered','completed','canceled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'pending',
+  `status` enum('awaiting_payment','pending','confirmed','processing','shipped','delivered','completed','canceled') COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'awaiting_payment',
   `is_shipping_different` tinyint(1) NOT NULL DEFAULT 0,
   `confirmed_date` date DEFAULT NULL,
   `processing_date` date DEFAULT NULL,
@@ -543,23 +603,58 @@ CREATE TABLE `orders` (
 -- Dumping data untuk tabel `orders`
 --
 
-INSERT INTO `orders` (`id`, `user_id`, `subtotal`, `discount`, `tax`, `total`, `name`, `phone`, `locality`, `address`, `city`, `state`, `country`, `landmark`, `zip`, `type`, `status`, `is_shipping_different`, `confirmed_date`, `processing_date`, `shipped_date`, `delivered_date`, `completed_date`, `canceled_date`, `created_at`, `updated_at`) VALUES
-(1, 1, '300000.00', '0.00', '63000.00', '363000.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-12 17:20:15', '2025-05-13 09:51:30'),
-(2, 1, '150000.00', '0.00', '31500.00', '181500.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13 08:16:28', '2025-05-13 08:54:14'),
-(3, 1, '600000.00', '0.00', '126000.00', '726000.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13 08:56:07', '2025-05-13 09:07:53'),
-(4, 1, '79000.00', '0.00', '16590.00', '95590.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13 10:27:17', '2025-05-13 16:03:03'),
-(5, 1, '50000.00', '0.00', '10500.00', '60500.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-14', '2025-05-14', NULL, '2025-05-14 03:24:27', '2025-05-14 03:25:56'),
-(6, 1, '25000.00', '0.00', '5250.00', '30250.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-14', '2025-05-14', NULL, '2025-05-14 03:26:59', '2025-05-14 03:27:44'),
-(7, 1, '150000.00', '0.00', '31500.00', '181500.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-14 15:16:43', '2025-05-14 15:16:43'),
-(8, 1, '89000.00', '0.00', '18690.00', '107690.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-14 15:32:09', '2025-05-14 15:32:09'),
-(9, 1, '30000.00', '0.00', '6300.00', '36300.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-14 15:48:10', '2025-05-14 15:48:10'),
-(10, 1, '119000.00', '0.00', '24990.00', '143990.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-15', NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:38:31', '2025-05-14 18:41:57'),
-(11, 1, '300000.00', '0.00', '63000.00', '363000.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-15', '2025-05-15', '2025-05-15', '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:44:02', '2025-05-14 18:45:40'),
-(12, 1, '60000.00', '0.00', '12600.00', '72600.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-15', NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:51:38', '2025-05-14 18:53:09'),
-(13, 1, '60000.00', '0.00', '12600.00', '72600.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, '2025-05-15', NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:55:22', '2025-05-14 18:56:09'),
-(14, 1, '2100000.00', '0.00', '441000.00', '2541000.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-15 01:16:57', '2025-05-15 01:18:18'),
-(15, 1, '176000.00', '0.00', '36960.00', '212960.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-15 01:20:45', '2025-05-15 01:23:30'),
-(16, 1, '318000.00', '0.00', '66780.00', '384780.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-15 04:01:53', '2025-05-15 04:01:53');
+INSERT INTO `orders` (`id`, `user_id`, `subtotal`, `discount`, `tax`, `total`, `name`, `phone`, `locality`, `address`, `city`, `state`, `country`, `landmark`, `zip`, `ongkir`, `kurir`, `type`, `status`, `is_shipping_different`, `confirmed_date`, `processing_date`, `shipped_date`, `delivered_date`, `completed_date`, `canceled_date`, `created_at`, `updated_at`) VALUES
+(1, 1, '300000.00', '0.00', '63000.00', '363000.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-12 17:20:15', '2025-05-13 09:51:30'),
+(2, 1, '150000.00', '0.00', '31500.00', '181500.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13 08:16:28', '2025-05-13 08:54:14'),
+(3, 1, '600000.00', '0.00', '126000.00', '726000.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13 08:56:07', '2025-05-13 09:07:53'),
+(4, 1, '79000.00', '0.00', '16590.00', '95590.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', '2025-05-13', NULL, '2025-05-13 10:27:17', '2025-05-13 16:03:03'),
+(5, 1, '50000.00', '0.00', '10500.00', '60500.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-14', '2025-05-14', NULL, '2025-05-14 03:24:27', '2025-05-14 03:25:56'),
+(6, 1, '25000.00', '0.00', '5250.00', '30250.00', 'sion', '082278900178', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-14', '2025-05-14', NULL, '2025-05-14 03:26:59', '2025-05-14 03:27:44'),
+(7, 1, '150000.00', '0.00', '31500.00', '181500.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-14 15:16:43', '2025-05-14 15:16:43'),
+(8, 1, '89000.00', '0.00', '18690.00', '107690.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-14 15:32:09', '2025-05-14 15:32:09'),
+(9, 1, '30000.00', '0.00', '6300.00', '36300.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-14 15:48:10', '2025-05-14 15:48:10'),
+(10, 1, '119000.00', '0.00', '24990.00', '143990.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, '2025-05-15', NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:38:31', '2025-05-14 18:41:57'),
+(11, 1, '300000.00', '0.00', '63000.00', '363000.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, '2025-05-15', '2025-05-15', '2025-05-15', '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:44:02', '2025-05-14 18:45:40'),
+(12, 1, '60000.00', '0.00', '12600.00', '72600.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, '2025-05-15', NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:51:38', '2025-05-14 18:53:09'),
+(13, 1, '60000.00', '0.00', '12600.00', '72600.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, '2025-05-15', NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-14 18:55:22', '2025-05-14 18:56:09'),
+(14, 1, '2100000.00', '0.00', '441000.00', '2541000.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-15 01:16:57', '2025-05-15 01:18:18'),
+(15, 1, '176000.00', '0.00', '36960.00', '212960.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'completed', 0, NULL, NULL, NULL, '2025-05-15', '2025-05-15', NULL, '2025-05-15 01:20:45', '2025-05-15 01:23:30'),
+(16, 1, '318000.00', '0.00', '66780.00', '384780.00', 'sion', '0822789001789', 'fdsf', 'sajbdsad', 'balige', 'balige', 'Indonesia', 'dsfdsf', '22312', '', '', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-15 04:01:53', '2025-05-15 04:01:53'),
+(17, 1, '178000.00', '0.00', '0.00', '233000.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '55000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-15 13:58:37', '2025-05-15 13:58:37'),
+(18, 1, '12000.00', '0.00', '2520.00', '36520.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '22000', 'pos', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-15 22:49:39', '2025-05-15 22:49:39'),
+(19, 1, '21000.00', '0.00', '4410.00', '80410.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '55000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-15 23:09:32', '2025-05-15 23:09:32'),
+(20, 1, '1467000.00', '0.00', '308070.00', '1793070.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '18000', 'tiki', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-16 03:57:32', '2025-05-16 03:57:32'),
+(21, 1, '233000.00', '0.00', '48930.00', '296930.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-16 04:11:15', '2025-05-16 04:11:15'),
+(22, 1, '110000.00', '0.00', '23100.00', '233100.00', 'Ana Muliyana', '082284351321', 'jl.lintas sumatera', 'rumah kenangan', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'tugu kuning', '22381', '100000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-16 04:18:15', '2025-05-16 04:18:15'),
+(23, 5, '63000.00', '0.00', '13230.00', '128230.00', 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'Balige', '22312', '52000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-18 05:34:52', '2025-05-18 05:34:52'),
+(24, 5, '30000.00', '0.00', '6300.00', '88300.00', 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'Balige', '22312', '52000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-18 06:54:30', '2025-05-18 06:54:30'),
+(25, 5, '12000.00', '0.00', '2520.00', '66520.00', 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'Balige', '22312', '52000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-18 08:26:03', '2025-05-18 08:26:03'),
+(26, 5, '30000.00', '0.00', '6300.00', '88300.00', 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'Balige', '22312', '52000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-18 08:33:39', '2025-05-18 08:33:39'),
+(27, 5, '89000.00', '0.00', '18690.00', '186690.00', 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'Balige', '22312', '79000', 'tiki', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-18 08:36:47', '2025-05-18 08:36:47'),
+(28, 5, '30000.00', '0.00', '6300.00', '416300.00', 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'Balige', '22312', '380000', 'tiki', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-18 08:37:54', '2025-05-18 08:37:54'),
+(29, 5, '30000.00', '0.00', '6300.00', '416300.00', 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'Balige', '22312', '380000', 'tiki', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-18 08:40:20', '2025-05-18 08:40:20'),
+(30, 5, '12000.00', '0.00', '2520.00', '66520.00', 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'Balige', '22312', '52000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-18 08:45:26', '2025-05-18 08:45:26'),
+(31, 5, '49000.00', '0.00', '10290.00', '439290.00', 'Sion Pardosi', '082278900189', 'Balige', 'Balige', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'Balige', '22312', '380000', 'tiki', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-18 08:50:06', '2025-05-18 08:50:06'),
+(32, 1, '90000.00', '0.00', '18900.00', '126900.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '18000', 'tiki', 'home', 'completed', 0, '2025-05-18', '2025-05-18', '2025-05-18', '2025-05-18', '2025-05-18', NULL, '2025-05-18 08:55:28', '2025-05-18 08:57:55'),
+(33, 1, '225000.00', '0.00', '47250.00', '287250.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-19 14:44:11', '2025-05-19 14:44:11'),
+(34, 1, '168000.00', '0.00', '35280.00', '218280.00', 'Ana Muliyana', '082284351321', 'jl.lintas sumatera', 'rumah kenangan', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'tugu kuning', '22381', '15000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-19 14:50:35', '2025-05-19 14:50:35'),
+(35, 1, '42000.00', '0.00', '8820.00', '65820.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-19 14:54:18', '2025-05-19 14:54:18'),
+(36, 1, '4005000.00', '0.00', '841050.00', '4864050.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '18000', 'tiki', 'home', 'canceled', 0, NULL, NULL, NULL, NULL, NULL, '2025-05-19', '2025-05-19 15:02:18', '2025-05-19 15:14:17'),
+(37, 1, '89000.00', '0.00', '18690.00', '122690.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'pending', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-19 15:24:11', '2025-05-19 15:24:11'),
+(38, 1, '79000.00', '0.00', '16590.00', '110590.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'confirmed', 0, '2025-05-19', NULL, NULL, NULL, NULL, NULL, '2025-05-19 16:12:15', '2025-05-19 16:16:03'),
+(39, 1, '30000.00', '0.00', '6300.00', '51300.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-20 03:20:31', '2025-05-20 03:20:31'),
+(40, 1, '30000.00', '0.00', '6300.00', '51300.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-20 07:07:13', '2025-05-20 07:07:13'),
+(41, 1, '89000.00', '0.00', '18690.00', '162690.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '55000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-20 07:31:10', '2025-05-20 07:31:10'),
+(42, 1, '617000.00', '0.00', '129570.00', '801570.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '55000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-20 09:21:08', '2025-05-20 09:21:08'),
+(43, 1, '89000.00', '0.00', '18690.00', '162690.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '55000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-20 09:28:54', '2025-05-20 09:28:54'),
+(44, 1, '30000.00', '0.00', '6300.00', '51300.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-21 09:16:46', '2025-05-21 09:16:46'),
+(45, 1, '49000.00', '0.00', '10290.00', '74290.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-21 09:17:11', '2025-05-21 09:17:11'),
+(46, 1, '21000.00', '0.00', '4410.00', '1425410.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '1400000', 'tiki', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-21 09:18:01', '2025-05-21 09:18:01'),
+(47, 1, '12000.00', '0.00', '2520.00', '69520.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '55000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-23 06:53:36', '2025-05-23 06:53:36'),
+(48, 1, '30000.00', '0.00', '6300.00', '51300.00', 'sas', '082323123', 'asa', 'asa', 'Lebak', 'Banten', 'Indonesia', 'as', '22312', '15000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-23 06:56:17', '2025-05-23 06:56:17'),
+(49, 1, '21000.00', '0.00', '4410.00', '77410.00', 'Ana Muliyana', '082284351321', 'jl.lintas sumatera', 'rumah kenangan', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'tugu kuning', '22381', '52000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-26 05:59:49', '2025-05-26 05:59:49'),
+(50, 1, '49000.00', '0.00', '10290.00', '159290.00', 'Ana Muliyana', '082284351321', 'jl.lintas sumatera', 'rumah kenangan', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'tugu kuning', '22381', '100000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-26 09:53:46', '2025-05-26 09:53:46'),
+(51, 1, '49000.00', '0.00', '10290.00', '159290.00', 'Ana Muliyana', '082284351321', 'jl.lintas sumatera', 'rumah kenangan', 'Toba Samosir', 'Sumatera Utara', 'Indonesia', 'tugu kuning', '22381', '100000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-05-26 10:07:47', '2025-05-26 10:07:47');
 
 -- --------------------------------------------------------
 
@@ -602,7 +697,57 @@ INSERT INTO `order_items` (`id`, `product_id`, `order_id`, `price`, `quantity`, 
 (16, 24, 14, '150000.00', 14, NULL, 0, '2025-05-15 01:16:57', '2025-05-15 01:16:57'),
 (17, 18, 15, '11000.00', 16, NULL, 0, '2025-05-15 01:20:45', '2025-05-15 01:20:45'),
 (18, 20, 16, '49000.00', 6, NULL, 0, '2025-05-15 04:01:53', '2025-05-15 04:01:53'),
-(19, 25, 16, '12000.00', 2, NULL, 0, '2025-05-15 04:01:53', '2025-05-15 04:01:53');
+(19, 25, 16, '12000.00', 2, NULL, 0, '2025-05-15 04:01:53', '2025-05-15 04:01:53'),
+(20, 23, 17, '89000.00', 2, NULL, 0, '2025-05-15 13:58:37', '2025-05-15 13:58:37'),
+(21, 25, 18, '12000.00', 1, NULL, 0, '2025-05-15 22:49:39', '2025-05-15 22:49:39'),
+(22, 21, 19, '21000.00', 1, NULL, 0, '2025-05-15 23:09:32', '2025-05-15 23:09:32'),
+(23, 21, 20, '21000.00', 2, NULL, 0, '2025-05-16 03:57:32', '2025-05-16 03:57:32'),
+(24, 26, 20, '200000.00', 7, NULL, 0, '2025-05-16 03:57:32', '2025-05-16 03:57:32'),
+(25, 17, 20, '25000.00', 1, NULL, 0, '2025-05-16 03:57:32', '2025-05-16 03:57:32'),
+(26, 25, 21, '12000.00', 1, NULL, 0, '2025-05-16 04:11:15', '2025-05-16 04:11:15'),
+(27, 21, 21, '21000.00', 1, NULL, 0, '2025-05-16 04:11:15', '2025-05-16 04:11:15'),
+(28, 26, 21, '200000.00', 1, NULL, 0, '2025-05-16 04:11:15', '2025-05-16 04:11:15'),
+(29, 20, 22, '49000.00', 2, NULL, 0, '2025-05-16 04:18:15', '2025-05-16 04:18:15'),
+(30, 25, 22, '12000.00', 1, NULL, 0, '2025-05-16 04:18:15', '2025-05-16 04:18:15'),
+(31, 25, 23, '12000.00', 1, '{\"size_id\":9,\"size_name\":\"18 cm\"}', 0, '2025-05-18 05:34:52', '2025-05-18 05:34:52'),
+(32, 22, 23, '30000.00', 1, '[]', 0, '2025-05-18 05:34:52', '2025-05-18 05:34:52'),
+(33, 21, 23, '21000.00', 1, '[]', 0, '2025-05-18 05:34:52', '2025-05-18 05:34:52'),
+(34, 22, 24, '30000.00', 1, '[]', 0, '2025-05-18 06:54:30', '2025-05-18 06:54:30'),
+(35, 25, 25, '12000.00', 1, '[]', 0, '2025-05-18 08:26:03', '2025-05-18 08:26:03'),
+(36, 22, 26, '30000.00', 1, '[]', 0, '2025-05-18 08:33:39', '2025-05-18 08:33:39'),
+(37, 23, 27, '89000.00', 1, '[]', 0, '2025-05-18 08:36:47', '2025-05-18 08:36:47'),
+(38, 22, 28, '30000.00', 1, '[]', 0, '2025-05-18 08:37:54', '2025-05-18 08:37:54'),
+(39, 22, 29, '30000.00', 1, '[]', 0, '2025-05-18 08:40:20', '2025-05-18 08:40:20'),
+(40, 25, 30, '12000.00', 1, '[]', 0, '2025-05-18 08:45:26', '2025-05-18 08:45:26'),
+(41, 19, 31, '49000.00', 1, '[]', 0, '2025-05-18 08:50:06', '2025-05-18 08:50:06'),
+(42, 22, 32, '30000.00', 3, '[]', 0, '2025-05-18 08:55:28', '2025-05-18 08:55:28'),
+(43, 26, 33, '200000.00', 1, '[]', 0, '2025-05-19 14:44:11', '2025-05-19 14:44:11'),
+(44, 17, 33, '25000.00', 1, '[]', 0, '2025-05-19 14:44:11', '2025-05-19 14:44:11'),
+(45, 22, 34, '30000.00', 1, '[]', 0, '2025-05-19 14:50:35', '2025-05-19 14:50:35'),
+(46, 23, 34, '89000.00', 1, '[]', 0, '2025-05-19 14:50:35', '2025-05-19 14:50:35'),
+(47, 19, 34, '49000.00', 1, '[]', 0, '2025-05-19 14:50:35', '2025-05-19 14:50:35'),
+(48, 25, 35, '12000.00', 1, '[]', 0, '2025-05-19 14:54:18', '2025-05-19 14:54:18'),
+(49, 22, 35, '30000.00', 1, '[]', 0, '2025-05-19 14:54:18', '2025-05-19 14:54:18'),
+(50, 23, 36, '89000.00', 45, '[]', 0, '2025-05-19 15:02:18', '2025-05-19 15:02:18'),
+(51, 23, 37, '89000.00', 1, '[]', 0, '2025-05-19 15:24:11', '2025-05-19 15:24:11'),
+(52, 22, 38, '30000.00', 1, '[]', 0, '2025-05-19 16:12:15', '2025-05-19 16:12:15'),
+(53, 19, 38, '49000.00', 1, '[]', 0, '2025-05-19 16:12:15', '2025-05-19 16:12:15'),
+(54, 22, 39, '30000.00', 1, '[]', 0, '2025-05-20 03:20:31', '2025-05-20 03:20:31'),
+(55, 22, 40, '30000.00', 1, '[]', 0, '2025-05-20 07:07:13', '2025-05-20 07:07:13'),
+(56, 23, 41, '89000.00', 1, '[]', 0, '2025-05-20 07:31:10', '2025-05-20 07:31:10'),
+(57, 26, 42, '200000.00', 1, '[]', 0, '2025-05-20 09:21:08', '2025-05-20 09:21:08'),
+(58, 20, 42, '49000.00', 1, '[]', 0, '2025-05-20 09:21:08', '2025-05-20 09:21:08'),
+(59, 19, 42, '49000.00', 7, '[]', 0, '2025-05-20 09:21:08', '2025-05-20 09:21:08'),
+(60, 17, 42, '25000.00', 1, '[]', 0, '2025-05-20 09:21:08', '2025-05-20 09:21:08'),
+(61, 23, 43, '89000.00', 1, '[]', 0, '2025-05-20 09:28:54', '2025-05-20 09:28:54'),
+(62, 22, 44, '30000.00', 1, '[]', 0, '2025-05-21 09:16:46', '2025-05-21 09:16:46'),
+(63, 20, 45, '49000.00', 1, '[]', 0, '2025-05-21 09:17:11', '2025-05-21 09:17:11'),
+(64, 21, 46, '21000.00', 1, '[]', 0, '2025-05-21 09:18:01', '2025-05-21 09:18:01'),
+(65, 25, 47, '12000.00', 1, '[]', 0, '2025-05-23 06:53:36', '2025-05-23 06:53:36'),
+(66, 22, 48, '30000.00', 1, '[]', 0, '2025-05-23 06:56:17', '2025-05-23 06:56:17'),
+(67, 21, 49, '21000.00', 1, '[]', 0, '2025-05-26 05:59:49', '2025-05-26 05:59:49'),
+(68, 20, 50, '49000.00', 1, '[]', 0, '2025-05-26 09:53:46', '2025-05-26 09:53:46'),
+(69, 20, 51, '49000.00', 1, '[]', 0, '2025-05-26 10:07:47', '2025-05-26 10:07:47');
 
 -- --------------------------------------------------------
 
@@ -687,15 +832,17 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `name`, `slug`, `short_description`, `description`, `regular_price`, `sale_price`, `SKU`, `stock_status`, `featured`, `quantity`, `reserved_quantity`, `image`, `images`, `category_id`, `brand_id`, `created_at`, `updated_at`) VALUES
-(17, 'Sendal Anyaman Eceng Gondok', 'sendal-anyaman-eceng-gondok', 'Sendal Anyaman Eceng Gondok Samosir', 'Sendal Anyaman Eceng Gondok Samosir', '25000.00', '25000.00', 'sendal000001', 'instock', 1, 30, 0, '1745404000.jpg', '1745404000-1.png,1745404000-2.png,1745404000-3.png', 16, 6, '2025-04-22 20:26:42', '2025-04-22 20:26:42'),
+(17, 'Sendal Anyaman Eceng Gondok', 'sendal-anyaman-eceng-gondok', 'Sendal Anyaman Eceng Gondok Samosir', 'Sendal Anyaman Eceng Gondok Samosir', '25000.00', '25000.00', 'sendal000001', 'instock', 1, 30, 1, '1745404000.jpg', '1745404000-1.png,1745404000-2.png,1745404000-3.png', 16, 6, '2025-04-22 20:26:42', '2025-05-16 03:57:33'),
 (18, 'Karpet Anyaman Eceng Gondok', 'karpet-anyaman-eceng-gondok', 'Karpet Anyaman Eceng Gondok Samosir', 'Karpet Anyaman Eceng Gondok Samosir', '12000.00', '11000.00', 'karpet0000001', 'instock', 1, 16, 16, '1745404380.jpg', '1745404380-1.jpg', 13, 6, '2025-04-22 20:33:00', '2025-05-15 01:20:46'),
 (19, 'Tas Enceng Gondok Anyaman Samosir', 'tas-enceng-gondok-anyaman-samosir', 'Tas Enceng Gondok Anyaman Samosir', 'Tas Enceng Gondok Anyaman Samosir', '94000.00', '49000.00', 'tas0000001', 'instock', 1, 7, 0, '1745404445.jpg', '1745404445-1.jpg,1745404445-2.jpg', 18, 6, '2025-04-22 20:34:06', '2025-04-22 20:34:06'),
-(20, 'Cover dan Bantal Anyaman Eceng Gondok', 'cover-dan-bantal-anyaman-eceng-gondok', 'Cover dan Bantal Anyaman Eceng Gondok', 'Cover dan Bantal Anyaman Eceng Gondok', '50000.00', '49000.00', 'bantal0000001', 'instock', 1, 90, 6, '1745404545.jpg', '1745404545-1.jpg,1745404545-2.jpg', 17, 6, '2025-04-22 20:35:46', '2025-05-15 04:01:53'),
-(21, 'Topi Anyaman Eceng Gondok Samosir', 'topi-anyaman-eceng-gondok-samosir', 'Topi Anyaman Eceng Gondok Samosir', 'Topi Anyaman Eceng Gondok Samosir', '59000.00', '21000.00', 'topi00001', 'instock', 1, 40, 0, '1745404704.avif', '1745404704-1.jpg', 11, 6, '2025-04-22 20:38:29', '2025-04-22 20:41:13'),
+(20, 'Cover dan Bantal Anyaman Eceng Gondok', 'cover-dan-bantal-anyaman-eceng-gondok', 'Cover dan Bantal Anyaman Eceng Gondok', 'Cover dan Bantal Anyaman Eceng Gondok', '50000.00', '49000.00', 'bantal0000001', 'instock', 1, 90, 8, '1745404545.jpg', '1745404545-1.jpg,1745404545-2.jpg', 17, 6, '2025-04-22 20:35:46', '2025-05-16 04:18:16'),
+(21, 'Topi Anyaman Eceng Gondok Samosir', 'topi-anyaman-eceng-gondok-samosir', 'Topi Anyaman Eceng Gondok Samosir', 'Topi Anyaman Eceng Gondok Samosir', '59000.00', '21000.00', 'topi00001', 'instock', 1, 40, 4, '1745404704.avif', '1745404704-1.jpg', 11, 6, '2025-04-22 20:38:29', '2025-05-16 04:11:15'),
 (22, 'Kotak Cover Tissue Anyaman Eceng Gondok', 'kotak-cover-tissue-anyaman-eceng-gondok', 'Kotak Cover Tissue Anyaman Eceng Gondok Samosir', 'Kotak Cover Tissue Anyaman Eceng Gondok', '30000.00', '30000.00', 'kotaktissue000001', 'instock', 1, 12, 5, '1745404943.webp', '1745404943-1.jpg', 12, 6, '2025-04-22 20:42:23', '2025-05-14 18:55:22'),
-(23, 'Kotak Keranjang Anyaman Eceng Gondok', 'kotak-keranjang-anyaman-eceng-gondok', 'Kotak Keranjang Anyaman Eceng Gondok Samosir', 'Kotak Keranjang Anyaman Eceng Gondok Samosir', '90000.00', '89000.00', 'keranjang000001', 'instock', 1, 50, 1, '1745405025.jpg', '1745405025-1.jpg,1745405025-2.jpg', 15, 6, '2025-04-22 20:43:46', '2025-05-14 18:38:32'),
+(23, 'Kotak Keranjang Anyaman Eceng Gondok', 'kotak-keranjang-anyaman-eceng-gondok', 'Kotak Keranjang Anyaman Eceng Gondok Samosir', 'Kotak Keranjang Anyaman Eceng Gondok Samosir', '90000.00', '89000.00', 'keranjang000001', 'instock', 1, 50, 3, '1745405025.jpg', '1745405025-1.jpg,1745405025-2.jpg', 15, 6, '2025-04-22 20:43:46', '2025-05-15 13:58:39'),
 (24, 'Cover Vas Bunga Anyaman Eceng Gondok', 'cover-vas-bunga-anyaman-eceng-gondok', 'Cover Vas Bunga Anyaman Eceng Gondok Samosir', 'Cover Vas Bunga Anyaman Eceng Gondok Samosir', '150000.00', '150000.00', 'vasbunga000001', 'instock', 1, 16, 16, '1745405097.jpg', '1745405097-1.jpg', 19, 6, '2025-04-22 20:44:57', '2025-05-15 01:16:57'),
-(25, 'sas', 'sas', 'as', 'as', '12000.00', '12000.00', '12', 'instock', 1, 12, 2, '1747281551.jpg', '1747281551-1.jpg', 13, 6, '2025-05-15 03:59:11', '2025-05-15 04:01:53');
+(25, 'Cover Pot Eceng Gondok / CoverPot Tanaman / Pot Mini', 'cover-pot-eceng-gondok-coverpot-tanaman-pot-mini', 'Anyaman Pot Mini yg terbuat dari bahan alami Enceng gondok', 'Kondisi: Baru\r\nMin. Pemesanan: 1 Buah\r\n\r\nAnyaman Pot Mini yg terbuat dari bahan alami Enceng gondok, menambah Kesan Minimalis di Ruang Tamu Kalian.\r\nYang diolah oleh para pengrajin yang terampil.\r\n\r\nProduk kami sudah di bersihkan, dan di finishing dengan baik, jadi kamu bisa langsung pakai dengan aman dan nyaman ya...\r\nTersedia 3 ukuran', '12000.00', '12000.00', 'pot-bunga0000001', 'instock', 1, 29, 5, '1747361076.jpg', '1747361076-1.jpg,1747361076-2.jpg', 19, 6, '2025-05-15 03:59:11', '2025-05-16 04:18:16'),
+(26, 'Karpet Bulat Polos Anyaman Asli Eceng Gondok', 'karpet-bulat-polos-anyaman-asli-eceng-gondok', 'Deskripsi Singkat: Karpet eceng gondok alami dengan anyaman melingkar, diameter 1 meter. Tekstur unik, desain minimalis, dan ramah lingkungan. Cocok untuk interior modern maupun etnik. Harga Rp 200.000,-.', 'Karpet handmade premium berbahan dasar serat eceng gondok alami yang diproses secara tradisional oleh pengrajin terampil. Dianyam dengan teknik melingkar yang presisi, karpet bulat ini menghadirkan tekstur alami yang menarik dan pola natural yang memukau. Dengan diameter 1 meter, karpet ini menjadi aksen sempurna untuk melengkapi berbagai ruangan di rumah Anda.\r\nKeunggulan produk:\r\n100% terbuat dari bahan alami eceng gondok yang ramah lingkungan\r\nProses produksi mendukung ekonomi kreatif dan pemberdayaan pengrajin lokal\r\nTekstur unik dengan gradasi warna alami yang hangat\r\nAnyaman rapat dan kuat yang tahan lama\r\nDiameter sempurna 1 meter, cocok untuk area duduk, ruang tamu, atau kamar tidur\r\nDesain versatile yang melengkapi berbagai gaya interior, dari modern hingga etnik\r\nMemberikan sentuhan kehangatan dan kesan alami pada ruangan\r\nMudah dibersihkan dengan cara disedot atau dilap dengan kain lembab', '240000.00', '200000.00', 'karpet0000001', 'instock', 1, 297, 8, '1747361307.jpg', '1747361307-1.jpg,1747361307-2.jpg', 13, 6, '2025-05-16 01:42:51', '2025-05-16 04:11:15'),
+(27, 'CLOVE Rectangular Organizer Box | Keranjang Kerajinan Eceng Gondok', 'clove-rectangular-organizer-box-keranjang-kerajinan-eceng-gondok', 'CLOVE Rectangular Organizer Box | Keranjang Kerajinan Eceng Gondok Hand woven of water hyacinth multipurpose basket.', 'CLOVE Rectangular Organizer Box | Keranjang Kerajinan Eceng Gondok Hand woven of water hyacinth multipurpose basket.', '90000.00', '89000.00', 'clove00000001', 'instock', 0, 0, 0, '1747360580.jpg', '1747360580-1.jpeg', 15, 6, '2025-05-16 01:56:21', '2025-05-16 01:56:21');
 
 -- --------------------------------------------------------
 
@@ -717,9 +864,15 @@ CREATE TABLE `product_size` (
 --
 
 INSERT INTO `product_size` (`id`, `product_id`, `size_id`, `stock`, `created_at`, `updated_at`) VALUES
-(1, 25, 1, 12, '2025-05-15 03:59:11', '2025-05-15 03:59:11'),
-(2, 25, 2, 12, '2025-05-15 03:59:11', '2025-05-15 03:59:11'),
-(3, 25, 3, 24, '2025-05-15 03:59:11', '2025-05-15 03:59:11');
+(4, 26, 4, 99, '2025-05-16 01:42:51', '2025-05-16 02:08:28'),
+(5, 27, 5, 0, '2025-05-16 01:56:21', '2025-05-16 01:56:21'),
+(6, 27, 6, 0, '2025-05-16 01:56:21', '2025-05-16 01:56:21'),
+(7, 27, 7, 0, '2025-05-16 01:56:21', '2025-05-16 01:56:21'),
+(8, 25, 6, 8, '2025-05-16 02:04:37', '2025-05-16 02:04:37'),
+(9, 25, 8, 8, '2025-05-16 02:04:37', '2025-05-16 02:04:37'),
+(10, 25, 9, 13, '2025-05-16 02:04:37', '2025-05-16 02:04:37'),
+(11, 26, 8, 99, '2025-05-16 02:08:28', '2025-05-16 02:08:28'),
+(12, 26, 10, 99, '2025-05-16 02:08:28', '2025-05-16 02:08:28');
 
 -- --------------------------------------------------------
 
@@ -810,9 +963,9 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('BYldEY9zD43cozz0X8cgS2ZxXqhtcaFECwe7KAdm', 3, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiYVQ4bEtGS29uMUg0TnVXdFVnR0pEVmFxaE1KTDk0d1U1VFdhZ3NLSyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zdXBwbGllciI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6MzoidXJsIjthOjA6e31zOjUwOiJsb2dpbl93ZWJfNTliYTM2YWRkYzJiMmY5NDAxNTgwZjAxNGM3ZjU4ZWE0ZTMwOTg5ZCI7aTozO3M6NDoiYXV0aCI7YToxOntzOjIxOiJwYXNzd29yZF9jb25maXJtZWRfYXQiO2k6MTc0NzI5NzQzOTt9czo0OiJjYXJ0IjthOjE6e3M6ODoid2lzaGxpc3QiO086Mjk6IklsbHVtaW5hdGVcU3VwcG9ydFxDb2xsZWN0aW9uIjoyOntzOjg6IgAqAGl0ZW1zIjthOjM6e3M6MzI6IjZhYTBkNGI4ZmFjM2M1NWEzZTgzYjdlMmI3ZDFjYjk3IjtPOjM1OiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbSI6OTp7czo1OiJyb3dJZCI7czozMjoiNmFhMGQ0YjhmYWMzYzU1YTNlODNiN2UyYjdkMWNiOTciO3M6MjoiaWQiO2k6MjQ7czozOiJxdHkiO2k6MTtzOjQ6Im5hbWUiO3M6MzY6IkNvdmVyIFZhcyBCdW5nYSBBbnlhbWFuIEVjZW5nIEdvbmRvayI7czo1OiJwcmljZSI7ZDoxNTAwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiJiYTAyYjBkZGRiMDAwYjI1NDQ1MTY4MzAwYzY1Mzg2ZCI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6ImJhMDJiMGRkZGIwMDBiMjU0NDUxNjgzMDBjNjUzODZkIjtzOjI6ImlkIjtpOjIzO3M6MzoicXR5IjtpOjE7czo0OiJuYW1lIjtzOjM2OiJLb3RhayBLZXJhbmphbmcgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6ODkwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiIzMDNhN2YwMjM2NGYxZTkyZGM2MGMwNWM5YjE1MjM5ZiI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjMwM2E3ZjAyMzY0ZjFlOTJkYzYwYzA1YzliMTUyMzlmIjtzOjI6ImlkIjtpOjE4O3M6MzoicXR5IjtpOjE7czo0OiJuYW1lIjtzOjI3OiJLYXJwZXQgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6MTEwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO319czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO319fQ==', 1747297444),
-('nbSK9I2xwRPygRtZ8zirokCfqBWO1omlPRgXEN8k', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiYkZJWDNLRGtjZmxvejF3ZmJJMjAxZkI3UjdEbTltaFZCVnlXSWFQMiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzA6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zaG9wL3NhcyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czo0OiJhdXRoIjthOjE6e3M6MjE6InBhc3N3b3JkX2NvbmZpcm1lZF9hdCI7aToxNzQ3Mjg5MjE1O31zOjQ6ImNhcnQiO2E6Mjp7czo0OiJjYXJ0IjtPOjI5OiJJbGx1bWluYXRlXFN1cHBvcnRcQ29sbGVjdGlvbiI6Mjp7czo4OiIAKgBpdGVtcyI7YTo2OntzOjMyOiIxOTNmNjMyNjQ0ZTA2YTMwN2NiYTE4OTE3YWIxMzkyNCI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjE5M2Y2MzI2NDRlMDZhMzA3Y2JhMTg5MTdhYjEzOTI0IjtzOjI6ImlkIjtpOjE5O3M6MzoicXR5IjtzOjE6IjEiO3M6NDoibmFtZSI7czozMzoiVGFzIEVuY2VuZyBHb25kb2sgQW55YW1hbiBTYW1vc2lyIjtzOjU6InByaWNlIjtkOjQ5MDAwO3M6Nzoib3B0aW9ucyI7Tzo0MjoiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW1PcHRpb25zIjoyOntzOjg6IgAqAGl0ZW1zIjthOjA6e31zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fXM6NTI6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBhc3NvY2lhdGVkTW9kZWwiO3M6MTg6IkFwcFxNb2RlbHNcUHJvZHVjdCI7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAHRheFJhdGUiO2k6MjE7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGlzU2F2ZWQiO2I6MDt9czozMjoiOGViNzQ3Yjk1Yjk4NjJlOWQ4MzAzMWJlYjk5Mzg3MjAiO086MzU6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtIjo5OntzOjU6InJvd0lkIjtzOjMyOiI4ZWI3NDdiOTViOTg2MmU5ZDgzMDMxYmViOTkzODcyMCI7czoyOiJpZCI7aToyMTtzOjM6InF0eSI7czoxOiIxIjtzOjQ6Im5hbWUiO3M6MzM6IlRvcGkgQW55YW1hbiBFY2VuZyBHb25kb2sgU2Ftb3NpciI7czo1OiJwcmljZSI7ZDoyMTAwMDtzOjc6Im9wdGlvbnMiO086NDI6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtT3B0aW9ucyI6Mjp7czo4OiIAKgBpdGVtcyI7YTowOnt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fXM6MzI6IjRmMmQyZDA3MDliMDA3MTAyZjdmZTMzY2VhMjAxODg3IjtPOjM1OiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbSI6OTp7czo1OiJyb3dJZCI7czozMjoiNGYyZDJkMDcwOWIwMDcxMDJmN2ZlMzNjZWEyMDE4ODciO3M6MjoiaWQiO2k6MjA7czozOiJxdHkiO2k6NDtzOjQ6Im5hbWUiO3M6Mzc6IkNvdmVyIGRhbiBCYW50YWwgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6NDkwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiJiYTAyYjBkZGRiMDAwYjI1NDQ1MTY4MzAwYzY1Mzg2ZCI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6ImJhMDJiMGRkZGIwMDBiMjU0NDUxNjgzMDBjNjUzODZkIjtzOjI6ImlkIjtpOjIzO3M6MzoicXR5IjtpOjY7czo0OiJuYW1lIjtzOjM2OiJLb3RhayBLZXJhbmphbmcgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6ODkwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiIwZDg4MTgxN2JiODFlNjAxN2QyZGY5MmQwMzEzZjYwNyI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjBkODgxODE3YmI4MWU2MDE3ZDJkZjkyZDAzMTNmNjA3IjtzOjI6ImlkIjtzOjI6IjI1IjtzOjM6InF0eSI7aToyO3M6NDoibmFtZSI7czozOiJzYXMiO3M6NToicHJpY2UiO2Q6MTIwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO31zOjMyOiIzNmNmZjNlZGI2ZmRkZjYzZDIxMWY2YTM4MDY0NmRlMiI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjM2Y2ZmM2VkYjZmZGRmNjNkMjExZjZhMzgwNjQ2ZGUyIjtzOjI6ImlkIjtpOjI1O3M6MzoicXR5IjtpOjI7czo0OiJuYW1lIjtzOjM6InNhcyI7czo1OiJwcmljZSI7ZDoxMjAwMDtzOjc6Im9wdGlvbnMiO086NDI6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtT3B0aW9ucyI6Mjp7czo4OiIAKgBpdGVtcyI7YToyOntzOjc6InNpemVfaWQiO2k6MTtzOjk6InNpemVfbmFtZSI7czoyOiIyMSI7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO319czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjg6Indpc2hsaXN0IjtPOjI5OiJJbGx1bWluYXRlXFN1cHBvcnRcQ29sbGVjdGlvbiI6Mjp7czo4OiIAKgBpdGVtcyI7YToxOntzOjMyOiJiYTAyYjBkZGRiMDAwYjI1NDQ1MTY4MzAwYzY1Mzg2ZCI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6ImJhMDJiMGRkZGIwMDBiMjU0NDUxNjgzMDBjNjUzODZkIjtzOjI6ImlkIjtpOjIzO3M6MzoicXR5IjtpOjE7czo0OiJuYW1lIjtzOjM2OiJLb3RhayBLZXJhbmphbmcgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6ODkwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO319czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO319fQ==', 1747304173),
-('XHuNwRr5ZaQlNGn6pjX34CRLuKajoroTSCY9rdmu', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiMVVZNEcySkJxUmN2NzE5RVFOMUt1enQ3cmtacmN1R2hSaVk4YnMxRyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MzY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hY2NvdW50LW9yZGVycyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czo0OiJhdXRoIjthOjE6e3M6MjE6InBhc3N3b3JkX2NvbmZpcm1lZF9hdCI7aToxNzQ3Mjk3Mzk2O31zOjQ6ImNhcnQiO2E6MTp7czo4OiJ3aXNobGlzdCI7TzoyOToiSWxsdW1pbmF0ZVxTdXBwb3J0XENvbGxlY3Rpb24iOjI6e3M6ODoiACoAaXRlbXMiO2E6MTp7czozMjoiYmEwMmIwZGRkYjAwMGIyNTQ0NTE2ODMwMGM2NTM4NmQiO086MzU6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtIjo5OntzOjU6InJvd0lkIjtzOjMyOiJiYTAyYjBkZGRiMDAwYjI1NDQ1MTY4MzAwYzY1Mzg2ZCI7czoyOiJpZCI7aToyMztzOjM6InF0eSI7aToxO3M6NDoibmFtZSI7czozNjoiS290YWsgS2VyYW5qYW5nIEFueWFtYW4gRWNlbmcgR29uZG9rIjtzOjU6InByaWNlIjtkOjg5MDAwO3M6Nzoib3B0aW9ucyI7Tzo0MjoiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW1PcHRpb25zIjoyOntzOjg6IgAqAGl0ZW1zIjthOjA6e31zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fXM6NTI6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBhc3NvY2lhdGVkTW9kZWwiO3M6MTg6IkFwcFxNb2RlbHNcUHJvZHVjdCI7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAHRheFJhdGUiO2k6MjE7czo0NDoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGlzU2F2ZWQiO2I6MDt9fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9fX0=', 1747297410);
+('9Ka2BUmxCOQlJx4fBB8ZIfiIA50bfNKzOwmjuHcS', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiN2llY3FGWHpDWnNUdkRRSFlLME9CSEhneDRKeWZwWVd1b2djT0FsdiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=', 1748309337),
+('HcuNFHUVs5IotRxDp3CBrm1gtDd5Cfmqn6R2doXz', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoieGFiSmNmbXdUc0Q3M3AwbDdMM0Rtb3lRR3FRclpVNFNlYWJ5Q2RqNCI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NDoiY2FydCI7YToxOntzOjQ6ImNhcnQiO086Mjk6IklsbHVtaW5hdGVcU3VwcG9ydFxDb2xsZWN0aW9uIjoyOntzOjg6IgAqAGl0ZW1zIjthOjE6e3M6MzI6ImE0ZTkzNWE3NTgxMjY2N2E4NDlmM2RmZWYxYzU5NDBiIjtPOjM1OiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbSI6OTp7czo1OiJyb3dJZCI7czozMjoiYTRlOTM1YTc1ODEyNjY3YTg0OWYzZGZlZjFjNTk0MGIiO3M6MjoiaWQiO2k6MTc7czozOiJxdHkiO3M6MToiMSI7czo0OiJuYW1lIjtzOjI3OiJTZW5kYWwgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6MjUwMDA7czo3OiJvcHRpb25zIjtPOjQyOiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbU9wdGlvbnMiOjI6e3M6ODoiACoAaXRlbXMiO2E6MDp7fXM6Mjg6IgAqAGVzY2FwZVdoZW5DYXN0aW5nVG9TdHJpbmciO2I6MDt9czo1MjoiAFN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtAGFzc29jaWF0ZWRNb2RlbCI7czoxODoiQXBwXE1vZGVsc1xQcm9kdWN0IjtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AdGF4UmF0ZSI7aToyMTtzOjQ0OiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AaXNTYXZlZCI7YjowO319czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO319fQ==', 1748265435),
+('nZzgrZhFY9l9tkTe35wSSIZrG9Ll436edXGLlaOx', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/136.0.0.0 Safari/537.36', 'YTo4OntzOjY6Il90b2tlbiI7czo0MDoiYjFsa1luZUVXMEkyN1pOWnJUeE9rWXZYeHdNM0lhbFFXQWlrSE5xMiI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NjM6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zaG9wL2tvdGFrLWtlcmFuamFuZy1hbnlhbWFuLWVjZW5nLWdvbmRvayI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czo0OiJhdXRoIjthOjE6e3M6MjE6InBhc3N3b3JkX2NvbmZpcm1lZF9hdCI7aToxNzQ4MjY1NDQ3O31zOjQ6ImNhcnQiO2E6Mjp7czo0OiJjYXJ0IjtPOjI5OiJJbGx1bWluYXRlXFN1cHBvcnRcQ29sbGVjdGlvbiI6Mjp7czo4OiIAKgBpdGVtcyI7YToxOntzOjMyOiIwZDg4MTgxN2JiODFlNjAxN2QyZGY5MmQwMzEzZjYwNyI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6IjBkODgxODE3YmI4MWU2MDE3ZDJkZjkyZDAzMTNmNjA3IjtzOjI6ImlkIjtpOjI1O3M6MzoicXR5IjtzOjE6IjEiO3M6NDoibmFtZSI7czo1MjoiQ292ZXIgUG90IEVjZW5nIEdvbmRvayAvIENvdmVyUG90IFRhbmFtYW4gLyBQb3QgTWluaSI7czo1OiJwcmljZSI7ZDoxMjAwMDtzOjc6Im9wdGlvbnMiO086NDI6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtT3B0aW9ucyI6Mjp7czo4OiIAKgBpdGVtcyI7YTowOnt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fX1zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fXM6ODoid2lzaGxpc3QiO086Mjk6IklsbHVtaW5hdGVcU3VwcG9ydFxDb2xsZWN0aW9uIjoyOntzOjg6IgAqAGl0ZW1zIjthOjE6e3M6MzI6ImJhMDJiMGRkZGIwMDBiMjU0NDUxNjgzMDBjNjUzODZkIjtPOjM1OiJTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbSI6OTp7czo1OiJyb3dJZCI7czozMjoiYmEwMmIwZGRkYjAwMGIyNTQ0NTE2ODMwMGM2NTM4NmQiO3M6MjoiaWQiO2k6MjM7czozOiJxdHkiO2k6MTtzOjQ6Im5hbWUiO3M6MzY6IktvdGFrIEtlcmFuamFuZyBBbnlhbWFuIEVjZW5nIEdvbmRvayI7czo1OiJwcmljZSI7ZDo4OTAwMDtzOjc6Im9wdGlvbnMiO086NDI6IlN1cmZzaWRlbWVkaWFcU2hvcHBpbmdjYXJ0XENhcnRJdGVtT3B0aW9ucyI6Mjp7czo4OiIAKgBpdGVtcyI7YTowOnt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fX1zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fX1zOjg6ImNoZWNrb3V0IjthOjQ6e3M6ODoiZGlzY291bnQiO2k6MDtzOjg6InN1YnRvdGFsIjtpOjEyMDAwO3M6MzoidGF4IjtkOjI1MjA7czo1OiJ0b3RhbCI7ZDoxNDUyMDt9czoxOToic2VsZWN0ZWRfY2FydF9pdGVtcyI7YToxOntpOjA7czozMjoiMGQ4ODE4MTdiYjgxZTYwMTdkMmRmOTJkMDMxM2Y2MDciO319', 1748265467);
 
 -- --------------------------------------------------------
 
@@ -834,7 +987,14 @@ CREATE TABLE `sizes` (
 INSERT INTO `sizes` (`id`, `name`, `created_at`, `updated_at`) VALUES
 (1, '21', '2025-05-15 03:59:11', '2025-05-15 03:59:11'),
 (2, '22', '2025-05-15 03:59:11', '2025-05-15 03:59:11'),
-(3, '23', '2025-05-15 03:59:11', '2025-05-15 03:59:11');
+(3, '23', '2025-05-15 03:59:11', '2025-05-15 03:59:11'),
+(4, '1 meter', '2025-05-16 01:42:51', '2025-05-16 01:42:51'),
+(5, '25 cm', '2025-05-16 01:56:21', '2025-05-16 01:56:21'),
+(6, '20 cm', '2025-05-16 01:56:21', '2025-05-16 01:56:21'),
+(7, '17 cm', '2025-05-16 01:56:21', '2025-05-16 01:56:21'),
+(8, '15 cm', '2025-05-16 02:04:36', '2025-05-16 02:04:36'),
+(9, '18 cm', '2025-05-16 02:04:37', '2025-05-16 02:04:37'),
+(10, '60 cm', '2025-05-16 02:08:28', '2025-05-16 02:08:28');
 
 -- --------------------------------------------------------
 
@@ -915,7 +1075,7 @@ CREATE TABLE `supplier_infos` (
 --
 
 INSERT INTO `supplier_infos` (`id`, `title`, `description`, `image`, `video_type`, `video_url`, `video_caption`, `video_thumbnail`, `video_duration`, `order`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'Jadi Pemasok Eceng Gondok dan Dapatkan Keuntungan!', 'Jadi Pemasok Eceng Gondok dan Dapatkan WOW!Jadi Pemasok Eceng Gondok dan Dapatkan WOW!\r\n\r\n\r\nJadi Pemasok Eceng Gondok dan Dapatkan WOW!Jadi Pemasok Eceng Gondok dan Dapatkan WOW!\r\n\r\nJadi Pemasok Eceng Gondok dan Dapatkan WOW!Jadi Pemasok Eceng Gondok dan Dapatkan WOW!\r\n\r\nJadi Pemasok Eceng Gondok dan Dapatkan WOW!Jadi Pemasok Eceng Gondok dan Dapatkan WOW!', 'uploads/supplier_info/1746500646_Y80Gte.jpg', NULL, NULL, NULL, NULL, NULL, 2, 1, '2025-05-05 20:04:06', '2025-05-05 20:31:35');
+(1, 'Jadi Pemasok Eceng Gondok dan Dapatkan Keuntungan!', 'Jadi Pemasok Eceng Gondok dan Dapatkan WOW!Jadi Pemasok Eceng Gondok dan Dapatkan WOW!\r\n\r\n\r\nJadi Pemasok Eceng Gondok dan Dapatkan WOW!Jadi Pemasok Eceng Gondok dan Dapatkan WOW!\r\n\r\nJadi Pemasok Eceng Gondok dan Dapatkan WOW!Jadi Pemasok Eceng Gondok dan Dapatkan WOW!\r\n\r\nJadi Pemasok Eceng Gondok dan Dapatkan WOW!Jadi Pemasok Eceng Gondok dan Dapatkan WOW!', 'uploads/supplier_info/1747343344_Docq1I.png', 'local', 'uploads/supplier_videos/1747343280_ORtiwB.mp4', NULL, NULL, '00:12', 2, 1, '2025-05-05 20:04:06', '2025-05-15 21:09:04');
 
 -- --------------------------------------------------------
 
@@ -1023,7 +1183,40 @@ INSERT INTO `transactions` (`id`, `user_id`, `order_id`, `invoice`, `mode`, `ban
 (13, 1, 13, 'ORDER-13-a6f6ad46-1d33-45c2-940f-6b748a230d53', 'manual_atm', 'bni', 'payment_proofs/1747248922_Screenshot 2025-05-14 214616.png', 'approved', NULL, '2025-05-14 18:55:22', '2025-05-14 18:55:57'),
 (14, 1, 14, 'ORDER-14-9ec86921-6f69-4935-8ab0-2bec275c81de', 'manual_atm', 'bri', 'payment_proofs/1747271817_image_Pippit_202505101829.jpeg', 'approved', NULL, '2025-05-15 01:16:57', '2025-05-15 01:18:02'),
 (15, 1, 15, 'ORDER-15-6d95497e-3694-4107-849a-d6142acf2c21', '', NULL, NULL, 'approved', '7db3963c-1536-46d0-a1fe-666c93a727fc', '2025-05-15 01:20:46', '2025-05-15 01:23:19'),
-(16, 1, 16, 'ORDER-16-082be840-4fd9-45ec-a85a-523b0e0c6e66', '', NULL, NULL, 'pending', '26935948-5f62-4ce6-8294-16d397dedb2a', '2025-05-15 04:01:53', '2025-05-15 04:01:53');
+(16, 1, 16, 'ORDER-16-082be840-4fd9-45ec-a85a-523b0e0c6e66', '', NULL, NULL, 'pending', '26935948-5f62-4ce6-8294-16d397dedb2a', '2025-05-15 04:01:53', '2025-05-15 04:01:53'),
+(17, 1, 17, 'ORDER-17-70202558-0f56-4df4-86c1-106653edd43f', '', NULL, NULL, 'pending', '9609f87d-4b64-42b7-a8bd-56126e27c9cc', '2025-05-15 13:58:39', '2025-05-15 13:58:39'),
+(18, 1, 18, 'ORDER-18-5acb134c-480d-45c0-a91b-37b6908ce343', '', NULL, NULL, 'pending', NULL, '2025-05-15 22:49:39', '2025-05-15 22:49:39'),
+(19, 1, 19, 'ORDER-19-3db49c23-afef-48b2-9942-abdb6e5b99d6', '', NULL, NULL, 'pending', 'a0f6d5b2-a8f6-4d20-a896-4d7e2ae902eb', '2025-05-15 23:09:34', '2025-05-15 23:09:34'),
+(20, 1, 20, 'ORDER-20-0c68865b-defc-4464-af2e-35a33f291634', '', NULL, NULL, 'pending', 'c273ab73-ef6d-4bb8-b6ec-f05694a65849', '2025-05-16 03:57:33', '2025-05-16 03:57:33'),
+(21, 1, 21, 'ORDER-21-b4e442c2-a2c3-414a-931f-128e2030acc3', '', NULL, NULL, 'pending', NULL, '2025-05-16 04:11:15', '2025-05-16 04:11:15'),
+(22, 1, 22, 'ORDER-22-8f8b7fa1-4fcd-4a67-aad7-9d715462d4ff', '', NULL, NULL, 'pending', '2a3fd00b-45d6-4118-88b6-73d8edd88326', '2025-05-16 04:18:16', '2025-05-16 04:18:16'),
+(23, 5, 23, 'ORDER-23-2fe8c126-a432-40cf-84a9-4f6e4aebf281', '', NULL, NULL, 'pending', '13b0b984-f4a6-4a25-afcf-8719b6934cef', '2025-05-18 05:34:53', '2025-05-18 05:34:53'),
+(24, 5, 24, 'ORDER-24-b37c2de2-4468-4577-8a5f-eaaf5ad15b36', '', NULL, NULL, 'pending', '9da9af58-9ea5-4a4a-9f46-adab350c9587', '2025-05-18 06:54:32', '2025-05-18 06:54:32'),
+(25, 5, 25, 'ORDER-25-195964a5-120f-4606-b5be-e183fb869e62', '', NULL, NULL, 'pending', '5aafd9fc-f528-4af7-9800-3e03240c8e02', '2025-05-18 08:26:05', '2025-05-18 08:26:05'),
+(26, 5, 26, 'ORDER-26-cabcad16-1fa7-44e8-ac4e-329a57a23f67', '', NULL, NULL, 'pending', 'e8c0e423-69e7-4e28-b8a5-0e6817751b90', '2025-05-18 08:33:42', '2025-05-18 08:33:42'),
+(27, 5, 27, 'ORDER-27-2742e732-8fef-4f4d-bd5d-67b6cb0339ed', '', NULL, NULL, 'pending', '52a8edac-60ca-43e6-874c-c19c40b6b00a', '2025-05-18 08:36:51', '2025-05-18 08:36:51'),
+(28, 5, 28, 'ORDER-28-0717814b-f766-4488-b858-181062d1fa70', '', NULL, NULL, 'pending', '4b698942-8d3f-45a6-b991-71b8eaa5e02e', '2025-05-18 08:37:56', '2025-05-18 08:37:56'),
+(29, 5, 29, 'ORDER-29-d7e9e77e-cc0d-48f0-b9c8-b8618da93c77', '', NULL, NULL, 'pending', '2ea30806-0ca6-4445-b9ae-e2348908d0fd', '2025-05-18 08:40:23', '2025-05-18 08:40:23'),
+(30, 5, 30, 'ORDER-30-98efe668-4395-4f46-9f8f-c2d0cf63c7ba', '', NULL, NULL, 'pending', '69f501c6-d6fa-4822-bc1b-9c519d311bba', '2025-05-18 08:45:29', '2025-05-18 08:45:29'),
+(31, 5, 31, 'ORDER-31-eabc441a-904e-4a5c-b39a-eebbb48741ba', '', NULL, NULL, 'pending', '802e112c-80fc-43ba-9d5b-c82c1535901e', '2025-05-18 08:50:07', '2025-05-18 08:50:07'),
+(32, 1, 32, 'ORDER-32-27fd7058-0253-4d51-a088-6f20549d97cf', '', NULL, NULL, 'approved', '796b5fd4-d4dc-44f0-96d2-49765658de4a', '2025-05-18 08:55:30', '2025-05-18 08:57:45'),
+(33, 1, 33, 'ORDER-33-55d927d2-7518-451e-98ce-659d9e9a080c', '', NULL, NULL, 'pending', 'bbca72ce-7308-45fd-af32-3b3cdf0cbdd0', '2025-05-19 14:44:12', '2025-05-19 14:44:12'),
+(34, 1, 34, 'ORDER-34-f2c0b36a-ca39-455f-a11f-b2be982952ce', '', NULL, NULL, 'pending', NULL, '2025-05-19 14:50:36', '2025-05-19 14:50:36'),
+(35, 1, 35, 'ORDER-35-0c510db3-3141-401c-bdad-d2a5a08daa2e', '', NULL, NULL, 'pending', 'df58b3f1-d66d-4bf4-aef2-31d9791e305a', '2025-05-19 14:54:18', '2025-05-19 14:54:18'),
+(36, 1, 36, 'ORDER-36-3cafac17-1584-4bca-9de1-db2ff73b0e27', '', NULL, NULL, 'pending', '097a83d6-45ae-438a-968d-79ba2ad191a7', '2025-05-19 15:02:19', '2025-05-19 15:02:19'),
+(37, 1, 37, 'ORDER-37-5cc96b73-7922-4caa-a186-05cf21bca42b', '', NULL, NULL, 'pending', '5c4b16af-e62b-4f02-a8fa-c72b87597e6f', '2025-05-19 15:24:12', '2025-05-19 15:24:12'),
+(38, 1, 38, 'ORDER-38-9094e50d-73cc-4ca6-bad9-8be4f2bfbc03', '', NULL, NULL, 'pending', 'c2daf8a2-e0aa-4aa2-83d8-336a722b9439', '2025-05-19 16:12:16', '2025-05-19 16:12:16'),
+(39, 1, 39, 'ORDER-39-13a830e4-3f62-4d41-9f9b-5a6512764932', '', NULL, NULL, 'pending', '3611c58a-ddaf-4ac3-8813-1081ec7c8ff9', '2025-05-20 03:20:32', '2025-05-20 03:20:32'),
+(40, 1, 40, 'ORDER-40-0ef45b61-dacb-4fdf-badb-2f36fe084379', '', NULL, NULL, 'pending', '62dc64e7-096c-4478-9c83-1f8b00344fbe', '2025-05-20 07:07:13', '2025-05-20 07:07:13'),
+(41, 1, 41, 'ORDER-41-0bbd04bd-55b8-421c-a795-2839d652baad', '', NULL, NULL, 'pending', '839a3a7a-41ca-4bd2-8069-e9755bbc4394', '2025-05-20 07:31:10', '2025-05-20 07:31:10'),
+(42, 1, 42, 'ORDER-42-39937c41-4dc1-4d35-b01a-8e5d78fd8093', '', NULL, NULL, 'pending', '61eeab7d-e6e6-4171-aa6a-153f15c99229', '2025-05-20 09:21:09', '2025-05-20 09:21:09'),
+(43, 1, 43, 'ORDER-43-e3f0f856-d128-4f92-89c8-b9ffde748ae5', '', NULL, NULL, 'pending', '93f63cd2-235d-4823-8d17-2c378fe9236a', '2025-05-20 09:28:55', '2025-05-20 09:28:55'),
+(44, 1, 46, 'ORDER-46-718b7eff-18d2-4919-83be-659951462554', '', NULL, NULL, 'pending', '280ca5a8-7e03-47b0-ab74-bd7c6a7c7822', '2025-05-21 09:18:05', '2025-05-21 09:18:05'),
+(45, 1, 47, 'ORDER-47-b6b90b8a-f0e0-4997-ad80-4c6b492743a3', '', NULL, NULL, 'pending', NULL, '2025-05-23 06:53:36', '2025-05-23 06:53:36'),
+(46, 1, 48, 'ORDER-48-791e1b91-fdcb-4b34-b054-06e03d69b836', '', NULL, NULL, 'pending', 'bed1624f-ac71-4b0e-8925-76a629560491', '2025-05-23 06:56:18', '2025-05-23 06:56:18'),
+(47, 1, 49, 'ORDER-49-39cdb9f3-afca-4be7-98e0-553cc75915c7', '', NULL, NULL, 'pending', '00db6a42-10d8-42ba-ae59-cac6955a1f74', '2025-05-26 05:59:50', '2025-05-26 05:59:50'),
+(48, 1, 50, 'ORDER-50-d43b93f5-c0f2-4823-96fc-808ee7bf6ad8', '', NULL, NULL, 'pending', 'e92e6304-6076-420f-95aa-48cd2a8633d8', '2025-05-26 09:53:47', '2025-05-26 09:53:47'),
+(49, 1, 51, 'ORDER-51-b2fb3d87-6f97-4a81-b26f-54ace76149c3', '', NULL, NULL, 'pending', 'f73f009c-83eb-45a4-82f3-2f5f732ee39b', '2025-05-26 10:07:47', '2025-05-26 10:07:47');
 
 -- --------------------------------------------------------
 
@@ -1059,7 +1252,8 @@ INSERT INTO `users` (`id`, `name`, `email`, `mobile`, `email_verified_at`, `phon
 (1, 'Sion', 'spardosi12@gmail.com', '82278900178', NULL, NULL, '$2y$12$YcK4oO3FzOE5Bl1ywX9SrOwF5BZE8vEEd4Dv8mOafjZY3YG9L.hgm', NULL, NULL, 'ADM', NULL, NULL, '2025-05-12 17:14:49', '2025-05-12 17:14:49', NULL, NULL, NULL),
 (2, 'Efran Lumbantoruan', 'efranlumbantoruan83@gmail.com', '82264528495', NULL, NULL, '$2y$12$JlISYyyZPaty7HxzgGMvPOPmd4YOL65u0QmP4TeRdssfdR240OBh2', NULL, NULL, 'ADM', NULL, NULL, '2025-05-13 01:49:41', '2025-05-13 01:49:41', NULL, NULL, NULL),
 (3, 'Listra Imelda Sidabutar', 'lalistramanoban27@gmail.com', '82164080661', NULL, NULL, '$2y$12$HFubD87zLLCPRS5gxgB1IeGiB.FMWXLH0AjE1rfJFELTPT0qlbMwi', NULL, NULL, 'USR', NULL, NULL, '2025-05-13 03:57:14', '2025-05-13 03:57:14', NULL, NULL, NULL),
-(4, 'Asri yohana Sirait', 'asrisirait2004@gmail.com', '82364638046', NULL, NULL, '$2y$12$vC97zLe4h8/f1hAyEW9IAe5tRnMGGLtHHUWPiUtgIYYzW6bL163mu', NULL, NULL, 'USR', '9BZfzVN2A2NYOlsTnxjCseAd27GkUTBthsHEJxoVxG1hQBLHBQz8Kisbqguo', NULL, '2025-05-14 08:20:38', '2025-05-14 08:26:59', NULL, NULL, NULL);
+(4, 'Asri yohana Sirait', 'asrisirait2004@gmail.com', '82364638046', NULL, NULL, '$2y$12$vC97zLe4h8/f1hAyEW9IAe5tRnMGGLtHHUWPiUtgIYYzW6bL163mu', NULL, NULL, 'USR', '9BZfzVN2A2NYOlsTnxjCseAd27GkUTBthsHEJxoVxG1hQBLHBQz8Kisbqguo', NULL, '2025-05-14 08:20:38', '2025-05-14 08:26:59', NULL, NULL, NULL),
+(5, 'sion pardosi', 'sionpardosi0374@gmail.com', '82327423453', NULL, NULL, '$2y$12$Hdza7fmYERCmTuVlSeYcQOuHR1CjV0FWxEQn9HsVfOypngt/Iezpq', NULL, NULL, 'USR', NULL, NULL, '2025-05-18 03:12:49', '2025-05-18 03:12:49', NULL, NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -1074,9 +1268,17 @@ CREATE TABLE `user_cart_items` (
   `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `quantity` int(11) NOT NULL,
   `price` decimal(10,2) NOT NULL,
+  `options` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL CHECK (json_valid(`options`)),
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `user_cart_items`
+--
+
+INSERT INTO `user_cart_items` (`id`, `user_id`, `product_id`, `name`, `quantity`, `price`, `options`, `created_at`, `updated_at`) VALUES
+(106, 1, 25, 'Cover Pot Eceng Gondok / CoverPot Tanaman / Pot Mini', 1, '12000.00', NULL, '2025-05-26 13:17:33', '2025-05-26 13:17:33');
 
 -- --------------------------------------------------------
 
@@ -1103,7 +1305,7 @@ INSERT INTO `wishlist_items` (`id`, `user_id`, `product_id`, `name`, `quantity`,
 (14, 3, 24, 'Cover Vas Bunga Anyaman Eceng Gondok', 1, '150000.00', '2025-05-14 02:55:45', '2025-05-14 02:55:45'),
 (15, 3, 23, 'Kotak Keranjang Anyaman Eceng Gondok', 1, '89000.00', '2025-05-14 02:57:38', '2025-05-14 02:57:38'),
 (16, 3, 18, 'Karpet Anyaman Eceng Gondok', 1, '11000.00', '2025-05-14 03:01:56', '2025-05-14 03:01:56'),
-(17, 1, 23, 'Kotak Keranjang Anyaman Eceng Gondok', 1, '89000.00', '2025-05-14 08:46:13', '2025-05-14 08:46:13');
+(60, 1, 23, 'Kotak Keranjang Anyaman Eceng Gondok', 1, '89000.00', '2025-05-23 07:43:38', '2025-05-23 07:43:38');
 
 --
 -- Indexes for dumped tables
@@ -1419,7 +1621,7 @@ ALTER TABLE `abouts`
 -- AUTO_INCREMENT untuk tabel `addresses`
 --
 ALTER TABLE `addresses`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT untuk tabel `bank_accounts`
@@ -1467,7 +1669,7 @@ ALTER TABLE `coupons`
 -- AUTO_INCREMENT untuk tabel `email_verifications`
 --
 ALTER TABLE `email_verifications`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT untuk tabel `failed_jobs`
@@ -1497,7 +1699,7 @@ ALTER TABLE `job_lists`
 -- AUTO_INCREMENT untuk tabel `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=55;
 
 --
 -- AUTO_INCREMENT untuk tabel `month_names`
@@ -1509,19 +1711,19 @@ ALTER TABLE `month_names`
 -- AUTO_INCREMENT untuk tabel `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `idnotification` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
+  MODIFY `idnotification` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=65;
 
 --
 -- AUTO_INCREMENT untuk tabel `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=52;
 
 --
 -- AUTO_INCREMENT untuk tabel `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=20;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=70;
 
 --
 -- AUTO_INCREMENT untuk tabel `penjadwalan_penjemputans`
@@ -1539,13 +1741,13 @@ ALTER TABLE `personal_access_tokens`
 -- AUTO_INCREMENT untuk tabel `products`
 --
 ALTER TABLE `products`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
 
 --
 -- AUTO_INCREMENT untuk tabel `product_size`
 --
 ALTER TABLE `product_size`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT untuk tabel `related_videos`
@@ -1569,7 +1771,7 @@ ALTER TABLE `review_media`
 -- AUTO_INCREMENT untuk tabel `sizes`
 --
 ALTER TABLE `sizes`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT untuk tabel `slides`
@@ -1611,25 +1813,25 @@ ALTER TABLE `thread_messages`
 -- AUTO_INCREMENT untuk tabel `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=50;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT untuk tabel `user_cart_items`
 --
 ALTER TABLE `user_cart_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=107;
 
 --
 -- AUTO_INCREMENT untuk tabel `wishlist_items`
 --
 ALTER TABLE `wishlist_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=61;
 
 --
 -- Ketidakleluasaan untuk tabel pelimpahan (Dumped Tables)

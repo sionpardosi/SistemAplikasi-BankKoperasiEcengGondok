@@ -712,7 +712,7 @@
                         <em>Kelola Daftar Barang Anda</em>
                     </div>
                 </a>
-                <a href="{{ route('cart.checkout') }}" class="checkout-steps__item active">
+                <a href="javascript:void(0)" class="checkout-steps__item active">
                     <div class="checkout-steps__item-number">
                         <span>02</span>
                         <div class="checkout-steps__item-icon">
@@ -1408,7 +1408,6 @@
                         $('#ongkir-display').html(formatRupiah(shippingCost));
                     } else {
                         $('#ongkir-display').html(`
-                            <i class="fas fa-truck-loading"></i>
                             <span>Dihitung berdasarkan pilihan kurir</span>
                         `);
                     }
