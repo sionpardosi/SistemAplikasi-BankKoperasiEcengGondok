@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('orders:expire-awaiting-payment')->hourly();
 
+        $schedule->command('orders:expire-awaiting-payment')->everyFiveMinutes();
     }
 
     /**

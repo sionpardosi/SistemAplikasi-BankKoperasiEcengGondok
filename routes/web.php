@@ -110,6 +110,12 @@ Route::middleware(['auth'])->group(function () {
     })->name('auth.redirect');
 });
 
+// Routes untuk flow pending orders (pastikan sudah ada)
+Route::post('/cart/proceed-checkout', [CartController::class, 'proceedToCheckout'])->name('cart.proceed');
+Route::get('/checkout/{orderNumber}', [CartController::class, 'show'])->name('checkout.show');
+Route::post('/checkout/{orderNumber}', [CartController::class, 'store'])->name('checkout.store');
+Route::get('/order-confirmation/{orderNumber}', [CartController::class, 'orderConfirmation'])->name('order.confirmation');
+Route::post('/midtrans/callback', [CartController::class, 'midtransCallback'])->name('midtrans.callback');
 
 // ====================================================================================================
 // Route untuk Wishlist
@@ -221,6 +227,8 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/account-order/cancel-order', [UserController::class, 'account_cancel_order'])->name('user.account_cancel_order');
     // Route untuk konfirmasi penerimaan pesanan
     Route::post('/account-order/confirm-delivery', [UserController::class, 'account_confirm_delivery'])->name('user.account.confirm.delivery');
+    // Route untuk mengonfirmasi pembayaran
+    Route::get('/account-pending-order-details/{pending_order_id}', [UserController::class, 'account_pending_order_details'])->name('user.pending.order.details');
 
 
     // ====================================================================================================

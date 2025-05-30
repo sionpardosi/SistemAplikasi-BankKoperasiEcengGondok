@@ -5,28 +5,23 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class PendingOrderItem extends Model
+class FailedPayment extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'pending_order_id',
-        'product_id',
-        'quantity',
-        'price'
+        'midtrans_order_id',
+        'failure_reason',
+        'failed_at'
     ];
 
     protected $casts = [
-        'price' => 'decimal:2'
+        'failed_at' => 'datetime'
     ];
 
     public function pendingOrder()
     {
         return $this->belongsTo(PendingOrder::class);
-    }
-
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
     }
 }

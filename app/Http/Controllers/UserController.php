@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use App\Models\PendingOrder;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -24,8 +25,17 @@ class UserController extends Controller
 
     public function account_orders()
     {
-        $orders = Order::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->paginate(10);
-        return view('user.orders', compact('orders'));
+        // Ambil order yang sudah confirmed/dibayar
+        $orders = Order::where('user_id', Auth::user()->id)->orderBy('created_at', 'DESC')->paginate(8);
+
+        // Ambil pending orders yang belum expired
+        $pendingOrders = PendingOrder::where('user_id', Auth::user()->id)
+            ->where('status', 'pending_payment')
+            ->where('expires_at', '>', now())
+            ->orderBy('created_at', 'DESC')
+            ->get();
+
+        return view('user.orders', compact('orders', 'pendingOrders'));
     }
 
     public function account_order_details($order_id)
@@ -244,6 +254,17 @@ class UserController extends Controller
         $user = Auth::user();
         return view("user.accountdetails.account-details", compact('user'));
     }
+
+
+    public function account_pending_order_details($pending_order_id)
+{
+    $pendingOrder = PendingOrder::with(['items.product', 'transaction'])
+        ->where('user_id', Auth::user()->id)
+        ->findOrFail($pending_order_id);
+
+    return view('user.pending-order-details', compact('pendingOrder'));
+}
+
 
     // Memperbarui detail akun pengguna
     public function updateAccountDetails(Request $request)

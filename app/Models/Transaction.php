@@ -12,6 +12,7 @@ class Transaction extends Model
     protected $fillable = [
         'user_id',
         'order_id',
+        'pending_order_id', // TAMBAHKAN INI
         'invoice',
         'mode',
         'bank_code',
@@ -32,7 +33,7 @@ class Transaction extends Model
 
     public function getStatusBadgeAttribute()
     {
-        return match($this->status) {
+        return match ($this->status) {
             'approved', 'paid' => '<span class="badge bg-success">Dibayar</span>',
             'pending' => '<span class="badge bg-warning">Menunggu</span>',
             'declined' => '<span class="badge bg-danger">Ditolak</span>',
@@ -43,7 +44,7 @@ class Transaction extends Model
 
     public function getModeDisplayAttribute()
     {
-        return match($this->mode) {
+        return match ($this->mode) {
             'card' => 'E-Wallet | Pembayaran Online',
             'Transfer Bank' => 'Transfer Bank | Manual',
             default => $this->mode
@@ -52,10 +53,15 @@ class Transaction extends Model
 
     public function getBankNameAttribute()
     {
-        return match($this->bank_code) {
+        return match ($this->bank_code) {
             'bri' => 'Bank BRI',
             'bni' => 'Bank BNI',
             default => $this->bank_code
         };
+    }
+
+    public function pendingOrder()
+    {
+        return $this->belongsTo(PendingOrder::class);
     }
 }

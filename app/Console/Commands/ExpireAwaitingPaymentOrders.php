@@ -3,21 +3,24 @@
 namespace App\Console\Commands;
 
 use App\Models\Order;
+use App\Models\PendingOrder;
 use App\Models\Product;
+use App\Models\StockReservation;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ExpireAwaitingPaymentOrders extends Command
 {
-    protected $signature = 'orders:expire-awaiting-payment';
-    protected $description = 'Cancel orders in awaiting_payment status that have expired';
+    protected $signature = 'orders:expire-pending';
+    protected $description = 'Expire pending orders and release stock reservations';
 
+    // Di ExpireAwaitingPaymentOrders.php
     public function handle()
     {
-        // Temukan pesanan yang belum dibayar setelah 24 jam
+        // Temukan pesanan yang belum dibayar setelah 1 jam (bukan 24 jam)
         $expiredOrders = Order::where('status', 'awaiting_payment')
-            ->where('created_at', '<', now()->subHours(24))
+            ->where('created_at', '<', now()->subHour())
             ->get();
 
         $count = 0;

@@ -6,49 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('pending_orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->decimal('subtotal', 15, 2);
-            $table->decimal('discount', 15, 2)->default(0);
-            $table->decimal('tax', 15, 2);
-            $table->decimal('total', 15, 2);
-            $table->decimal('ongkir', 15, 2)->default(0);
-            $table->string('kurir', 50)->nullable();
-
-            // Alamat
-            $table->string('name');
-            $table->string('phone', 20);
-            $table->string('locality');
-            $table->text('address');
-            $table->string('city');
-            $table->string('state');
-            $table->string('country')->default('Indonesia');
-            $table->string('landmark')->nullable();
-            $table->string('zip', 10);
-
-            // Status & waktu
-            $table->enum('status', ['pending_payment', 'expired', 'converted'])->default('pending_payment');
+            $table->string('order_number')->unique();
+            $table->decimal('total_amount', 15, 2);
+            $table->decimal('shipping_cost', 10, 2)->default(0);
+            $table->string('payment_method')->nullable();
+            $table->text('shipping_address')->nullable();
             $table->timestamp('expires_at');
-            $table->unsignedBigInteger('converted_to_order_id')->nullable();
-
+            $table->enum('status', ['pending_payment', 'expired', 'processing'])->default('pending_payment');
             $table->timestamps();
 
+            $table->index(['user_id', 'status']);
             $table->index('expires_at');
-            $table->index('status');
         });
-
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('pending_orders');
     }

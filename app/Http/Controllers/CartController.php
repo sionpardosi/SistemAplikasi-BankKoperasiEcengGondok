@@ -2,8 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PendingOrder;
+use App\Models\PendingOrderItem;
 use App\Models\Size;
+use App\Models\StockReservation;
 use Carbon\Carbon;
+use Exception;
 use Midtrans\Snap;
 use Midtrans\Config;
 use App\Models\Order;
@@ -12,13 +16,11 @@ use App\Models\Address;
 use App\Models\Product;
 use App\Models\CartItem;
 use App\Models\OrderItem;
-use App\Models\Transaction;
 use App\Models\BankAccount;
+use App\Models\Transaction;
 use Illuminate\Support\Str;
-use App\Models\PendingOrder;
+use App\Models\FailedPayment;
 use Illuminate\Http\Request;
-use App\Models\PendingOrderItem;
-use App\Models\StockReservation;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
@@ -570,209 +572,762 @@ class CartController extends Controller
             $address->landmark = $request->landmark;
             $address->country = $request->country ?? 'Indonesia';
 
+            // Set sebagai alamat default jika diminta atau tidak ada alamat lain
             if ($request->has('save_address') && $request->save_address) {
+                // Jika ini alamat pertama atau user meminta set sebagai default
                 $isFirstAddress = !Address::where('user_id', $user_id)->exists();
                 if ($isFirstAddress || $request->has('isdefault')) {
+                    // Set semua alamat user menjadi non-default
                     Address::where('user_id', $user_id)->update(['isdefault' => false]);
                     $address->isdefault = true;
                 }
+
                 $address->save();
             }
         }
 
-        // Ambil item yang dipilih dari session
+        // Ambil item yang dipilih dari session (diset sebelumnya di checkout)
         $selectedItems = session()->get('selected_cart_items', []);
 
+        // Jika tidak ada item yang dipilih, redirect kembali ke cart
         if (empty($selectedItems)) {
             return redirect()->route('cart.index')->with('error', 'Tidak ada produk yang dipilih untuk checkout');
         }
 
+        // Gunakan rincian pembayaran yang sudah dihitung sebelumnya
         if (!session()->has('checkout')) {
             $validItems = $this->setAmountForCheckoutSelectedItems($selectedItems);
             if (empty($validItems)) {
-                return redirect()->route('cart.index')->with('error', 'Item yang dipilih tidak ditemukan di keranjang.');
+                return redirect()->route('cart.index')->with('error', 'Item yang dipilih tidak ditemukan di keranjang. Silakan pilih item lagi.');
             }
         }
 
-        // PERUBAHAN UTAMA: Buat PENDING ORDER dulu, bukan ORDER langsung
+        // Proses order
+        $order = new Order();
+        $order->user_id = $user_id;
+        $order->subtotal = session()->get('checkout')['subtotal'];
+        $order->discount = session()->get('checkout')['discount'];
+        $order->tax = session()->get('checkout')['tax'];
+        $order->total = session()->get('checkout')['total'] + $request->ongkir;
+        $order->name = $address->name;
+        $order->phone = $address->phone;
+        $order->locality = $address->locality;
+        $order->address = $address->address;
+        $order->city = $address->city;
+        $order->state = $address->state;
+        $order->country = $address->country;
+        $order->landmark = $address->landmark;
+        $order->zip = $address->zip;
+        $order->ongkir = $request->ongkir;
+        $order->kurir = $request->kurir;
+        $order->status = 'awaiting_payment'; // Status baru yang lebih spesifik
+        $order->save();
+
+        // Simpan hanya item yang dipilih sebagai order item
+        $validItems = [];
+        foreach ($selectedItems as $rowId) {
+            try {
+                $item = Cart::instance('cart')->get($rowId);
+                if ($item) {
+                    $orderitem = new OrderItem();
+                    $orderitem->product_id = $item->id;
+                    $orderitem->order_id = $order->id;
+                    $orderitem->price = $item->price;
+                    $orderitem->quantity = $item->qty;
+                    $orderitem->options = $item->options;
+                    $orderitem->save();
+
+                    // Hapus item dari keranjang setelah ditambahkan ke order
+                    Cart::instance('cart')->remove($rowId);
+
+                    // Hapus juga dari database jika user login
+                    if (Auth::check()) {
+                        CartItem::where('user_id', $user_id)
+                            ->where('product_id', $item->id)
+                            ->delete();
+                    }
+
+                    $validItems[] = $rowId;
+                }
+            } catch (\Exception $e) {
+                // Skip item yang tidak ditemukan
+                continue;
+            }
+        }
+
+        // Jika tidak ada item valid yang bisa diproses, batalkan order
+        if (empty($validItems)) {
+            $order->delete();
+            return redirect()->route('cart.index')->with('error', 'Tidak ada produk yang valid untuk diproses');
+        }
+
+        // Gunakan invoice sebagai order_id yang tetap
+        $invoice = 'ORDER-' . $order->id . '-' . Str::uuid();
+
+        // Upload bukti pembayaran jika metode pembayaran adalah transfer bank manual
+        $paymentProofPath = null;
+        if ($request->mode == 'manual_atm' && $request->hasFile('payment_proof')) {
+            $file = $request->file('payment_proof');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $paymentProofPath = $file->storeAs('payment_proofs', $fileName, 'public');
+        }
+
+        // Midtrans Configuration hanya jika metode pembayaran adalah card
+        $snapToken = null;
+        if ($request->mode == 'card') {
+            // Midtrans Configuration
+            Config::$serverKey = config('midtrans.serverKey');
+            Config::$isProduction = config('midtrans.isProduction');
+            Config::$isSanitized = true;
+            Config::$is3ds = true;
+
+            $params = [
+                'transaction_details' => [
+                    'order_id' => $invoice,
+                    'gross_amount' => (int) $order->total,
+                ],
+                'customer_details' => [
+                    'first_name' => $order->name,
+                    'phone' => $order->phone,
+                ]
+            ];
+
+            try {
+                // Ambil snap token dari Midtrans
+                $snapToken = Snap::getSnapToken($params);
+            } catch (\Exception $e) {
+                Log::error('Midtrans Snap Error: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Terjadi kesalahan saat proses pembayaran: ' . $e->getMessage());
+            }
+        }
+
+        // Simpan transaksi dengan status 'pending'
+        $transaction = [
+            'user_id' => $user_id,
+            'order_id' => $order->id,
+            'invoice' => $invoice,
+            'mode' => $request->mode,
+            'status' => 'pending', // Pastikan status awal transaksi adalah pending
+            'snap_token' => $snapToken,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
+
+        // Tambahkan bank_code dan payment_proof jika metode manual_atm
+        if ($request->mode == 'manual_atm') {
+            $transaction['bank_code'] = $request->bank_code;
+            $transaction['payment_proof'] = $paymentProofPath;
+        }
+
+        DB::table('transactions')->insert($transaction);
+
+        // Tambahkan notifikasi
+        DB::table('notifications')->insert([
+            'pesan' => 'Pesanan Baru Dari ' . $order->name . ' dengan Invoice ' . $invoice . ' dengan status pending',
+            'waktu' => now(),
+            'status' => 'unread',
+        ]);
+
         DB::beginTransaction();
         try {
-            // Buat pending order
-            $pendingOrder = PendingOrder::create([
-                'user_id' => $user_id,
-                'subtotal' => session()->get('checkout')['subtotal'],
-                'discount' => session()->get('checkout')['discount'],
-                'tax' => session()->get('checkout')['tax'],
-                'total' => session()->get('checkout')['total'] + $request->ongkir,
-                'ongkir' => $request->ongkir,
-                'kurir' => $request->kurir,
-                'name' => $address->name,
-                'phone' => $address->phone,
-                'locality' => $address->locality,
-                'address' => $address->address,
-                'city' => $address->city,
-                'state' => $address->state,
-                'country' => $address->country,
-                'landmark' => $address->landmark,
-                'zip' => $address->zip,
-                'status' => 'pending_payment',
-                'expires_at' => now()->addHours(24) // 24 jam untuk bayar
-            ]);
-
-            // Reserve stok dan buat pending order items
-            $validItems = [];
-            foreach ($selectedItems as $rowId) {
+            // Update reserved_quantity untuk setiap produk sesuai qty di order items
+            foreach ($validItems as $rowId) {
                 try {
                     $item = Cart::instance('cart')->get($rowId);
                     if ($item) {
-                        // Cek ketersediaan stok dengan lock
-                        $product = Product::lockForUpdate()->find($item->id);
+                        $product = Product::lockForUpdate()->find($item->id); // Lock row untuk concurrency
                         $availableStock = $product->quantity - $product->reserved_quantity;
 
                         if ($item->qty > $availableStock) {
-                            throw new \Exception("Stok produk {$product->name} tidak cukup. Tersedia: {$availableStock}");
+                            DB::rollBack();
+                            return redirect()->back()->with('error', "Stok produk {$product->name} tidak cukup.");
                         }
 
-                        // Reserve stok
+                        // Tambah reserved_quantity
                         $product->reserved_quantity += $item->qty;
                         $product->save();
-
-                        // Buat stock reservation record
-                        StockReservation::create([
-                            'product_id' => $item->id,
-                            'pending_order_id' => $pendingOrder->id,
-                            'reserved_quantity' => $item->qty,
-                            'expires_at' => $pendingOrder->expires_at,
-                            'status' => 'active'
-                        ]);
-
-                        // Buat pending order item
-                        PendingOrderItem::create([
-                            'pending_order_id' => $pendingOrder->id,
-                            'product_id' => $item->id,
-                            'price' => $item->price,
-                            'quantity' => $item->qty,
-                            'options' => $item->options
-                        ]);
-
-                        // Hapus dari cart
-                        Cart::instance('cart')->remove($rowId);
-
-                        // Hapus juga dari database jika user login
-                        if (Auth::check()) {
-                            CartItem::where('user_id', $user_id)
-                                ->where('product_id', $item->id)
-                                ->delete();
-                        }
-
-                        $validItems[] = $rowId;
                     }
                 } catch (\Exception $e) {
+                    // Skip item yang tidak ditemukan
                     continue;
                 }
             }
 
-            if (empty($validItems)) {
-                throw new \Exception('Tidak ada produk yang valid untuk diproses');
-            }
-
-            // Buat invoice untuk pending order
-            $invoice = 'PENDING-' . $pendingOrder->id . '-' . Str::uuid();
-
-            // Upload bukti pembayaran jika metode manual
-            $paymentProofPath = null;
-            if ($request->mode == 'manual_atm' && $request->hasFile('payment_proof')) {
-                $file = $request->file('payment_proof');
-                $fileName = time() . '_' . $file->getClientOriginalName();
-                $paymentProofPath = $file->storeAs('payment_proofs', $fileName, 'public');
-            }
-
-            // Setup Midtrans jika metode card
-            $snapToken = null;
-            if ($request->mode == 'card') {
-                Config::$serverKey = config('midtrans.serverKey');
-                Config::$isProduction = config('midtrans.isProduction');
-                Config::$isSanitized = true;
-                Config::$is3ds = true;
-
-                $params = [
-                    'transaction_details' => [
-                        'order_id' => $invoice,
-                        'gross_amount' => (int) $pendingOrder->total,
-                    ],
-                    'customer_details' => [
-                        'first_name' => $pendingOrder->name,
-                        'phone' => $pendingOrder->phone,
-                    ]
-                ];
-
-                try {
-                    $snapToken = Snap::getSnapToken($params);
-                } catch (\Exception $e) {
-                    Log::error('Midtrans Snap Error: ' . $e->getMessage());
-                    throw new \Exception('Terjadi kesalahan saat proses pembayaran: ' . $e->getMessage());
-                }
-            }
-
-            // Buat transaksi yang link ke pending_order
-            $transactionData = [
-                'user_id' => $user_id,
-                'pending_order_id' => $pendingOrder->id, // Link ke pending order, bukan order
-                'invoice' => $invoice,
-                'mode' => $request->mode,
-                'status' => 'pending',
-                'snap_token' => $snapToken,
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
-
-            // Tambahkan data bank jika manual
-            if ($request->mode == 'manual_atm') {
-                $transactionData['bank_code'] = $request->bank_code;
-                $transactionData['payment_proof'] = $paymentProofPath;
-            }
-
-            DB::table('transactions')->insert($transactionData);
-
-            // Tambahkan notifikasi
-            DB::table('notifications')->insert([
-                'pesan' => 'Pending Order Baru Dari ' . $pendingOrder->name . ' dengan Invoice ' . $invoice,
-                'waktu' => now(),
-                'status' => 'unread',
-            ]);
-
             DB::commit();
-
-            // Cleanup session
-            if (Cart::instance('cart')->count() === 0) {
-                Cart::instance('cart')->destroy();
-            }
-
-            session()->forget('selected_cart_items');
-            session()->forget('checkout');
-            session()->put('pending_order_id', $pendingOrder->id); // Ubah dari order_id ke pending_order_id
-
-            return redirect()->route('cart.confirmation');
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Error place_order: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            Log::error('Error place_order stok: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses pesanan.');
         }
+
+        // Jika masih ada item di keranjang, tidak perlu destroy seluruh keranjang
+        if (Cart::instance('cart')->count() === 0) {
+            Cart::instance('cart')->destroy();
+        }
+
+        session()->forget('selected_cart_items');
+        session()->forget('checkout');
+        session()->put('order_id', $order->id);
+
+        return redirect()->route('cart.confirmation');
     }
 
+    public function show($orderNumber)
+    {
+        $pendingOrder = PendingOrder::where('order_number', $orderNumber)
+            ->where('user_id', auth()->id())
+            ->with('items.product')
+            ->first();
+
+        if (!$pendingOrder) {
+            return redirect()->route('cart.index')->with('error', 'Pesanan tidak ditemukan');
+        }
+
+        if ($pendingOrder->isExpired()) {
+            // Release stock jika expired
+            $this->releaseExpiredOrder($pendingOrder);
+            return redirect()->route('cart.index')->with('error', 'Pesanan telah kedaluwarsa');
+        }
+
+        // Ambil alamat default user
+        $address = Address::where('user_id', Auth::user()->id)->where('isdefault', true)->first();
+
+        // Jika tidak ada alamat default, ambil alamat pertama
+        if (!$address) {
+            $address = Address::where('user_id', Auth::user()->id)->first();
+        }
+
+        // Ambil semua alamat user untuk ditampilkan di dropdown
+        $userAddresses = Address::where('user_id', Auth::user()->id)->get();
+
+        // Hitung total berat dari pending order items
+        $weight = 0;
+        foreach ($pendingOrder->items as $item) {
+            $weight += (500 * $item->quantity); // 500g per item
+        }
+
+        if ($weight <= 0) {
+            $weight = 1000; // 1kg default
+        }
+
+        // Data kurir dan bank
+        $couriers = [
+            'jne' => 'JNE',
+            'pos' => 'POS Indonesia',
+            'tiki' => 'TIKI'
+        ];
+
+        $bankAccounts = BankAccount::where('is_active', true)->get();
+
+        return view('checkout', compact('pendingOrder', 'address', 'userAddresses', 'bankAccounts', 'couriers', 'weight'));
+    }
+
+    public function store(Request $request, $orderNumber)
+    {
+        $pendingOrder = PendingOrder::where('order_number', $orderNumber)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (!$pendingOrder) {
+            return redirect()->route('cart.index')->with('error', 'Pesanan tidak ditemukan');
+        }
+
+        if ($pendingOrder->isExpired()) {
+            $this->releaseExpiredOrder($pendingOrder);
+            return redirect()->route('cart.index')->with('error', 'Pesanan telah kedaluwarsa');
+        }
+
+        // Validasi input
+        $request->validate([
+            'address_id' => 'required_without:name|exists:addresses,id',
+            'name' => 'required_without:address_id|max:100',
+            'phone' => 'required_without:address_id|numeric',
+            'zip' => 'required_without:address_id',
+            'state' => 'required_without:address_id',
+            'city' => 'required_without:address_id',
+            'address' => 'required_without:address_id',
+            'locality' => 'required_without:address_id',
+            'landmark' => 'required_without:address_id',
+            'kurir' => 'required|string',
+            'ongkir' => 'required|numeric|min:0'
+        ]);
+
+        // Ambil atau buat alamat
+        if ($request->has('address_id') && $request->address_id > 0) {
+            $address = Address::where('id', $request->address_id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+            $shippingAddress = $address->address . ', ' . $address->locality . ', ' . $address->city . ', ' . $address->state . ' ' . $address->zip;
+        } else {
+            // Buat alamat baru jika diperlukan
+            $shippingAddress = $request->address . ', ' . $request->locality . ', ' . $request->city . ', ' . $request->state . ' ' . $request->zip;
+
+            if ($request->has('save_address') && $request->save_address) {
+                $address = new Address();
+                $address->user_id = auth()->id();
+                $address->name = $request->name;
+                $address->phone = $request->phone;
+                $address->zip = $request->zip;
+                $address->state = $request->state;
+                $address->city = $request->city;
+                $address->address = $request->address;
+                $address->locality = $request->locality;
+                $address->landmark = $request->landmark;
+                $address->country = $request->country ?? 'Indonesia';
+                $address->save();
+            }
+        }
+
+        // Update pending order dengan info shipping
+        $pendingOrder->update([
+            'shipping_address' => $shippingAddress,
+            'shipping_cost' => $request->ongkir,
+            'kurir' => $request->kurir
+        ]);
+
+        return redirect()->route('order.confirmation', $pendingOrder->order_number);
+    }
 
     // ====================================================================================================
     // CONFIRMATION // ------------------------ Order Confirmation -------------------------------------
     // ====================================================================================================
     public function confirmation()
     {
-        if (Session::has('pending_order_id')) {
-            $pendingOrder = PendingOrder::with(['items.product', 'transaction'])->find(Session::get('pending_order_id'));
-            if ($pendingOrder) {
-                $transaction = $pendingOrder->transaction;
-                return view('order-confirmation', compact('pendingOrder', 'transaction'));
+        // Jika menggunakan flow lama (masih ada session order_id)
+        if (Session::has('order_id')) {
+            $order = Order::find(Session::get('order_id'));
+            $snaptoken = DB::table('transactions')->where('order_id', $order->id)->first()->snap_token ?? null;
+            return view('order-confirmation', compact('order', 'snaptoken'));
+        }
+
+        // Jika tidak ada session, redirect ke cart
+        return redirect()->route('cart.index')->with('error', 'Tidak ada pesanan yang ditemukan');
+    }
+
+    public function orderConfirmation($orderNumber)
+    {
+        $pendingOrder = PendingOrder::where('order_number', $orderNumber)
+            ->where('user_id', auth()->id())
+            ->with('items.product')
+            ->first();
+
+        if (!$pendingOrder) {
+            return redirect()->route('cart.index')->with('error', 'Pesanan tidak ditemukan');
+        }
+
+        if ($pendingOrder->isExpired()) {
+            // Release stock jika expired
+            $this->releaseExpiredOrder($pendingOrder);
+            return redirect()->route('cart.index')->with('error', 'Pesanan telah kedaluwarsa');
+        }
+
+        // Setup Midtrans
+        $snapToken = $this->createMidtransPayment($pendingOrder);
+
+        return view('order-confirmation', compact('pendingOrder', 'snapToken'));
+    }
+
+    public function retryPayment($orderNumber)
+    {
+        $pendingOrder = PendingOrder::where('order_number', $orderNumber)
+            ->where('user_id', auth()->id())
+            ->with('items.product')
+            ->first();
+
+        if (!$pendingOrder || $pendingOrder->isExpired()) {
+            return redirect()->route('cart.index')->with('error', 'Pesanan tidak valid atau expired');
+        }
+
+        // Setup Midtrans
+        $snapToken = $this->createMidtransPayment($pendingOrder);
+
+        return view('order-payment', compact('pendingOrder', 'snapToken'));
+    }
+
+    // ====================================================================================================
+    // FLOW BARU DENGAN PENDING ORDER // ----------------------- Flow Baru (Tambahan) ------------------
+    // ====================================================================================================
+
+    public function proceedToCheckout(Request $request)
+    {
+        $user = auth()->user();
+        $cartItems = $user->cartItems()->with('product')->get();
+
+        if ($cartItems->isEmpty()) {
+            return redirect()->route('cart.index')->with('error', 'Keranjang kosong');
+        }
+
+        DB::beginTransaction();
+        try {
+            // 1. Cek ketersediaan stok
+            foreach ($cartItems as $item) {
+                $available = $item->product->quantity - $item->product->reserved_quantity;
+                if ($available < $item->quantity) {
+                    throw new Exception("Stok {$item->product->name} tidak mencukupi. Tersedia: {$available}");
+                }
+            }
+
+            // 2. Hitung total
+            $totalAmount = $cartItems->sum(function ($item) {
+                return $item->price * $item->quantity;
+            });
+
+            // 3. Buat pending order
+            $pendingOrder = PendingOrder::create([
+                'user_id' => $user->id,
+                'order_number' => 'PO-' . time() . '-' . $user->id,
+                'total_amount' => $totalAmount,
+                'expires_at' => now()->addHour(), // 1 jam timeout
+                'status' => 'pending_payment'
+            ]);
+
+            // 4. Reserve stok dan buat items
+            foreach ($cartItems as $item) {
+                // Buat pending order item
+                PendingOrderItem::create([
+                    'pending_order_id' => $pendingOrder->id,
+                    'product_id' => $item->product_id,
+                    'quantity' => $item->quantity,
+                    'price' => $item->price
+                ]);
+
+                // Reserve stok
+                StockReservation::create([
+                    'product_id' => $item->product_id,
+                    'pending_order_id' => $pendingOrder->id,
+                    'quantity' => $item->quantity,
+                    'expires_at' => $pendingOrder->expires_at
+                ]);
+
+                // Update reserved_quantity
+                $item->product->increment('reserved_quantity', $item->quantity);
+            }
+
+            // 5. Hapus cart items
+            $user->cartItems()->delete();
+
+            DB::commit();
+
+            return redirect()->route('checkout.show', $pendingOrder->order_number);
+        } catch (Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function showNewCheckout($orderNumber)
+    {
+        $pendingOrder = PendingOrder::where('order_number', $orderNumber)
+            ->where('user_id', auth()->id())
+            ->with('items.product')
+            ->first();
+
+        if (!$pendingOrder) {
+            return redirect()->route('cart.index')->with('error', 'Pesanan tidak ditemukan');
+        }
+
+        if ($pendingOrder->isExpired()) {
+            // Release stock jika expired
+            $this->releaseExpiredOrder($pendingOrder);
+            return redirect()->route('cart.index')->with('error', 'Pesanan telah kedaluwarsa');
+        }
+
+        // Ambil alamat default user
+        $address = Address::where('user_id', Auth::user()->id)->where('isdefault', true)->first();
+
+        // Jika tidak ada alamat default, ambil alamat pertama
+        if (!$address) {
+            $address = Address::where('user_id', Auth::user()->id)->first();
+        }
+
+        // Ambil semua alamat user untuk ditampilkan di dropdown
+        $userAddresses = Address::where('user_id', Auth::user()->id)->get();
+
+        // Hitung total berat dari pending order items
+        $weight = 0;
+        foreach ($pendingOrder->items as $item) {
+            $weight += (500 * $item->quantity); // 500g per item
+        }
+
+        if ($weight <= 0) {
+            $weight = 1000; // 1kg default
+        }
+
+        // Data kurir dan bank
+        $couriers = [
+            'jne' => 'JNE',
+            'pos' => 'POS Indonesia',
+            'tiki' => 'TIKI'
+        ];
+
+        $bankAccounts = BankAccount::where('is_active', true)->get();
+
+        return view('checkout-new', compact('pendingOrder', 'address', 'userAddresses', 'bankAccounts', 'couriers', 'weight'));
+    }
+
+    public function storeNewCheckout(Request $request, $orderNumber)
+    {
+        $pendingOrder = PendingOrder::where('order_number', $orderNumber)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (!$pendingOrder) {
+            return redirect()->route('cart.index')->with('error', 'Pesanan tidak ditemukan');
+        }
+
+        if ($pendingOrder->isExpired()) {
+            $this->releaseExpiredOrder($pendingOrder);
+            return redirect()->route('cart.index')->with('error', 'Pesanan telah kedaluwarsa');
+        }
+
+        // Validasi input
+        $request->validate([
+            'address_id' => 'required_without:name|exists:addresses,id',
+            'name' => 'required_without:address_id|max:100',
+            'phone' => 'required_without:address_id|numeric',
+            'zip' => 'required_without:address_id',
+            'state' => 'required_without:address_id',
+            'city' => 'required_without:address_id',
+            'address' => 'required_without:address_id',
+            'locality' => 'required_without:address_id',
+            'landmark' => 'required_without:address_id',
+            'kurir' => 'required|string',
+            'ongkir' => 'required|numeric|min:0'
+        ]);
+
+        // Ambil atau buat alamat
+        if ($request->has('address_id') && $request->address_id > 0) {
+            $address = Address::where('id', $request->address_id)
+                ->where('user_id', auth()->id())
+                ->firstOrFail();
+            $shippingAddress = $address->address . ', ' . $address->locality . ', ' . $address->city . ', ' . $address->state . ' ' . $address->zip;
+        } else {
+            // Buat alamat baru jika diperlukan
+            $shippingAddress = $request->address . ', ' . $request->locality . ', ' . $request->city . ', ' . $request->state . ' ' . $request->zip;
+
+            if ($request->has('save_address') && $request->save_address) {
+                $address = new Address();
+                $address->user_id = auth()->id();
+                $address->name = $request->name;
+                $address->phone = $request->phone;
+                $address->zip = $request->zip;
+                $address->state = $request->state;
+                $address->city = $request->city;
+                $address->address = $request->address;
+                $address->locality = $request->locality;
+                $address->landmark = $request->landmark;
+                $address->country = $request->country ?? 'Indonesia';
+                $address->save();
             }
         }
-        return redirect()->route('cart.index');
+
+        // Update pending order dengan info shipping
+        $pendingOrder->update([
+            'shipping_address' => $shippingAddress,
+            'shipping_cost' => $request->ongkir,
+            'kurir' => $request->kurir
+        ]);
+
+        return redirect()->route('order.confirmation.new', $pendingOrder->order_number);
+    }
+
+    public function orderConfirmationNew($orderNumber)
+    {
+        $pendingOrder = PendingOrder::where('order_number', $orderNumber)
+            ->where('user_id', auth()->id())
+            ->with('items.product')
+            ->first();
+
+        if (!$pendingOrder) {
+            return redirect()->route('cart.index')->with('error', 'Pesanan tidak ditemukan');
+        }
+
+        if ($pendingOrder->isExpired()) {
+            // Release stock jika expired
+            $this->releaseExpiredOrder($pendingOrder);
+            return redirect()->route('cart.index')->with('error', 'Pesanan telah kedaluwarsa');
+        }
+
+        // Setup Midtrans
+        $snapToken = $this->createMidtransPayment($pendingOrder);
+
+        return view('order-confirmation-new', compact('pendingOrder', 'snapToken'));
+    }
+
+    private function releaseExpiredOrder($pendingOrder)
+    {
+        foreach ($pendingOrder->stockReservations as $reservation) {
+            $product = Product::find($reservation->product_id);
+            if ($product) {
+                $product->decrement('reserved_quantity', $reservation->quantity);
+            }
+        }
+
+        $pendingOrder->stockReservations()->delete();
+        $pendingOrder->update(['status' => 'expired']);
+    }
+
+    private function createMidtransPayment($pendingOrder)
+    {
+        Config::$serverKey = config('midtrans.serverKey');
+        Config::$isProduction = config('midtrans.isProduction');
+        Config::$isSanitized = true;
+        Config::$is3ds = true;
+
+        $params = [
+            'transaction_details' => [
+                'order_id' => $pendingOrder->order_number,
+                'gross_amount' => (int)($pendingOrder->total_amount + $pendingOrder->shipping_cost),
+            ],
+            'customer_details' => [
+                'first_name' => auth()->user()->name,
+                'email' => auth()->user()->email,
+            ],
+            'expiry' => [
+                'start_time' => now()->format('Y-m-d H:i:s O'),
+                'unit' => 'hour',
+                'duration' => 1
+            ]
+        ];
+
+        try {
+            $snapToken = Snap::getSnapToken($params);
+            return $snapToken;
+        } catch (\Exception $e) {
+            Log::error('Midtrans Snap Error: ' . $e->getMessage());
+            throw new Exception('Terjadi kesalahan saat proses pembayaran: ' . $e->getMessage());
+        }
+    }
+
+    public function midtransCallback(Request $request)
+    {
+        $serverKey = config('midtrans.serverKey');
+        $hashed = hash("sha512", $request->order_id . $request->status_code . $request->gross_amount . $serverKey);
+
+        if ($hashed == $request->signature_key) {
+            $orderNumber = $request->order_id;
+            $pendingOrder = PendingOrder::where('order_number', $orderNumber)->first();
+
+            if ($pendingOrder) {
+                if ($request->transaction_status == 'settlement' || $request->transaction_status == 'capture') {
+                    // Pembayaran berhasil - convert ke order
+                    try {
+                        $order = $this->convertPendingOrderToOrder($pendingOrder);
+
+                        return response()->json(['status' => 'success']);
+                    } catch (Exception $e) {
+                        Log::error('Error converting pending order: ' . $e->getMessage());
+                        return response()->json(['status' => 'error', 'message' => $e->getMessage()]);
+                    }
+                } elseif (in_array($request->transaction_status, ['expire', 'cancel', 'deny', 'failure'])) {
+                    // Pembayaran gagal - release reservasi
+                    $this->releaseStockReservation($pendingOrder);
+
+                    // Record failed payment
+                    FailedPayment::create([
+                        'pending_order_id' => $pendingOrder->id,
+                        'midtrans_order_id' => $orderNumber,
+                        'failure_reason' => $request->transaction_status,
+                        'failed_at' => now()
+                    ]);
+
+                    return response()->json(['status' => 'failed']);
+                }
+            }
+        }
+
+        return response()->json(['status' => 'invalid signature']);
+    }
+
+    private function convertPendingOrderToOrder($pendingOrder)
+    {
+        DB::beginTransaction();
+        try {
+            // Buat order baru
+            $order = new Order();
+            $order->user_id = $pendingOrder->user_id;
+            $order->subtotal = $pendingOrder->total_amount;
+            $order->discount = 0; // Atau ambil dari session jika ada
+            $order->tax = 0; // Atau hitung jika perlu
+            $order->total = $pendingOrder->total_amount + $pendingOrder->shipping_cost;
+            $order->ongkir = $pendingOrder->shipping_cost;
+            $order->kurir = $pendingOrder->kurir ?? 'jne';
+            $order->status = 'pending'; // Status awal setelah pembayaran
+
+            // Parse shipping address
+            $shippingParts = explode(', ', $pendingOrder->shipping_address);
+            $order->name = auth()->user()->name;
+            $order->phone = auth()->user()->phone ?? '0000000000';
+            $order->address = $shippingParts[0] ?? $pendingOrder->shipping_address;
+            $order->locality = $shippingParts[1] ?? '';
+            $order->city = $shippingParts[2] ?? '';
+            $order->state = $shippingParts[3] ?? '';
+            $order->country = 'Indonesia';
+            $order->landmark = '';
+            $order->zip = '';
+
+            $order->save();
+
+            // Transfer items dan kurangi stok
+            foreach ($pendingOrder->items as $item) {
+                // Buat order item
+                $orderitem = new OrderItem();
+                $orderitem->product_id = $item->product_id;
+                $orderitem->order_id = $order->id;
+                $orderitem->price = $item->price;
+                $orderitem->quantity = $item->quantity;
+                $orderitem->options = $item->options ?? null;
+                $orderitem->save();
+
+                // Kurangi stok permanen dan reserved quantity
+                $product = Product::lockForUpdate()->find($item->product_id);
+                if ($product) {
+                    $product->decrement('quantity', $item->quantity);
+                    $product->decrement('reserved_quantity', $item->quantity);
+                }
+            }
+
+            // Buat transaction record
+            $invoice = 'ORDER-' . $order->id . '-' . Str::uuid();
+            DB::table('transactions')->insert([
+                'user_id' => $pendingOrder->user_id,
+                'order_id' => $order->id,
+                'invoice' => $invoice,
+                'mode' => 'card',
+                'status' => 'completed',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            // Tambahkan notifikasi
+            DB::table('notifications')->insert([
+                'pesan' => 'Pembayaran berhasil untuk pesanan dari ' . $order->name . ' dengan Invoice ' . $invoice,
+                'waktu' => now(),
+                'status' => 'unread',
+            ]);
+
+            // Hapus reservasi dan pending order
+            $pendingOrder->stockReservations()->delete();
+            $pendingOrder->delete();
+
+            DB::commit();
+            return $order;
+        } catch (Exception $e) {
+            DB::rollback();
+            throw $e;
+        }
+    }
+
+    private function releaseStockReservation($pendingOrder)
+    {
+        foreach ($pendingOrder->stockReservations as $reservation) {
+            $product = Product::find($reservation->product_id);
+            if ($product) {
+                $product->decrement('reserved_quantity', $reservation->quantity);
+            }
+        }
+
+        $pendingOrder->stockReservations()->delete();
+        $pendingOrder->update(['status' => 'expired']);
     }
 }
