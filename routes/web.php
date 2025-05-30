@@ -110,12 +110,6 @@ Route::middleware(['auth'])->group(function () {
     })->name('auth.redirect');
 });
 
-// Routes untuk flow pending orders (pastikan sudah ada)
-Route::post('/cart/proceed-checkout', [CartController::class, 'proceedToCheckout'])->name('cart.proceed');
-Route::get('/checkout/{orderNumber}', [CartController::class, 'show'])->name('checkout.show');
-Route::post('/checkout/{orderNumber}', [CartController::class, 'store'])->name('checkout.store');
-Route::get('/order-confirmation/{orderNumber}', [CartController::class, 'orderConfirmation'])->name('order.confirmation');
-Route::post('/midtrans/callback', [CartController::class, 'midtransCallback'])->name('midtrans.callback');
 
 // ====================================================================================================
 // Route untuk Wishlist

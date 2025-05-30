@@ -2,22 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PendingOrderItem extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'pending_order_id',
-        'product_id',
-        'quantity',
-        'price'
+        'pending_order_id', 'product_id', 'price', 'quantity', 'options'
     ];
 
     protected $casts = [
-        'price' => 'decimal:2'
+        'options' => 'array'
     ];
 
     public function pendingOrder()

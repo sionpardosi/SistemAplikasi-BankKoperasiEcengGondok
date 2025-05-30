@@ -6,19 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::create('pending_order_items', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('pending_order_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->integer('quantity');
-            $table->decimal('price', 10, 2);
+            $table->bigInteger('pending_order_id')->unsigned();
+            $table->bigInteger('product_id')->unsigned();
+            $table->decimal('price', 15, 2);
+            $table->integer('quantity')->unsigned();
+            $table->json('options')->nullable();
+
             $table->timestamps();
+
+            $table->foreign('pending_order_id')->references('id')->on('pending_orders')->onDelete('cascade');
+            $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('pending_order_items');
     }

@@ -737,468 +737,387 @@
                     </div>
                 </a>
             </div>
-            @if (isset($pendingOrder))
-                <form name="checkout-form" action="{{ route('checkout.store', $pendingOrder->order_number) }}"
-                    method="POST">
-                    @csrf
-                    <div class="checkout-form">
-                        <div class="billing-info__wrapper">
-                            <!-- Header Bagian -->
-                            <div class="shipping-details-header">
-                                <div class="row align-items-center">
-                                    <div class="col-md-6">
-                                        <h4 class="shipping-title">
-                                            <i class="fas fa-map-marker-alt me-2"></i>DETAIL PENGIRIMAN
-                                        </h4>
-                                    </div>
-                                    <div class="col-md-6 text-end">
-                                        <div class="address-actions">
-                                            @if ($address)
-                                                <a href="{{ route('user.address.edit-address', $address->id) }}"
-                                                    class="btn btn-edit">
-                                                    <i class="fas fa-pen me-1"></i> Edit Alamat
-                                                </a>
-                                            @endif
-                                            <a href="{{ route('user.address.account-address') }}" class="btn btn-manage">
-                                                <i class="fas fa-cog me-1"></i> Kelola Alamat
+            <form name="checkout-form" action="{{ route('cart.place.order') }}" method="POST">
+                @csrf
+                <div class="checkout-form">
+                    <div class="billing-info__wrapper">
+                        <!-- Header Bagian -->
+                        <div class="shipping-details-header">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <h4 class="shipping-title">
+                                        <i class="fas fa-map-marker-alt me-2"></i>DETAIL PENGIRIMAN
+                                    </h4>
+                                </div>
+                                <div class="col-md-6 text-end">
+                                    <div class="address-actions">
+                                        @if ($address)
+                                            <a href="{{ route('user.address.edit-address', $address->id) }}"
+                                                class="btn btn-edit">
+                                                <i class="fas fa-pen me-1"></i> Edit Alamat
                                             </a>
-                                        </div>
+                                        @endif
+                                        <a href="{{ route('user.address.account-address') }}" class="btn btn-manage">
+                                            <i class="fas fa-cog me-1"></i> Kelola Alamat
+                                        </a>
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <!-- Jika user sudah memiliki alamat -->
-                            @if (isset($userAddresses) && $userAddresses->count() > 0)
-                                <div class="address-selector-container">
-                                    <div class="row mt-3">
-                                        <div class="col-md-12">
-                                            <div class="form-group">
-                                                <label for="address_selector" class="address-label">
-                                                    <i class="fas fa-home me-2"></i>Pilih Alamat Pengiriman
-                                                </label>
-                                                <select name="address_id" id="address_selector"
-                                                    class="form-select custom-select">
-                                                    <option value="0">-- Gunakan alamat baru --</option>
-                                                    @foreach ($userAddresses as $addr)
-                                                        <option value="{{ $addr->id }}"
-                                                            data-province="{{ $addr->state }}"
-                                                            data-city="{{ $addr->city }}"
-                                                            {{ $address && $addr->id == $address->id ? 'selected' : '' }}>
-                                                            {{ $addr->name }} - {{ $addr->address }}, {{ $addr->city }}
-                                                            {{ $addr->isdefault ? '(Default)' : '' }}
-                                                        </option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div id="existing-address" class="row {{ $address ? '' : 'd-none' }}">
-                                        <div class="col-md-12">
-                                            <div class="address-card">
-                                                <div class="address-card-content">
-                                                    @if ($address)
-                                                        <div class="recipient-name">{{ $address->name }}</div>
-                                                        <div class="address-data">
-                                                            <p><i class="fas fa-building me-2"></i>{{ $address->address }}
-                                                            </p>
-                                                            <p><i class="fas fa-road me-2"></i>{{ $address->locality }}</p>
-                                                            <p><i class="fas fa-map me-2"></i>{{ $address->city }},
-                                                                {{ $address->state }}, {{ $address->country }}</p>
-                                                            <p><i class="fas fa-mailbox me-2"></i>{{ $address->zip }}</p>
-                                                            <p><i class="fas fa-landmark me-2"></i>Patokan:
-                                                                {{ $address->landmark }}</p>
-                                                            <p><i class="fas fa-phone me-2"></i>Nomor HP:
-                                                                {{ $address->phone }}
-                                                            </p>
-                                                        </div>
-                                                        <input type="hidden" id="idcitylama"
-                                                            value="{{ $address->idcity }}">
-                                                        <input type="hidden" id="idstatelama"
-                                                            value="{{ $address->idstate }}">
-                                                    @endif
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            @endif
-
-                            <!-- Form untuk alamat baru -->
-                            <div id="new-address-form"
-                                class="{{ isset($userAddresses) && $userAddresses->count() > 0 && $address ? 'd-none' : '' }}">
-                                <div class="row mt-4">
-                                    <div class="col-md-6">
-                                        <div class="form-floating my-3">
-                                            <input type="text" class="form-control custom-input" name="name"
-                                                value="{{ old('name') }}">
-                                            <label for="name">Nama Lengkap *</label>
-                                            <span class="text-danger">
-                                                @error('name')
-                                                    {{ $message }}
-                                                @enderror
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating my-3">
-                                            <input type="text" class="form-control custom-input" name="phone"
-                                                value="{{ old('phone') }}">
-                                            <label for="phone">Nomor Telepon *</label>
-                                            <span class="text-danger">
-                                                @error('phone')
-                                                    {{ $message }}
-                                                @enderror
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating my-3">
-                                            <input type="text" class="form-control custom-input" name="zip"
-                                                value="{{ old('zip') }}">
-                                            <label for="zip">Kode Pos *</label>
-                                            <span class="text-danger">
-                                                @error('zip')
-                                                    {{ $message }}
-                                                @enderror
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating mt-3 mb-3">
-                                            <select class="form-select custom-select" id="province" name="state">
-                                                <option value="">Pilih Provinsi *</option>
-                                            </select>
-                                            <label for="state">Provinsi *</label>
-                                            <span class="text-danger">
-                                                @error('state')
-                                                    {{ $message }}
-                                                @enderror
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <div class="form-floating my-3">
-                                            <select class="form-select custom-select" id="city" name="city">
-                                                <option value="">Pilih Kota / Kabupaten *</option>
-                                            </select>
-                                            <label for="city">Kota / Kabupaten *</label>
-                                            <span class="text-danger">
-                                                @error('city')
-                                                    {{ $message }}
-                                                @enderror
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating my-3">
-                                            <input type="text" class="form-control custom-input" name="address"
-                                                value="{{ old('address') }}">
-                                            <label for="address">Nomor Rumah, Nama Gedung *</label>
-                                            <span class="text-danger">
-                                                @error('address')
-                                                    {{ $message }}
-                                                @enderror
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-floating my-3">
-                                            <input type="text" class="form-control custom-input" name="locality"
-                                                value="{{ old('locality') }}">
-                                            <label for="locality">Nama Jalan, Area, Kelurahan *</label>
-                                            <span class="text-danger">
-                                                @error('locality')
-                                                    {{ $message }}
-                                                @enderror
-                                            </span>
-                                        </div>
-                                    </div>
+                        <!-- Jika user sudah memiliki alamat -->
+                        @if (isset($userAddresses) && $userAddresses->count() > 0)
+                            <div class="address-selector-container">
+                                <div class="row mt-3">
                                     <div class="col-md-12">
-                                        <div class="form-floating my-3">
-                                            <input type="text" class="form-control custom-input" name="landmark"
-                                                value="{{ old('landmark') }}">
-                                            <label for="landmark">Patokan *</label>
-                                            <span class="text-danger">
-                                                @error('landmark')
-                                                    {{ $message }}
-                                                @enderror
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 mt-2">
-                                        <div class="custom-checkbox-container">
-                                            <input type="checkbox" class="custom-checkbox" id="save_address"
-                                                name="save_address" value="1" checked>
-                                            <label class="custom-checkbox-label" for="save_address">
-                                                <span class="checkbox-icon"></span>
-                                                Simpan alamat ini untuk digunakan nanti
-                                            </label>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 mt-2">
-                                        <div class="custom-checkbox-container">
-                                            <input type="checkbox" class="custom-checkbox" id="isdefault"
-                                                name="isdefault" value="1">
-                                            <label class="custom-checkbox-label" for="isdefault">
-                                                <span class="checkbox-icon"></span>
-                                                Jadikan sebagai alamat utama
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Pilihan Jasa Pengiriman -->
-                            <div class="shipping-method-section">
-                                <div class="row mt-4">
-                                    <div class="col-md-12">
-                                        <h4 class="shipping-title">
-                                            <i class="fas fa-truck me-2"></i>METODE PENGIRIMAN
-                                        </h4>
-                                    </div>
-                                    <div class="col-md-6 mt-3">
                                         <div class="form-group">
-                                            <label for="courier" class="courier-label">
-                                                <i class="fas fa-shipping-fast me-2"></i>Pilih Kurir
+                                            <label for="address_selector" class="address-label">
+                                                <i class="fas fa-home me-2"></i>Pilih Alamat Pengiriman
                                             </label>
-                                            <select name="courier" id="courier" class="form-select custom-select">
-                                                <option value="">-- Pilih Kurir --</option>
-                                                @foreach ($couriers as $code => $name)
-                                                    <option value="{{ $code }}">{{ $name }}</option>
+                                            <select name="address_id" id="address_selector"
+                                                class="form-select custom-select">
+                                                <option value="0">-- Gunakan alamat baru --</option>
+                                                @foreach ($userAddresses as $addr)
+                                                    <option value="{{ $addr->id }}" data-province="{{ $addr->state }}"
+                                                        data-city="{{ $addr->city }}"
+                                                        {{ $address && $addr->id == $address->id ? 'selected' : '' }}>
+                                                        {{ $addr->name }} - {{ $addr->address }}, {{ $addr->city }}
+                                                        {{ $addr->isdefault ? '(Default)' : '' }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-md-6 mt-3">
-                                        <div class="form-group">
-                                            <label for="shipping_service" class="service-label">
-                                                <i class="fas fa-box me-2"></i>Layanan Pengiriman
-                                            </label>
-                                            <select name="shipping_service" id="shipping_service"
-                                                class="form-select custom-select" disabled>
-                                                <option value="">-- Pilih Layanan --</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-12 mt-3">
-                                        <div id="shipping-info" class="shipping-info-card d-none">
-                                            <div class="shipping-info-header">
-                                                <i class="fas fa-info-circle me-2"></i>
-                                                <strong>Informasi Pengiriman</strong>
-                                            </div>
-                                            <div class="shipping-info-content">
-                                                <p id="service-description" class="service-desc"></p>
-                                                <div class="shipping-details-row">
-                                                    <div class="shipping-detail-item">
-                                                        <i class="fas fa-clock me-2"></i>
-                                                        <span>Estimasi: <span id="etd" class="value"></span>
-                                                            hari</span>
+                                </div>
+
+                                <div id="existing-address" class="row {{ $address ? '' : 'd-none' }}">
+                                    <div class="col-md-12">
+                                        <div class="address-card">
+                                            <div class="address-card-content">
+                                                @if ($address)
+                                                    <div class="recipient-name">{{ $address->name }}</div>
+                                                    <div class="address-data">
+                                                        <p><i class="fas fa-building me-2"></i>{{ $address->address }}</p>
+                                                        <p><i class="fas fa-road me-2"></i>{{ $address->locality }}</p>
+                                                        <p><i class="fas fa-map me-2"></i>{{ $address->city }},
+                                                            {{ $address->state }}, {{ $address->country }}</p>
+                                                        <p><i class="fas fa-mailbox me-2"></i>{{ $address->zip }}</p>
+                                                        <p><i class="fas fa-landmark me-2"></i>Patokan:
+                                                            {{ $address->landmark }}</p>
+                                                        <p><i class="fas fa-phone me-2"></i>Nomor HP: {{ $address->phone }}
+                                                        </p>
                                                     </div>
-                                                    <div class="shipping-detail-item">
-                                                        <i class="fas fa-money-bill me-2"></i>
-                                                        <span>Biaya: <span id="shipping-cost"
-                                                                class="value"></span></span>
-                                                    </div>
-                                                </div>
+                                                    <input type="hidden" id="idcitylama" value="{{ $address->idcity }}">
+                                                    <input type="hidden" id="idstatelama" value="{{ $address->idstate }}">
+                                                @endif
                                             </div>
-                                            <input type="hidden" name="shipping_cost" id="shipping_cost_input"
-                                                value="0">
-                                            <input type="hidden" name="city_id" id="city_id" value="">
                                         </div>
                                     </div>
                                 </div>
                             </div>
+                        @endif
+
+                        <!-- Form untuk alamat baru -->
+                        <div id="new-address-form"
+                            class="{{ isset($userAddresses) && $userAddresses->count() > 0 && $address ? 'd-none' : '' }}">
+                            <div class="row mt-4">
+                                <div class="col-md-6">
+                                    <div class="form-floating my-3">
+                                        <input type="text" class="form-control custom-input" name="name"
+                                            value="{{ old('name') }}">
+                                        <label for="name">Nama Lengkap *</label>
+                                        <span class="text-danger">
+                                            @error('name')
+                                                {{ $message }}
+                                            @enderror
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating my-3">
+                                        <input type="text" class="form-control custom-input" name="phone"
+                                            value="{{ old('phone') }}">
+                                        <label for="phone">Nomor Telepon *</label>
+                                        <span class="text-danger">
+                                            @error('phone')
+                                                {{ $message }}
+                                            @enderror
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating my-3">
+                                        <input type="text" class="form-control custom-input" name="zip"
+                                            value="{{ old('zip') }}">
+                                        <label for="zip">Kode Pos *</label>
+                                        <span class="text-danger">
+                                            @error('zip')
+                                                {{ $message }}
+                                            @enderror
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating mt-3 mb-3">
+                                        <select class="form-select custom-select" id="province" name="state">
+                                            <option value="">Pilih Provinsi *</option>
+                                        </select>
+                                        <label for="state">Provinsi *</label>
+                                        <span class="text-danger">
+                                            @error('state')
+                                                {{ $message }}
+                                            @enderror
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating my-3">
+                                        <select class="form-select custom-select" id="city" name="city">
+                                            <option value="">Pilih Kota / Kabupaten *</option>
+                                        </select>
+                                        <label for="city">Kota / Kabupaten *</label>
+                                        <span class="text-danger">
+                                            @error('city')
+                                                {{ $message }}
+                                            @enderror
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating my-3">
+                                        <input type="text" class="form-control custom-input" name="address"
+                                            value="{{ old('address') }}">
+                                        <label for="address">Nomor Rumah, Nama Gedung *</label>
+                                        <span class="text-danger">
+                                            @error('address')
+                                                {{ $message }}
+                                            @enderror
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating my-3">
+                                        <input type="text" class="form-control custom-input" name="locality"
+                                            value="{{ old('locality') }}">
+                                        <label for="locality">Nama Jalan, Area, Kelurahan *</label>
+                                        <span class="text-danger">
+                                            @error('locality')
+                                                {{ $message }}
+                                            @enderror
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <div class="form-floating my-3">
+                                        <input type="text" class="form-control custom-input" name="landmark"
+                                            value="{{ old('landmark') }}">
+                                        <label for="landmark">Patokan *</label>
+                                        <span class="text-danger">
+                                            @error('landmark')
+                                                {{ $message }}
+                                            @enderror
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mt-2">
+                                    <div class="custom-checkbox-container">
+                                        <input type="checkbox" class="custom-checkbox" id="save_address"
+                                            name="save_address" value="1" checked>
+                                        <label class="custom-checkbox-label" for="save_address">
+                                            <span class="checkbox-icon"></span>
+                                            Simpan alamat ini untuk digunakan nanti
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mt-2">
+                                    <div class="custom-checkbox-container">
+                                        <input type="checkbox" class="custom-checkbox" id="isdefault" name="isdefault"
+                                            value="1">
+                                        <label class="custom-checkbox-label" for="isdefault">
+                                            <span class="checkbox-icon"></span>
+                                            Jadikan sebagai alamat utama
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="checkout__totals-wrapper">
-                            <div class="sticky-content">
-                                <div class="checkout__totals">
-                                    <h3>PESANAN ANDA</h3>
 
-                                    <!-- Bagian ini menampilkan produk yang dipilih -->
-                                    <div class="selected-product-list">
-                                        @if (isset($pendingOrder))
-                                            {{-- Flow baru dengan PendingOrder --}}
-                                            @foreach ($pendingOrder->items as $item)
-                                                <div class="selected-product-item">
-                                                    <img src="{{ asset('uploads/products/thumbnails') }}/{{ $item->product->image }}"
-                                                        alt="{{ $item->product->name }}" class="product-image-small">
-                                                    <div class="product-details">
-                                                        <div class="product-name">{{ $item->product->name }}</div>
-                                                        <div class="product-specs">
-                                                            <span><i class="fas fa-cubes"></i> Qty:
-                                                                {{ $item->quantity }}</span>
-                                                            @if (isset($item->options['size_name']))
-                                                                <span><i class="fas fa-ruler-combined"></i> Ukuran:
-                                                                    {{ $item->options['size_name'] }}</span>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="product-price">
-                                                        {{ formatRupiah($item->price * $item->quantity) }}
-                                                    </div>
-                                                </div>
+                        <!-- Pilihan Jasa Pengiriman -->
+                        <div class="shipping-method-section">
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <h4 class="shipping-title">
+                                        <i class="fas fa-truck me-2"></i>METODE PENGIRIMAN
+                                    </h4>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <div class="form-group">
+                                        <label for="courier" class="courier-label">
+                                            <i class="fas fa-shipping-fast me-2"></i>Pilih Kurir
+                                        </label>
+                                        <select name="courier" id="courier" class="form-select custom-select">
+                                            <option value="">-- Pilih Kurir --</option>
+                                            @foreach ($couriers as $code => $name)
+                                                <option value="{{ $code }}">{{ $name }}</option>
                                             @endforeach
-                                        @else
-                                            {{-- Flow lama dengan session cart --}}
-                                            @php
-                                                $selectedItems = session()->get('selected_cart_items', []);
-                                                $cartItems = \Surfsidemedia\Shoppingcart\Facades\Cart::instance(
-                                                    'cart',
-                                                )->content();
-                                                $selectedCartItems = $cartItems->filter(function ($item) use (
-                                                    $selectedItems,
-                                                ) {
-                                                    return in_array($item->rowId, $selectedItems);
-                                                });
-                                            @endphp
-
-                                            @foreach ($selectedCartItems as $item)
-                                                <div class="selected-product-item">
-                                                    <img src="{{ asset('uploads/products/thumbnails') }}/{{ $item->model->image }}"
-                                                        alt="{{ $item->name }}" class="product-image-small">
-                                                    <div class="product-details">
-                                                        <div class="product-name">{{ $item->name }}</div>
-                                                        <div class="product-specs">
-                                                            <span><i class="fas fa-cubes"></i> Qty:
-                                                                {{ $item->qty }}</span>
-                                                            @if (isset($item->options['size_name']))
-                                                                <span><i class="fas fa-ruler-combined"></i> Ukuran:
-                                                                    {{ $item->options['size_name'] }}</span>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                    <div class="product-price">
-                                                        {{ formatRupiah($item->subtotal(0, '', '')) }}
-                                                    </div>
-                                                </div>
-                                            @endforeach
-                                        @endif
+                                        </select>
                                     </div>
-                                    <!-- Perhitungan harga berdasarkan item yang dipilih -->
-                                    @if (isset($pendingOrder))
-                                        {{-- Flow baru dengan PendingOrder --}}
-                                        <table class="checkout-totals">
-                                            <tbody>
-                                                <tr>
-                                                    <th>Subtotal</th>
-                                                    <td class="text-right">
-                                                        {{ formatRupiah($pendingOrder->total_amount) }}
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <th>Ongkos Kirim</th>
-                                                    <input type="hidden" name="ongkir" id="ongkirinput"
-                                                        value="{{ $pendingOrder->shipping_cost ?? 0 }}">
-                                                    <td class="text-right">
-                                                        <div class="shipping-info" id="ongkir-display">
-                                                            @if ($pendingOrder->shipping_cost)
-                                                                {{ formatRupiah($pendingOrder->shipping_cost) }}
-                                                            @else
-                                                                <span>Dihitung berdasarkan pilihan kurir</span>
-                                                            @endif
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr class="cart-total">
-                                                    <th>Total</th>
-                                                    <td class="text-right" id="total-price">
-                                                        {{ formatRupiah($pendingOrder->total_amount + ($pendingOrder->shipping_cost ?? 0)) }}
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    @elseif (Session::has('checkout'))
-                                        {{-- Flow lama dengan session --}}
-                                        <table class="checkout-totals">
-                                            <tbody>
-                                                <tr>
-                                                    <th>Subtotal</th>
-                                                    <td class="text-right">
-                                                        {{ formatRupiah(session()->get('checkout')['subtotal']) }}
-                                                    </td>
-                                                </tr>
-                                                @if (session()->get('checkout')['discount'] > 0)
-                                                    <tr>
-                                                        <th>Diskon
-                                                            {{ Session::has('coupon') ? Session('coupon')['code'] : '' }}
-                                                        </th>
-                                                        <td class="text-right">
-                                                            -{{ formatRupiah(session()->get('checkout')['discount']) }}
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>Subtotal Setelah Diskon</th>
-                                                        <td class="text-right">
-                                                            {{ formatRupiah(session()->get('checkout')['subtotal'] - session()->get('checkout')['discount']) }}
-                                                        </td>
-                                                    </tr>
-                                                @endif
-                                                <tr>
-                                                    <th>Ongkos Kirim</th>
-                                                    <input type="hidden" name="ongkir" id="ongkirinput"
-                                                        value="0">
-                                                    <td class="text-right">
-                                                        <div class="shipping-info" id="ongkir-display">
-                                                            <span>Dihitung berdasarkan pilihan kurir</span>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                                <tr class="cart-total">
-                                                    <th>Total</th>
-                                                    <td class="text-right" id="total-price">
-                                                        {{ formatRupiah(session()->get('checkout')['total']) }}
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    @else
-                                        <div class="alert alert-warning">
-                                            Terjadi kesalahan dalam menghitung total pembelian.
-                                            <a href="{{ route('cart.index') }}">Kembali ke keranjang</a>
+                                </div>
+                                <div class="col-md-6 mt-3">
+                                    <div class="form-group">
+                                        <label for="shipping_service" class="service-label">
+                                            <i class="fas fa-box me-2"></i>Layanan Pengiriman
+                                        </label>
+                                        <select name="shipping_service" id="shipping_service"
+                                            class="form-select custom-select" disabled>
+                                            <option value="">-- Pilih Layanan --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <div id="shipping-info" class="shipping-info-card d-none">
+                                        <div class="shipping-info-header">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Informasi Pengiriman</strong>
                                         </div>
-                                    @endif
-                                </div>
-
-                                <div class="checkout__payment-methods">
-                                    <div class="form-check">
-                                        <input class="form-check-input form-check-input_fill" type="radio"
-                                            name="mode" id="mode_1" value="card" checked>
-                                        <label class="form-check-label" for="mode_1">
-                                            E-Wallet | Pembayaran Online
-                                        </label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input form-check-input_fill" type="radio"
-                                            name="mode" id="mode_2" value="bank">
-                                        <label class="form-check-label" for="mode_2">
-                                            Bank BNI
-                                        </label>
-                                    </div>
-                                    <div class="policy-text">
-                                        Data pribadi Anda akan digunakan untuk memproses pesanan, mendukung pengalaman Anda
-                                        di situs web ini, dan untuk tujuan lain yang dijelaskan dalam
-                                        <a href="{{ route('home.privacy-policy') }}" target="_blank">kebijakan
-                                            privasi</a>
-                                        kami.
+                                        <div class="shipping-info-content">
+                                            <p id="service-description" class="service-desc"></p>
+                                            <div class="shipping-details-row">
+                                                <div class="shipping-detail-item">
+                                                    <i class="fas fa-clock me-2"></i>
+                                                    <span>Estimasi: <span id="etd" class="value"></span>
+                                                        hari</span>
+                                                </div>
+                                                <div class="shipping-detail-item">
+                                                    <i class="fas fa-money-bill me-2"></i>
+                                                    <span>Biaya: <span id="shipping-cost" class="value"></span></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" name="shipping_cost" id="shipping_cost_input"
+                                            value="0">
+                                        <input type="hidden" name="city_id" id="city_id" value="">
                                     </div>
                                 </div>
-                                <input type="hidden" name="kurir" id="kurirnya">
-                                <input type="hidden" name="idcity" id="idcitynya">
-                                <input type="hidden" name="idstate" id="idstatenya">
-                                <button type="submit" class="btn btn-primary" id="submit-order"
-                                    style="background-color: #956a3b; border-color: #956a3b;" disabled>BUAT
-                                    PESANAN</button>
                             </div>
                         </div>
                     </div>
-                </form>
+                    <div class="checkout__totals-wrapper">
+                        <div class="sticky-content">
+                            <div class="checkout__totals">
+                                <h3>PESANAN ANDA</h3>
+
+                                <!-- Bagian ini menampilkan produk yang dipilih -->
+                                <div class="selected-product-list">
+                                    @php
+                                        // Ambil item yang dipilih dari session
+                                        $selectedItems = session()->get('selected_cart_items', []);
+                                        $cartItems = \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content();
+                                        $selectedCartItems = $cartItems->filter(function($item) use($selectedItems) {
+                                            return in_array($item->rowId, $selectedItems);
+                                        });
+                                    @endphp
+
+                                    @foreach ($selectedCartItems as $item)
+                                        <div class="selected-product-item">
+                                            <img src="{{ asset('uploads/products/thumbnails') }}/{{ $item->model->image }}"
+                                                 alt="{{ $item->name }}" class="product-image-small">
+                                            <div class="product-details">
+                                                <div class="product-name">{{ $item->name }}</div>
+                                                <div class="product-specs">
+                                                    <span><i class="fas fa-cubes"></i> Qty: {{ $item->qty }}</span>
+                                                    @if(isset($item->options['size_name']))
+                                                    <span><i class="fas fa-ruler-combined"></i> Ukuran: {{ $item->options['size_name'] }}</span>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                            <div class="product-price">
+                                                {{ formatRupiah($item->subtotal(0, '', '')) }}
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+
+                                <!-- Perhitungan harga berdasarkan item yang dipilih -->
+                                @if (Session::has('checkout'))
+                                    <table class="checkout-totals">
+                                        <tbody>
+                                            <tr>
+                                                <th>Subtotal</th>
+                                                <td class="text-right">
+                                                    {{ formatRupiah(session()->get('checkout')['subtotal']) }}
+                                                </td>
+                                            </tr>
+                                            @if (session()->get('checkout')['discount'] > 0)
+                                            <tr>
+                                                <th>Diskon {{ Session::has('coupon') ? Session('coupon')['code'] : '' }}</th>
+                                                <td class="text-right">
+                                                    -{{ formatRupiah(session()->get('checkout')['discount']) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Subtotal Setelah Diskon</th>
+                                                <td class="text-right">
+                                                    {{ formatRupiah(session()->get('checkout')['subtotal'] - session()->get('checkout')['discount']) }}
+                                                </td>
+                                            </tr>
+                                            @endif
+                                            <tr>
+                                                <th>Ongkos Kirim</th>
+                                                <input type="hidden" name="ongkir" id="ongkirinput" value="0">
+                                                <td class="text-right">
+                                                    <div class="shipping-info" id="ongkir-display">
+                                                        <span>Dihitung berdasarkan pilihan kurir</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                            <tr class="cart-total">
+                                                <th>Total</th>
+                                                <td class="text-right" id="total-price">
+                                                    {{ formatRupiah(session()->get('checkout')['total']) }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="alert alert-warning">
+                                        Terjadi kesalahan dalam menghitung total pembelian.
+                                        <a href="{{ route('cart.index') }}">Kembali ke keranjang</a>
+                                    </div>
+                                @endif
+                            </div>
+
+                            <div class="checkout__payment-methods">
+                                <div class="form-check">
+                                    <input class="form-check-input form-check-input_fill" type="radio" name="mode"
+                                        id="mode_1" value="card" checked>
+                                    <label class="form-check-label" for="mode_1">
+                                        E-Wallet | Pembayaran Online
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input form-check-input_fill" type="radio" name="mode"
+                                        id="mode_2" value="bank">
+                                    <label class="form-check-label" for="mode_2">
+                                        Bank BNI
+                                    </label>
+                                </div>
+                                <div class="policy-text">
+                                    Data pribadi Anda akan digunakan untuk memproses pesanan, mendukung pengalaman Anda
+                                    di situs web ini, dan untuk tujuan lain yang dijelaskan dalam
+                                    <a href="{{ route('home.privacy-policy') }}" target="_blank">kebijakan privasi</a>
+                                    kami.
+                                </div>
+                            </div>
+                            <input type="hidden" name="kurir" id="kurirnya">
+                            <input type="hidden" name="idcity" id="idcitynya">
+                            <input type="hidden" name="idstate" id="idstatenya">
+                            <button type="submit" class="btn btn-primary" id="submit-order"
+                                style="background-color: #956a3b; border-color: #956a3b;" disabled>BUAT PESANAN</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </section>
-    @else
-        <div class="alert alert-danger">
-            Terjadi kesalahan saat memproses pesanan. Silakan coba lagi atau hubungi layanan pelanggan.
-        </div>
-        @endif
     </main>
 
     @push('scripts')
@@ -1209,14 +1128,7 @@
                 let cityId = '';
                 let selectedAddressId = $('#address_selector').val();
                 // Menggunakan nilai dari session checkout untuk subtotal yang benar
-                @if (isset($pendingOrder))
-                    let cartTotal = parseFloat('{{ $pendingOrder->total_amount }}');
-                    let isPendingOrderFlow = true;
-                @else
-                    let cartTotal = parseFloat(
-                        '{{ session()->has('checkout') ? session()->get('checkout')['subtotal'] : 0 }}');
-                    let isPendingOrderFlow = false;
-                @endif
+                let cartTotal = parseFloat('{{ session()->has('checkout') ? session()->get('checkout')['subtotal'] : 0 }}');
 
                 // 1. Load provinsi saat halaman dimuat
                 loadProvinces();
@@ -1479,19 +1391,13 @@
 
                 // Fungsi untuk memperbarui total harga
                 function updateTotal(shippingCost) {
-                    shippingCost = Number(shippingCost);
+                    shippingCost = Number(shippingCost); // pastikan bertipe angka
 
-                    @if (isset($pendingOrder))
-                        // Flow baru dengan PendingOrder
-                        let subtotal = {{ $pendingOrder->total_amount }};
+                    // Dapatkan subtotal dan discount dari session checkout
+                    @if (Session::has('checkout'))
+                        let subtotal = {{ session()->get('checkout')['subtotal'] - session()->get('checkout')['discount'] }};
                     @else
-                        // Flow lama dengan session
-                        @if (Session::has('checkout'))
-                            let subtotal =
-                                {{ session()->get('checkout')['subtotal'] - session()->get('checkout')['discount'] }};
-                        @else
-                            let subtotal = cartTotal;
-                        @endif
+                        let subtotal = cartTotal;
                     @endif
 
                     const newTotal = subtotal + shippingCost;
@@ -1501,7 +1407,9 @@
                     if (shippingCost > 0) {
                         $('#ongkir-display').html(formatRupiah(shippingCost));
                     } else {
-                        $('#ongkir-display').html('<span>Dihitung berdasarkan pilihan kurir</span>');
+                        $('#ongkir-display').html(`
+                            <span>Dihitung berdasarkan pilihan kurir</span>
+                        `);
                     }
 
                     $('#ongkirinput').val(shippingCost);
@@ -1562,5 +1470,6 @@
                 updateCheckoutStep(2);
             });
         </script>
+
     @endpush
 @endsection
