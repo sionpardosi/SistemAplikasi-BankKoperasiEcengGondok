@@ -3763,6 +3763,6 @@
                     animation: heartbeat 0.8s ease-in-out;
                 }
             `).appendTo('head');
-        }); <
-        script >
+        });
+        </script >
         @endpush

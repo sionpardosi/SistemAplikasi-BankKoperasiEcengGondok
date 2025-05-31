@@ -672,6 +672,126 @@
                 max-width: 60px;
             }
         }
+
+        /* Enhanced Price Range Styling */
+        .price-range__info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 15px;
+            border: 1px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+
+        .price-range__info:hover {
+            background-color: #f1f3f4;
+            border-color: #956a3b;
+        }
+
+        .price-info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .price-range__min,
+        .price-range__max {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #956a3b !important;
+            letter-spacing: 0.5px;
+            transition: all 0.3s ease;
+        }
+
+        /* Animasi saat nilai berubah */
+        .price-range__min.updating,
+        .price-range__max.updating {
+            transform: scale(1.05);
+            color: #2c5aa0 !important;
+        }
+
+        /* Style untuk price range slider */
+        .price-range-slider {
+            width: 100%;
+            margin: 15px 0;
+        }
+
+        /* Custom slider styling jika menggunakan library seperti Bootstrap Slider */
+        .slider-track {
+            background-color: #e9ecef !important;
+            height: 6px !important;
+            border-radius: 3px !important;
+        }
+
+        .slider-selection {
+            background-color: #956a3b !important;
+            border-radius: 3px !important;
+        }
+
+        .slider-handle {
+            background-color: #956a3b !important;
+            border: 2px solid #fff !important;
+            box-shadow: 0 2px 6px rgba(149, 106, 59, 0.3) !important;
+            transition: all 0.2s ease !important;
+        }
+
+        .slider-handle:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 3px 10px rgba(149, 106, 59, 0.4) !important;
+        }
+
+        .slider-handle.active {
+            transform: scale(1.15) !important;
+        }
+
+        /* Responsive untuk mobile */
+        @media (max-width: 767.98px) {
+            .price-range__info {
+                padding: 10px 12px;
+                margin-top: 12px;
+            }
+
+            .price-range__min,
+            .price-range__max {
+                font-size: 0.95rem;
+            }
+
+            .price-info-item span {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Loading state untuk price display */
+        .price-range__min.loading,
+        .price-range__max.loading {
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .price-range__min.loading::after,
+        .price-range__max.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #956a3b;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes spin {
+            0% {
+                transform: translate(-50%, -50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translate(-50%, -50%) rotate(360deg);
+            }
+        }
     </style>
 
     <style>
@@ -830,25 +950,25 @@
 
             /* Opsi 1: Buat menjadi 2 baris teks */
             /*
-                    .product-single__addtocart .pc__atc {
-                        white-space: normal !important;
-                        line-height: 1.1 !important;
-                        height: auto !important;
-                        padding-top: 4px !important;
-                        padding-bottom: 4px !important;
-                    }
-                    */
+                            .product-single__addtocart .pc__atc {
+                                white-space: normal !important;
+                                line-height: 1.1 !important;
+                                height: auto !important;
+                                padding-top: 4px !important;
+                                padding-bottom: 4px !important;
+                            }
+                            */
 
             /* Opsi 2: Gunakan singkatan + ikon */
             /*
-                    .product-single__addtocart .pc__atc:before {
-                        content: "🛒 ";
-                        font-size: 0.8rem;
-                    }
-                    .product-single__addtocart .pc__atc {
-                        content: "Tambah" !important;
-                    }
-                    */
+                            .product-single__addtocart .pc__atc:before {
+                                content: "🛒 ";
+                                font-size: 0.8rem;
+                            }
+                            .product-single__addtocart .pc__atc {
+                                content: "Tambah" !important;
+                            }
+                            */
         }
     </style>
 
@@ -1129,18 +1249,23 @@
                         </h5>
                         <div id="accordion-filter-price" class="accordion-collapse collapse show border-0"
                             aria-labelledby="accordion-heading-price" data-bs-parent="#price-filters">
+
+                            <!-- Price Range Slider -->
                             <input class="price-range-slider" type="text" name="price_range" value=""
-                                data-slider-min="1" data-slider-max="10000000" data-slider-step="5"
+                                data-slider-min="1" data-slider-max="10000000" data-slider-step="5000"
                                 data-slider-value="[{{ $min_price }},{{ $max_price }}]" data-currency="Rp" />
 
-                            <div class="price-range__info d-flex align-items-center mt-2">
-                                <div class="me-auto">
-                                    <span class="text-secondary">Harga Minimal: </span>
-                                    <span class="price-range__min">Rp1</span>
+                            <!-- Price Display Info -->
+                            <div class="price-range__info d-flex align-items-center justify-content-between mt-3">
+                                <div class="price-info-item">
+                                    <span class="text-secondary small">Harga Minimal:</span>
+                                    <div class="price-range__min fw-bold text-primary">
+                                        Rp{{ number_format($min_price, 0, ',', '.') }}</div>
                                 </div>
-                                <div>
-                                    <span class="text-secondary">Harga Maksimal: </span>
-                                    <span class="price-range__max">Rp10000</span>
+                                <div class="price-info-item text-end">
+                                    <span class="text-secondary small">Harga Maksimal:</span>
+                                    <div class="price-range__max fw-bold text-primary">
+                                        Rp{{ number_format($max_price, 0, ',', '.') }}</div>
                                 </div>
                             </div>
                         </div>
