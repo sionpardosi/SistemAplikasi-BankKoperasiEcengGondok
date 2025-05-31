@@ -367,8 +367,10 @@
         /* Cart notification */
         .cart-notification {
             position: fixed;
-            top: 20px;
+            top: 130px;
+            /* Tetap di atas */
             right: 20px;
+            /* Diubah ke posisi kanan */
             background: white;
             border-radius: 10px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
@@ -379,20 +381,25 @@
             max-width: 350px;
             transition: transform 0.3s ease, opacity 0.3s ease;
             transform: translateY(-20px);
+            /* Hanya transform Y untuk efek muncul dari atas */
             opacity: 0;
             border-left: 4px solid #956a3b;
+            /* Warna coklat default */
         }
 
         .cart-notification.success {
             border-left-color: #956a3b;
+            /* Warna coklat */
         }
 
         .cart-notification.error {
             border-left-color: #e53935;
+            /* Tetap merah untuk error */
         }
 
         .cart-notification.show {
             transform: translateY(0);
+            /* Normal position */
             opacity: 1;
         }
 
@@ -401,6 +408,7 @@
             width: 30px;
             height: 30px;
             background: #f9f3ec;
+            /* Background lebih terang dari coklat */
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -409,10 +417,12 @@
 
         .cart-notification.success .cart-notification__icon {
             color: #956a3b;
+            /* Warna coklat */
         }
 
         .cart-notification.error .cart-notification__icon {
             color: #e53935;
+            /* Tetap merah untuk error */
         }
 
         .cart-notification__content {
@@ -424,6 +434,7 @@
             font-size: 14px;
             margin-bottom: 3px;
             color: #956a3b;
+            /* Judul berwarna coklat */
         }
 
         .cart-notification__message {
@@ -444,7 +455,34 @@
 
         .cart-notification__close:hover {
             color: #956a3b;
+            /* Hover menjadi coklat */
         }
+
+        /* Peningkatan desain notifikasi */
+        .cart-notification {
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease;
+            z-index: 9999;
+        }
+
+        /* Notifikasi error yang lebih mencolok */
+        .cart-notification.error {
+            background: #fff;
+            border-left: 4px solid #ff5252;
+        }
+
+        .cart-notification.error .cart-notification__icon {
+            background: #fff2f2;
+            color: #ff5252;
+        }
+
+        .cart-notification.error .cart-notification__title {
+            color: #ff5252;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
     </style>
 
     <style>
@@ -950,25 +988,25 @@
 
             /* Opsi 1: Buat menjadi 2 baris teks */
             /*
-                            .product-single__addtocart .pc__atc {
-                                white-space: normal !important;
-                                line-height: 1.1 !important;
-                                height: auto !important;
-                                padding-top: 4px !important;
-                                padding-bottom: 4px !important;
-                            }
-                            */
+                                .product-single__addtocart .pc__atc {
+                                    white-space: normal !important;
+                                    line-height: 1.1 !important;
+                                    height: auto !important;
+                                    padding-top: 4px !important;
+                                    padding-bottom: 4px !important;
+                                }
+                                */
 
             /* Opsi 2: Gunakan singkatan + ikon */
             /*
-                            .product-single__addtocart .pc__atc:before {
-                                content: "🛒 ";
-                                font-size: 0.8rem;
-                            }
-                            .product-single__addtocart .pc__atc {
-                                content: "Tambah" !important;
-                            }
-                            */
+                                .product-single__addtocart .pc__atc:before {
+                                    content: "🛒 ";
+                                    font-size: 0.8rem;
+                                }
+                                .product-single__addtocart .pc__atc {
+                                    content: "Tambah" !important;
+                                }
+                                */
         }
     </style>
 
@@ -1700,8 +1738,20 @@
                                     }
                                 </style>
                             @endif
-                            <div class="product-card mb-3 mb-md-4 mb-xxl-5">
+                            <!-- Ganti bagian product card di shop.blade.php -->
+                            <!-- Temukan bagian <div class="product-card mb-3 mb-md-4 mb-xxl-5"> dan ganti dengan: -->
+
+                            <div class="product-card mb-3 mb-md-4 mb-xxl-5"
+                                data-stock="{{ $product->quantity - $product->reserved_quantity }}">
                                 <div class="pc__img-wrapper">
+                                    <!-- Tambahkan badge stok habis jika stok <= 0 -->
+                                    @if ($product->quantity - $product->reserved_quantity <= 0)
+                                        <div class="stock-badge">Stok Habis</div>
+                                    @elseif($product->quantity - $product->reserved_quantity <= 5)
+                                        <div class="stock-badge" style="background-color: #ff9800;">Stok Terbatas
+                                            ({{ $product->quantity - $product->reserved_quantity }})</div>
+                                    @endif
+
                                     <div class="swiper-container background-img js-swiper-slider"
                                         data-settings='{"resizeObserver": true}'>
                                         <div class="swiper-wrapper">
@@ -1735,22 +1785,35 @@
                                                 <use href="#icon_next_sm" />
                                             </svg></span>
                                     </div>
-                                    <!-- Selalu tampilkan form add-to-cart, tanpa kondisi untuk "Lihat Keranjang" -->
-                                    <form name="addtocart-form" method="POST" action="{{ route('cart.add') }}">
-                                        @csrf
+
+                                    <!-- Form add-to-cart dengan kondisi stok -->
+                                    @if ($product->quantity - $product->reserved_quantity > 0)
+                                        <!-- Tampilkan form normal jika stok tersedia -->
+                                        <form name="addtocart-form" method="POST" action="{{ route('cart.add') }}">
+                                            @csrf
+                                            <div class="product-single__addtocart">
+                                                <input type="hidden" name="id" value="{{ $product->id }}" />
+                                                <input type="hidden" name="name" value="{{ $product->name }}" />
+                                                <input type="hidden" name="quantity" value="1" />
+                                                <input type="hidden" name="price"
+                                                    value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                                <button type="submit"
+                                                    class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart"
+                                                    style="background-color: #956a3b; color: #ffffff;">
+                                                    Tambahkan ke Keranjang
+                                                </button>
+                                            </div>
+                                        </form>
+                                    @else
+                                        <!-- Tampilkan tombol disabled jika stok habis -->
                                         <div class="product-single__addtocart">
-                                            <input type="hidden" name="id" value="{{ $product->id }}" />
-                                            <input type="hidden" name="name" value="{{ $product->name }}" />
-                                            <input type="hidden" name="quantity" value="1" />
-                                            <input type="hidden" name="price"
-                                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                            <button type="submit"
-                                                class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart"
-                                                style="background-color: #956a3b; color: #ffffff;">
-                                                Tambahkan ke Keranjang
+                                            <button type="button" disabled
+                                                class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium out-of-stock"
+                                                style="background-color: #f5f5f5; color: #aaa; cursor: not-allowed;">
+                                                <i class="fas fa-ban me-1"></i> Stok Habis
                                             </button>
                                         </div>
-                                    </form>
+                                    @endif
                                 </div>
 
                                 <div class="pc__info position-relative">
@@ -1767,6 +1830,27 @@
                                                 {{ formatRupiah($product->regular_price) }}
                                             @endif
                                         </span>
+                                    </div>
+
+                                    <!-- Tambahkan info stok -->
+                                    <div class="product-stock-info mt-1">
+                                        @if ($product->quantity - $product->reserved_quantity <= 0)
+                                            {{-- <small class="text-danger fw-semibold">
+                    <i class="fas fa-exclamation-circle me-1"></i>
+                    Stok tidak tersedia
+                </small> --}}
+                                        @elseif($product->quantity - $product->reserved_quantity <= 5)
+                                            <small class="text-warning fw-semibold">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                Stok terbatas: {{ $product->quantity - $product->reserved_quantity }}
+                                                tersisa
+                                            </small>
+                                        @else
+                                            {{-- <small class="text-success">
+                    <i class="fas fa-check-circle me-1"></i>
+                    Stok tersedia
+                </small> --}}
+                                        @endif
                                     </div>
 
                                     <div class="product-card__review d-flex align-items-center">
@@ -1793,38 +1877,51 @@
                                         </span>
                                     </div>
 
-                                    <!-- Wishlist Button Section -->
-                                    @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
-                                        <form method="POST"
-                                            action="{{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
-                                                title="Remove from Wishlist">
-                                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <use href="#icon_heart" />
-                                                </svg>
-                                            </button>
-                                        </form>
+                                    <!-- Wishlist Button Section - Disable jika stok habis -->
+                                    @if ($product->quantity - $product->reserved_quantity > 0)
+                                        <!-- Wishlist normal jika stok tersedia -->
+                                        @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->where('id', $product->id)->count() > 0)
+                                            <form method="POST"
+                                                action="{{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $product->id)->first()->rowId]) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
+                                                    title="Remove from Wishlist">
+                                                    <svg width="16" height="16" viewBox="0 0 20 20"
+                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <use href="#icon_heart" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form method="POST" action="{{ route('wishlist.add') }}">
+                                                @csrf
+                                                <input type="hidden" name="id" value="{{ $product->id }}" />
+                                                <input type="hidden" name="name" value="{{ $product->name }}" />
+                                                <input type="hidden" name="price"
+                                                    value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                                <input type="hidden" name="quantity" value="1" />
+                                                <button type="submit"
+                                                    class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
+                                                    title="Tambahkan Ke Favorit">
+                                                    <svg width="16" height="16" viewBox="0 0 20 20"
+                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <use href="#icon_heart" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endif
                                     @else
-                                        <form method="POST" action="{{ route('wishlist.add') }}">
-                                            @csrf
-                                            <input type="hidden" name="id" value="{{ $product->id }}" />
-                                            <input type="hidden" name="name" value="{{ $product->name }}" />
-                                            <input type="hidden" name="price"
-                                                value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
-                                            <input type="hidden" name="quantity" value="1" />
-                                            <button type="submit"
-                                                class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
-                                                title="Tambahkan Ke Favorit">
-                                                <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
-                                                    xmlns="http://www.w3.org/2000/svg">
-                                                    <use href="#icon_heart" />
-                                                </svg>
-                                            </button>
-                                        </form>
+                                        <!-- Wishlist disabled jika stok habis -->
+                                        <button type="button" disabled
+                                            class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0"
+                                            title="Produk tidak tersedia" style="opacity: 0.5; cursor: not-allowed;">
+                                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <use href="#icon_heart" />
+                                            </svg>
+                                        </button>
                                     @endif
                                 </div>
                             </div>
