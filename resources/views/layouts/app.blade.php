@@ -1265,7 +1265,7 @@
                                 });
                             } else {
                                 searchResults.html(
-                                    '<div class="search-no-results">No products found matching your search</div>'
+                                    '<div class="search-no-results">Tidak ditemukan produk yang sesuai dengan pencarian Anda</div>'
                                 );
                             }
                         },
