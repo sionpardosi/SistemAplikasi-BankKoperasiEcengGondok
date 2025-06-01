@@ -1238,7 +1238,7 @@
 
                             if (response.results.length > 0) {
                                 $.each(response.results, function(index, item) {
-                                    var url = "/product/" + item.slug;
+                                    var url = "/shop/" + item.slug;
                                     var imagePath = "/uploads/products/thumbnails/" +
                                         item.image;
                                     var price = item.regular_price ? new Intl
@@ -1387,7 +1387,7 @@
 
                             if (response.results.length > 0) {
                                 $.each(response.results, function(index, item) {
-                                    var url = "/product/" + item.slug;
+                                    var url = "/shop/" + item.slug;
                                     var imagePath = "/uploads/products/thumbnails/" +
                                         item.image;
                                     var price = item.regular_price ? new Intl
