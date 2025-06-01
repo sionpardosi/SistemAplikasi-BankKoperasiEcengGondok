@@ -318,434 +318,208 @@
             }
         }
 
-        .empty-cart-container {
-            padding: 40px 30px;
+        /* Elegant Empty Cart Design */
+        .empty-cart-elegant {
+            max-width: 500px;
+            margin: 80px auto;
+            padding: 0 20px;
+        }
+
+        .empty-cart-content {
+            background: #ffffff;
+            padding: 60px 40px;
+            border-radius: 16px;
             text-align: center;
-            background-color: #fff;
-            border-radius: 20px;
-            box-shadow: 0 15px 40px rgba(149, 106, 59, 0.12);
-            max-width: 650px;
-            margin: 0 auto;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(149, 106, 59, 0.08);
+            box-shadow: 0 4px 25px rgba(149, 106, 59, 0.08);
+            border: 1px solid rgba(149, 106, 59, 0.06);
             position: relative;
             overflow: hidden;
-            margin-top: 4%;
         }
 
-        /* Top and Bottom Decorations */
-        .cart-decoration-top,
-        .cart-decoration-bottom {
-            display: flex;
-            justify-content: space-between;
+        .empty-cart-content::before {
+            content: '';
             position: absolute;
-            left: 0;
-            width: 100%;
-            padding: 0 15px;
-        }
-
-        .cart-decoration-top {
             top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), rgba(149, 106, 59, 0.3));
         }
 
-        .cart-decoration-bottom {
-            bottom: 0;
+        .empty-cart-icon-wrapper {
+            margin-bottom: 32px;
         }
 
-        .cart-decoration-top span,
-        .cart-decoration-bottom span {
-            height: 4px;
-            background: linear-gradient(90deg, #956a3b, rgba(149, 106, 59, 0.3));
-            display: block;
-            border-radius: 0 0 4px 4px;
-        }
-
-        .cart-decoration-top span {
-            border-radius: 0 0 6px 6px;
-        }
-
-        .cart-decoration-bottom span {
-            border-radius: 6px 6px 0 0;
-        }
-
-        .cart-decoration-top span:nth-child(1),
-        .cart-decoration-bottom span:nth-child(1) {
-            width: 20%;
-        }
-
-        .cart-decoration-top span:nth-child(2),
-        .cart-decoration-bottom span:nth-child(2) {
-            width: 12%;
-        }
-
-        .cart-decoration-top span:nth-child(3),
-        .cart-decoration-bottom span:nth-child(3) {
-            width: 30%;
-        }
-
-        /* Main Illustration */
-        .empty-cart-illustration {
-            margin-bottom: 25px;
-            position: relative;
-            height: 150px;
+        .empty-cart-icon {
+            width: 100px;
+            height: 100px;
+            margin: 0 auto;
+            background: linear-gradient(135deg, rgba(149, 106, 59, 0.06), rgba(149, 106, 59, 0.12));
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-
-        .cart-circle-pulse {
-            position: absolute;
-            width: 150px;
-            height: 150px;
-            background: linear-gradient(145deg, rgba(149, 106, 59, 0.08), rgba(149, 106, 59, 0.15));
-            border-radius: 50%;
-            z-index: 0;
-            animation: pulse 3s infinite;
-        }
-
-        .cart-circle-inner {
-            position: absolute;
-            width: 130px;
-            height: 130px;
-            background-color: rgba(149, 106, 59, 0.06);
-            border-radius: 50%;
-            z-index: 0;
-        }
-
-        @keyframes pulse {
-            0% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(149, 106, 59, 0.2);
-            }
-
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 20px rgba(149, 106, 59, 0);
-            }
-
-            100% {
-                transform: scale(0.95);
-                box-shadow: 0 0 0 0 rgba(149, 106, 59, 0);
-            }
-        }
-
-        .empty-cart-illustration i {
-            font-size: 70px;
-            color: #956a3b;
             position: relative;
-            z-index: 2;
-            transform: translateY(5px);
-            opacity: 0.9;
-            text-shadow: 0 4px 12px rgba(149, 106, 59, 0.3);
+            transition: all 0.3s ease;
         }
 
-        /* Floating Items */
-        .floating-item {
+        .empty-cart-icon::after {
+            content: '';
             position: absolute;
-            width: 40px;
-            height: 40px;
-            background-color: #fff;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
             border-radius: 50%;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 3;
+            background: linear-gradient(135deg, transparent, rgba(149, 106, 59, 0.1));
+            z-index: -1;
         }
 
-        .floating-item i {
-            font-size: 18px;
-            color: #956a3b;
-            text-shadow: none;
-            opacity: 1;
-            transform: none;
+        .empty-cart-icon i {
+            font-size: 40px;
+            color: var(--primary);
+            opacity: 0.8;
         }
 
-        .item-1 {
-            top: 30px;
-            right: 28%;
-            animation: float-1 6s infinite ease-in-out;
-        }
-
-        .item-2 {
-            bottom: 40px;
-            right: 32%;
-            animation: float-2 7s infinite ease-in-out;
-        }
-
-        .item-3 {
-            top: 50%;
-            left: 25%;
-            animation: float-3 5s infinite ease-in-out;
-        }
-
-        @keyframes float-1 {
-
-            0%,
-            100% {
-                transform: translateY(0) rotate(0deg);
-            }
-
-            50% {
-                transform: translateY(-15px) rotate(5deg);
-            }
-        }
-
-        @keyframes float-2 {
-
-            0%,
-            100% {
-                transform: translateY(0) rotate(0deg);
-            }
-
-            50% {
-                transform: translateY(15px) rotate(-5deg);
-            }
-        }
-
-        @keyframes float-3 {
-
-            0%,
-            100% {
-                transform: translateY(0) rotate(0deg);
-            }
-
-            50% {
-                transform: translateY(-10px) rotate(-3deg);
-            }
-        }
-
-        /* Text Elements */
         .empty-cart-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #333;
-            margin-bottom: 12px;
-            letter-spacing: 0.5px;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 16px;
+            letter-spacing: 0.3px;
         }
 
         .empty-cart-message {
             font-size: 16px;
-            color: #666;
-            max-width: 450px;
-            margin: 0 auto 20px;
-            line-height: 1.5;
+            color: var(--text-medium);
+            line-height: 1.6;
+            margin-bottom: 36px;
+            max-width: 380px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        /* Benefits Section */
-        .cart-benefits {
+        .empty-cart-actions {
+            margin-bottom: 28px;
+        }
+
+        .btn-elegant-shop {
+            background: linear-gradient(135deg, var(--primary), #a87c4f);
+            color: #ffffff;
+            padding: 16px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 12px;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+            box-shadow: 0 8px 20px rgba(149, 106, 59, 0.2);
+        }
+
+        .btn-elegant-shop::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-elegant-shop:hover {
+            background: linear-gradient(135deg, #886133, #b68655);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(149, 106, 59, 0.3);
+            color: #ffffff;
+            text-decoration: none;
+        }
+
+        .btn-elegant-shop:hover::before {
+            left: 100%;
+        }
+
+        .btn-elegant-shop:active {
+            transform: translateY(0);
+        }
+
+        .simple-benefits {
             display: flex;
             justify-content: center;
-            gap: 25px;
-            margin-bottom: 20px;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding-top: 20px;
+            border-top: 1px solid rgba(149, 106, 59, 0.08);
         }
 
-        .benefit-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .benefit-icon {
-            width: 40px;
-            height: 40px;
-            background-color: rgba(149, 106, 59, 0.1);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 2px;
-            transition: all 0.3s ease;
-        }
-
-        .benefit-icon i {
-            font-size: 18px;
-            color: #956a3b;
-        }
-
-        .benefit-item span {
+        .simple-benefits span {
             font-size: 14px;
-            color: #555;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
             font-weight: 500;
         }
 
-        .benefit-item:hover .benefit-icon {
-            background-color: rgba(149, 106, 59, 0.2);
-            transform: translateY(-3px);
+        .simple-benefits i {
+            color: var(--primary);
+            font-size: 12px;
+            opacity: 0.8;
         }
 
-        /* Call to Action */
-        .empty-cart-actions {
-            margin-top: 12px;
-            margin-bottom: 20px;
-        }
-
-        .btn-shop-now {
-            background: linear-gradient(to right, #956a3b, #a87c4f);
-            color: #ffffff;
-            border: none;
-            border-radius: 10px;
-            padding: 12px 34px;
-            font-size: 15px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(149, 106, 59, 0.25);
-        }
-
-        .btn-shop-now:hover {
-            background: linear-gradient(to right, #886133, #b68655);
-            box-shadow: 0 12px 25px rgba(149, 106, 59, 0.35);
-            transform: translateY(-3px);
-            color: #ffffff;
-        }
-
-        .btn-shop-now:active {
-            transform: translateY(-1px);
-        }
-
-        .btn-shop-now i {
-            margin-right: 10px;
-            font-size: 18px;
-            vertical-align: middle;
-        }
-
-        /* Suggestion Link */
-        .empty-cart-suggestion {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #777;
-        }
-
-        .suggestion-link {
-            color: #956a3b;
-            font-weight: 600;
-            text-decoration: none;
-            position: relative;
-            transition: all 0.3s ease;
-        }
-
-        .suggestion-link:after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 1px;
-            background-color: #956a3b;
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .suggestion-link:hover {
-            color: #7d593a;
-        }
-
-        .suggestion-link:hover:after {
-            transform: scaleX(1);
-        }
-
-        /* Responsive Styles */
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .empty-cart-container {
-                padding: 50px 25px;
-                border-radius: 16px;
+            .empty-cart-elegant {
+                margin: 60px auto;
             }
 
-            .cart-benefits {
-                gap: 15px;
+            .empty-cart-content {
+                padding: 50px 30px;
+                border-radius: 12px;
             }
 
-            .benefit-icon {
-                width: 45px;
-                height: 45px;
+            .empty-cart-icon {
+                width: 90px;
+                height: 90px;
             }
 
-            .benefit-icon i {
-                font-size: 20px;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .empty-cart-container {
-                padding: 30px 20px;
-                border-radius: 14px;
-            }
-
-            .empty-cart-illustration {
-                height: 120px;
-                margin-bottom: 20px;
-            }
-
-            .cart-circle-pulse {
-                width: 120px;
-                height: 120px;
-            }
-
-            .cart-circle-inner {
-                width: 100px;
-                height: 100px;
-            }
-
-            .empty-cart-illustration i {
-                font-size: 56px;
-            }
-
-            .floating-item {
-                width: 35px;
-                height: 35px;
-            }
-
-            .floating-item i {
-                font-size: 16px;
-            }
-
-            .item-1 {
-                right: 25%;
-                top: 25px;
-            }
-
-            .item-2 {
-                right: 30%;
-            }
-
-            .item-3 {
-                left: 22%;
+            .empty-cart-icon i {
+                font-size: 36px;
             }
 
             .empty-cart-title {
                 font-size: 24px;
-                margin-bottom: 12px;
+                margin-bottom: 14px;
             }
 
             .empty-cart-message {
                 font-size: 15px;
-                margin-bottom: 25px;
+                margin-bottom: 32px;
             }
 
-            .cart-benefits {
+            .simple-benefits {
                 flex-direction: column;
-                gap: 15px;
-                margin-bottom: 30px;
-            }
-
-            .benefit-item {
-                flex-direction: row;
                 gap: 12px;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .empty-cart-content {
+                padding: 40px 24px;
+                margin: 0 16px;
             }
 
-            .benefit-icon {
-                margin-bottom: 0;
-            }
-
-            .btn-shop-now {
-                padding: 14px 30px;
-                font-size: 15px;
-                border-radius: 10px;
+            .btn-elegant-shop {
                 width: 100%;
+                padding: 18px 32px;
+            }
+
+            .empty-cart-title {
+                font-size: 22px;
             }
         }
 
@@ -827,10 +601,13 @@
                             </thead>
                             <tbody>
                                 @foreach ($cartItems as $cartItem)
-                                    <tr class="cart-item-row" data-row-id="{{ $cartItem->rowId }}" data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}">
+                                    <tr class="cart-item-row" data-row-id="{{ $cartItem->rowId }}"
+                                        data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}">
                                         <td>
-                                            <input type="checkbox" class="cart-checkbox item-checkbox" name="selected_items[]" value="{{ $cartItem->rowId }}" checked
-                                                data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}" data-subtotal="{{ $cartItem->subtotal(0, '', '') }}">
+                                            <input type="checkbox" class="cart-checkbox item-checkbox"
+                                                name="selected_items[]" value="{{ $cartItem->rowId }}" checked
+                                                data-price="{{ $cartItem->price }}" data-qty="{{ $cartItem->qty }}"
+                                                data-subtotal="{{ $cartItem->subtotal(0, '', '') }}">
                                         </td>
                                         <td>
                                             <div class="shopping-cart__product-item">
@@ -842,11 +619,11 @@
                                         <td>
                                             <div class="shopping-cart__product-item__detail">
                                                 <h4>{{ $cartItem->name }}</h4>
-                                                @if(isset($cartItem->options['size_name']))
-                                                <div class="product-size-badge">
-                                                    <i class="fas fa-ruler-combined me-1"></i>
-                                                    Ukuran: {{ $cartItem->options['size_name'] }}
-                                                </div>
+                                                @if (isset($cartItem->options['size_name']))
+                                                    <div class="product-size-badge">
+                                                        <i class="fas fa-ruler-combined me-1"></i>
+                                                        Ukuran: {{ $cartItem->options['size_name'] }}
+                                                    </div>
                                                 @endif
                                             </div>
                                         </td>
@@ -916,8 +693,8 @@
                                     @csrf
                                     @method('DELETE')
                                     <input class="form-control text-success fw-bold" type="text" name="coupon_code"
-                                        placeholder="Kupon Diskon" value="{{ session()->get('coupon')['code'] }} diterapkan!"
-                                        readonly>
+                                        placeholder="Kupon Diskon"
+                                        value="{{ session()->get('coupon')['code'] }} diterapkan!" readonly>
                                     <input class="btn-link fw-medium position-absolute top-0 end-0 h-100 px-4 text-danger"
                                         type="submit" value="HAPUS KUPON">
                                 </form>
@@ -952,14 +729,16 @@
                                             </td>
                                         </tr>
                                         @if (Session::has('discounts'))
-                                        <tr>
-                                            <th>Diskon {{ Session('coupon')['code'] }}</th>
-                                            <td id="cart-discount">-{{ formatRupiah((float) Session('discounts')['discount']) }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Subtotal Setelah Diskon</th>
-                                            <td id="cart-subtotal-after-discount">{{ formatRupiah((float) Session('discounts')['subtotal']) }}</td>
-                                        </tr>
+                                            <tr>
+                                                <th>Diskon {{ Session('coupon')['code'] }}</th>
+                                                <td id="cart-discount">
+                                                    -{{ formatRupiah((float) Session('discounts')['discount']) }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Subtotal Setelah Diskon</th>
+                                                <td id="cart-subtotal-after-discount">
+                                                    {{ formatRupiah((float) Session('discounts')['subtotal']) }}</td>
+                                            </tr>
                                         @endif
                                         <tr>
                                             <th>Ongkos Kirim</th>
@@ -986,7 +765,8 @@
                                 <div class="button-wrapper container">
                                     <form id="checkout-form" action="{{ route('cart.checkout') }}" method="GET">
                                         <input type="hidden" name="selected_items" id="selected-items-input">
-                                        <button type="submit" class="btn btn-primary btn-checkout text-white w-100" id="checkout-btn"
+                                        <button type="submit" class="btn btn-primary btn-checkout text-white w-100"
+                                            id="checkout-btn"
                                             style="background-color: #956a3b; border-color: #956a3b; color: #ffffff;">
                                             LANJUTKAN KE PEMBAYARAN
                                         </button>
@@ -996,58 +776,33 @@
                         </div>
                     </div>
                 @else
-                    <!-- Empty Cart Section Redesign -->
-                    <div class="empty-cart-container">
-                        <div class="cart-decoration-top">
-                            <span></span><span></span><span></span>
-                        </div>
-
-                        <div class="empty-cart-illustration">
-                            <div class="cart-circle-pulse"></div>
-                            <div class="cart-circle-inner"></div>
-                            <i class="fas fa-shopping-basket"></i>
-                            <div class="floating-item item-1"><i class="fas fa-leaf"></i></div>
-                            <div class="floating-item item-2"><i class="fas fa-gift"></i></div>
-                            <div class="floating-item item-3"><i class="fas fa-spa"></i></div>
-                        </div>
-
-                        <h3 class="empty-cart-title">Keranjang Belanja Anda Kosong</h3>
-                        <p class="empty-cart-message">Temukan produk-produk dari Eceng Gondok untuk menambahkan ke
-                            keranjang Anda.</p>
-
-                        <div class="cart-benefits">
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-truck"></i>
+                    <!-- Simple Empty Cart Design -->
+                    <div class="empty-cart-elegant">
+                        <div class="empty-cart-content">
+                            <div class="empty-cart-icon-wrapper">
+                                <div class="empty-cart-icon">
+                                    <i class="fas fa-shopping-cart"></i>
                                 </div>
-                                <span>Pengiriman Cepat</span>
                             </div>
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-shield-alt"></i>
-                                </div>
-                                <span>Produk Berkualitas</span>
+
+                            <h3 class="empty-cart-title">Keranjang Belanja Kosong</h3>
+
+                            <p class="empty-cart-message">
+                                Temukan berbagai produk berkualitas dari Eceng Gondok untuk memulai berbelanja
+                            </p>
+
+                            <div class="empty-cart-actions">
+                                <a href="{{ route('shop.index') }}" class="btn-elegant-shop">
+                                    Mulai Berbelanja
+                                </a>
                             </div>
-                            <div class="benefit-item">
-                                <div class="benefit-icon">
-                                    <i class="fas fa-medal"></i>
-                                </div>
-                                <span>Ramah Lingkungan</span>
+
+                            <!-- Optional: Simple benefits (pilih salah satu) -->
+                            <div class="simple-benefits">
+                                <span><i class="fas fa-leaf"></i> Ramah Lingkungan</span>
+                                <span><i class="fas fa-truck"></i> Pengiriman Cepat</span>
+                                <span><i class="fas fa-shield-alt"></i> Berkualitas</span>
                             </div>
-                        </div>
-
-                        <div class="empty-cart-actions">
-                            <a href="{{ route('shop.index') }}" class="btn btn-shop-now">
-                                <i class="fas fa-store"></i>Jelajahi Produk
-                            </a>
-                        </div>
-
-                        <div class="empty-cart-suggestion">
-                            <p>Atau lihat <a href="#" class="suggestion-link">koleksi terbaru</a> kami</p>
-                        </div>
-
-                        <div class="cart-decoration-bottom">
-                            <span></span><span></span><span></span>
                         </div>
                     </div>
                 @endif
@@ -1082,7 +837,7 @@
                     $('#cart-subtotal').text(formattedSubtotal);
 
                     // If there's a coupon, recalculate discount
-                    @if(Session::has('discounts'))
+                    @if (Session::has('discounts'))
                         const discount = calculateDiscount(subtotal);
                         const subtotalAfterDiscount = subtotal - discount;
 
@@ -1109,7 +864,7 @@
 
                 // Calculate discount based on coupon type
                 function calculateDiscount(subtotal) {
-                    @if(Session::has('coupon'))
+                    @if (Session::has('coupon'))
                         const couponType = "{{ Session::get('coupon')['type'] }}";
                         const couponValue = parseFloat("{{ Session::get('coupon')['value'] }}");
 
@@ -1154,7 +909,7 @@
 
                     // Update the cart via AJAX
                     $.ajax({
-                        url: '{{ url("/cart/update-qty") }}/' + rowId,
+                        url: '{{ url('/cart/update-qty') }}/' + rowId,
                         method: 'POST',
                         data: {
                             _token: '{{ csrf_token() }}',
@@ -1165,7 +920,8 @@
                             // Update subtotal display for this item
                             const price = parseFloat($(`tr[data-row-id="${rowId}"]`).data('price'));
                             const newSubtotal = price * newQty;
-                            $(`tr[data-row-id="${rowId}"] .shopping-cart__subtotal`).text(formatRupiah(newSubtotal));
+                            $(`tr[data-row-id="${rowId}"] .shopping-cart__subtotal`).text(
+                                formatRupiah(newSubtotal));
 
                             // Update checkbox data attribute
                             $(`input[value="${rowId}"]`).data('qty', newQty);
