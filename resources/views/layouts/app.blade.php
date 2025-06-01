@@ -1017,7 +1017,6 @@
         </div>
     </footer>
 
-
     <footer class="footer-mobile container w-100 px-5 d-md-none bg-body">
         <div class="row text-center">
             <div class="col-4">
@@ -1321,7 +1320,7 @@
                     if (response.count > 0) {
                         $('.js-wishlist-items-count').text(response.count).show();
                     } else {
-                        $('.js-wishlist-items-count').text('').hide();
+                        $('.js-wishlist-items-count').text('0').show();
                     }
                 }
             });
@@ -1332,7 +1331,6 @@
             @auth
             updateWishlistCount();
         @endauth
-        });
     </script>
 
     <script>
