@@ -671,7 +671,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="#" class="footer__social-link d-block">
+                        <a href="https://www.instagram.com/bank_ecenggondok" class="footer__social-link d-block">
                             <svg class="svg-icon svg-icon_instagram" width="14" height="13"
                                 viewBox="0 0 14 13" xmlns="http://www.w3.org/2000/svg">
                                 <use href="#icon_instagram" />
@@ -890,7 +890,7 @@
                             </a>
                         </li>
                         <li>
-                            <a href="#" class="footer__social-link d-block">
+                            <a href="https://www.instagram.com/bank_ecenggondok" class="footer__social-link d-block">
                                 <svg class="svg-icon svg-icon_instagram" width="14" height="13"
                                     viewBox="0 0 14 13" xmlns="http://www.w3.org/2000/svg">
                                     <use href="#icon_instagram" />
@@ -1541,7 +1541,7 @@
                     desaSelect.disabled = false;
                 } else {
                     desaSelect.disabled = true;
-                }
+                }s
             });
         });
     </script>
