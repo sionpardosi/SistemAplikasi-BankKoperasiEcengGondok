@@ -34,6 +34,7 @@
 </head>
 
 <body class="gradient-bg">
+
     <svg class="d-none">
         <symbol id="icon_nav" viewBox="0 0 25 18">
             <rect width="25" height="2" />
@@ -258,6 +259,7 @@
                 fill="currentColor" />
         </symbol>
     </svg>
+
     <style>
         #header {
             padding-top: 8px;
@@ -507,6 +509,113 @@
             width: 100%;
             height: 2px;
             background-color: #956a3b;
+        }
+    </style>
+
+    <style>
+        /* Additional CSS for mobile search */
+        /* These styles can be added to your style.css or custom.css */
+
+        /* Mobile search results container */
+        .header-mobile .search-results-container {
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0;
+            margin: 5px 0;
+            border-radius: 8px;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            z-index: 1050;
+            scrollbar-width: thin;
+            scrollbar-color: #b9a16b #f5f5f5;
+        }
+
+        .header-mobile .search-results-container::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .header-mobile .search-results-container::-webkit-scrollbar-track {
+            background: #f5f5f5;
+            border-radius: 10px;
+        }
+
+        .header-mobile .search-results-container::-webkit-scrollbar-thumb {
+            background-color: #b9a16b;
+            border-radius: 10px;
+        }
+
+        /* Mobile search animation */
+        .header-mobile .search-field__input:focus {
+            box-shadow: 0 0 0 3px rgba(185, 161, 107, 0.2);
+            border-color: #b9a16b;
+        }
+
+        /* Make sure mobile search results stay on top */
+        .header-mobile .position-absolute {
+            z-index: 1050;
+        }
+
+        /* Mobile search loader */
+        .mobile-search-loader {
+            display: none;
+            text-align: center;
+            padding: 15px;
+        }
+
+        /* Mobile search reset button animation */
+        .header-mobile .search-popup__reset {
+            transition: all 0.2s ease;
+        }
+
+        .header-mobile .search-popup__reset:hover {
+            transform: rotate(90deg);
+        }
+
+        /* Mobile search result items extra styling */
+        .header-mobile #mobile-box-content-search {
+            padding: 0;
+            margin: 0;
+        }
+
+        .header-mobile .search-result-item {
+            background-color: white;
+        }
+
+        /* Empty search results in mobile */
+        .header-mobile .search-no-results {
+            padding: 20px 15px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Add these styles to your custom.css or create a new style section in the head of your document */
+
+        .mobile-account-menu {
+            margin-left: 1.5rem;
+        }
+
+        .mobile-account-menu ul {
+            padding-left: 0;
+        }
+
+        .mobile-account-menu li a {
+            color: #525252;
+            transition: color 0.3s ease;
+        }
+
+        .mobile-account-menu li a:hover {
+            color: #000;
+        }
+
+        /* Optional: Add a subtle divider between the user info and menu items */
+        .mobile-account-menu {
+            border-top: 1px solid rgba(0, 0, 0, 0.05);
+            padding-top: 0.5rem;
+        }
+
+        .dropdown-item.text-danger {
+            color: #e53935 !important;
         }
     </style>
 
@@ -779,7 +888,6 @@
                         </div>
                     </div>
 
-                    {{-- User Menu --}}
                     @guest
                         <div class="me-3">
                             <a href="{{ route('login') }}"
@@ -795,20 +903,65 @@
                                 class="d-flex align-items-center text-dark text-decoration-none user-menu-toggle dropdown-toggle"
                                 data-bs-toggle="dropdown" data-bs-offset="0,8" data-bs-boundary="viewport"
                                 aria-expanded="false">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=0D8ABC&color=fff&rounded=true"
-                                    alt="Avatar" class="rounded-circle"
-                                    style="width:32px;height:32px;object-fit:cover">
+                                @if (Auth::user()->profile_picture)
+                                    {{-- Jika user memiliki foto profil, tampilkan foto profil --}}
+                                    <img src="{{ asset(Auth::user()->profile_picture) }}" alt="{{ Auth::user()->name }}"
+                                        class="rounded-circle user-profile-avatar"
+                                        style="width:32px;height:32px;object-fit:cover;border:2px solid #e9ecef;">
+                                @else
+                                    {{-- Jika tidak ada foto profil, gunakan generated avatar --}}
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=0D8ABC&color=fff&rounded=true"
+                                        alt="{{ Auth::user()->name }}" class="rounded-circle user-profile-avatar"
+                                        style="width:32px;height:32px;object-fit:cover;">
+                                @endif
                                 <span class="ms-2 fw-semibold">{{ Auth::user()->name }}</span>
                             </a>
 
                             <ul class="dropdown-menu dropdown-menu-end">
                                 @if (Auth::user()->utype === 'ADM')
                                     <li>
-                                        <a href="{{ route('admin.index') }}" class="dropdown-item">Dashboard</a>
+                                        <a href="{{ route('admin.index') }}" class="dropdown-item">
+                                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                        </a>
                                     </li>
                                 @endif
                                 <li>
-                                    <a href="{{ route('user.index') }}" class="dropdown-item">Profil Saya</a>
+                                    <a href="{{ route('user.index') }}" class="dropdown-item">
+                                        <i class="fas fa-home me-2"></i>Beranda Pengguna
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('user.account.orders') }}" class="dropdown-item">
+                                        <i class="fas fa-shopping-bag me-2"></i>Pesanan Saya
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('user.account.supplier.request') }}" class="dropdown-item">
+                                        <i class="fas fa-truck me-2"></i>Permintaan Pemasok
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('user.address.account-address') }}" class="dropdown-item">
+                                        <i class="fas fa-map-marker-alt me-2"></i>Daftar Alamat
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="{{ route('user.accountdetails.account-details') }}" class="dropdown-item">
+                                        <i class="fas fa-user-cog me-2"></i>Pengaturan Akun
+                                    </a>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <!-- Modifikasi tombol logout di navbar -->
+                                <li>
+                                    <a href="#" class="dropdown-item text-danger" id="navbar-logout-button">
+                                        <i class="fas fa-sign-out-alt me-2"></i>Keluar
+                                    </a>
+                                    <form id="navbar-logout-form" action="{{ route('logout') }}" method="POST"
+                                        class="d-none">
+                                        @csrf
+                                    </form>
                                 </li>
                             </ul>
                         </div>
@@ -1068,109 +1221,6 @@
         </a>
     </div> --}}
 
-    <style>
-        /* Additional CSS for mobile search */
-        /* These styles can be added to your style.css or custom.css */
-
-        /* Mobile search results container */
-        .header-mobile .search-results-container {
-            max-height: 300px;
-            overflow-y: auto;
-            padding: 0;
-            margin: 5px 0;
-            border-radius: 8px;
-            background: #fff;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-            z-index: 1050;
-            scrollbar-width: thin;
-            scrollbar-color: #b9a16b #f5f5f5;
-        }
-
-        .header-mobile .search-results-container::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .header-mobile .search-results-container::-webkit-scrollbar-track {
-            background: #f5f5f5;
-            border-radius: 10px;
-        }
-
-        .header-mobile .search-results-container::-webkit-scrollbar-thumb {
-            background-color: #b9a16b;
-            border-radius: 10px;
-        }
-
-        /* Mobile search animation */
-        .header-mobile .search-field__input:focus {
-            box-shadow: 0 0 0 3px rgba(185, 161, 107, 0.2);
-            border-color: #b9a16b;
-        }
-
-        /* Make sure mobile search results stay on top */
-        .header-mobile .position-absolute {
-            z-index: 1050;
-        }
-
-        /* Mobile search loader */
-        .mobile-search-loader {
-            display: none;
-            text-align: center;
-            padding: 15px;
-        }
-
-        /* Mobile search reset button animation */
-        .header-mobile .search-popup__reset {
-            transition: all 0.2s ease;
-        }
-
-        .header-mobile .search-popup__reset:hover {
-            transform: rotate(90deg);
-        }
-
-        /* Mobile search result items extra styling */
-        .header-mobile #mobile-box-content-search {
-            padding: 0;
-            margin: 0;
-        }
-
-        .header-mobile .search-result-item {
-            background-color: white;
-        }
-
-        /* Empty search results in mobile */
-        .header-mobile .search-no-results {
-            padding: 20px 15px;
-            text-align: center;
-            color: #666;
-            font-style: italic;
-        }
-
-        /* Add these styles to your custom.css or create a new style section in the head of your document */
-
-        .mobile-account-menu {
-            margin-left: 1.5rem;
-        }
-
-        .mobile-account-menu ul {
-            padding-left: 0;
-        }
-
-        .mobile-account-menu li a {
-            color: #525252;
-            transition: color 0.3s ease;
-        }
-
-        .mobile-account-menu li a:hover {
-            color: #000;
-        }
-
-        /* Optional: Add a subtle divider between the user info and menu items */
-        .mobile-account-menu {
-            border-top: 1px solid rgba(0, 0, 0, 0.05);
-            padding-top: 0.5rem;
-        }
-    </style>
-
     <div id="scrollTop" class="visually-hidden end-0"></div>
     <div class="page-overlay"></div>
 
@@ -1182,6 +1232,7 @@
     <script src="{{ asset('assets/js/plugins/countdown.js') }}"></script>
     <script src="{{ asset('assets/js/theme.js') }}"></script>
     <script src="{{ asset('js/chat-widget.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
         // Updated Script for Search Functionality
@@ -1328,9 +1379,9 @@
 
         // Call the function when page loads
         $(document).ready(function() {
-            @auth
-            updateWishlistCount();
-        @endauth
+                    @auth
+                    updateWishlistCount();
+                @endauth
     </script>
 
     <script>
@@ -1541,7 +1592,284 @@
                     desaSelect.disabled = false;
                 } else {
                     desaSelect.disabled = true;
-                }s
+                }
+                s
+            });
+        });
+    </script>
+
+    // foto profil
+    <script>
+        // Enhanced JavaScript untuk Navbar Profile Picture
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // Handle foto profil error loading
+            const profileAvatar = document.querySelector('.user-profile-avatar');
+
+            if (profileAvatar) {
+                // Add loading class initially
+                profileAvatar.classList.add('loading');
+
+                // Handle successful image load
+                profileAvatar.addEventListener('load', function() {
+                    this.classList.remove('loading');
+
+                    // Add class berdasarkan tipe foto
+                    if (this.src.includes('ui-avatars.com')) {
+                        this.classList.add('generated');
+                    } else {
+                        this.classList.add('uploaded');
+                    }
+                });
+
+                // Handle error loading foto profil
+                profileAvatar.addEventListener('error', function() {
+                    console.log('Foto profil gagal dimuat, menggunakan fallback...');
+
+                    this.classList.remove('loading');
+                    this.classList.add('error', 'generated');
+
+                    // Fallback ke generated avatar
+                    const userName = this.alt || 'User';
+                    this.src =
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=0D8ABC&color=fff&rounded=true`;
+
+                    // Show notification (optional)
+                    showProfileNotification('Foto profil tidak dapat dimuat', 'warning');
+                });
+
+                // Preload foto profil untuk performa yang lebih baik
+                if (profileAvatar.src && !profileAvatar.src.includes('ui-avatars.com')) {
+                    const img = new Image();
+                    img.onload = function() {
+                        profileAvatar.classList.remove('loading');
+                    };
+                    img.onerror = function() {
+                        profileAvatar.dispatchEvent(new Event('error'));
+                    };
+                    img.src = profileAvatar.src;
+                } else {
+                    profileAvatar.classList.remove('loading');
+                }
+            }
+
+            // Enhanced dropdown behavior
+            const userMenuToggle = document.getElementById('userMenuButton');
+            const dropdownMenu = userMenuToggle?.nextElementSibling;
+
+            if (userMenuToggle && dropdownMenu) {
+                // Add smooth animation on dropdown show/hide
+                userMenuToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Toggle dropdown dengan animasi
+                    if (dropdownMenu.classList.contains('show')) {
+                        hideDropdown();
+                    } else {
+                        showDropdown();
+                    }
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!userMenuToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                        hideDropdown();
+                    }
+                });
+
+                // Close dropdown on escape key
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && dropdownMenu.classList.contains('show')) {
+                        hideDropdown();
+                    }
+                });
+
+                function showDropdown() {
+                    dropdownMenu.classList.add('show');
+                    userMenuToggle.setAttribute('aria-expanded', 'true');
+
+                    // Focus on first menu item untuk accessibility
+                    const firstMenuItem = dropdownMenu.querySelector('.dropdown-item');
+                    if (firstMenuItem) {
+                        setTimeout(() => firstMenuItem.focus(), 100);
+                    }
+                }
+
+                function hideDropdown() {
+                    dropdownMenu.classList.remove('show');
+                    userMenuToggle.setAttribute('aria-expanded', 'false');
+                }
+
+                // Keyboard navigation dalam dropdown
+                dropdownMenu.addEventListener('keydown', function(e) {
+                    const items = dropdownMenu.querySelectorAll('.dropdown-item:not([disabled])');
+                    const currentIndex = Array.from(items).indexOf(document.activeElement);
+
+                    switch (e.key) {
+                        case 'ArrowDown':
+                            e.preventDefault();
+                            const nextIndex = currentIndex < items.length - 1 ? currentIndex + 1 : 0;
+                            items[nextIndex].focus();
+                            break;
+
+                        case 'ArrowUp':
+                            e.preventDefault();
+                            const prevIndex = currentIndex > 0 ? currentIndex - 1 : items.length - 1;
+                            items[prevIndex].focus();
+                            break;
+
+                        case 'Enter':
+                        case ' ':
+                            e.preventDefault();
+                            document.activeElement.click();
+                            break;
+                    }
+                });
+            }
+
+            // Real-time update foto profil jika user mengubah di tab lain
+            function checkProfileUpdate() {
+                // Cek apakah ada update dari localStorage atau session
+                const lastUpdate = localStorage.getItem('profile_picture_updated');
+                if (lastUpdate && profileAvatar) {
+                    const updateTime = parseInt(lastUpdate);
+                    const currentTime = Date.now();
+
+                    // Jika update dalam 5 detik terakhir, refresh foto profil
+                    if (currentTime - updateTime < 5000) {
+                        refreshProfilePicture();
+                        localStorage.removeItem('profile_picture_updated');
+                    }
+                }
+            }
+
+            // Function untuk refresh foto profil
+            function refreshProfilePicture() {
+                if (profileAvatar && !profileAvatar.src.includes('ui-avatars.com')) {
+                    profileAvatar.classList.add('loading');
+
+                    // Add timestamp untuk cache busting
+                    const originalSrc = profileAvatar.src.split('?')[0];
+                    profileAvatar.src = originalSrc + '?t=' + Date.now();
+                }
+            }
+
+            // Check for updates every 5 seconds
+            setInterval(checkProfileUpdate, 5000);
+
+            // Function untuk show notification (optional)
+            function showProfileNotification(message, type = 'info') {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+                notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                notification.innerHTML = `
+            <i class="fas fa-${getIconForType(type)} me-2"></i>
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+                document.body.appendChild(notification);
+
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.remove();
+                    }
+                }, 3000);
+            }
+
+            function getIconForType(type) {
+                const icons = {
+                    'success': 'check-circle',
+                    'warning': 'exclamation-triangle',
+                    'danger': 'exclamation-circle',
+                    'info': 'info-circle'
+                };
+                return icons[type] || 'info-circle';
+            }
+
+            // Performance optimization: Lazy load profile picture
+            if ('IntersectionObserver' in window && profileAvatar) {
+                const imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            const img = entry.target;
+                            if (img.dataset.src) {
+                                img.src = img.dataset.src;
+                                img.removeAttribute('data-src');
+                                observer.unobserve(img);
+                            }
+                        }
+                    });
+                });
+
+                if (profileAvatar.dataset.src) {
+                    imageObserver.observe(profileAvatar);
+                }
+            }
+
+            // Add ripple effect on avatar click
+            profileAvatar?.addEventListener('click', function(e) {
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+
+                ripple.style.cssText = `
+            position: absolute;
+            left: ${x}px;
+            top: ${y}px;
+            width: ${size}px;
+            height: ${size}px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        `;
+
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // CSS untuk ripple animation
+        const rippleStyle = document.createElement('style');
+        rippleStyle.textContent = `
+    @keyframes ripple {
+        to {
+            transform: scale(4);
+            opacity: 0;
+        }
+    }
+`;
+        document.head.appendChild(rippleStyle);
+    </script>
+
+    <script>
+        document.getElementById('navbar-logout-button').addEventListener('click', function(e) {
+            e.preventDefault();
+            Swal.fire({
+                title: 'Konfirmasi Keluar',
+                text: 'Apakah Anda yakin ingin keluar dari akun Anda?',
+                icon: 'warning',
+                iconColor: '#b9a16b',
+                showCancelButton: true,
+                reverseButtons: true,
+                focusCancel: true,
+                confirmButtonText: 'Keluar',
+                confirmButtonColor: '#e3342f', // destructive red
+                cancelButtonText: 'Batal',
+                cancelButtonColor: '#6c757d' // secondary neutral
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById('navbar-logout-form').submit();
+                }
             });
         });
     </script>

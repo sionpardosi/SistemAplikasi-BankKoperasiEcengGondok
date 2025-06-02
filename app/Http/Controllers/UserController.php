@@ -14,6 +14,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\PendingOrder;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -257,13 +258,13 @@ class UserController extends Controller
 
 
     public function account_pending_order_details($pending_order_id)
-{
-    $pendingOrder = PendingOrder::with(['items.product', 'transaction'])
-        ->where('user_id', Auth::user()->id)
-        ->findOrFail($pending_order_id);
+    {
+        $pendingOrder = PendingOrder::with(['items.product', 'transaction'])
+            ->where('user_id', Auth::user()->id)
+            ->findOrFail($pending_order_id);
 
-    return view('user.pending-order-details', compact('pendingOrder'));
-}
+        return view('user.pending-order-details', compact('pendingOrder'));
+    }
 
 
     // Memperbarui detail akun pengguna
@@ -271,11 +272,28 @@ class UserController extends Controller
     {
         $user = Auth::user();
 
-        // Validasi input dasar (nama, email, dan nomor HP)
+        // Validasi input dasar (nama, email, nomor HP, dan bio)
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'mobile' => 'required|string|min:10|max:15|unique:users,mobile,' . $user->id,
+            'mobile' => [
+                'required',
+                'string',
+                'min:10',
+                'max:15',
+                'unique:users,mobile,' . $user->id,
+                'regex:/^(08|628)[0-9]{8,12}$/' // Format Indonesia
+            ],
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'bio' => 'nullable|string|max:500',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi foto profil
+            'profile_picture_action' => 'nullable|string|in:upload,delete',
+        ], [
+            'mobile.regex' => 'Format nomor HP tidak valid. Gunakan format 08xxxxxxxxxx atau 628xxxxxxxxxx',
+            'mobile.unique' => 'Nomor HP sudah digunakan oleh pengguna lain',
+            'email.unique' => 'Email sudah digunakan oleh pengguna lain',
+            'profile_picture.image' => 'File harus berupa gambar',
+            'profile_picture.mimes' => 'Format gambar harus: jpeg, png, jpg, atau gif',
+            'profile_picture.max' => 'Ukuran gambar maksimal 2MB',
         ]);
 
         if ($validator->fails()) {
@@ -285,18 +303,74 @@ class UserController extends Controller
         try {
             DB::beginTransaction();
 
-            // Memperbarui informasi akun dasar
+            // Handle foto profil
+            $oldProfilePicture = $user->profile_picture;
+            $newProfilePicture = $oldProfilePicture;
+
+            // Jika ada aksi untuk foto profil
+            if ($request->filled('profile_picture_action')) {
+                $action = $request->profile_picture_action;
+
+                if ($action === 'upload' && $request->hasFile('profile_picture')) {
+                    // Upload foto profil baru
+                    $file = $request->file('profile_picture');
+                    $filename = time() . '_' . Str::random(6) . '.' . $file->getClientOriginalExtension();
+
+                    // Pastikan folder ada
+                    $uploadPath = public_path('uploads/foto_profile');
+                    if (!file_exists($uploadPath)) {
+                        mkdir($uploadPath, 0755, true);
+                    }
+
+                    // Pindahkan file ke folder uploads/foto_profile
+                    $file->move($uploadPath, $filename);
+
+                    // Path relatif untuk disimpan di database
+                    $newProfilePicture = 'uploads/foto_profile/' . $filename;
+
+                    // Hapus foto lama jika ada
+                    if ($oldProfilePicture && file_exists(public_path($oldProfilePicture))) {
+                        unlink(public_path($oldProfilePicture));
+                    }
+                } elseif ($action === 'delete') {
+                    // Hapus foto profil
+                    if ($oldProfilePicture && file_exists(public_path($oldProfilePicture))) {
+                        unlink(public_path($oldProfilePicture));
+                    }
+                    $newProfilePicture = null;
+                }
+            }
+
+            // Update informasi akun dasar
             $user->name = $request->name;
             $user->mobile = $request->mobile;
-            $user->email = $request->email;
+            $user->bio = $request->bio;
+            $user->profile_picture = $newProfilePicture;
+
+            // Cek apakah email berubah
+            $emailChanged = $user->email !== $request->email;
+            if ($emailChanged) {
+                $user->email = $request->email;
+                $user->email_verified_at = null; // Reset verifikasi email
+            }
 
             // Periksa apakah semua field password diisi
             if ($request->filled('old_password') && $request->filled('new_password') && $request->filled('new_password_confirmation')) {
                 // Validasi kata sandi
                 $passwordValidator = Validator::make($request->all(), [
                     'old_password' => 'required|string',
-                    'new_password' => 'required|string|min:8|different:old_password',
+                    'new_password' => [
+                        'required',
+                        'string',
+                        'min:8',
+                        'different:old_password',
+                        'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+={}\[\]:;<>,.~\\\-]).{8,}$/'
+                    ],
                     'new_password_confirmation' => 'required|same:new_password',
+                ], [
+                    'new_password.regex' => 'Kata sandi harus mengandung minimal 1 huruf kecil, 1 huruf besar, 1 angka, dan 1 simbol',
+                    'new_password.different' => 'Kata sandi baru harus berbeda dengan kata sandi lama',
+                    'new_password_confirmation.same' => 'Konfirmasi kata sandi tidak cocok',
                 ]);
 
                 if ($passwordValidator->fails()) {
@@ -326,21 +400,32 @@ class UserController extends Controller
                 $successMessage = 'Detail akun berhasil diperbarui';
             }
 
-            // Simpan perubahan dengan menggunakan metode update()
-            // Untuk menghindari error pada save()
-            $user->update([
-                'name' => $user->name,
-                'email' => $user->email,
-                'mobile' => $user->mobile,
-                'password' => $user->password
-            ]);
+            // Simpan perubahan
+            $user->save();
 
             DB::commit();
+
+            // Pesan sukses dengan informasi tambahan
+            if ($emailChanged) {
+                $successMessage .= '. Email Anda telah berubah dan memerlukan verifikasi ulang.';
+            }
+
+            if ($request->filled('profile_picture_action') && $request->profile_picture_action === 'upload') {
+                $successMessage .= ' Foto profil berhasil diperbarui.';
+            } elseif ($request->filled('profile_picture_action') && $request->profile_picture_action === 'delete') {
+                $successMessage .= ' Foto profil berhasil dihapus.';
+            }
 
             return redirect()->route('user.accountdetails.account-details')
                 ->with('success', $successMessage);
         } catch (\Exception $e) {
             DB::rollback();
+
+            // Jika ada file yang sudah diupload tapi gagal save, hapus file tersebut
+            if (isset($newProfilePicture) && $newProfilePicture !== $oldProfilePicture && file_exists(public_path($newProfilePicture))) {
+                unlink(public_path($newProfilePicture));
+            }
+
             return redirect()->back()
                 ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
                 ->withInput();
