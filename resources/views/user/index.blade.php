@@ -7,8 +7,8 @@
             <!-- Profile Header Section -->
             <div class="profile-header-card mb-4">
                 <div class="cover-banner">
-                    <img src="https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=200"
-                         alt="Cover Banner" class="cover-image">
+                    <img src="assets\images\pemasok\whatsapp-image-2022-02-13-at-11-20220214120322.jpeg"
+                         alt="Bunga Eceng Gondok Banner" class="cover-image">
                     <div class="banner-overlay"></div>
                 </div>
 
