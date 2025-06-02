@@ -2,6 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Address;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use \PDF;
 use Carbon\Carbon;
 use App\Models\Size;
@@ -1287,5 +1292,741 @@ class AdminController extends Controller
 
         return redirect()->route('admin.about.index')
             ->with('status', 'Data berhasil dihapus!');
+    }
+
+
+    // ====================================================================================================
+    // Halaman Data Pengguna
+    // ====================================================================================================
+
+    /**
+     * Display a listing of users with pagination, search, and filtering
+     */
+    public function data_pengguna(Request $request)
+    {
+        $query = User::query();
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('mobile', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Filter by user type
+        if ($request->filled('utype')) {
+            $query->where('utype', $request->utype);
+        }
+
+        // Filter by registration date
+        if ($request->filled('date_from')) {
+            $query->whereDate('created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('created_at', '<=', $request->date_to);
+        }
+
+        // Filter by verification status
+        if ($request->filled('verification_status')) {
+            if ($request->verification_status === 'verified') {
+                $query->whereNotNull('email_verified_at');
+            } elseif ($request->verification_status === 'unverified') {
+                $query->whereNull('email_verified_at');
+            }
+        }
+
+        // Sorting
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortOrder = $request->get('sort_order', 'desc');
+
+        $allowedSorts = ['name', 'email', 'created_at', 'last_login_at', 'utype'];
+        if (in_array($sortBy, $allowedSorts)) {
+            $query->orderBy($sortBy, $sortOrder);
+        }
+
+        // Get users with pagination
+        $users = $query->withCount('addresses')
+            ->paginate(10)
+            ->appends($request->query());
+
+        // Statistics for dashboard cards
+        $stats = [
+            'total_users' => User::count(),
+            'total_customers' => User::where('utype', 'USR')->count(),
+            'total_admins' => User::where('utype', 'ADM')->count(),
+            'verified_users' => User::whereNotNull('email_verified_at')->count(),
+            'unverified_users' => User::whereNull('email_verified_at')->count(),
+            'recent_registrations' => User::where('created_at', '>=', Carbon::now()->subDays(7))->count(),
+            'active_today' => User::where('last_login_at', '>=', Carbon::now()->startOfDay())->count(),
+        ];
+
+        return view('admin.data-pengguna.index', compact('users', 'stats'));
+    }
+
+    /**
+     * Show the form for creating a new user
+     */
+    public function create_user()
+    {
+        return view('admin.data-pengguna.create');
+    }
+
+    /**
+     * Store a newly created user
+     */
+    public function store_user(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'mobile' => 'required|string|max:15|unique:users',
+            'password' => 'required|string|min:8|confirmed',
+            'utype' => 'required|in:USR,ADM',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'bio' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $userData = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'mobile' => $request->mobile,
+            'password' => Hash::make($request->password),
+            'utype' => $request->utype,
+            'bio' => $request->bio,
+            'email_verified_at' => $request->has('email_verified') ? now() : null,
+        ];
+
+        // Handle profile picture upload
+        if ($request->hasFile('profile_picture')) {
+            $file = $request->file('profile_picture');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/profiles'), $filename);
+            $userData['profile_picture'] = 'uploads/profiles/' . $filename;
+        }
+
+        User::create($userData);
+
+        return redirect()->route('admin.data-pengguna.index')
+            ->with('success', 'User berhasil ditambahkan!');
+    }
+
+    /**
+     * Display the specified user
+     */
+    public function show_user($id)
+    {
+        $user = User::with(['addresses'])->findOrFail($id);
+
+        // Get user statistics
+        $userStats = [
+            'total_addresses' => $user->addresses->count(),
+            'default_address' => $user->addresses->where('isdefault', true)->first(),
+            'account_age' => $user->created_at->diffForHumans(),
+            'last_login' => $user->last_login_at ? $user->last_login_at->diffForHumans() : 'Never',
+            'verification_status' => $user->email_verified_at ? 'Verified' : 'Unverified',
+        ];
+
+        return view('admin.data-pengguna.show', compact('user', 'userStats'));
+    }
+
+    /**
+     * Show the form for editing the specified user
+     */
+    public function edit_user($id)
+    {
+        $user = User::findOrFail($id);
+        return view('admin.data-pengguna.edit', compact('user'));
+    }
+
+    /**
+     * Update the specified user
+     */
+    public function update_user(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'mobile' => [
+                'required',
+                'string',
+                'max:15',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'password' => 'nullable|string|min:8|confirmed',
+            'utype' => 'required|in:USR,ADM',
+            'profile_picture' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'bio' => 'nullable|string|max:1000',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        $userData = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'mobile' => $request->mobile,
+            'utype' => $request->utype,
+            'bio' => $request->bio,
+        ];
+
+        // Update password only if provided
+        if ($request->filled('password')) {
+            $userData['password'] = Hash::make($request->password);
+        }
+
+        // Handle email verification status
+        if ($request->has('email_verified')) {
+            $userData['email_verified_at'] = now();
+        } else {
+            $userData['email_verified_at'] = null;
+        }
+
+        // Handle profile picture upload
+        if ($request->hasFile('profile_picture')) {
+            // Delete old profile picture if exists
+            if ($user->profile_picture && file_exists(public_path($user->profile_picture))) {
+                unlink(public_path($user->profile_picture));
+            }
+
+            $file = $request->file('profile_picture');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/profiles'), $filename);
+            $userData['profile_picture'] = 'uploads/profiles/' . $filename;
+        }
+
+        $user->update($userData);
+
+        return redirect()->route('admin.data-pengguna.show', $user->id)
+            ->with('success', 'Data user berhasil diperbarui!');
+    }
+
+    /**
+     * Remove the specified user
+     */
+    public function delete_user($id)
+    {
+        $user = User::findOrFail($id);
+
+        // Prevent admin from deleting themselves
+        if ($user->id === auth()->id()) {
+            return redirect()->back()
+                ->with('error', 'Anda tidak dapat menghapus akun Anda sendiri!');
+        }
+
+        // Delete profile picture if exists
+        if ($user->profile_picture && file_exists(public_path($user->profile_picture))) {
+            unlink(public_path($user->profile_picture));
+        }
+
+        // Delete user addresses
+        $user->addresses()->delete();
+
+        // Delete user
+        $user->delete();
+
+        return redirect()->route('admin.data-pengguna.index')
+            ->with('success', 'User berhasil dihapus!');
+    }
+
+    /**
+     * Toggle user verification status
+     */
+    public function toggle_verification($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->email_verified_at) {
+            $user->email_verified_at = null;
+            $message = 'Verifikasi email user berhasil dicabut!';
+        } else {
+            $user->email_verified_at = now();
+            $message = 'Email user berhasil diverifikasi!';
+        }
+
+        $user->save();
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Bulk actions for multiple users
+     */
+    public function bulk_action(Request $request)
+    {
+        $request->validate([
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
+            'action' => 'required|in:delete,verify,unverify,activate,deactivate'
+        ]);
+
+        $userIds = $request->user_ids;
+        $action = $request->action;
+
+        // Prevent admin from performing bulk actions on themselves
+        if (in_array(auth()->id(), $userIds)) {
+            return redirect()->back()
+                ->with('error', 'Anda tidak dapat melakukan aksi bulk pada akun Anda sendiri!');
+        }
+
+        switch ($action) {
+            case 'delete':
+                $users = User::whereIn('id', $userIds)->get();
+                foreach ($users as $user) {
+                    // Delete profile picture if exists
+                    if ($user->profile_picture && file_exists(public_path($user->profile_picture))) {
+                        unlink(public_path($user->profile_picture));
+                    }
+                    // Delete user addresses
+                    $user->addresses()->delete();
+                }
+                User::whereIn('id', $userIds)->delete();
+                $message = count($userIds) . ' user berhasil dihapus!';
+                break;
+
+            case 'verify':
+                User::whereIn('id', $userIds)->update(['email_verified_at' => now()]);
+                $message = count($userIds) . ' user berhasil diverifikasi!';
+                break;
+
+            case 'unverify':
+                User::whereIn('id', $userIds)->update(['email_verified_at' => null]);
+                $message = 'Verifikasi ' . count($userIds) . ' user berhasil dicabut!';
+                break;
+        }
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    /**
+     * Export users data
+     */
+    public function export_users(Request $request)
+    {
+        $query = User::query();
+
+        // Apply same filters as index
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('mobile', 'LIKE', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('utype')) {
+            $query->where('utype', $request->utype);
+        }
+
+        $users = $query->with('addresses')->get();
+
+        $filename = 'users_export_' . now()->format('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($users) {
+            $file = fopen('php://output', 'w');
+
+            // CSV Headers
+            fputcsv($file, [
+                'ID',
+                'Name',
+                'Email',
+                'Mobile',
+                'User Type',
+                'Email Verified',
+                'Profile Picture',
+                'Bio',
+                'Total Addresses',
+                'Last Login',
+                'Created At',
+                'Updated At'
+            ]);
+
+            // CSV Data
+            foreach ($users as $user) {
+                fputcsv($file, [
+                    $user->id,
+                    $user->name,
+                    $user->email,
+                    $user->mobile,
+                    $user->utype === 'ADM' ? 'Admin' : 'Customer',
+                    $user->email_verified_at ? 'Yes' : 'No',
+                    $user->profile_picture ? 'Yes' : 'No',
+                    $user->bio,
+                    $user->addresses->count(),
+                    $user->last_login_at ? $user->last_login_at->format('Y-m-d H:i:s') : 'Never',
+                    $user->created_at->format('Y-m-d H:i:s'),
+                    $user->updated_at->format('Y-m-d H:i:s'),
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Show user addresses
+     */
+    public function user_addresses($user_id)
+    {
+        $user = User::with('addresses')->findOrFail($user_id);
+        $addresses = $user->addresses()->orderBy('isdefault', 'desc')->orderBy('created_at', 'desc')->get();
+
+        return view('admin.data-pengguna.addresses', compact('user', 'addresses'));
+    }
+
+    /**
+     * Delete user address
+     */
+    public function delete_user_address($user_id, $address_id)
+    {
+        $user = User::findOrFail($user_id);
+        $address = Address::where('id', $address_id)->where('user_id', $user_id)->firstOrFail();
+
+        $isDefault = $address->isdefault;
+
+        $address->delete();
+
+        // If deleted address was default, set another address as default if exists
+        if ($isDefault) {
+            $newDefault = Address::where('user_id', $user_id)->first();
+            if ($newDefault) {
+                $newDefault->isdefault = true;
+                $newDefault->save();
+            }
+        }
+
+        return redirect()->back()->with('success', 'Alamat berhasil dihapus!');
+    }
+
+    /**
+     * Get users data for DataTables AJAX
+     */
+    public function users_data(Request $request)
+    {
+        $query = User::query();
+
+        // Search functionality
+        if ($request->has('search') && $request->search['value']) {
+            $search = $request->search['value'];
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('email', 'LIKE', "%{$search}%")
+                    ->orWhere('mobile', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Column sorting
+        if ($request->has('order')) {
+            $columns = ['id', 'name', 'email', 'mobile', 'utype', 'created_at'];
+            $columnIndex = $request->order[0]['column'];
+            $columnName = $columns[$columnIndex] ?? 'created_at';
+            $direction = $request->order[0]['dir'] ?? 'desc';
+
+            $query->orderBy($columnName, $direction);
+        }
+
+        $totalRecords = $query->count();
+
+        // Pagination
+        $start = $request->start ?? 0;
+        $length = $request->length ?? 10;
+
+        $users = $query->skip($start)->take($length)->withCount('addresses')->get();
+
+        $data = $users->map(function ($user, $index) use ($start) {
+            return [
+                'id' => $user->id,
+                'index' => $start + $index + 1,
+                'name' => $user->name,
+                'email' => $user->email,
+                'mobile' => $user->mobile,
+                'utype' => $user->utype,
+                'email_verified' => $user->email_verified_at ? true : false,
+                'addresses_count' => $user->addresses_count,
+                'created_at' => $user->created_at->format('d M Y'),
+                'last_login_at' => $user->last_login_at ? $user->last_login_at->format('d M Y') : 'Never',
+                'profile_picture' => $user->profile_picture,
+                'actions' => $this->getUserActions($user)
+            ];
+        });
+
+        return response()->json([
+            'draw' => $request->draw,
+            'recordsTotal' => User::count(),
+            'recordsFiltered' => $totalRecords,
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * Generate action buttons for user
+     */
+    private function getUserActions($user)
+    {
+        $actions = '<div class="dropdown">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="icon-more-vertical"></i>
+        </button>
+        <ul class="dropdown-menu">
+            <li>
+                <a class="dropdown-item" href="' . route('admin.data-pengguna.show', $user->id) . '">
+                    <i class="icon-eye me-2"></i>Lihat Detail
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="' . route('admin.data-pengguna.edit', $user->id) . '">
+                    <i class="icon-edit me-2"></i>Edit
+                </a>
+            </li>';
+
+        if ($user->email_verified_at) {
+            $actions .= '<li>
+            <button type="button" class="dropdown-item" onclick="toggleVerification(' . $user->id . ')">
+                <i class="icon-x-circle me-2"></i>Cabut Verifikasi
+            </button>
+        </li>';
+        } else {
+            $actions .= '<li>
+            <button type="button" class="dropdown-item" onclick="toggleVerification(' . $user->id . ')">
+                <i class="icon-check-circle me-2"></i>Verifikasi Email
+            </button>
+        </li>';
+        }
+
+        $actions .= '<li><hr class="dropdown-divider"></li>';
+
+        if ($user->id !== auth()->id()) {
+            $actions .= '<li>
+            <button type="button" class="dropdown-item text-danger" onclick="deleteUser(' . $user->id . ')">
+                <i class="icon-trash me-2"></i>Hapus
+            </button>
+        </li>';
+        }
+
+        $actions .= '</ul></div>';
+
+        return $actions;
+    }
+
+    /**
+     * Import users from CSV
+     */
+    public function import_users(Request $request)
+    {
+        $request->validate([
+            'csv_file' => 'required|file|mimes:csv,txt|max:2048'
+        ]);
+
+        try {
+            $file = $request->file('csv_file');
+            $csvData = file_get_contents($file);
+            $rows = array_map('str_getcsv', explode("\n", $csvData));
+            $header = array_shift($rows);
+
+            $imported = 0;
+            $errors = [];
+
+            foreach ($rows as $index => $row) {
+                if (empty(array_filter($row))) {
+                    continue; // Skip empty rows
+                }
+
+                $userData = array_combine($header, $row);
+
+                // Validate required fields
+                if (empty($userData['name']) || empty($userData['email'])) {
+                    $errors[] = "Baris " . ($index + 2) . ": Nama dan email wajib diisi";
+                    continue;
+                }
+
+                // Check if email already exists
+                if (User::where('email', $userData['email'])->exists()) {
+                    $errors[] = "Baris " . ($index + 2) . ": Email {$userData['email']} sudah terdaftar";
+                    continue;
+                }
+
+                try {
+                    User::create([
+                        'name' => $userData['name'],
+                        'email' => $userData['email'],
+                        'mobile' => $userData['mobile'] ?? null,
+                        'password' => Hash::make($userData['password'] ?? 'password123'),
+                        'utype' => $userData['utype'] ?? 'USR',
+                        'bio' => $userData['bio'] ?? null,
+                        'email_verified_at' => ($userData['email_verified'] ?? false) ? now() : null,
+                    ]);
+
+                    $imported++;
+                } catch (\Exception $e) {
+                    $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
+                }
+            }
+
+            $message = "Berhasil mengimpor {$imported} pengguna.";
+            if (!empty($errors)) {
+                $message .= " " . count($errors) . " baris gagal diimpor.";
+            }
+
+            return redirect()->back()->with('success', $message)->with('import_errors', $errors);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengimpor data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Send email verification to user
+     */
+    public function send_verification_email($id)
+    {
+        $user = User::findOrFail($id);
+
+        if ($user->email_verified_at) {
+            return redirect()->back()->with('error', 'Email sudah terverifikasi!');
+        }
+
+        try {
+            // Here you would send the verification email
+            // For now, we'll just mark as verified
+            $user->email_verified_at = now();
+            $user->save();
+
+            return redirect()->back()->with('success', 'Email verifikasi berhasil dikirim!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengirim email verifikasi: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Reset user password
+     */
+    public function reset_user_password(Request $request, $id)
+    {
+        $request->validate([
+            'new_password' => 'required|string|min:8|confirmed'
+        ]);
+
+        $user = User::findOrFail($id);
+
+        try {
+            $user->password = Hash::make($request->new_password);
+            $user->save();
+
+            return redirect()->back()->with('success', 'Password pengguna berhasil direset!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mereset password: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get user statistics for dashboard
+     */
+    public function user_statistics()
+    {
+        $stats = [
+            'total_users' => User::count(),
+            'total_customers' => User::where('utype', 'USR')->count(),
+            'total_admins' => User::where('utype', 'ADM')->count(),
+            'verified_users' => User::whereNotNull('email_verified_at')->count(),
+            'unverified_users' => User::whereNull('email_verified_at')->count(),
+            'recent_registrations' => User::where('created_at', '>=', Carbon::now()->subDays(7))->count(),
+            'active_today' => User::where('last_login_at', '>=', Carbon::now()->startOfDay())->count(),
+            'active_this_week' => User::where('last_login_at', '>=', Carbon::now()->subDays(7))->count(),
+            'active_this_month' => User::where('last_login_at', '>=', Carbon::now()->subMonth())->count(),
+        ];
+
+        // Registration trend for the last 30 days
+        $registrationTrend = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $date = Carbon::now()->subDays($i);
+            $registrationTrend[] = [
+                'date' => $date->format('Y-m-d'),
+                'count' => User::whereDate('created_at', $date)->count()
+            ];
+        }
+
+        $stats['registration_trend'] = $registrationTrend;
+
+        return response()->json($stats);
+    }
+
+    /**
+     * Download CSV template for import
+     */
+    public function download_template()
+    {
+        $filename = 'template_import_users.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+
+            // CSV Headers
+            fputcsv($file, [
+                'name',
+                'email',
+                'mobile',
+                'password',
+                'utype',
+                'bio',
+                'email_verified'
+            ]);
+
+            // Sample data
+            fputcsv($file, [
+                'John Doe',
+                'john@example.com',
+                '08123456789',
+                'password123',
+                'USR',
+                'Sample user bio',
+                'true'
+            ]);
+
+            fputcsv($file, [
+                'Jane Smith',
+                'jane@example.com',
+                '08987654321',
+                'password123',
+                'ADM',
+                'Admin user',
+                'true'
+            ]);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

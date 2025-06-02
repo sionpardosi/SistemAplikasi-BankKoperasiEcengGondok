@@ -14,7 +14,7 @@
                                         <i class="icon-shopping-bag"></i>
                                     </div>
                                     <div>
-                                        <div class="body-text mb-2">Total Orders</div>
+                                        <div class="body-text mb-2">Total Pesanan</div>
                                         <h4>{{ $dashboardDatas[0]->Total }}</h4>
                                     </div>
                                 </div>
@@ -28,7 +28,7 @@
                                         <i class="icon-credit-card"></i>
                                     </div>
                                     <div>
-                                        <div class="body-text mb-2">Total Amount</div>
+                                        <div class="body-text mb-2">Jumlah Total Keuangan</div>
                                         <h4>{{ $dashboardDatas[0]->TotalAmount }}</h4>
                                     </div>
                                 </div>
@@ -203,7 +203,7 @@
 
                 <div class="wg-box">
                     <div class="flex items-center justify-between">
-                        <h5>Recent orders</h5>
+                        <h5>Pesanan terbaru</h5>
                         <div class="dropdown default">
                             <a class="btn btn-secondary dropdown-toggle" href="{{ route('admin.orders') }}">
                                 <span class="view-all">View all</span>

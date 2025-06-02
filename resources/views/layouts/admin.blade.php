@@ -147,6 +147,13 @@
                                     </ul>
                                 </li>
 
+                                <li class="menu-item">
+                                    <a href="{{ url('admin/laporanpenjualan') }}" class="">
+                                        <div class="icon"><i class="icon-user"></i></div>
+                                        <div class="text">Laporan Penjualan</div>
+                                    </a>
+                                </li>
+
                                 <li class="menu-item has-children">
                                     <a href="#" class="menu-item-button">
                                         <div class="icon"><i class="icon-briefcase"></i></div>
@@ -223,35 +230,28 @@
                                 <li class="menu-item">
                                     <a href="{{ route('admin.coupons') }}" class="">
                                         <div class="icon"><i class="icon-grid"></i></div>
-                                        <div class="text">Coupons</div>
+                                        <div class="text">Kupon</div>
                                     </a>
                                 </li>
 
                                 <li class="menu-item">
                                     <a href="{{ route('admin.contacts') }}" class="">
                                         <div class="icon"><i class="icon-grid"></i></div>
-                                        <div class="text">Messages</div>
+                                        <div class="text">Pesan dari Layanan</div>
                                     </a>
                                 </li>
 
                                 <li class="menu-item">
-                                    <a href="users.html" class="">
+                                    <a href="{{ route('admin.data-pengguna.index') }}">
                                         <div class="icon"><i class="icon-user"></i></div>
-                                        <div class="text">User</div>
-                                    </a>
-                                </li>
-
-                                <li class="menu-item">
-                                    <a href="{{ url('admin/laporanpenjualan') }}" class="">
-                                        <div class="icon"><i class="icon-user"></i></div>
-                                        <div class="text">Laporan Penjualan</div>
+                                        <div class="text">Pengguna</div>
                                     </a>
                                 </li>
 
                                 <li class="menu-item">
                                     <a href="settings.html" class="">
                                         <div class="icon"><i class="icon-settings"></i></div>
-                                        <div class="text">Settings</div>
+                                        <div class="text">Pengaturan</div>
                                     </a>
                                 </li>
 

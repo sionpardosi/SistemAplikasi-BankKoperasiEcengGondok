@@ -506,4 +506,111 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::put('/admin/about/{about}', [AdminController::class, 'updateAbout'])->name('admin.about.update');
     // Delete
     Route::delete('/admin/about/{about}', [AdminController::class, 'destroyAbout'])->name('admin.about.destroy');
+
+
+    // ====================================================================================================
+    // Halaman Data Pengguna
+    // ====================================================================================================
+    // Index & Pagination dengan filtering
+    Route::get('/admin/data-pengguna', [AdminController::class, 'data_pengguna'])->name('admin.data-pengguna.index');
+    // Create new user
+    Route::get('/admin/data-pengguna/create', [AdminController::class, 'create_user'])->name('admin.data-pengguna.create');
+    Route::post('/admin/data-pengguna', [AdminController::class, 'store_user'])->name('admin.data-pengguna.store');
+    // Show user details
+    Route::get('/admin/data-pengguna/{id}', [AdminController::class, 'show_user'])->name('admin.data-pengguna.show');
+    // Edit user
+    Route::get('/admin/data-pengguna/{id}/edit', [AdminController::class, 'edit_user'])->name('admin.data-pengguna.edit');
+    Route::put('/admin/data-pengguna/{id}', [AdminController::class, 'update_user'])->name('admin.data-pengguna.update');
+    // Delete user
+    Route::delete('/admin/data-pengguna/{id}', [AdminController::class, 'delete_user'])->name('admin.data-pengguna.delete');
+    // Toggle email verification
+    Route::patch('/admin/data-pengguna/{id}/toggle-verification', [AdminController::class, 'toggle_verification'])->name('admin.data-pengguna.toggle-verification');
+    // Bulk actions
+    Route::post('/admin/data-pengguna/bulk-action', [AdminController::class, 'bulk_action'])->name('admin.data-pengguna.bulk-action');
+    // Export users
+    Route::get('/admin/data-pengguna/export/csv', [AdminController::class, 'export_users'])->name('admin.data-pengguna.export');
+
+    // User Addresses Management (opsional untuk admin)
+    // ====================================================================================================
+    // View user addresses
+    Route::get('/admin/data-pengguna/{user_id}/addresses', [AdminController::class, 'user_addresses'])->name('admin.data-pengguna.addresses');
+    // Delete user address
+    Route::delete('/admin/data-pengguna/{user_id}/addresses/{address_id}', [AdminController::class, 'delete_user_address'])->name('admin.data-pengguna.addresses.delete');
+
+      // ====================================================================================================
+    // HALAMAN DATA PENGGUNA - COMPLETE MANAGEMENT SYSTEM
+    // ====================================================================================================
+
+    // Main user management routes
+    Route::prefix('admin/data-pengguna')->name('admin.data-pengguna.')->group(function () {
+
+        // Index & Pagination dengan filtering dan searching
+        Route::get('/', [AdminController::class, 'data_pengguna'])->name('index');
+
+        // CRUD Operations
+        Route::get('/create', [AdminController::class, 'create_user'])->name('create');
+        Route::post('/', [AdminController::class, 'store_user'])->name('store');
+        Route::get('/{id}', [AdminController::class, 'show_user'])->name('show');
+        Route::get('/{id}/edit', [AdminController::class, 'edit_user'])->name('edit');
+        Route::put('/{id}', [AdminController::class, 'update_user'])->name('update');
+        Route::delete('/{id}', [AdminController::class, 'delete_user'])->name('delete');
+
+        // Advanced User Management
+        Route::patch('/{id}/toggle-verification', [AdminController::class, 'toggle_verification'])->name('toggle-verification');
+        Route::post('/{id}/send-verification', [AdminController::class, 'send_verification_email'])->name('send-verification');
+        Route::post('/{id}/reset-password', [AdminController::class, 'reset_user_password'])->name('reset-password');
+
+        // Bulk Operations
+        Route::post('/bulk-action', [AdminController::class, 'bulk_action'])->name('bulk-action');
+
+        // Data Export & Import
+        Route::get('/export/csv', [AdminController::class, 'export_users'])->name('export');
+        Route::get('/export/template', [AdminController::class, 'download_template'])->name('export.template');
+        Route::post('/import/csv', [AdminController::class, 'import_users'])->name('import');
+
+        // AJAX Data for DataTables (optional untuk implementasi DataTables)
+        Route::get('/data/ajax', [AdminController::class, 'users_data'])->name('data.ajax');
+
+        // Statistics & Analytics
+        Route::get('/statistics/data', [AdminController::class, 'user_statistics'])->name('statistics');
+
+        // User Address Management
+        Route::get('/{user_id}/addresses', [AdminController::class, 'user_addresses'])->name('addresses');
+        Route::delete('/{user_id}/addresses/{address_id}', [AdminController::class, 'delete_user_address'])->name('addresses.delete');
+    });
+
+    // ====================================================================================================
+    // ADDITIONAL ADMIN ROUTES (contoh untuk sistem yang lebih lengkap)
+    // ====================================================================================================
+
+    // Admin Dashboard
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
+
+    // Admin Profile Management
+    Route::prefix('admin/profile')->name('admin.profile.')->group(function () {
+        Route::get('/', [AdminController::class, 'admin_profile'])->name('index');
+        Route::put('/update', [AdminController::class, 'update_admin_profile'])->name('update');
+        Route::post('/change-password', [AdminController::class, 'change_admin_password'])->name('change-password');
+    });
+
+    // System Settings (opsional)
+    Route::prefix('admin/settings')->name('admin.settings.')->group(function () {
+        Route::get('/', [AdminController::class, 'system_settings'])->name('index');
+        Route::post('/update', [AdminController::class, 'update_settings'])->name('update');
+    });
+
+    // Activity Logs (opsional untuk audit trail)
+    Route::prefix('admin/logs')->name('admin.logs.')->group(function () {
+        Route::get('/', [AdminController::class, 'activity_logs'])->name('index');
+        Route::get('/user/{user_id}', [AdminController::class, 'user_activity_logs'])->name('user');
+        Route::delete('/clear', [AdminController::class, 'clear_logs'])->name('clear');
+    });
+
+    // Reports & Analytics (opsional)
+    Route::prefix('admin/reports')->name('admin.reports.')->group(function () {
+        Route::get('/', [AdminController::class, 'reports_index'])->name('index');
+        Route::get('/users', [AdminController::class, 'users_report'])->name('users');
+        Route::get('/registrations', [AdminController::class, 'registrations_report'])->name('registrations');
+        Route::post('/generate', [AdminController::class, 'generate_report'])->name('generate');
+    });
 });
