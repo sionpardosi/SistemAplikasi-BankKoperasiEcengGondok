@@ -137,6 +137,9 @@ Route::post('/place-order', [CartController::class, 'place_order'])->name('cart.
 Route::get('/order-confirmation', [CartController::class, 'confirmation'])->name('cart.confirmation');
 // Route untuk upload bukti pembayaran transfer bank
 Route::post('/upload-payment-proof', [CartController::class, 'uploadPaymentProof'])->name('upload.payment.proof');
+// Route untuk menampilkan halaman pembayaran
+Route::get('/account-orders', [CartController::class, 'accountOrders'])->name('account-orders')->middleware('auth');
+
 
 // ====================================================================================================
 // Halaman Kontak

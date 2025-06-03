@@ -614,14 +614,6 @@ class CartController extends Controller
     {
         $user_id = Auth::user()->id;
 
-        // Validasi metode pembayaran
-        if ($request->mode == 'manual_atm') {
-            $request->validate([
-                'bank_code' => 'required|in:bri,bni',
-                'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
-            ]);
-        }
-
         // Jika menggunakan alamat yang sudah ada
         if ($request->has('address_id') && $request->address_id > 0) {
             $address = Address::where('id', $request->address_id)
@@ -747,14 +739,6 @@ class CartController extends Controller
         // Gunakan invoice sebagai order_id yang tetap
         $invoice = 'ORDER-' . $order->id . '-' . Str::uuid();
 
-        // Upload bukti pembayaran jika metode pembayaran adalah transfer bank manual
-        $paymentProofPath = null;
-        if ($request->mode == 'manual_atm' && $request->hasFile('payment_proof')) {
-            $file = $request->file('payment_proof');
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $paymentProofPath = $file->storeAs('payment_proofs', $fileName, 'public');
-        }
-
         // Midtrans Configuration hanya jika metode pembayaran adalah card
         $snapToken = null;
         if ($request->mode == 'card') {
@@ -784,6 +768,7 @@ class CartController extends Controller
             }
         }
 
+
         // Simpan transaksi dengan status 'pending'
         $transaction = [
             'user_id' => $user_id,
@@ -799,7 +784,7 @@ class CartController extends Controller
         // Tambahkan bank_code untuk metode manual_atm
         if ($request->mode == 'manual_atm') {
             $transaction['bank_code'] = 'BNI'; // Set default ke BNI sesuai requirement
-            $transaction['payment_proof'] = $paymentProofPath;
+            // Hapus baris ini: $transaction['payment_proof'] = $paymentProofPath;
         }
 
         DB::table('transactions')->insert($transaction);
@@ -867,5 +852,43 @@ class CartController extends Controller
             return view('order-confirmation', compact('order', 'snaptoken'));
         }
         return redirect()->route('cart.index');
+    }
+
+    /**
+     * Upload bukti pembayaran untuk transfer bank
+     */
+    public function uploadPaymentProof(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'payment_proof' => 'required|image|mimes:jpeg,png,jpg,pdf|max:2048',
+        ]);
+
+        $order = Order::findOrFail($request->order_id);
+
+        // Pastikan order milik user yang login
+        if ($order->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Akses ditolak.');
+        }
+
+        // Upload file
+        $file = $request->file('payment_proof');
+        $fileName = time() . '_' . $file->getClientOriginalName();
+        $paymentProofPath = $file->storeAs('payment_proofs', $fileName, 'public');
+
+        // Update transaction dengan bukti pembayaran
+        $transaction = Transaction::where('order_id', $order->id)->first();
+        if ($transaction) {
+            $transaction->payment_proof = $paymentProofPath;
+            $transaction->save();
+
+            // Update status order jika diperlukan
+            $order->status = 'pending'; // Ubah status menjadi pending menunggu verifikasi admin
+            $order->save();
+
+            return redirect()->back()->with('success', 'Bukti pembayaran berhasil diupload. Pesanan Anda akan segera diverifikasi.');
+        }
+
+        return redirect()->back()->with('error', 'Terjadi kesalahan saat mengupload bukti pembayaran.');
     }
 }
