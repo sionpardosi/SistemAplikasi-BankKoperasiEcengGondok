@@ -1012,8 +1012,10 @@
                                     @php
                                         // Ambil item yang dipilih dari session
                                         $selectedItems = session()->get('selected_cart_items', []);
-                                        $cartItems = \Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content();
-                                        $selectedCartItems = $cartItems->filter(function($item) use($selectedItems) {
+                                        $cartItems = \Surfsidemedia\Shoppingcart\Facades\Cart::instance(
+                                            'cart',
+                                        )->content();
+                                        $selectedCartItems = $cartItems->filter(function ($item) use ($selectedItems) {
                                             return in_array($item->rowId, $selectedItems);
                                         });
                                     @endphp
@@ -1021,13 +1023,14 @@
                                     @foreach ($selectedCartItems as $item)
                                         <div class="selected-product-item">
                                             <img src="{{ asset('uploads/products/thumbnails') }}/{{ $item->model->image }}"
-                                                 alt="{{ $item->name }}" class="product-image-small">
+                                                alt="{{ $item->name }}" class="product-image-small">
                                             <div class="product-details">
                                                 <div class="product-name">{{ $item->name }}</div>
                                                 <div class="product-specs">
                                                     <span><i class="fas fa-cubes"></i> Qty: {{ $item->qty }}</span>
-                                                    @if(isset($item->options['size_name']))
-                                                    <span><i class="fas fa-ruler-combined"></i> Ukuran: {{ $item->options['size_name'] }}</span>
+                                                    @if (isset($item->options['size_name']))
+                                                        <span><i class="fas fa-ruler-combined"></i> Ukuran:
+                                                            {{ $item->options['size_name'] }}</span>
                                                     @endif
                                                 </div>
                                             </div>
@@ -1049,17 +1052,18 @@
                                                 </td>
                                             </tr>
                                             @if (session()->get('checkout')['discount'] > 0)
-                                            <tr>
-                                                <th>Diskon {{ Session::has('coupon') ? Session('coupon')['code'] : '' }}</th>
-                                                <td class="text-right">
-                                                    -{{ formatRupiah(session()->get('checkout')['discount']) }}</td>
-                                            </tr>
-                                            <tr>
-                                                <th>Subtotal Setelah Diskon</th>
-                                                <td class="text-right">
-                                                    {{ formatRupiah(session()->get('checkout')['subtotal'] - session()->get('checkout')['discount']) }}
-                                                </td>
-                                            </tr>
+                                                <tr>
+                                                    <th>Diskon
+                                                        {{ Session::has('coupon') ? Session('coupon')['code'] : '' }}</th>
+                                                    <td class="text-right">
+                                                        -{{ formatRupiah(session()->get('checkout')['discount']) }}</td>
+                                                </tr>
+                                                <tr>
+                                                    <th>Subtotal Setelah Diskon</th>
+                                                    <td class="text-right">
+                                                        {{ formatRupiah(session()->get('checkout')['subtotal'] - session()->get('checkout')['discount']) }}
+                                                    </td>
+                                                </tr>
                                             @endif
                                             <tr>
                                                 <th>Ongkos Kirim</th>
@@ -1128,7 +1132,8 @@
                 let cityId = '';
                 let selectedAddressId = $('#address_selector').val();
                 // Menggunakan nilai dari session checkout untuk subtotal yang benar
-                let cartTotal = parseFloat('{{ session()->has('checkout') ? session()->get('checkout')['subtotal'] : 0 }}');
+                let cartTotal = parseFloat(
+                    '{{ session()->has('checkout') ? session()->get('checkout')['subtotal'] : 0 }}');
 
                 // 1. Load provinsi saat halaman dimuat
                 loadProvinces();
@@ -1375,6 +1380,96 @@
                             $('#shipping_service').html('<option value="">-- Pilih Layanan --</option>');
                         }
                     });
+
+                    // Update di bagian JavaScript checkout.blade.php
+                    // Tambahkan kode ini di dalam calculateShipping function
+
+                    function calculateShipping(courier) {
+                        let city = $('#idcitynya').val();
+                        // Jika menggunakan alamat baru, ambil ID kota dari dropdown
+                        if (city != '') {
+                            cityId = city;
+                            $('#city_id').val(cityId);
+                        } else {
+                            cityId = $('#idcitylama').val();
+                            stateId = $('#idstatelama').val();
+                        }
+
+                        console.log('Calculating shipping from Samosir to City ID:', cityId);
+
+                        $.ajax({
+                            url: '{{ url('api/rajaongkircalculate') }}',
+                            type: 'POST',
+                            data: {
+                                _token: '{{ csrf_token() }}',
+                                city_id: cityId,
+                                courier: courier
+                            },
+                            dataType: 'json',
+                            beforeSend: function() {
+                                $('#shipping_service').html('<option value="">Memuat layanan...</option>');
+                                $('#shipping_service').prop('disabled', true);
+
+                                // Tampilkan info origin city - UPDATE INI
+                                console.log('🚚 Menghitung ongkir dari: Kabupaten Samosir, Sumatera Utara');
+                            },
+                            success: function(response) {
+                                if (response.status === 'success') {
+                                    let options = '<option value="">-- Pilih Layanan --</option>';
+
+                                    // Log informasi meta data dari response
+                                    if (response.meta) {
+                                        console.log('📍 Origin:', response.meta.origin_info);
+                                        console.log('📦 Berat:', response.meta.weight);
+                                        console.log('🚛 Kurir:', response.meta.courier);
+                                    }
+
+                                    $.each(response.data, function(index, service) {
+                                        options += `<option value="${service.service}"
+                        data-cost="${service.cost[0].value}"
+                        data-etd="${service.cost[0].etd}"
+                        data-description="${service.description}">
+                        ${service.service} - ${service.description} (${formatRupiah(service.cost[0].value)})
+                    </option>`;
+                                    });
+                                    $('#shipping_service').html(options);
+                                    $('#shipping_service').prop('disabled', false);
+
+                                    // Tampilkan notifikasi sukses
+                                    showShippingInfo(`Ongkir berhasil dihitung dari Kabupaten Samosir`);
+                                } else {
+                                    alert('Gagal menghitung ongkos kirim: ' + response.message);
+                                    $('#shipping_service').html(
+                                        '<option value="">-- Pilih Layanan --</option>');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.error('Error calculating shipping:', xhr.responseText);
+                                alert('Terjadi kesalahan saat menghitung ongkos kirim');
+                                $('#shipping_service').html(
+                                '<option value="">-- Pilih Layanan --</option>');
+                            }
+                        });
+                    }
+
+                    // Fungsi tambahan untuk menampilkan info pengiriman
+                    function showShippingInfo(message) {
+                        // Buat notifikasi sementara
+                        const notification = $(`
+        <div class="alert alert-info alert-dismissible fade show" style="margin-top: 10px;">
+            <i class="fas fa-info-circle"></i> ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    `);
+
+                        // Tampilkan di bawah dropdown kurir
+                        $('#courier').parent().append(notification);
+
+                        // Auto hide setelah 5 detik
+                        setTimeout(() => {
+                            notification.fadeOut();
+                        }, 5000);
+                    }
                 }
 
                 // Fungsi untuk memperbarui opsi pengiriman
@@ -1395,7 +1490,8 @@
 
                     // Dapatkan subtotal dan discount dari session checkout
                     @if (Session::has('checkout'))
-                        let subtotal = {{ session()->get('checkout')['subtotal'] - session()->get('checkout')['discount'] }};
+                        let subtotal =
+                            {{ session()->get('checkout')['subtotal'] - session()->get('checkout')['discount'] }};
                     @else
                         let subtotal = cartTotal;
                     @endif
@@ -1470,6 +1566,5 @@
                 updateCheckoutStep(2);
             });
         </script>
-
     @endpush
 @endsection

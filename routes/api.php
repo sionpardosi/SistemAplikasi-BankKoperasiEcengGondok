@@ -41,7 +41,8 @@ Route::get('useraddressgetaddress/{id}', [RajaOngkirController::class, 'userAddr
 Route::post('rajaongkircalculate', [RajaOngkirController::class, 'calculateShipping']);
 // Route untuk mendapatkan daftar kecamatan berdasarkan ID kota
 Route::post('saveshippingcost', [RajaOngkirController::class, 'saveShippingCost']); // optional
-
+// Route untuk verifikasi origin city (opsional - untuk testing)
+Route::get('rajaongkir/origin-info', [RajaOngkirController::class, 'getOriginCityInfo']);
 
 // =====================================================================================================================================================================================================
 // -------------------------------------------------------------------------------------------- CHATBOT AI --------------------------------------------------------------------------------------------

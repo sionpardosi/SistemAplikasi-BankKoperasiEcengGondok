@@ -16,6 +16,7 @@ use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\WishlistController;
 use App\Http\Controllers\ChatbotAIController;
 use App\Http\Controllers\Auth\OAuthController;
+use App\Http\Controllers\RajaOngkirController;
 use App\Http\Controllers\StokBahanBakuController;
 use App\Http\Controllers\SupplierRequestController;
 use App\Http\Controllers\MidtransCallbackController;
@@ -37,8 +38,12 @@ Route::get('oauth/google/callback', [OAuthController::class, 'handleGoogleCallba
 // Api RajaOngkir
 // ====================================================================================================
 Route::get('/api/rajaongkir/provinces', 'RajaOngkirController@getProvinces');
+// Route untuk mendapatkan kota berdasarkan ID provinsi
 Route::get('/api/rajaongkir/cities/{province_id}', 'RajaOngkirController@getCities');
+// Route untuk mendapatkan ongkos kirim berdasarkan kota asal, kota tujuan, dan berat
 Route::post('/api/rajaongkir/calculate', 'RajaOngkirController@calculateShipping');
+// Route untuk verifikasi origin city (opsional - untuk testing)
+Route::get('rajaongkir/origin-info', [RajaOngkirController::class, 'getOriginCityInfo']);
 
 
 // ====================================================================================================

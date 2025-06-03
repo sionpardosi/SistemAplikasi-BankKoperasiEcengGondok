@@ -12,15 +12,51 @@ use Illuminate\Support\Facades\Log;
 class RajaOngkirController extends Controller
 {
     protected $apiKey;
-    protected $originCity = 389; // ID Kota Palembang di RajaOngkir
+    protected $originCity = 389; // ID Kabupaten Samosir di RajaOngkir
     protected $defaultWeight = 500;
 
     public function __construct()
     {
         $this->apiKey = '7ff8406f12c653758df1a5fa6d6bf474';
     }
-// https://api.rajaongkir.com/starter/province?key=7ff8406f12c653758df1a5fa6d6bf474
-// https://api.rajaongkir.com/starter/city?province=34&key=7ff8406f12c653758df1a5fa6d6bf474
+
+    /**
+     * Method baru untuk mendapatkan informasi kota asal (untuk verifikasi)
+     */
+    public function getOriginCityInfo()
+    {
+        try {
+            $response = Http::withHeaders([
+                'key' => $this->apiKey
+            ])->get('https://api.rajaongkir.com/starter/city', [
+                'id' => $this->originCity
+            ]);
+
+            if ($response->successful()) {
+                $data = $response->json();
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Origin city information retrieved successfully',
+                    'data' => [
+                        'origin_city_id' => $this->originCity,
+                        'city_info' => $data['rajaongkir']['results']
+                    ]
+                ]);
+            }
+
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to get origin city info'
+            ], 500);
+
+        } catch (\Exception $e) {
+            Log::error('Origin City Info Error: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 
     public function getProvinces()
     {
@@ -46,7 +82,7 @@ class RajaOngkirController extends Controller
     public function userAddressGetAddress($id)
     {
         try {
-            $address = UserAddress::findOrFail($id);
+            $address = Address::findOrFail($id);
             return response()->json([
                 'status' => 'success',
                 'data' => $address
@@ -58,8 +94,6 @@ class RajaOngkirController extends Controller
             ], 404);
         }
     }
-
-
 
     public function getCities($provinceId)
     {
@@ -84,7 +118,6 @@ class RajaOngkirController extends Controller
         }
     }
 
-
     public function calculateShipping(Request $request)
     {
         $request->validate([
@@ -95,7 +128,6 @@ class RajaOngkirController extends Controller
         try {
             $weight = 0;
             foreach (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content() as $item) {
-
                 $weight += ($this->defaultWeight * $item->qty);
             }
 
@@ -103,10 +135,18 @@ class RajaOngkirController extends Controller
                 $weight = $this->defaultWeight;
             }
 
+            // Log untuk debugging - sekarang menggunakan Samosir sebagai origin
+            Log::info('Calculating shipping from Samosir', [
+                'origin_city_id' => $this->originCity,
+                'destination_city_id' => $request->city_id,
+                'weight' => $weight,
+                'courier' => $request->courier
+            ]);
+
             $response = Http::withHeaders([
                 'key' => $this->apiKey
             ])->post('https://api.rajaongkir.com/starter/cost', [
-                'origin' => $this->originCity,
+                'origin' => $this->originCity, // Sekarang menggunakan ID Samosir (389)
                 'destination' => $request->city_id,
                 'weight' => $weight,
                 'courier' => $request->courier
@@ -115,7 +155,14 @@ class RajaOngkirController extends Controller
             $shippingCosts = $response->json()['rajaongkir']['results'][0]['costs'];
             return response()->json([
                 'status' => 'success',
-                'data' => $shippingCosts
+                'data' => $shippingCosts,
+                'meta' => [
+                    'origin_info' => 'Kabupaten Samosir, Sumatera Utara',
+                    'origin_city_id' => $this->originCity,
+                    'destination_city_id' => $request->city_id,
+                    'weight' => $weight . ' gram',
+                    'courier' => strtoupper($request->courier)
+                ]
             ]);
         } catch (\Exception $e) {
             Log::error('RajaOngkir Cost Error: ' . $e->getMessage());
@@ -125,7 +172,6 @@ class RajaOngkirController extends Controller
             ], 500);
         }
     }
-
 
     public function saveShippingCost(Request $request)
     {
