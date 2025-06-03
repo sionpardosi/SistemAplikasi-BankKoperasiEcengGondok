@@ -369,7 +369,7 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: linear-gradient(90deg, var(--primary), #a87c4f);
+            /* background: linear-gradient(90deg, var(--primary), #a87c4f); */
         }
 
         /* Header styling */

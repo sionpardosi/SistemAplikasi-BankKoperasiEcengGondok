@@ -12,14 +12,15 @@ use Illuminate\Support\Facades\Log;
 class RajaOngkirController extends Controller
 {
     protected $apiKey;
-    protected $originCity = 78; // ID Kota Palembang di RajaOngkir
+    protected $originCity = 389; // ID Kota Palembang di RajaOngkir
     protected $defaultWeight = 500;
 
     public function __construct()
     {
         $this->apiKey = '7ff8406f12c653758df1a5fa6d6bf474';
     }
-
+// https://api.rajaongkir.com/starter/province?key=7ff8406f12c653758df1a5fa6d6bf474
+// https://api.rajaongkir.com/starter/city?province=34&key=7ff8406f12c653758df1a5fa6d6bf474
 
     public function getProvinces()
     {

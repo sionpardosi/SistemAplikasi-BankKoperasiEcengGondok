@@ -29,14 +29,23 @@ use App\Http\Controllers\API\JobApplicationController;
 |
 */
 
+// =====================================================================================================================================================================================================
+// -------------------------------------------------------------------------------------------- RAJA ONGKIR --------------------------------------------------------------------------------------------
+// =====================================================================================================================================================================================================
 Route::get('rajaongkirprovinces', [RajaOngkirController::class, 'getProvinces']);
+// Route untuk mendapatkan daftar kota berdasarkan ID provinsi
 Route::get('rajaongkircities/{id}', [RajaOngkirController::class, 'getCities']);
+// Route untuk mendapatkan daftar kecamatan berdasarkan ID kota
 Route::get('useraddressgetaddress/{id}', [RajaOngkirController::class, 'userAddressGetAddress']);
+// Route untuk mendapatkan daftar kecamatan berdasarkan ID kota
 Route::post('rajaongkircalculate', [RajaOngkirController::class, 'calculateShipping']);
+// Route untuk mendapatkan daftar kecamatan berdasarkan ID kota
 Route::post('saveshippingcost', [RajaOngkirController::class, 'saveShippingCost']); // optional
 
 
-
+// =====================================================================================================================================================================================================
+// -------------------------------------------------------------------------------------------- CHATBOT AI --------------------------------------------------------------------------------------------
+// =====================================================================================================================================================================================================
 Route::post('/chat', function (Request $request) {
     $message = $request->input('message');
 
