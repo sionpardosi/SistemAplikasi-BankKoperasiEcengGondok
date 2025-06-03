@@ -371,10 +371,7 @@
             animation-delay: 0.4s;
         }
 
-        /* rating */
         .rating {
-            direction: rtl;
-            unicode-bidi: bidi-override;
             display: inline-block;
         }
 
@@ -390,9 +387,15 @@
             transition: color .2s;
         }
 
-        .rating>input[type="radio"]:checked~label,
-        .rating>label:hover,
-        .rating>label:hover~label {
+        .rating>input[type="radio"]:checked~label {
+            color: #f6b500;
+        }
+
+        .rating>label:hover {
+            color: #f6b500;
+        }
+
+        .rating>label.active {
             color: #f6b500;
         }
     </style>
@@ -925,6 +928,7 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             confirmForm.submit();
+
                         }
                     });
                 });
@@ -968,4 +972,57 @@
             });
         });
     </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle rating stars interaction
+    document.querySelectorAll('.rating').forEach(function(ratingContainer) {
+        const stars = ratingContainer.querySelectorAll('label');
+        const inputs = ratingContainer.querySelectorAll('input[type="radio"]');
+
+        // Add click event to each star
+        stars.forEach(function(star, index) {
+            star.addEventListener('click', function() {
+                const ratingValue = index + 1;
+
+                // Set the corresponding radio input as checked
+                inputs[index].checked = true;
+
+                // Update visual state
+                updateStarDisplay(ratingContainer, ratingValue);
+            });
+
+            // Add hover effect
+            star.addEventListener('mouseenter', function() {
+                const hoverValue = index + 1;
+                updateStarDisplay(ratingContainer, hoverValue);
+            });
+        });
+
+        // Reset to actual value when mouse leaves rating container
+        ratingContainer.addEventListener('mouseleave', function() {
+            const checkedInput = ratingContainer.querySelector('input[type="radio"]:checked');
+            const currentValue = checkedInput ? parseInt(checkedInput.value) : 0;
+            updateStarDisplay(ratingContainer, currentValue);
+        });
+
+        // Initialize display based on current checked value
+        const checkedInput = ratingContainer.querySelector('input[type="radio"]:checked');
+        if (checkedInput) {
+            updateStarDisplay(ratingContainer, parseInt(checkedInput.value));
+        }
+    });
+
+    function updateStarDisplay(container, rating) {
+        const stars = container.querySelectorAll('label');
+        stars.forEach(function(star, index) {
+            if (index < rating) {
+                star.style.color = '#f6b500';
+            } else {
+                star.style.color = '#ccc';
+            }
+        });
+    }
+});
+</script>
 @endpush
