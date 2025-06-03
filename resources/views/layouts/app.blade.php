@@ -1598,7 +1598,6 @@
         });
     </script>
 
-    // foto profil
     <script>
         // Enhanced JavaScript untuk Navbar Profile Picture
         document.addEventListener('DOMContentLoaded', function() {

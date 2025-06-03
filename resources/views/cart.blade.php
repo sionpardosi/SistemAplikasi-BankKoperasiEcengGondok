@@ -7,6 +7,75 @@
             color: #278c04 !important;
         }
 
+        /* Styling untuk informasi stok */
+        .product-stock-info {
+            display: flex;
+            align-items: center;
+            margin-top: 8px;
+            padding: 6px 10px;
+            background-color: rgba(149, 106, 59, 0.05);
+            border-radius: 6px;
+            border-left: 3px solid #956a3b;
+            font-size: 0.9rem;
+        }
+
+        .product-stock-info i {
+            color: #956a3b;
+            margin-right: 6px;
+            font-size: 14px;
+        }
+
+        .stock-text {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .stock-number {
+            font-weight: 700;
+            margin-left: 4px;
+        }
+
+        .stock-available {
+            color: #4CAF50;
+        }
+
+        .stock-low {
+            color: #FF9800;
+        }
+
+        .stock-empty {
+            color: #f44336;
+        }
+
+        /* Badge untuk ukuran dan stok yang konsisten */
+        .product-size-badge,
+        .product-stock-info {
+            font-size: 0.85rem;
+            margin-top: 6px;
+        }
+
+        .product-size-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background-color: rgba(149, 106, 59, 0.1);
+            border-radius: 4px;
+            color: #956a3b;
+            font-weight: 500;
+        }
+
+        /* Responsive untuk mobile */
+        @media (max-width: 768px) {
+            .product-stock-info {
+                font-size: 0.8rem;
+                padding: 4px 8px;
+            }
+
+            .product-size-badge {
+                font-size: 0.8rem;
+                padding: 3px 6px;
+            }
+        }
+
         .page-title {
             font-size: 1.75rem;
             font-weight: 700;
@@ -534,6 +603,113 @@
             font-weight: 500;
             margin-top: 6px;
         }
+
+        /* Notifikasi untuk cart */
+        .cart-notification {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            z-index: 1000;
+            max-width: 400px;
+            min-width: 300px;
+            transition: all 0.3s ease;
+            border-left: 4px solid #956a3b;
+        }
+
+        .cart-notification.success {
+            border-left-color: #4CAF50;
+        }
+
+        .cart-notification.error {
+            border-left-color: #f44336;
+        }
+
+        .cart-notification.show {
+            display: flex !important;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .cart-notification__icon {
+            margin-right: 15px;
+            width: 30px;
+            height: 30px;
+            background: #f0f0f0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-notification.success .cart-notification__icon {
+            background: #e8f5e8;
+            color: #4CAF50;
+        }
+
+        .cart-notification.error .cart-notification__icon {
+            background: #fdeaea;
+            color: #f44336;
+        }
+
+        .cart-notification__content {
+            flex: 1;
+        }
+
+        .cart-notification__title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+            color: #333;
+        }
+
+        .cart-notification__message {
+            font-size: 13px;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .cart-notification__close {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 10px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .cart-notification__close:hover {
+            color: #333;
+        }
+
+        /* Style untuk form yang disabled */
+        .qty-control form {
+            pointer-events: none;
+        }
+
+        .qty-control__increase:hover,
+        .qty-control__reduce:hover {
+            background-color: #e9ecef;
+            cursor: pointer;
+        }
+
+        /* Responsive untuk mobile */
+        @media (max-width: 768px) {
+            .cart-notification {
+                top: 60px;
+                right: 10px;
+                left: 10px;
+                max-width: none;
+                min-width: auto;
+            }
+        }
     </style>
 
     <main class="pt-90">
@@ -625,6 +801,43 @@
                                                         Ukuran: {{ $cartItem->options['size_name'] }}
                                                     </div>
                                                 @endif
+
+                                                {{-- Menampilkan stok tersedia --}}
+                                                @php
+                                                    // Hitung stok tersedia
+                                                    $product =
+                                                        $cartItem->model ?? \App\Models\Product::find($cartItem->id);
+                                                    if ($product) {
+                                                        if (isset($cartItem->options['size_id'])) {
+                                                            // Untuk produk dengan ukuran
+                                                            $sizeStock = DB::table('product_sizes')
+                                                                ->where('product_id', $product->id)
+                                                                ->where('size_id', $cartItem->options['size_id'])
+                                                                ->first();
+                                                            $availableStock = $sizeStock ? $sizeStock->stock : 0;
+                                                        } else {
+                                                            // Untuk produk tanpa ukuran
+                                                            $availableStock =
+                                                                $product->quantity - $product->reserved_quantity;
+                                                        }
+                                                    } else {
+                                                        $availableStock = 0;
+                                                    }
+                                                @endphp
+
+                                                <div class="product-stock-info">
+                                                    <i class="fas fa-box-open me-1"></i>
+                                                    <span class="stock-text">Stok tersedia: </span>
+                                                    <span
+                                                        class="stock-number {{ $availableStock <= 5 ? ($availableStock == 0 ? 'stock-empty' : 'stock-low') : 'stock-available' }}">
+                                                        {{ $availableStock }}
+                                                    </span>
+                                                    @if ($availableStock <= 5 && $availableStock > 0)
+                                                        <small class="text-warning ms-1">(Terbatas!)</small>
+                                                    @elseif ($availableStock == 0)
+                                                        <small class="text-danger ms-1">(Habis)</small>
+                                                    @endif
+                                                </div>
                                             </div>
                                         </td>
                                         <td>
@@ -811,72 +1024,7 @@
     </main>
 
     @push('scripts')
-        <script>
-            $(function() {
-                // Update cart totals when checkboxes or quantities change
-                function updateCartTotals() {
-                    let subtotal = 0;
-                    let selectedItems = [];
-
-                    // Calculate totals based on selected items
-                    $('.item-checkbox:checked').each(function() {
-                        const rowId = $(this).val();
-                        const price = parseFloat($(this).data('price'));
-                        const qty = parseInt($(this).closest('tr').find('.qty-input').val());
-                        const itemSubtotal = price * qty;
-
-                        subtotal += itemSubtotal;
-                        selectedItems.push(rowId);
-                    });
-
-                    // Update the hidden input with selected items
-                    $('#selected-items-input').val(JSON.stringify(selectedItems));
-
-                    // Format the number to currency
-                    const formattedSubtotal = formatRupiah(subtotal);
-                    $('#cart-subtotal').text(formattedSubtotal);
-
-                    // If there's a coupon, recalculate discount
-                    @if (Session::has('discounts'))
-                        const discount = calculateDiscount(subtotal);
-                        const subtotalAfterDiscount = subtotal - discount;
-
-                        $('#cart-discount').text('-' + formatRupiah(discount));
-                        $('#cart-subtotal-after-discount').text(formatRupiah(subtotalAfterDiscount));
-                        $('#cart-total').text(formatRupiah(subtotalAfterDiscount));
-                    @else
-                        $('#cart-total').text(formattedSubtotal);
-                    @endif
-
-                    // Apply visual dimming to unselected items
-                    $('.cart-item-row').each(function() {
-                        const isChecked = $(this).find('.item-checkbox').is(':checked');
-                        $(this).toggleClass('dimmed', !isChecked);
-                    });
-
-                    // Disable checkout button if no items selected
-                    if (selectedItems.length === 0) {
-                        $('#checkout-btn').prop('disabled', true).css('opacity', '0.5');
-                    } else {
-                        $('#checkout-btn').prop('disabled', false).css('opacity', '1');
-                    }
-                }
-
-                // Calculate discount based on coupon type
-                function calculateDiscount(subtotal) {
-                    @if (Session::has('coupon'))
-                        const couponType = "{{ Session::get('coupon')['type'] }}";
-                        const couponValue = parseFloat("{{ Session::get('coupon')['value'] }}");
-
-                        if (couponType === 'fixed') {
-                            return couponValue;
-                        } else {
-                            return (subtotal * couponValue) / 100;
-                        }
-                    @else
-                        return 0;
-                    @endif
-                }
+        {{-- <script>
 
                 // Format number to Rupiah
                 function formatRupiah(number) {
@@ -967,7 +1115,7 @@
                     }
                 });
             });
-        </script>
+        </script> --}}
 
         <!-- JavaScript for Step Navigation -->
         <script>
@@ -993,11 +1141,6 @@
                 });
             }
 
-            // Example: To update to step 2 when proceed to checkout
-            // document.querySelector('.btn-checkout').addEventListener('click', function() {
-            //     updateCheckoutStep(2);
-            // });
-
             // Call this function on page load with the current step
             document.addEventListener('DOMContentLoaded', function() {
                 // Detect current page and set appropriate step
@@ -1011,6 +1154,285 @@
                 updateCheckoutStep(1);
             });
         </script>
+
+
+        <script>
+            $(function() {
+                // Function to show notification
+                function showCartNotification(message, isSuccess = true) {
+                    // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
+                    if (!$('#cart-notification-simple').length) {
+                        $('body').append(`
+                    <div class="cart-notification" id="cart-notification-simple" style="display: none;">
+                        <div class="cart-notification__icon">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="cart-notification__content">
+                            <div class="cart-notification__title" id="cart-notification-title-simple">Notifikasi</div>
+                            <div class="cart-notification__message" id="cart-notification-message-simple"></div>
+                        </div>
+                        <button class="cart-notification__close" id="close-cart-notification-simple">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `);
+
+                        // Event handler untuk tombol close
+                        $(document).on('click', '#close-cart-notification-simple', function() {
+                            $('#cart-notification-simple').removeClass('show');
+                            setTimeout(() => $('#cart-notification-simple').css('display', 'none'), 300);
+                        });
+                    }
+
+                    const notification = $('#cart-notification-simple');
+                    const title = $('#cart-notification-title-simple');
+                    const messageEl = $('#cart-notification-message-simple');
+
+                    // Set content
+                    messageEl.text(message);
+
+                    // Set type (success or error)
+                    if (isSuccess) {
+                        notification.removeClass('error').addClass('success');
+                        title.text('Berhasil');
+                        $('.cart-notification__icon i').removeClass('fa-exclamation-circle').addClass(
+                            'fa-check-circle');
+                    } else {
+                        notification.removeClass('success').addClass('error');
+                        title.text('Error');
+                        $('.cart-notification__icon i').removeClass('fa-check-circle').addClass(
+                            'fa-exclamation-circle');
+                    }
+
+                    // Show notification
+                    notification.css('display', 'flex').addClass('show');
+
+                    // Auto hide after 4 seconds
+                    setTimeout(() => {
+                        notification.removeClass('show');
+                        setTimeout(() => notification.css('display', 'none'), 300);
+                    }, 4000);
+                }
+
+                // Update cart totals when checkboxes or quantities change
+                function updateCartTotals() {
+                    let subtotal = 0;
+                    let selectedItems = [];
+
+                    // Calculate totals based on selected items
+                    $('.item-checkbox:checked').each(function() {
+                        const rowId = $(this).val();
+                        const price = parseFloat($(this).data('price'));
+                        const qty = parseInt($(this).closest('tr').find('.qty-input').val());
+                        const itemSubtotal = price * qty;
+
+                        subtotal += itemSubtotal;
+                        selectedItems.push(rowId);
+                    });
+
+                    // Update the hidden input with selected items
+                    $('#selected-items-input').val(JSON.stringify(selectedItems));
+
+                    // Format the number to currency
+                    const formattedSubtotal = formatRupiah(subtotal);
+                    $('#cart-subtotal').text(formattedSubtotal);
+
+                    // If there's a coupon, recalculate discount
+                    @if (Session::has('discounts'))
+                        const discount = calculateDiscount(subtotal);
+                        const subtotalAfterDiscount = subtotal - discount;
+
+                        $('#cart-discount').text('-' + formatRupiah(discount));
+                        $('#cart-subtotal-after-discount').text(formatRupiah(subtotalAfterDiscount));
+                        $('#cart-total').text(formatRupiah(subtotalAfterDiscount));
+                    @else
+                        $('#cart-total').text(formattedSubtotal);
+                    @endif
+
+                    // Apply visual dimming to unselected items
+                    $('.cart-item-row').each(function() {
+                        const isChecked = $(this).find('.item-checkbox').is(':checked');
+                        $(this).toggleClass('dimmed', !isChecked);
+                    });
+
+                    // Disable checkout button if no items selected
+                    if (selectedItems.length === 0) {
+                        $('#checkout-btn').prop('disabled', true).css('opacity', '0.5');
+                    } else {
+                        $('#checkout-btn').prop('disabled', false).css('opacity', '1');
+                    }
+                }
+
+                // Calculate discount based on coupon type
+                function calculateDiscount(subtotal) {
+                    @if (Session::has('coupon'))
+                        const couponType = "{{ Session::get('coupon')['type'] }}";
+                        const couponValue = parseFloat("{{ Session::get('coupon')['value'] }}");
+
+                        if (couponType === 'fixed') {
+                            return couponValue;
+                        } else {
+                            return (subtotal * couponValue) / 100;
+                        }
+                    @else
+                        return 0;
+                    @endif
+                }
+
+                // Format number to Rupiah
+                function formatRupiah(number) {
+                    return 'Rp' + number.toFixed(0).replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+                }
+
+                // Select/deselect all items
+                $('#select-all').on('change', function() {
+                    const isChecked = $(this).is(':checked');
+                    $('.item-checkbox').prop('checked', isChecked);
+                    updateCartTotals();
+                });
+
+                // Individual item selection
+                $('.item-checkbox').on('change', function() {
+                    // Update "select all" checkbox based on individual selections
+                    if ($('.item-checkbox:checked').length === $('.item-checkbox').length) {
+                        $('#select-all').prop('checked', true);
+                    } else {
+                        $('#select-all').prop('checked', false);
+                    }
+
+                    updateCartTotals();
+                });
+
+                // PERBAIKAN: Update totals when quantity changes dengan validasi stok
+                $('.qty-input').on('change', function() {
+                    const rowId = $(this).data('row-id');
+                    const newQty = parseInt($(this).val());
+                    const $this = $(this);
+
+                    // Validasi minimum quantity
+                    if (newQty < 1) {
+                        $(this).val(1);
+                        return;
+                    }
+
+                    // Update the cart via AJAX dengan validasi stok
+                    $.ajax({
+                        url: '{{ url('/cart/update-qty') }}/' + rowId,
+                        method: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            _method: 'PUT',
+                            quantity: newQty
+                        },
+                        success: function(response) {
+                            if (response.success) {
+                                // Update subtotal display for this item
+                                const price = parseFloat($(`tr[data-row-id="${rowId}"]`).data(
+                                    'price'));
+                                const newSubtotal = price * newQty;
+                                $(`tr[data-row-id="${rowId}"] .shopping-cart__subtotal`).text(
+                                    formatRupiah(newSubtotal));
+
+                                // Update checkbox data attribute
+                                $(`input[value="${rowId}"]`).data('qty', newQty);
+                                $(`input[value="${rowId}"]`).data('subtotal', newSubtotal);
+
+                                updateCartTotals();
+                            } else {
+                                // Jika gagal, kembalikan ke nilai sebelumnya dan tampilkan error
+                                showCartNotification(response.message, false);
+
+                                // Jika ada max_quantity dari response, set ke nilai maksimum
+                                if (response.max_quantity) {
+                                    $this.val(response.max_quantity);
+                                    $this.trigger(
+                                        'change'); // Trigger change dengan nilai yang benar
+                                } else {
+                                    // Kembalikan ke nilai sebelumnya
+                                    const previousQty = $this.data('previous-qty') || 1;
+                                    $this.val(previousQty);
+                                }
+                            }
+                        },
+                        error: function(xhr) {
+                            let errorMsg = 'Gagal mengupdate kuantitas';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+                            showCartNotification(errorMsg, false);
+
+                            // Kembalikan ke nilai sebelumnya
+                            const previousQty = $this.data('previous-qty') || 1;
+                            $this.val(previousQty);
+                        }
+                    });
+                });
+
+                // PERBAIKAN: Handle quantity buttons dengan mencegah form submit dan validasi stok
+                $(".qty-control__increase").off('click').on("click", function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const $input = $(this).closest('td').find('.qty-input');
+                    const currentQty = parseInt($input.val());
+                    const newQty = currentQty + 1;
+
+                    // Simpan nilai sebelumnya untuk rollback jika gagal
+                    $input.data('previous-qty', currentQty);
+
+                    // Update input value dan trigger change untuk validasi
+                    $input.val(newQty).trigger('change');
+
+                    return false; // Prevent form submission
+                });
+
+                $(".qty-control__reduce").off('click').on("click", function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const $input = $(this).closest('td').find('.qty-input');
+                    const currentQty = parseInt($input.val());
+                    const newQty = Math.max(1, currentQty - 1);
+
+                    // Simpan nilai sebelumnya untuk rollback jika gagal
+                    $input.data('previous-qty', currentQty);
+
+                    // Update input value dan trigger change untuk validasi
+                    $input.val(newQty).trigger('change');
+
+                    return false; // Prevent form submission
+                });
+
+                // TAMBAHAN: Prevent form submission untuk quantity forms
+                $('.qty-control form').on('submit', function(e) {
+                    e.preventDefault();
+                    return false;
+                });
+
+                // Handle remove item
+                $('.remove-cart').on("click", function() {
+                    $(this).closest('form').submit();
+                });
+
+                // Initialize totals on page load
+                updateCartTotals();
+
+                // Form submit handler for checkout
+                $('#checkout-form').on('submit', function(e) {
+                    const selectedItems = $('.item-checkbox:checked').length;
+                    if (selectedItems === 0) {
+                        e.preventDefault();
+                        alert('Silakan pilih setidaknya satu produk untuk checkout');
+                    }
+                });
+
+                // TAMBAHAN: Simpan nilai awal quantity untuk rollback
+                $('.qty-input').each(function() {
+                    $(this).data('previous-qty', parseInt($(this).val()));
+                });
+            });
+        </script>
+
 
         <style>
             /* Styling untuk informasi ongkos kirim */

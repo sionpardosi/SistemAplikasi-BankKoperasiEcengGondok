@@ -22,10 +22,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        // if(config('app.env') === 'local') {
-        //     URL::forceScheme('https');
-        //     URL::forceRootUrl('https://3c7e-103-167-217-200.ngrok-free.app'); // Sesuaikan dengan URL ngrok Anda
-        // }
+        if(config('app.env') === 'local') {
+            URL::forceScheme('https');
+            URL::forceRootUrl('https://1ada-180-251-4-145.ngrok-free.app'); // Sesuaikan dengan URL ngrok Anda
+        }
 
         // if (config('app.env') !== 'local') {
         //     URL::forceScheme('https');

@@ -291,12 +291,12 @@ class AdminController extends Controller
 
     // ====================================================================================================
     // Halaman Produk
-    // ====================================================================================================
-    public function products()
-    {
-        $products = Product::OrderBy('created_at', 'DESC')->paginate(10);
-        return view("admin.products", compact('products'));
-    }
+    // // ====================================================================================================
+    // public function products()
+    // {
+    //     $products = Product::OrderBy('created_at', 'DESC')->paginate(10);
+    //     return view("admin.products", compact('products'));
+    // }
     // Halaman Menambahkan Produk
     public function add_product()
     {
@@ -681,6 +681,258 @@ class AdminController extends Controller
 
         $product->delete();
         return redirect()->route('admin.products')->with('status', 'Record has been deleted successfully !');
+    }
+
+    /**
+     * Nonaktifkan produk (Soft Delete) - Pengganti delete
+     */
+    public function deactivate_product($id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return redirect()->route('admin.products')->with('error', 'Produk tidak ditemukan!');
+        }
+
+        // Set quantity ke 0 untuk "menonaktifkan" produk
+        $product->quantity = 0;
+        $product->stock_status = 'outofstock';
+        $product->save();
+
+        return redirect()->route('admin.products')->with('status', 'Produk berhasil dinonaktifkan!');
+    }
+
+    /**
+     * Toggle status unggulan produk
+     */
+    public function toggle_featured($id)
+    {
+        $product = Product::find($id);
+
+        if (!$product) {
+            return redirect()->route('admin.products')->with('error', 'Produk tidak ditemukan!');
+        }
+
+        $product->featured = !$product->featured;
+        $product->save();
+
+        $status = $product->featured ? 'ditambahkan ke' : 'dihapus dari';
+        return redirect()->route('admin.products')->with('status', "Produk berhasil {$status} unggulan!");
+    }
+
+    /**
+     * Duplikasi produk
+     */
+    public function duplicate_product($id)
+    {
+        $original = Product::find($id);
+
+        if (!$original) {
+            return redirect()->route('admin.products')->with('error', 'Produk tidak ditemukan!');
+        }
+
+        $duplicate = $original->replicate();
+        $duplicate->name = $original->name . ' (Copy)';
+        $duplicate->slug = Str::slug($duplicate->name) . '-' . time();
+        $duplicate->SKU = $original->SKU . '-COPY';
+        $duplicate->created_at = now();
+        $duplicate->updated_at = now();
+
+        $duplicate->save();
+
+        // Duplikasi relasi ukuran jika ada
+        if ($original->sizes()->exists()) {
+            $sizes = $original->sizes()->withPivot('stock')->get();
+            $syncData = [];
+            foreach ($sizes as $size) {
+                $syncData[$size->id] = ['stock' => $size->pivot->stock];
+            }
+            $duplicate->sizes()->sync($syncData);
+        }
+
+        return redirect()->route('admin.product.edit', ['id' => $duplicate->id])
+            ->with('status', 'Produk berhasil diduplikasi! Silakan edit sesuai kebutuhan.');
+    }
+
+    /**
+     * Bulk actions untuk produk
+     */
+    public function bulk_action_produk(Request $request)
+    {
+        $action = $request->input('action');
+        $productIds = json_decode($request->input('products', '[]'));
+
+        if (empty($productIds)) {
+            return redirect()->route('admin.products')->with('error', 'Tidak ada produk yang dipilih!');
+        }
+
+        $count = 0;
+
+        switch ($action) {
+            case 'activate':
+                $count = Product::whereIn('id', $productIds)
+                    ->where('quantity', 0)
+                    ->update([
+                        'quantity' => 1, // Set minimal quantity
+                        'stock_status' => 'instock'
+                    ]);
+                $message = "{$count} produk berhasil diaktifkan!";
+                break;
+
+            case 'deactivate':
+                $count = Product::whereIn('id', $productIds)
+                    ->update([
+                        'quantity' => 0,
+                        'stock_status' => 'outofstock'
+                    ]);
+                $message = "{$count} produk berhasil dinonaktifkan!";
+                break;
+
+            case 'featured':
+                $count = Product::whereIn('id', $productIds)
+                    ->update(['featured' => true]);
+                $message = "{$count} produk berhasil dijadikan unggulan!";
+                break;
+
+            default:
+                return redirect()->route('admin.products')->with('error', 'Aksi tidak valid!');
+        }
+
+        return redirect()->route('admin.products')->with('status', $message);
+    }
+
+    /**
+     * Export produk ke CSV
+     */
+    public function export_products()
+    {
+        $products = Product::with(['category', 'brand'])->get();
+
+        $csvData = [];
+        $csvData[] = [
+            'ID',
+            'Nama Produk',
+            'SKU',
+            'Kategori',
+            'Merek',
+            'Harga Regular',
+            'Harga Diskon',
+            'Stok',
+            'Status Stok',
+            'Unggulan',
+            'Dibuat',
+            'Diupdate'
+        ];
+
+        foreach ($products as $product) {
+            $csvData[] = [
+                $product->id,
+                $product->name,
+                $product->SKU,
+                $product->category->name ?? '',
+                $product->brand->name ?? '',
+                $product->regular_price,
+                $product->sale_price,
+                $product->quantity,
+                $product->stock_status,
+                $product->featured ? 'Ya' : 'Tidak',
+                $product->created_at->format('Y-m-d H:i:s'),
+                $product->updated_at->format('Y-m-d H:i:s')
+            ];
+        }
+
+        $filename = 'products_export_' . date('Y-m-d_H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($csvData) {
+            $file = fopen('php://output', 'w');
+            foreach ($csvData as $row) {
+                fputcsv($file, $row);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Update method products untuk mendukung pencarian dan filter
+     */
+    public function products(Request $request)
+    {
+        $query = Product::with(['category', 'brand'])->orderBy('created_at', 'DESC');
+
+        // Search functionality
+        if ($request->has('search') && $request->search) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('SKU', 'LIKE', "%{$search}%")
+                    ->orWhereHas('category', function ($cat) use ($search) {
+                        $cat->where('name', 'LIKE', "%{$search}%");
+                    })
+                    ->orWhereHas('brand', function ($brand) use ($search) {
+                        $brand->where('name', 'LIKE', "%{$search}%");
+                    });
+            });
+        }
+
+        // Category filter
+        if ($request->has('category_filter') && $request->category_filter) {
+            $query->where('category_id', $request->category_filter);
+        }
+
+        // Status filter
+        if ($request->has('status_filter') && $request->status_filter) {
+            $query->where('stock_status', $request->status_filter);
+        }
+
+        $products = $query->paginate(10);
+
+        // Tambahkan append untuk mempertahankan parameter filter di pagination
+        $products->appends($request->query());
+
+        return view("admin.products", compact('products'));
+    }
+
+    /**
+     * Get product detail untuk modal (AJAX endpoint)
+     */
+    public function product_detail($id)
+    {
+        $product = Product::with(['category', 'brand', 'sizes'])->find($id);
+
+        if (!$product) {
+            return response()->json(['error' => 'Produk tidak ditemukan'], 404);
+        }
+
+        return response()->json([
+            'id' => $product->id,
+            'name' => $product->name,
+            'sku' => $product->SKU,
+            'category' => $product->category->name ?? '',
+            'brand' => $product->brand->name ?? '',
+            'regular_price' => formatRupiah($product->regular_price),
+            'sale_price' => formatRupiah($product->sale_price),
+            'quantity' => $product->quantity,
+            'stock_status' => $product->stock_status,
+            'featured' => $product->featured,
+            'short_description' => $product->short_description,
+            'description' => $product->description,
+            'image' => asset('uploads/products/' . $product->image),
+            'created_at' => $product->created_at->format('d/m/Y H:i'),
+            'updated_at' => $product->updated_at->format('d/m/Y H:i'),
+            'sizes' => $product->sizes->map(function ($size) {
+                return [
+                    'name' => $size->name,
+                    'stock' => $size->pivot->stock
+                ];
+            })
+        ]);
     }
 
     // ====================================================================================================

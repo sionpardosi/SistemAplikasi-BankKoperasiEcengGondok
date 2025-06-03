@@ -109,6 +109,8 @@ Route::middleware(['auth'])->group(function () {
         return redirect('/');
     })->name('auth.redirect');
 });
+Route::post('/cart/validate-stock', [CartController::class, 'validate_stock'])->name('cart.validate.stock');
+Route::put('/cart/update-qty/{rowId}', [CartController::class, 'update_item_quantity'])->name('cart.update.qty');
 
 
 // ====================================================================================================
@@ -350,6 +352,23 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::put('/admin/product/update', [AdminController::class, 'update_product'])->name('admin.product.update');
     // Halaman Delete Produk
     Route::delete('/admin/product/{id}/delete', [AdminController::class, 'delete_product'])->name('admin.product.delete');
+    // Nonaktifkan produk (pengganti delete)
+    Route::patch('/admin/product/{id}/deactivate', [AdminController::class, 'deactivate_product'])->name('admin.product.deactivate');
+    // Toggle status unggulan
+    Route::patch('/admin/product/{id}/toggle-featured', [AdminController::class, 'toggle_featured'])->name('admin.product.toggle_featured');
+    // Duplikasi produk
+    Route::get('/admin/product/{id}/duplicate', [AdminController::class, 'duplicate_product'])->name('admin.product.duplicate');
+    // Bulk actions
+    Route::post('/admin/products/bulk-action', [AdminController::class, 'bulk_action_produk'])->name('admin.products.bulk_action');
+    // Export produk
+    Route::get('/admin/products/export', [AdminController::class, 'export_products'])->name('admin.products.export');
+    // Get product detail (AJAX)
+    Route::get('/admin/product/{id}/detail', [AdminController::class, 'product_detail'])->name('admin.product.detail');
+    // ====================================================================================================
+    // Optional: Import produk dari CSV (fitur tambahan)
+    // ====================================================================================================
+    Route::get('/admin/products/import', [AdminController::class, 'import_products_form'])->name('admin.products.import.form');
+    Route::post('/admin/products/import', [AdminController::class, 'import_products'])->name('admin.products.import');
 
 
     // ====================================================================================================
@@ -537,7 +556,7 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Delete user address
     Route::delete('/admin/data-pengguna/{user_id}/addresses/{address_id}', [AdminController::class, 'delete_user_address'])->name('admin.data-pengguna.addresses.delete');
 
-      // ====================================================================================================
+    // ====================================================================================================
     // HALAMAN DATA PENGGUNA - COMPLETE MANAGEMENT SYSTEM
     // ====================================================================================================
 

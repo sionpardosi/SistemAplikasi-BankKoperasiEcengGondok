@@ -482,7 +482,6 @@
             font-weight: 600;
             font-size: 15px;
         }
-
     </style>
 
     <style>
@@ -988,25 +987,25 @@
 
             /* Opsi 1: Buat menjadi 2 baris teks */
             /*
-                                .product-single__addtocart .pc__atc {
-                                    white-space: normal !important;
-                                    line-height: 1.1 !important;
-                                    height: auto !important;
-                                    padding-top: 4px !important;
-                                    padding-bottom: 4px !important;
-                                }
-                                */
+                                    .product-single__addtocart .pc__atc {
+                                        white-space: normal !important;
+                                        line-height: 1.1 !important;
+                                        height: auto !important;
+                                        padding-top: 4px !important;
+                                        padding-bottom: 4px !important;
+                                    }
+                                    */
 
             /* Opsi 2: Gunakan singkatan + ikon */
             /*
-                                .product-single__addtocart .pc__atc:before {
-                                    content: "🛒 ";
-                                    font-size: 0.8rem;
-                                }
-                                .product-single__addtocart .pc__atc {
-                                    content: "Tambah" !important;
-                                }
-                                */
+                                    .product-single__addtocart .pc__atc:before {
+                                        content: "🛒 ";
+                                        font-size: 0.8rem;
+                                    }
+                                    .product-single__addtocart .pc__atc {
+                                        content: "Tambah" !important;
+                                    }
+                                    */
         }
     </style>
 
@@ -1749,7 +1748,8 @@
                                         <div class="stock-badge">Stok Habis</div>
                                     @elseif($product->quantity - $product->reserved_quantity <= 5)
                                         <div class="stock-badge" style="background-color: #ff9800;">Stok Terbatas
-                                            ({{ $product->quantity - $product->reserved_quantity }})</div>
+                                            ({{ $product->quantity - $product->reserved_quantity }})
+                                        </div>
                                     @endif
 
                                     <div class="swiper-container background-img js-swiper-slider"
@@ -1797,6 +1797,12 @@
                                                 <input type="hidden" name="quantity" value="1" />
                                                 <input type="hidden" name="price"
                                                     value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                                                <!-- TAMBAHKAN BARIS INI -->
+                                                <input type="hidden" name="has_sizes"
+                                                    value="{{ $product->sizes->count() > 0 ? 'true' : 'false' }}" />
+                                                <input type="hidden" name="product_slug"
+                                                    value="{{ $product->slug }}" />
+                                                <!-- SAMPAI SINI -->
                                                 <button type="submit"
                                                     class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart"
                                                     style="background-color: #956a3b; color: #ffffff;">
@@ -2244,6 +2250,51 @@
                         $('.js-cart-items-count').text(response.cartCount);
 
                         // Tampilkan notifikasi dengan nama produk
+                        showCartNotification(productName +
+                            ' berhasil ditambahkan ke keranjang Anda.', true);
+                    },
+                    error: function(xhr) {
+                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        showCartNotification(errorMsg, false);
+                    }
+                });
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            // Hapus binding sebelumnya jika ada, untuk menghindari duplikasi
+            $('form[name="addtocart-form"]').off('submit').on('submit', function(e) {
+                e.preventDefault();
+                var form = $(this);
+
+                // TAMBAHKAN CEK UKURAN DI SINI
+                var hasSizes = form.find('input[name="has_sizes"]').val();
+                var productSlug = form.find('input[name="product_slug"]').val();
+
+                // Jika produk memiliki ukuran, redirect ke halaman detail dengan notifikasi
+                if (hasSizes === 'true') {
+                    // Build URL manually instead of using Laravel route helper
+                    window.location.href = '/shop/' + productSlug + '?size_required=1';
+                    return;
+                }
+
+                // Lanjutkan dengan proses normal jika tidak ada ukuran
+                var url = form.attr('action');
+                var formData = form.serialize();
+                var productName = form.find('input[name="name"]').val();
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        $('.js-cart-items-count').text(response.cartCount);
                         showCartNotification(productName +
                             ' berhasil ditambahkan ke keranjang Anda.', true);
                     },

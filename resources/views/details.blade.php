@@ -1608,8 +1608,18 @@
       }'>
                     <div class="swiper-wrapper">
                         @foreach ($rproducts as $rproduct)
-                            <div class="swiper-slide product-card">
+                            <div class="swiper-slide product-card"
+                                data-stock="{{ $rproduct->quantity - $rproduct->reserved_quantity }}">
                                 <div class="pc__img-wrapper">
+                                    <!-- Tambahkan badge stok habis jika stok <= 0 -->
+                                    @if ($rproduct->quantity - $rproduct->reserved_quantity <= 0)
+                                        <div class="stock-badge">Stok Habis</div>
+                                    @elseif($rproduct->quantity - $rproduct->reserved_quantity <= 5)
+                                        <div class="stock-badge" style="background-color: #ff9800;">Stok Terbatas
+                                            ({{ $rproduct->quantity - $rproduct->reserved_quantity }})
+                                        </div>
+                                    @endif
+
                                     <a href="{{ route('shop.product.details', ['product_slug' => $rproduct->slug]) }}">
                                         <img loading="lazy" src="{{ asset('uploads/products') }}/{{ $rproduct->image }}"
                                             width="330" height="400" alt="{{ $rproduct->name }}" class="pc__img">
@@ -1620,27 +1630,36 @@
                                                 class="pc__img pc__img-second">
                                         @endforeach
                                     </a>
-                                    {{-- @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('cart')->content()->Where('id', $rproduct->id)->count() > 0)
-                                        <a href="{{ route('cart.index') }}"
-                                            class="pc__atc btn anim_appear-bottom btn position-absolute border-0 text-uppercase fw-medium js-add-cart btn-warning">Go
-                                            to Cart</a>
-                                    @else --}}
-                                    <form name="addtocart-form" class="related-product-form" method="POST"
-                                        action="{{ route('cart.add') }}">
-                                        @csrf
+
+                                    <!-- Form add-to-cart dengan kondisi stok -->
+                                    @if ($rproduct->quantity - $rproduct->reserved_quantity > 0)
+                                        <!-- Tampilkan form normal jika stok tersedia -->
+                                        <form name="addtocart-form" class="related-product-form" method="POST"
+                                            action="{{ route('cart.add') }}">
+                                            @csrf
+                                            <div class="product-single__addtocart">
+                                                <input type="hidden" name="id" value="{{ $rproduct->id }}" />
+                                                <input type="hidden" name="name" value="{{ $rproduct->name }}" />
+                                                <input type="hidden" name="quantity" value="1" />
+                                                <input type="hidden" name="price"
+                                                    value="{{ $rproduct->sale_price == '' ? $rproduct->regular_price : $rproduct->sale_price }}" />
+                                                <button type="submit"
+                                                    class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart"
+                                                    style="background-color:#956a3b; color:#ffffff;">
+                                                    Tambahkan ke Keranjang
+                                                </button>
+                                            </div>
+                                        </form>
+                                    @else
+                                        <!-- Tampilkan tombol disabled jika stok habis -->
                                         <div class="product-single__addtocart">
-                                            <input type="hidden" name="id" value="{{ $rproduct->id }}" />
-                                            <input type="hidden" name="name" value="{{ $rproduct->name }}" />
-                                            <input type="hidden" name="quantity" value="1" />
-                                            <input type="hidden" name="price"
-                                                value="{{ $rproduct->sale_price == '' ? $rproduct->regular_price : $rproduct->sale_price }}" />
-                                            <button type="submit"
-                                                class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart"
-                                                style="background-color:#956a3b; color:#ffffff;">
-                                                Tambahkan ke Keranjang
+                                            <button type="button" disabled
+                                                class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium out-of-stock"
+                                                style="background-color: #f5f5f5; color: #aaa; cursor: not-allowed;">
+                                                <i class="fas fa-ban me-1"></i> Stok Habis
                                             </button>
                                         </div>
-                                    </form>
+                                    @endif
                                 </div>
 
                                 <div class="pc__info position-relative">
@@ -1665,16 +1684,67 @@
                                             @endif
                                         </span>
                                     </div>
-                                    <button
-                                        class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
-                                        title="Tambahkan Ke Favorit">
-                                        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
-                                            xmlns="http://www.w3.org/2000/svg">
-                                            <use href="#icon_heart" />
-                                        </svg>
-                                    </button>
-                                </div>
 
+                                    <!-- Tambahkan info stok -->
+                                    <div class="product-stock-info mt-1">
+                                        @if ($rproduct->quantity - $rproduct->reserved_quantity <= 0)
+                                            {{-- Info stok kosong tidak ditampilkan untuk tidak mengulang badge --}}
+                                        @elseif($rproduct->quantity - $rproduct->reserved_quantity <= 5)
+                                            <small class="text-warning fw-semibold">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                Stok terbatas: {{ $rproduct->quantity - $rproduct->reserved_quantity }}
+                                                tersisa
+                                            </small>
+                                        @endif
+                                    </div>
+
+                                    <!-- Wishlist Button Section - Disable jika stok habis -->
+                                    @if ($rproduct->quantity - $rproduct->reserved_quantity > 0)
+                                        <!-- Wishlist normal jika stok tersedia -->
+                                        @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->where('id', $rproduct->id)->count() > 0)
+                                            <form method="POST"
+                                                action="{{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $rproduct->id)->first()->rowId]) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
+                                                    title="Remove from Wishlist">
+                                                    <svg width="16" height="16" viewBox="0 0 20 20"
+                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <use href="#icon_heart" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form method="POST" action="{{ route('wishlist.add') }}">
+                                                @csrf
+                                                <input type="hidden" name="id" value="{{ $rproduct->id }}" />
+                                                <input type="hidden" name="name" value="{{ $rproduct->name }}" />
+                                                <input type="hidden" name="price"
+                                                    value="{{ $rproduct->sale_price == '' ? $rproduct->regular_price : $rproduct->sale_price }}" />
+                                                <input type="hidden" name="quantity" value="1" />
+                                                <button type="submit"
+                                                    class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
+                                                    title="Tambahkan Ke Favorit">
+                                                    <svg width="16" height="16" viewBox="0 0 20 20"
+                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <use href="#icon_heart" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <!-- Wishlist disabled jika stok habis -->
+                                        <button type="button" disabled
+                                            class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0"
+                                            title="Produk tidak tersedia" style="opacity: 0.5; cursor: not-allowed;">
+                                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <use href="#icon_heart" />
+                                            </svg>
+                                        </button>
+                                    @endif
+                                </div>
                             </div>
                         @endforeach
                     </div>
@@ -2883,14 +2953,6 @@
             // PERBAIKAN FUNGSI TAMBAH KE KERANJANG PADA PRODUK TERKAIT
             // ======================================================================
 
-            // Mencegah form submit biasa dan menggunakan AJAX untuk tambah ke keranjang
-            $('.related-product-form').on('submit', function(e) {
-                e.preventDefault();
-
-                const formData = $(this).serialize();
-                const productId = $(this).find('input[name="id"]').val();
-                const productName = $(this).find('input[name="name"]').val();
-
                 // Ambil data produk untuk cek stok
                 $.ajax({
                     url: `/api/product/${productId}/check-stock`,
@@ -3325,55 +3387,23 @@
                 }, 3000);
             }
 
-            // Cek stok produk terkait dan perbarui UI
             function checkRelatedProductsStock() {
                 $('.related-product-form').each(function() {
                     const form = $(this);
-                    const productId = form.find('input[name="id"]').val();
+                    const productCard = form.closest('.product-card');
+                    const availableStock = parseInt(productCard.data('stock')) || 0;
                     const submitButton = form.find('button[type="submit"]');
-                    const productName = form.find('input[name="name"]').val();
 
-                    // Request AJAX untuk cek stok
-                    $.ajax({
-                        url: `/api/product/${productId}/check-stock`,
-                        type: 'GET',
-                        success: function(response) {
-                            // Default jika tidak ada API adalah menganggap stok 0
-                            const availableStock = response ? response.available_stock : 0;
+                    // Jika stok kosong atau habis (data sudah dari server)
+                    if (availableStock <= 0) {
+                        // Button sudah di-disable dari server-side, tidak perlu JavaScript
+                        return;
+                    }
 
-                            // Jika stok kosong atau habis
-                            if (availableStock <= 0) {
-                                // Disabled tombol dan ubah tampilannya
-                                submitButton.prop('disabled', true)
-                                    .removeClass('js-add-cart')
-                                    .addClass('out-of-stock')
-                                    .html('Stok Habis')
-                                    .css({
-                                        'background-color': '#f5f5f5',
-                                        'color': '#888',
-                                        'cursor': 'not-allowed',
-                                        'opacity': '0.7'
-                                    });
-                            }
-                        },
-                        error: function() {
-                            // Jika error, lakukan pendekatan alternatif
-                            // Coba ambil data dari tombol jika ada data-stock atau cek atribut lain
-                            const stockInfo = submitButton.attr('data-stock') || 0;
-                            if (parseInt(stockInfo) <= 0) {
-                                submitButton.prop('disabled', true)
-                                    .removeClass('js-add-cart')
-                                    .addClass('out-of-stock')
-                                    .html('Stok Habis')
-                                    .css({
-                                        'background-color': '#f5f5f5',
-                                        'color': '#888',
-                                        'cursor': 'not-allowed',
-                                        'opacity': '0.7'
-                                    });
-                            }
-                        }
-                    });
+                    // Jika stok terbatas, tambahkan warning visual
+                    if (availableStock <= 5) {
+                        submitButton.addClass('stock-warning');
+                    }
                 });
             }
 
@@ -3445,19 +3475,19 @@
                 // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
                 if (!$('#favorit-notification').length) {
                     $('body').append(`
-                        <div class="favorit-notification" id="favorit-notification">
-                            <div class="favorit-notification__icon">
-                                <i class="fas fa-heart"></i>
+                            <div class="favorit-notification" id="favorit-notification">
+                                <div class="favorit-notification__icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="favorit-notification__content">
+                                    <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
+                                    <div class="favorit-notification__message" id="favorit-notification-message"></div>
+                                </div>
+                                <button class="favorit-notification__close" id="close-favorit-notification">
+                                    <i class="fas fa-times"></i>
+                                </button>
                             </div>
-                            <div class="favorit-notification__content">
-                                <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
-                                <div class="favorit-notification__message" id="favorit-notification-message"></div>
-                            </div>
-                            <button class="favorit-notification__close" id="close-favorit-notification">
-                                <i class="fas fa-times"></i>
-                            </button>
-                        </div>
-                    `);
+                        `);
 
                     // Tambahkan event handler untuk tombol close
                     $(document).on('click', '#close-favorit-notification', function() {
@@ -3752,17 +3782,41 @@
 
             // Tambahkan styles untuk tombol wishlist
             $('<style>').text(`
-                .pc__btn-wl.in-wishlist {
-                    color: #e53935 !important;
-                }
-                .pc__btn-wl.loading {
-                    opacity: 0.7;
-                    pointer-events: none;
-                }
-                .heart-beat {
-                    animation: heartbeat 0.8s ease-in-out;
-                }
-            `).appendTo('head');
+                    .pc__btn-wl.in-wishlist {
+                        color: #e53935 !important;
+                    }
+                    .pc__btn-wl.loading {
+                        opacity: 0.7;
+                        pointer-events: none;
+                    }
+                    .heart-beat {
+                        animation: heartbeat 0.8s ease-in-out;
+                    }
+                `).appendTo('head');
         });
-        </script >
-        @endpush
+
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Cek apakah ada parameter size_required di URL
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('size_required') === '1') {
+                // Tampilkan notifikasi error ukuran
+                $('#size-error').removeClass('d-none');
+
+                // Scroll ke bagian ukuran
+                if ($("#size-buttons").length) {
+                    $('html, body').animate({
+                        scrollTop: $("#size-buttons").offset().top - 100
+                    }, 500);
+                }
+
+                // Hapus parameter dari URL setelah ditampilkan
+                if (window.history.replaceState) {
+                    const newUrl = window.location.href.split('?')[0];
+                    window.history.replaceState({}, '', newUrl);
+                }
+            }
+        });
+        </script>
+@endpush

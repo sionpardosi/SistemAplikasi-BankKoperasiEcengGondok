@@ -177,20 +177,74 @@ class CartController extends Controller
     }
 
     // ----------------- Update Item Quantity Via AJAX -----------------------------------------------
+    /**
+     * Update quantity dengan validasi stok
+     */
     public function update_item_quantity(Request $request, $rowId)
     {
         $validated = $request->validate([
             'quantity' => 'required|integer|min:1',
         ]);
 
+        // Ambil item dari cart
+        $cartItem = Cart::instance('cart')->get($rowId);
+        if (!$cartItem) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Item tidak ditemukan di keranjang'
+            ], 404);
+        }
+
+        // Ambil data produk untuk cek stok
+        $product = Product::find($cartItem->id);
+        if (!$product) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Produk tidak ditemukan'
+            ], 404);
+        }
+
+        // Hitung stok yang tersedia
+        $availableStock = $product->quantity - $product->reserved_quantity;
+
+        // Jika produk memiliki ukuran, cek stok berdasarkan ukuran
+        if (isset($cartItem->options['size_id'])) {
+            $sizeStock = DB::table('product_sizes')
+                ->where('product_id', $product->id)
+                ->where('size_id', $cartItem->options['size_id'])
+                ->first();
+
+            if ($sizeStock) {
+                $availableStock = $sizeStock->stock;
+            }
+        }
+
+        // Validasi quantity tidak melebihi stok
+        if ($validated['quantity'] > $availableStock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Jumlah yang diminta melebihi stok yang tersedia (' . $availableStock . ')',
+                'available_stock' => $availableStock,
+                'max_quantity' => $availableStock
+            ], 400);
+        }
+
+        // Update quantity di cart
         Cart::instance('cart')->update($rowId, $validated['quantity']);
 
         // Update di database jika user login
         if (Auth::check()) {
-            $cartItem = Cart::instance('cart')->get($rowId);
             $dbCartItem = CartItem::where('user_id', Auth::id())
-                ->where('product_id', $cartItem->id)
-                ->first();
+                ->where('product_id', $cartItem->id);
+
+            // Jika ada size_id, tambahkan kondisi
+            if (isset($cartItem->options['size_id'])) {
+                $dbCartItem->whereJsonContains('options->size_id', $cartItem->options['size_id']);
+            } else {
+                $dbCartItem->whereNull('options');
+            }
+
+            $dbCartItem = $dbCartItem->first();
 
             if ($dbCartItem) {
                 $dbCartItem->quantity = $validated['quantity'];
@@ -202,16 +256,50 @@ class CartController extends Controller
         return response()->json([
             'success' => true,
             'quantity' => $updatedItem->qty,
-            'subtotal' => $updatedItem->subtotal(0, '', '')
+            'subtotal' => $updatedItem->subtotal(0, '', ''),
+            'available_stock' => $availableStock
         ]);
     }
 
-    // ----------------- Increase Item Quantity --------------------------------------------
+    /**
+     * GANTI METHOD increase_item_quantity YANG LAMA DENGAN INI
+     */
     public function increase_item_quantity($rowId)
     {
-        $product = Cart::instance('cart')->get($rowId);
-        $qty = $product->qty + 1;
-        Cart::instance('cart')->update($rowId, $qty);
+        $cartItem = Cart::instance('cart')->get($rowId);
+        if (!$cartItem) {
+            return redirect()->back()->with('error', 'Item tidak ditemukan di keranjang');
+        }
+
+        // Ambil data produk untuk cek stok
+        $product = Product::find($cartItem->id);
+        if (!$product) {
+            return redirect()->back()->with('error', 'Produk tidak ditemukan');
+        }
+
+        // Hitung stok yang tersedia
+        $availableStock = $product->quantity - $product->reserved_quantity;
+
+        // Jika produk memiliki ukuran, cek stok berdasarkan ukuran
+        if (isset($cartItem->options['size_id'])) {
+            $sizeStock = DB::table('product_sizes')
+                ->where('product_id', $product->id)
+                ->where('size_id', $cartItem->options['size_id'])
+                ->first();
+
+            if ($sizeStock) {
+                $availableStock = $sizeStock->stock;
+            }
+        }
+
+        $newQty = $cartItem->qty + 1;
+
+        // Validasi quantity tidak melebihi stok
+        if ($newQty > $availableStock) {
+            return redirect()->back()->with('error', 'Jumlah yang diminta melebihi stok yang tersedia (' . $availableStock . ')');
+        }
+
+        Cart::instance('cart')->update($rowId, $newQty);
         return redirect()->back();
     }
 
