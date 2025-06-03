@@ -1100,7 +1100,7 @@
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input form-check-input_fill" type="radio" name="mode"
-                                        id="mode_2" value="bank">
+                                        id="mode_2" value="manual_atm">
                                     <label class="form-check-label" for="mode_2">
                                         Bank BNI
                                     </label>

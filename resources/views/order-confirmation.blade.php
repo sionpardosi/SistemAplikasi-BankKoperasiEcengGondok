@@ -842,6 +842,345 @@
                                 </a>
                             @endif
                         </div>
+
+                        <!-- Transfer Bank Section - Tambahkan setelah payment-actions div -->
+                        @if ($order->transaction && $order->transaction->mode === 'manual_atm' && $order->transaction->status === 'pending')
+                            <div class="bank-transfer-section mt-4">
+                                <div class="bank-transfer-info">
+                                    <h4><i class="fas fa-university"></i> INFORMASI TRANSFER BANK</h4>
+
+                                    <!-- Timer Countdown -->
+                                    <div class="payment-timer">
+                                        <div class="timer-header">
+                                            <i class="fas fa-clock"></i>
+                                            <span>Batas Waktu Pembayaran</span>
+                                        </div>
+                                        <div class="countdown-timer" id="payment-countdown">
+                                            <span id="countdown-display">23:59:59</span>
+                                        </div>
+                                        <p class="timer-note">Harap selesaikan pembayaran sebelum batas waktu berakhir</p>
+                                    </div>
+
+                                    <!-- Bank Account Info -->
+                                    <div class="bank-account-info">
+                                        <h5><i class="fas fa-credit-card"></i> Detail Rekening Transfer</h5>
+                                        <div class="bank-details">
+                                            <div class="bank-logo">
+                                                <img src="{{ asset('assets/images/bank-bni.png') }}" alt="Bank BNI"
+                                                    style="height: 40px;" onerror="this.style.display='none'">
+                                                <span class="bank-name">Bank BNI</span>
+                                            </div>
+                                            <div class="account-details">
+                                                <div class="account-item">
+                                                    <label>Nomor Rekening:</label>
+                                                    <span class="account-number">1234567890123456</span>
+                                                    <button type="button" class="copy-btn"
+                                                        onclick="copyToClipboard('1234567890123456')">
+                                                        <i class="fas fa-copy"></i> Salin
+                                                    </button>
+                                                </div>
+                                                <div class="account-item">
+                                                    <label>Nama Penerima:</label>
+                                                    <span>PT Bank Koperasi Eceng Gondok</span>
+                                                </div>
+                                                <div class="account-item">
+                                                    <label>Jumlah Transfer:</label>
+                                                    <span class="transfer-amount">{{ formatRupiah($order->total) }}</span>
+                                                    <button type="button" class="copy-btn"
+                                                        onclick="copyToClipboard('{{ $order->total }}')">
+                                                        <i class="fas fa-copy"></i> Salin
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Upload Bukti Pembayaran -->
+                                    <div class="payment-proof-upload">
+                                        <h5><i class="fas fa-upload"></i> Upload Bukti Pembayaran</h5>
+                                        <form action="{{ route('upload.payment.proof') }}" method="POST"
+                                            enctype="multipart/form-data" id="payment-proof-form">
+                                            @csrf
+                                            <input type="hidden" name="order_id" value="{{ $order->id }}">
+
+                                            <div class="upload-area">
+                                                <div class="upload-zone"
+                                                    onclick="document.getElementById('payment-proof').click()">
+                                                    <i class="fas fa-cloud-upload-alt"></i>
+                                                    <p>Klik untuk upload bukti transfer</p>
+                                                    <small>Format: JPG, PNG, PDF (Max 2MB)</small>
+                                                </div>
+                                                <input type="file" id="payment-proof" name="payment_proof"
+                                                    accept="image/*,.pdf" style="display: none;">
+                                            </div>
+
+                                            <div class="upload-preview" id="upload-preview" style="display: none;">
+                                                <img id="preview-image" src="" alt="Preview">
+                                                <div class="preview-info">
+                                                    <span id="file-name"></span>
+                                                    <button type="button" onclick="removeFile()">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            <button type="submit" class="btn-upload" disabled>
+                                                <i class="fas fa-paper-plane"></i> Kirim Bukti Pembayaran
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                    <!-- Instruction -->
+                                    <div class="transfer-instructions">
+                                        <h5><i class="fas fa-info-circle"></i> Petunjuk Transfer</h5>
+                                        <ol>
+                                            <li>Transfer sesuai jumlah yang tertera <strong>persis</strong></li>
+                                            <li>Simpan bukti transfer dari bank</li>
+                                            <li>Upload bukti transfer melalui form di atas</li>
+                                            <li>Pesanan akan diproses setelah pembayaran dikonfirmasi</li>
+                                            <li>Konfirmasi pembayaran maksimal 1x24 jam</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <style>
+                                .bank-transfer-section {
+                                    background: #f8f9fa;
+                                    border-radius: 8px;
+                                    padding: 20px;
+                                    margin-top: 20px;
+                                }
+
+                                .payment-timer {
+                                    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+                                    color: white;
+                                    padding: 15px;
+                                    border-radius: 8px;
+                                    text-align: center;
+                                    margin-bottom: 20px;
+                                }
+
+                                .countdown-timer {
+                                    font-size: 2rem;
+                                    font-weight: bold;
+                                    margin: 10px 0;
+                                }
+
+                                .bank-account-info {
+                                    background: white;
+                                    padding: 20px;
+                                    border-radius: 8px;
+                                    margin-bottom: 20px;
+                                    border: 1px solid #dee2e6;
+                                }
+
+                                .bank-details {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 20px;
+                                }
+
+                                .bank-logo {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 10px;
+                                    margin-bottom: 15px;
+                                }
+
+                                .account-item {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    padding: 10px 0;
+                                    border-bottom: 1px solid #eee;
+                                }
+
+                                .account-item:last-child {
+                                    border-bottom: none;
+                                }
+
+                                .account-number,
+                                .transfer-amount {
+                                    font-weight: bold;
+                                    color: #2c3e50;
+                                }
+
+                                .copy-btn {
+                                    background: #3498db;
+                                    color: white;
+                                    border: none;
+                                    padding: 5px 10px;
+                                    border-radius: 4px;
+                                    cursor: pointer;
+                                    font-size: 0.8rem;
+                                }
+
+                                .copy-btn:hover {
+                                    background: #2980b9;
+                                }
+
+                                .payment-proof-upload {
+                                    background: white;
+                                    padding: 20px;
+                                    border-radius: 8px;
+                                    margin-bottom: 20px;
+                                    border: 1px solid #dee2e6;
+                                }
+
+                                .upload-zone {
+                                    border: 2px dashed #bdc3c7;
+                                    padding: 40px 20px;
+                                    text-align: center;
+                                    border-radius: 8px;
+                                    cursor: pointer;
+                                    transition: all 0.3s;
+                                }
+
+                                .upload-zone:hover {
+                                    border-color: #3498db;
+                                    background: #f8f9fa;
+                                }
+
+                                .upload-preview {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 15px;
+                                    padding: 15px;
+                                    background: #f8f9fa;
+                                    border-radius: 8px;
+                                    margin: 15px 0;
+                                }
+
+                                .upload-preview img {
+                                    width: 80px;
+                                    height: 80px;
+                                    object-fit: cover;
+                                    border-radius: 4px;
+                                }
+
+                                .btn-upload {
+                                    background: #27ae60;
+                                    color: white;
+                                    border: none;
+                                    padding: 12px 30px;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    width: 100%;
+                                    margin-top: 15px;
+                                }
+
+                                .btn-upload:disabled {
+                                    background: #bdc3c7;
+                                    cursor: not-allowed;
+                                }
+
+                                .btn-upload:not(:disabled):hover {
+                                    background: #229954;
+                                }
+
+                                .transfer-instructions {
+                                    background: white;
+                                    padding: 20px;
+                                    border-radius: 8px;
+                                    border: 1px solid #dee2e6;
+                                }
+
+                                .transfer-instructions ol {
+                                    margin: 0;
+                                    padding-left: 20px;
+                                }
+
+                                .transfer-instructions li {
+                                    margin-bottom: 8px;
+                                    line-height: 1.5;
+                                }
+                            </style>
+
+                            <script>
+                                // Timer countdown
+                                function startCountdown() {
+                                    const createdAt = new Date('{{ $order->created_at }}');
+                                    const deadline = new Date(createdAt.getTime() + (24 * 60 * 60 * 1000)); // 24 jam dari created_at
+
+                                    function updateCountdown() {
+                                        const now = new Date();
+                                        const timeLeft = deadline - now;
+
+                                        if (timeLeft <= 0) {
+                                            document.getElementById('countdown-display').textContent = '00:00:00';
+                                            document.querySelector('.payment-timer').style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                                            document.querySelector('.timer-note').textContent = 'Waktu pembayaran telah berakhir';
+                                            return;
+                                        }
+
+                                        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                                        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                                        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                                        document.getElementById('countdown-display').textContent =
+                                            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                                    }
+
+                                    updateCountdown();
+                                    setInterval(updateCountdown, 1000);
+                                }
+
+                                // Copy to clipboard function
+                                function copyToClipboard(text) {
+                                    navigator.clipboard.writeText(text).then(function() {
+                                        // Show success message
+                                        const btn = event.target.closest('.copy-btn');
+                                        const originalText = btn.innerHTML;
+                                        btn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
+                                        btn.style.background = '#27ae60';
+
+                                        setTimeout(() => {
+                                            btn.innerHTML = originalText;
+                                            btn.style.background = '#3498db';
+                                        }, 2000);
+                                    });
+                                }
+
+                                // File upload handling
+                                document.getElementById('payment-proof').addEventListener('change', function(e) {
+                                    const file = e.target.files[0];
+                                    if (file) {
+                                        const preview = document.getElementById('upload-preview');
+                                        const previewImage = document.getElementById('preview-image');
+                                        const fileName = document.getElementById('file-name');
+                                        const uploadBtn = document.querySelector('.btn-upload');
+
+                                        // Show preview for images
+                                        if (file.type.startsWith('image/')) {
+                                            const reader = new FileReader();
+                                            reader.onload = function(e) {
+                                                previewImage.src = e.target.result;
+                                                previewImage.style.display = 'block';
+                                            };
+                                            reader.readAsDataURL(file);
+                                        } else {
+                                            previewImage.style.display = 'none';
+                                        }
+
+                                        fileName.textContent = file.name;
+                                        preview.style.display = 'flex';
+                                        uploadBtn.disabled = false;
+                                    }
+                                });
+
+                                function removeFile() {
+                                    document.getElementById('payment-proof').value = '';
+                                    document.getElementById('upload-preview').style.display = 'none';
+                                    document.querySelector('.btn-upload').disabled = true;
+                                }
+
+                                // Start countdown when page loads
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    startCountdown();
+                                });
+                            </script>
+                        @endif
                     </div>
                 </div>
             </div>

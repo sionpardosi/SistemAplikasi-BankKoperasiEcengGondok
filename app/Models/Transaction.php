@@ -45,8 +45,8 @@ class Transaction extends Model
     public function getModeDisplayAttribute()
     {
         return match ($this->mode) {
-            'card' => 'E-Wallet | Pembayaran Online',
-            'Transfer Bank' => 'Transfer Bank | Manual',
+            'midtrans' => 'E-Wallet | Pembayaran Online',
+            'manual_atm' => 'Transfer Bank BNI',
             default => $this->mode
         };
     }

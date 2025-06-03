@@ -796,9 +796,9 @@ class CartController extends Controller
             'updated_at' => now(),
         ];
 
-        // Tambahkan bank_code dan payment_proof jika metode manual_atm
+        // Tambahkan bank_code untuk metode manual_atm
         if ($request->mode == 'manual_atm') {
-            $transaction['bank_code'] = $request->bank_code;
+            $transaction['bank_code'] = 'BNI'; // Set default ke BNI sesuai requirement
             $transaction['payment_proof'] = $paymentProofPath;
         }
 
