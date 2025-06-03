@@ -14,7 +14,6 @@ class Order extends Model
         'subtotal',
         'discount',
         'total',
-        'tax',
         'name',
         'phone',
         'locality',

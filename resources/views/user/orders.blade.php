@@ -2,73 +2,127 @@
 
 @section('content')
     <style>
-        /* Gaya Dasar dan Variabel */
+        /* Modern Brown Color Palette */
         :root {
-            --primary-color: #6a6e51;
-            --accent-color: #b9a16b;
-            --success-color: #40c710;
-            --danger-color: #f44032;
-            --warning-color: #f5d700;
-            --info-color: #17a2b8;
-            --secondary-color: #6c757d;
-            --text-dark: #333333;
-            --text-muted: #6c757d;
-            --border-light: #e1e1e1;
-            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
-            --border-radius: 8px;
-            --transition-normal: all 0.3s ease;
+            --primary-brown: #8B4513;
+            --accent-brown: #D2B48C;
+            --dark-brown: #654321;
+            --light-brown: #F5E6D3;
+            --cream: #FFF8DC;
+            --gold: #DAA520;
+            --success-green: #228B22;
+            --danger-red: #DC143C;
+            --warning-orange: #FF8C00;
+            --info-blue: #4682B4;
+            --text-dark: #2F1B14;
+            --text-muted: #8B7355;
+            --border-light: #E6DDD4;
+            --shadow-subtle: 0 2px 8px rgba(139, 69, 19, 0.08);
+            --shadow-elegant: 0 4px 20px rgba(139, 69, 19, 0.12);
+            --shadow-prominent: 0 8px 32px rgba(139, 69, 19, 0.16);
+            --border-radius-sm: 8px;
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        /* Header dan Judul */
+        /* Typography */
         .page-title {
-            font-size: 1.75rem;
+            font-size: 2.25rem;
             font-weight: 700;
             color: var(--text-dark);
             margin-top: 60px !important;
+            margin-bottom: 2.5rem !important;
             position: relative;
-            display: inline-block;
-            padding-bottom: 12px;
-            letter-spacing: 1px;
-            margin-bottom: 1.5rem !important;
+            letter-spacing: -0.025em;
         }
 
         .page-title::after {
             content: '';
             position: absolute;
-            bottom: 0;
+            bottom: -8px;
             left: 0;
-            width: 60px;
-            height: 3px;
-            background-color: var(--accent-color);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-brown), var(--gold));
+            border-radius: 2px;
         }
 
+        /* Header Section */
         .orders-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
             flex-wrap: wrap;
+            gap: 1.5rem;
         }
 
+        .order-search {
+            position: relative;
+            min-width: 320px;
+        }
+
+        .order-search .input-group {
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-subtle);
+            border: 2px solid var(--border-light);
+            transition: var(--transition-smooth);
+        }
+
+        .order-search .input-group:focus-within {
+            border-color: var(--accent-brown);
+            box-shadow: 0 0 0 3px rgba(210, 180, 140, 0.2);
+        }
+
+        .order-search .form-control {
+            border: none;
+            padding: 0.875rem 1rem;
+            font-size: 0.95rem;
+            background: var(--cream);
+            color: var(--text-dark);
+        }
+
+        .order-search .form-control:focus {
+            outline: none;
+            box-shadow: none;
+            background: white;
+        }
+
+        .order-search .form-control::placeholder {
+            color: var(--text-muted);
+        }
+
+        .order-search button {
+            padding: 0.875rem 1.25rem;
+            background: linear-gradient(135deg, var(--primary-brown), var(--dark-brown));
+            color: white;
+            border: none;
+            transition: var(--transition-smooth);
+        }
+
+        .order-search button:hover {
+            background: linear-gradient(135deg, var(--dark-brown), var(--primary-brown));
+            transform: translateY(-1px);
+        }
+
+        /* Statistics Cards */
         .orders-summary {
-            display: flex;
-            gap: 1.5rem;
-            flex-wrap: wrap;
-            margin-bottom: 2rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
         }
 
         .summary-card {
-            flex: 1;
-            min-width: 160px;
-            padding: 1rem;
+            background: linear-gradient(135deg, white, var(--light-brown));
+            padding: 1.75rem 1.5rem;
             border-radius: var(--border-radius);
-            background-color: #fff;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition-normal);
+            box-shadow: var(--shadow-elegant);
+            transition: var(--transition-smooth);
             text-align: center;
-            border-left: 4px solid var(--accent-color);
+            border: 1px solid var(--border-light);
             position: relative;
             overflow: hidden;
         }
@@ -76,208 +130,241 @@
         .summary-card::before {
             content: '';
             position: absolute;
-            top: -20px;
-            right: -20px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background-color: rgba(185, 161, 107, 0.1);
-            z-index: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-brown), var(--gold));
         }
 
         .summary-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-prominent);
         }
 
         .summary-number {
-            font-size: 2rem;
+            font-size: 2.25rem;
             font-weight: 700;
-            color: var(--accent-color);
+            color: var(--primary-brown);
             line-height: 1;
             margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
+            display: block;
         }
 
         .summary-label {
-            font-size: 0.9rem;
+            font-size: 0.875rem;
             color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 1px;
-            position: relative;
-            z-index: 1;
+            font-weight: 600;
         }
 
-        /* Tabel Styling */
+        /* Table Container */
         .order-table-container {
-            background-color: #fff;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow-md);
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            position: relative;
+            background: white;
+            border-radius: var(--border-radius-lg);
+            box-shadow: var(--shadow-elegant);
             overflow: hidden;
-        }
-
-        .order-table-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 4px;
-            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            border: 1px solid var(--border-light);
         }
 
         .table-header {
+            background: linear-gradient(135deg, var(--primary-brown), var(--dark-brown));
+            color: white;
+            padding: 1.75rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-light);
-            padding-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
         }
 
         .table-title {
-            font-size: 1.25rem;
+            font-size: 1.375rem;
             font-weight: 600;
-            color: var(--text-dark);
             margin: 0;
-            position: relative;
-            padding-left: 15px;
-        }
-
-        .table-title::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 5px;
-            height: 20px;
-            background-color: var(--accent-color);
-            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .order-filter {
             display: flex;
-            gap: 1rem;
             align-items: center;
+            gap: 1rem;
         }
 
         .filter-label {
             font-size: 0.9rem;
             font-weight: 500;
-            color: var(--text-muted);
             margin: 0;
+            opacity: 0.9;
         }
 
         .filter-select {
-            border: 1px solid var(--border-light);
-            border-radius: 4px;
-            padding: 0.35rem 0.75rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: var(--border-radius-sm);
+            padding: 0.5rem 1rem;
+            color: white;
             font-size: 0.9rem;
-            transition: var(--transition-normal);
+            min-width: 180px;
+            transition: var(--transition-smooth);
         }
 
         .filter-select:focus {
             outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 0.2rem rgba(185, 161, 107, 0.25);
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
         }
 
-        .table> :not(caption)>tr>th {
-            padding: 1rem 1.5rem !important;
-            background-color: var(--primary-color) !important;
-            color: white !important;
-            font-weight: 600;
+        .filter-select option {
+            background: var(--primary-brown);
+            color: white;
+        }
+
+        /* Professional Table Styling */
+        .table-responsive {
+            background: white;
+            padding: 0;
+        }
+
+        .table {
+            margin: 0;
             font-size: 0.9rem;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, var(--light-brown), var(--cream));
+            color: var(--text-dark);
+            font-weight: 700;
+            font-size: 0.8rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            vertical-align: middle;
+            padding: 1.25rem 1rem !important;
             border: none;
+            border-bottom: 2px solid var(--accent-brown);
             white-space: nowrap;
+            position: relative;
         }
 
-        .table> :not(caption)>tr>td {
-            padding: 1rem 1.5rem !important;
+        .table thead th::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(135deg, var(--primary-brown), var(--gold));
+        }
+
+        .table tbody td {
+            padding: 1.25rem 1rem !important;
             vertical-align: middle;
-            font-size: 0.95rem;
-            white-space: nowrap;
+            border-bottom: 1px solid var(--border-light);
+            color: var(--text-dark);
+            transition: var(--transition-smooth);
         }
 
-        .table-bordered> :not(caption)>tr>th,
-        .table-bordered> :not(caption)>tr>td {
-            border-width: 1px;
-            border-color: var(--border-light);
+        .table tbody tr {
+            transition: var(--transition-smooth);
         }
 
-        .table-striped>tbody>tr:nth-of-type(odd)>* {
-            background-color: rgba(106, 110, 81, 0.05);
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, var(--light-brown), var(--cream));
+            transform: translateX(2px);
         }
 
-        .table-responsive {
-            border-radius: var(--border-radius);
-            overflow-x: auto; /* Ensure horizontal scrolling works */
-            width: 100%; /* Make sure it takes full width */
-            display: block; /* Fix for overflow issues */
+        .table tbody tr:last-child td {
+            border-bottom: none;
         }
 
-        /* Status Badge Styling */
+        /* Enhanced Status Badges */
         .badge {
             padding: 0.5rem 1rem;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             border-radius: 20px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: var(--shadow-subtle);
+            border: 1px solid transparent;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
         }
 
-        .bg-success {
-            background-color: var(--success-color) !important;
-            transition: var(--transition-normal);
+        .badge:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-elegant);
         }
 
-        .bg-danger {
-            background-color: var(--danger-color) !important;
-            transition: var(--transition-normal);
+        .badge i {
+            font-size: 0.7rem;
+        }
+
+        /* Status Colors with Brown Theme */
+        .bg-info {
+            background: linear-gradient(135deg, var(--info-blue), #5B9BD5) !important;
+            border-color: var(--info-blue);
         }
 
         .bg-warning {
-            background-color: var(--warning-color) !important;
-            color: #000 !important;
-            transition: var(--transition-normal);
+            background: linear-gradient(135deg, var(--warning-orange), #FFB347) !important;
+            color: white !important;
+            border-color: var(--warning-orange);
         }
 
-        .bg-info {
-            background-color: var(--info-color) !important;
-            transition: var(--transition-normal);
+        .bg-primary {
+            background: linear-gradient(135deg, var(--primary-brown), var(--dark-brown)) !important;
+            border-color: var(--primary-brown);
         }
 
         .bg-secondary {
-            background-color: var(--secondary-color) !important;
-            transition: var(--transition-normal);
+            background: linear-gradient(135deg, var(--text-muted), #A0937D) !important;
+            border-color: var(--text-muted);
         }
 
-        /* Animasi Badge */
-        .badge:hover {
-            transform: scale(1.05);
+        .bg-success {
+            background: linear-gradient(135deg, var(--success-green), #32CD32) !important;
+            border-color: var(--success-green);
         }
 
-        /* Action Button Styling */
+        .bg-danger {
+            background: linear-gradient(135deg, var(--danger-red), #FF6B6B) !important;
+            border-color: var(--danger-red);
+        }
+
+        /* Order Number Styling */
+        .order-no-column {
+            color: var(--primary-brown);
+            font-weight: 700;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95rem;
+        }
+
+        .text-accent {
+            color: var(--primary-brown) !important;
+        }
+
+        .fw-bold {
+            font-weight: 700 !important;
+        }
+
+        /* Action Button Enhancements */
         .list-icon-function {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
-            height: 40px;
+            width: 42px;
+            height: 42px;
             border-radius: 50%;
-            background-color: rgba(106, 110, 81, 0.1);
-            transition: var(--transition-normal);
+            background: linear-gradient(135deg, var(--light-brown), white);
+            transition: var(--transition-smooth);
             position: relative;
             overflow: hidden;
+            border: 2px solid var(--border-light);
         }
 
         .list-icon-function::before {
@@ -287,10 +374,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: var(--accent-color);
+            background: linear-gradient(135deg, var(--primary-brown), var(--gold));
             opacity: 0;
             transform: scale(0);
-            transition: var(--transition-normal);
+            transition: var(--transition-smooth);
             border-radius: 50%;
         }
 
@@ -299,106 +386,33 @@
             transform: scale(1);
         }
 
+        .list-icon-function:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-elegant);
+            border-color: var(--accent-brown);
+        }
+
         .list-icon-function i {
             position: relative;
-            z-index: 1;
-            transition: var(--transition-normal);
+            z-index: 2;
+            font-size: 1.1rem;
+            color: var(--primary-brown);
+            transition: var(--transition-smooth);
         }
 
         .list-icon-function:hover i {
             color: white;
         }
 
-        .item.eye i {
-            color: var(--accent-color);
-            font-size: 1.2rem;
-        }
-
-        /* Pagination Styling */
-        .wgp-pagination {
-            margin-top: 1.5rem;
-        }
-
-        .pagination {
-            justify-content: center;
-        }
-
-        .page-item.active .page-link {
-            background-color: var(--accent-color);
-            border-color: var(--accent-color);
-        }
-
-        .page-link {
-            color: var(--accent-color);
-            border-radius: 4px;
-            margin: 0 2px;
-        }
-
-        .page-link:hover {
-            color: var(--primary-color);
-            background-color: rgba(185, 161, 107, 0.1);
-        }
-
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 3rem 0;
-        }
-
-        .empty-icon {
-            font-size: 4rem;
-            color: #ccc;
-            margin-bottom: 1rem;
-            animation: pulse 2s infinite;
-        }
-
-        .empty-text {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            margin-bottom: 1.5rem;
-        }
-
-        /* Search Box Styling */
-        .order-search .input-group {
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .order-search .form-control {
-            border: 1px solid rgba(185, 161, 107, 0.2);
-            border-right: none;
-            padding: 0.6rem 1rem;
-            transition: var(--transition-normal);
-        }
-
-        .order-search .form-control:focus {
-            outline: none;
-            box-shadow: none;
-            border-color: var(--accent-color);
-        }
-
-        .order-search button {
-            padding: 0.6rem 1.2rem;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            transition: var(--transition-normal);
-        }
-
-        .order-search button:hover {
-            background-color: var(--primary-color);
-        }
-
-        /* Order Status Timeline - Mini Version */
+        /* Mini Timeline Progress */
         .mini-timeline {
             display: flex;
             align-items: center;
             justify-content: space-between;
             position: relative;
-            height: 24px;
+            height: 28px;
             width: 100%;
-            max-width: 200px;
+            max-width: 220px;
             margin: 0 auto;
         }
 
@@ -408,45 +422,55 @@
             top: 50%;
             left: 0;
             right: 0;
-            height: 2px;
-            background-color: #e0e0e0;
+            height: 3px;
+            background: var(--border-light);
             transform: translateY(-50%);
             z-index: 1;
+            border-radius: 2px;
         }
 
         .mini-timeline-progress {
             position: absolute;
             top: 50%;
             left: 0;
-            height: 2px;
-            background-color: var(--accent-color);
+            height: 3px;
+            background: linear-gradient(135deg, var(--primary-brown), var(--gold));
             transform: translateY(-50%);
             z-index: 2;
-            transition: width 0.3s ease;
+            transition: width 0.6s ease;
+            border-radius: 2px;
         }
 
         .mini-timeline-step {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             border-radius: 50%;
-            background-color: #e0e0e0;
+            background: white;
+            border: 3px solid var(--border-light);
             z-index: 3;
             position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: var(--transition-smooth);
         }
 
         .mini-timeline-step.active {
-            background-color: var(--accent-color);
-        }
-
-        .mini-timeline-step.canceled {
-            background-color: var(--danger-color);
+            background: var(--primary-brown);
+            border-color: var(--primary-brown);
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.2);
         }
 
         .mini-timeline-step.done {
-            background-color: var(--success-color);
+            background: var(--success-green);
+            border-color: var(--success-green);
+            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.2);
+        }
+
+        .mini-timeline-step.canceled {
+            background: var(--danger-red);
+            border-color: var(--danger-red);
+            box-shadow: 0 0 0 3px rgba(220, 20, 60, 0.2);
         }
 
         .mini-timeline-step i {
@@ -454,128 +478,173 @@
             color: white;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, var(--cream), white);
         }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-                opacity: 0.8;
-            }
-
-            50% {
-                transform: scale(1.05);
-                opacity: 1;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 0.8;
-            }
+        .empty-icon {
+            font-size: 5rem;
+            color: var(--accent-brown);
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease-in-out;
+        .empty-text {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
         }
 
-        /* Gaya Tambahan */
-        .fw-bold {
-            font-weight: 700 !important;
-        }
-
-        .text-accent {
-            color: var(--accent-color) !important;
-        }
-
-        .order-no-column {
-            color: var(--accent-color);
-            font-weight: 600;
-        }
-
-        /* Tooltip styling */
-        [data-tooltip] {
-            position: relative;
-            cursor: pointer;
-        }
-
-        [data-tooltip]:after {
-            content: attr(data-tooltip);
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 0.5rem 1rem;
-            background-color: rgba(0, 0, 0, 0.8);
+        .empty-state .btn {
+            background: linear-gradient(135deg, var(--primary-brown), var(--dark-brown));
             color: white;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            white-space: nowrap;
-            opacity: 0;
-            visibility: hidden;
-            transition: var(--transition-normal);
-            z-index: 10;
+            border: none;
+            padding: 0.875rem 2rem;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
+        .empty-state .btn:hover {
+            background: linear-gradient(135deg, var(--dark-brown), var(--primary-brown));
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-elegant);
+            color: white;
+            text-decoration: none;
+        }
+
+        /* Tooltip Enhancement */
         [data-tooltip]:hover:after {
-            opacity: 1;
-            visibility: visible;
-            bottom: calc(100% + 10px);
+            background: linear-gradient(135deg, var(--text-dark), var(--primary-brown));
+            border-radius: var(--border-radius-sm);
+            box-shadow: var(--shadow-elegant);
+        }
+
+        /* Pagination Styling */
+        .pagination {
+            margin-top: 2.5rem;
+            justify-content: center;
+        }
+
+        .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary-brown), var(--dark-brown));
+            border-color: var(--primary-brown);
+            color: white;
+        }
+
+        .page-link {
+            color: var(--primary-brown);
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-sm);
+            margin: 0 3px;
+            padding: 0.625rem 1rem;
+            transition: var(--transition-smooth);
+        }
+
+        .page-link:hover {
+            background: var(--light-brown);
+            border-color: var(--accent-brown);
+            color: var(--dark-brown);
+            text-decoration: none;
+            transform: translateY(-1px);
         }
 
         /* Responsive Adjustments */
-        @media (max-width: 992px) {
-            .table-responsive {
-                margin-bottom: 1.5rem;
-            }
-
-            .orders-summary {
-                gap: 1rem;
-            }
-
-            .summary-card {
-                min-width: 120px;
+        @media (max-width: 1200px) {
+            .table {
+                min-width: 1000px;
             }
         }
 
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
             .orders-header {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch;
+            }
+
+            .order-search {
+                min-width: auto;
+            }
+
+            .orders-summary {
+                grid-template-columns: repeat(3, 1fr);
                 gap: 1rem;
             }
 
             .table-header {
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: stretch;
                 gap: 1rem;
             }
+        }
 
-            .order-search {
-                width: 100%;
+        @media (max-width: 768px) {
+            .orders-summary {
+                grid-template-columns: repeat(2, 1fr);
             }
 
-            .order-search .input-group {
-                width: 100%;
+            .table thead th,
+            .table tbody td {
+                padding: 0.875rem 0.5rem !important;
+                font-size: 0.8rem;
+            }
+
+            .badge {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.7rem;
             }
         }
 
-        /* Fix for table display - ensure horizontal scrolling */
-        .table {
-            width: 100%;
-            min-width: 1200px; /* Set a minimum width to ensure all columns are visible with scrolling */
-            margin-bottom: 0;
+        @media (max-width: 576px) {
+            .orders-summary {
+                grid-template-columns: 1fr;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-light);
+            border-radius: 50%;
+            border-top: 2px solid var(--primary-brown);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Fade-in Animation */
+        .fade-in {
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
+
     <main class="pt-90">
         <div class="mb-4 pb-4"></div>
         <section class="my-account container fade-in">
@@ -585,7 +654,7 @@
                 <!-- Order Search -->
                 <div class="order-search">
                     <div class="input-group">
-                        <input type="text" class="form-control" placeholder="Cari pesanan berdasarkan nomor atau nama...">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Cari pesanan berdasarkan nomor atau nama...">
                         <button class="btn" type="button">
                             <i class="fa fa-search"></i>
                         </button>
@@ -601,7 +670,7 @@
                 <div class="col-lg-10">
                     @if (Session::has('status'))
                         <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            {{ Session::get('status') }}
+                            <i class="fa fa-check-circle me-2"></i>{{ Session::get('status') }}
                             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                         </div>
                     @endif
@@ -609,7 +678,7 @@
                     <!-- Order Summary Cards -->
                     <div class="orders-summary">
                         <div class="summary-card">
-                            <div class="summary-number">{{ $orders->where('status', 'pending')->count() }}</div>
+                            <div class="summary-number">{{ $orders->where('status', 'awaiting_payment')->count() + $orders->where('status', 'pending')->count() }}</div>
                             <div class="summary-label">Menunggu</div>
                         </div>
                         <div class="summary-card">
@@ -636,13 +705,17 @@
 
                     <div class="order-table-container">
                         <div class="table-header">
-                            <h3 class="table-title">Daftar Pesanan</h3>
+                            <h3 class="table-title">
+                                <i class="fa fa-list-alt"></i>
+                                Daftar Pesanan
+                            </h3>
 
                             <div class="order-filter">
                                 <span class="filter-label">Filter Status:</span>
                                 <select class="filter-select" id="statusFilter">
                                     <option value="all">Semua Pesanan</option>
-                                    <option value="pending">Menunggu</option>
+                                    <option value="awaiting_payment">Menunggu Pembayaran</option>
+                                    <option value="pending">Menunggu Diproses</option>
                                     <option value="confirmed">Dikonfirmasi</option>
                                     <option value="processing">Diproses</option>
                                     <option value="shipped">Dikirim</option>
@@ -672,17 +745,22 @@
                                     </thead>
                                     <tbody>
                                         @foreach ($orders as $order)
-                                            <tr>
+                                            <tr data-status="{{ $order->status }}">
                                                 <td class="order-no-column fw-bold">
-                                                    {{ '1' . str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</td>
+                                                    {{ '1' . str_pad($order->id, 4, '0', STR_PAD_LEFT) }}
+                                                </td>
                                                 <td>{{ $order->name }}</td>
                                                 <td class="text-center">
-                                                    {{ \Carbon\Carbon::parse($order->created_at)->format('d M Y') }}</td>
-                                                <td class="text-center fw-bold text-accent">Rp.
-                                                    {{ number_format($order->total) }}</td>
+                                                    {{ \Carbon\Carbon::parse($order->created_at)->format('d M Y') }}
+                                                </td>
+                                                <td class="text-center fw-bold text-accent">
+                                                    {{ formatRupiah($order->total) }}
+                                                </td>
                                                 <td class="text-center">
-                                                    @if ($order->status == 'pending')
-                                                        <span class="badge bg-warning"><i class="fa fa-clock me-1"></i> Menunggu</span>
+                                                    @if ($order->status == 'awaiting_payment')
+                                                        <span class="badge bg-info"><i class="fa fa-clock me-1"></i> Menunggu Pembayaran</span>
+                                                    @elseif ($order->status == 'pending')
+                                                        <span class="badge bg-warning"><i class="fa fa-hourglass-half me-1"></i> Menunggu</span>
                                                     @elseif ($order->status == 'confirmed')
                                                         <span class="badge bg-info"><i class="fa fa-check me-1"></i> Dikonfirmasi</span>
                                                     @elseif ($order->status == 'processing')
@@ -690,7 +768,7 @@
                                                     @elseif ($order->status == 'shipped')
                                                         <span class="badge bg-secondary"><i class="fa fa-truck me-1"></i> Dikirim</span>
                                                     @elseif ($order->status == 'delivered')
-                                                        <span class="badge bg-warning"><i class="fa fa-box-open me-1"></i> Menunggu Konfirmasi</span>
+                                                        <span class="badge bg-warning"><i class="fa fa-box-open me-1"></i> Sampai</span>
                                                     @elseif ($order->status == 'completed')
                                                         <span class="badge bg-success"><i class="fa fa-check-circle me-1"></i> Selesai</span>
                                                     @elseif ($order->status == 'canceled')
@@ -701,16 +779,18 @@
                                                     <div class="mini-timeline">
                                                         @php
                                                             $progress = 0;
-                                                            if ($order->status == 'pending') {
-                                                                $progress = 0;
-                                                            } elseif ($order->status == 'confirmed') {
+                                                            if ($order->status == 'awaiting_payment') {
+                                                                $progress = 10;
+                                                            } elseif ($order->status == 'pending') {
                                                                 $progress = 20;
-                                                            } elseif ($order->status == 'processing') {
+                                                            } elseif ($order->status == 'confirmed') {
                                                                 $progress = 40;
-                                                            } elseif ($order->status == 'shipped') {
+                                                            } elseif ($order->status == 'processing') {
                                                                 $progress = 60;
-                                                            } elseif ($order->status == 'delivered') {
+                                                            } elseif ($order->status == 'shipped') {
                                                                 $progress = 80;
+                                                            } elseif ($order->status == 'delivered') {
+                                                                $progress = 90;
                                                             } elseif ($order->status == 'completed') {
                                                                 $progress = 100;
                                                             } elseif ($order->status == 'canceled') {
@@ -719,12 +799,12 @@
                                                         @endphp
                                                         <div class="mini-timeline-progress" style="width: {{ $progress }}%;"></div>
 
-                                                        <!-- Pending -->
-                                                        <div class="mini-timeline-step {{ in_array($order->status, ['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'completed']) ? 'active' : ($order->status === 'canceled' ? 'canceled' : '') }}">
+                                                        <!-- Start -->
+                                                        <div class="mini-timeline-step {{ in_array($order->status, ['awaiting_payment', 'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'completed']) ? 'active' : ($order->status === 'canceled' ? 'canceled' : '') }}">
                                                             <i class="fa fa-circle"></i>
                                                         </div>
 
-                                                        <!-- Completed/Canceled -->
+                                                        <!-- End -->
                                                         <div class="mini-timeline-step {{ $order->status === 'completed' ? 'done' : ($order->status === 'canceled' ? 'canceled' : '') }}">
                                                             <i class="fa fa-circle"></i>
                                                         </div>
@@ -733,9 +813,9 @@
                                                 <td class="text-center">{{ $order->orderItems->count() }}</td>
                                                 <td class="text-center">
                                                     @if($order->transaction)
-                                                        {{ $order->transaction->mode }}
+                                                        {{ $order->transaction->mode_display }}
                                                     @else
-                                                        -
+                                                        <span class="text-muted">-</span>
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
@@ -750,7 +830,7 @@
                                                             <span class="badge bg-info"><i class="fa fa-undo me-1"></i> Dikembalikan</span>
                                                         @endif
                                                     @else
-                                                        -
+                                                        <span class="text-muted">-</span>
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
@@ -771,8 +851,8 @@
                                         <i class="fa fa-shopping-bag"></i>
                                     </div>
                                     <p class="empty-text">Anda belum memiliki pesanan</p>
-                                    <a href="{{ route('shop.index') }}" class="btn"
-                                        style="background-color: var(--accent-color); color: white;">
+                                    <a href="{{ route('shop.index') }}" class="btn">
+                                        <i class="fa fa-shopping-cart"></i>
                                         Mulai Belanja
                                     </a>
                                 </div>
@@ -791,62 +871,55 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Highlight table rows on hover
+            const searchInput = document.getElementById('searchInput');
+            const statusFilter = document.getElementById('statusFilter');
             const tableRows = document.querySelectorAll('tbody tr');
-            tableRows.forEach(row => {
-                row.addEventListener('mouseenter', function() {
-                    this.style.backgroundColor = 'rgba(185, 161, 107, 0.05)';
-                    this.style.transition = 'all 0.3s ease';
-                });
-                row.addEventListener('mouseleave', function() {
-                    this.style.backgroundColor = '';
-                });
+
+            // Search functionality
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                filterRows();
             });
 
             // Filter functionality
-            const statusFilter = document.getElementById('statusFilter');
-            if (statusFilter) {
-                statusFilter.addEventListener('change', function() {
-                    const status = this.value;
-                    const rows = document.querySelectorAll('tbody tr');
+            statusFilter.addEventListener('change', function() {
+                filterRows();
+            });
 
-                    rows.forEach(row => {
-                        const statusCell = row.querySelector('td:nth-child(5)');
-                        if (statusCell) {
-                            const badgeText = statusCell.textContent.trim().toLowerCase();
+            function filterRows() {
+                const searchTerm = searchInput.value.toLowerCase();
+                const selectedStatus = statusFilter.value;
 
-                            if (status === 'all') {
-                                row.style.display = '';
-                            } else if (
-                                (status === 'pending' && badgeText.includes('menunggu')) ||
-                                (status === 'confirmed' && badgeText.includes('dikonfirmasi')) ||
-                                (status === 'processing' && badgeText.includes('diproses')) ||
-                                (status === 'shipped' && badgeText.includes('dikirim')) ||
-                                (status === 'delivered' && badgeText.includes('menunggu konfirmasi')) ||
-                                (status === 'completed' && badgeText.includes('selesai')) ||
-                                (status === 'canceled' && badgeText.includes('dibatalkan'))
-                            ) {
-                                row.style.display = '';
-                            } else {
-                                row.style.display = 'none';
-                            }
-                        }
-                    });
+                tableRows.forEach(row => {
+                    const orderNumber = row.querySelector('.order-no-column').textContent.toLowerCase();
+                    const customerName = row.cells[1].textContent.toLowerCase();
+                    const rowStatus = row.getAttribute('data-status');
 
-                    // Update visible count after filtering
-                    updateVisibleCount();
+                    const matchesSearch = orderNumber.includes(searchTerm) || customerName.includes(searchTerm);
+                    const matchesStatus = selectedStatus === 'all' || rowStatus === selectedStatus;
+
+                    row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
                 });
             }
 
-            //
-            function updateVisibleCount() {
-                const visibleRows = Array.from(document.querySelectorAll('tbody tr')).filter(row => row.style.display !== 'none');
-                const countElement = document.querySelector('.visible-count');
-                if (countElement) {
-                    countElement.textContent = `Menampilkan ${visibleRows.length} dari ${tableRows.length} pesanan`;
-                }
-            }
-            updateVisibleCount();
+            // Enhanced row hover effects
+            tableRows.forEach(row => {
+                row.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateX(4px)';
+                });
+
+                row.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateX(0)';
+                });
+            });
+
+            // Add loading state to action buttons
+            document.querySelectorAll('.list-icon-function').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const icon = this.querySelector('i');
+                    icon.className = 'fa fa-spinner fa-spin';
+                });
+            });
         });
     </script>
 @endsection
