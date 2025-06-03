@@ -149,17 +149,17 @@
                             </h3>
                             <div class="activity-timeline">
                                 <div class="activity-item">
-                                    <div class="activity-icon success">
+                                    <div class="activity-icon success" style="margin-left: -1.1em;">
                                         <i class="fas fa-check-circle"></i>
                                     </div>
-                                    <div class="activity-content">
+                                    <div class="activity-content" >
                                         <h4>Login Berhasil</h4>
                                         <p class="activity-time">{{ now()->format('d M Y, H:i') }}</p>
                                     </div>
                                 </div>
 
                                 <div class="activity-item">
-                                    <div class="activity-icon info">
+                                    <div class="activity-icon info" style="margin-left: -1.1em;">
                                         <i class="fas fa-sync"></i>
                                     </div>
                                     <div class="activity-content">
@@ -169,7 +169,7 @@
                                 </div>
 
                                 <div class="activity-item">
-                                    <div class="activity-icon warning">
+                                    <div class="activity-icon warning" style="margin-left: -1.1em;">
                                         <i class="fas fa-shopping-cart"></i>
                                     </div>
                                     <div class="activity-content">

@@ -710,6 +710,31 @@
                 min-width: auto;
             }
         }
+
+        /* Styling untuk informasi ongkos kirim */
+        .shipping-cost {
+            color: #555;
+        }
+
+        .shipping-info {
+            display: flex;
+            align-items: center;
+            background-color: rgba(149, 106, 59, 0.05);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #956a3b;
+        }
+
+        .shipping-info i {
+            margin-right: 8px;
+            font-size: 14px;
+            color: #956a3b;
+        }
+
+        .shipping-info span {
+            font-size: 14px;
+            color: #666;
+        }
     </style>
 
     <main class="pt-90">
@@ -803,7 +828,7 @@
                                                 @endif
 
                                                 {{-- Menampilkan stok tersedia --}}
-                                                @php
+                                                {{-- @php
                                                     // Hitung stok tersedia
                                                     $product =
                                                         $cartItem->model ?? \App\Models\Product::find($cartItem->id);
@@ -823,9 +848,9 @@
                                                     } else {
                                                         $availableStock = 0;
                                                     }
-                                                @endphp
+                                                @endphp --}}
 
-                                                <div class="product-stock-info">
+                                                {{-- <div class="product-stock-info">
                                                     <i class="fas fa-box-open me-1"></i>
                                                     <span class="stock-text">Stok tersedia: </span>
                                                     <span
@@ -837,7 +862,7 @@
                                                     @elseif ($availableStock == 0)
                                                         <small class="text-danger ms-1">(Habis)</small>
                                                     @endif
-                                                </div>
+                                                </div> --}}
                                             </div>
                                         </td>
                                         <td>
@@ -1024,7 +1049,72 @@
     </main>
 
     @push('scripts')
-        {{-- <script>
+        <script>
+            $(function() {
+                // Update cart totals when checkboxes or quantities change
+                function updateCartTotals() {
+                    let subtotal = 0;
+                    let selectedItems = [];
+
+                    // Calculate totals based on selected items
+                    $('.item-checkbox:checked').each(function() {
+                        const rowId = $(this).val();
+                        const price = parseFloat($(this).data('price'));
+                        const qty = parseInt($(this).closest('tr').find('.qty-input').val());
+                        const itemSubtotal = price * qty;
+
+                        subtotal += itemSubtotal;
+                        selectedItems.push(rowId);
+                    });
+
+                    // Update the hidden input with selected items
+                    $('#selected-items-input').val(JSON.stringify(selectedItems));
+
+                    // Format the number to currency
+                    const formattedSubtotal = formatRupiah(subtotal);
+                    $('#cart-subtotal').text(formattedSubtotal);
+
+                    // If there's a coupon, recalculate discount
+                    @if (Session::has('discounts'))
+                        const discount = calculateDiscount(subtotal);
+                        const subtotalAfterDiscount = subtotal - discount;
+
+                        $('#cart-discount').text('-' + formatRupiah(discount));
+                        $('#cart-subtotal-after-discount').text(formatRupiah(subtotalAfterDiscount));
+                        $('#cart-total').text(formatRupiah(subtotalAfterDiscount));
+                    @else
+                        $('#cart-total').text(formattedSubtotal);
+                    @endif
+
+                    // Apply visual dimming to unselected items
+                    $('.cart-item-row').each(function() {
+                        const isChecked = $(this).find('.item-checkbox').is(':checked');
+                        $(this).toggleClass('dimmed', !isChecked);
+                    });
+
+                    // Disable checkout button if no items selected
+                    if (selectedItems.length === 0) {
+                        $('#checkout-btn').prop('disabled', true).css('opacity', '0.5');
+                    } else {
+                        $('#checkout-btn').prop('disabled', false).css('opacity', '1');
+                    }
+                }
+
+                // Calculate discount based on coupon type
+                function calculateDiscount(subtotal) {
+                    @if (Session::has('coupon'))
+                        const couponType = "{{ Session::get('coupon')['type'] }}";
+                        const couponValue = parseFloat("{{ Session::get('coupon')['value'] }}");
+
+                        if (couponType === 'fixed') {
+                            return couponValue;
+                        } else {
+                            return (subtotal * couponValue) / 100;
+                        }
+                    @else
+                        return 0;
+                    @endif
+                }
 
                 // Format number to Rupiah
                 function formatRupiah(number) {
@@ -1115,7 +1205,7 @@
                     }
                 });
             });
-        </script> --}}
+        </script>
 
         <!-- JavaScript for Step Navigation -->
         <script>
@@ -1154,7 +1244,6 @@
                 updateCheckoutStep(1);
             });
         </script>
-
 
         <script>
             $(function() {
@@ -1432,33 +1521,5 @@
                 });
             });
         </script>
-
-
-        <style>
-            /* Styling untuk informasi ongkos kirim */
-            .shipping-cost {
-                color: #555;
-            }
-
-            .shipping-info {
-                display: flex;
-                align-items: center;
-                background-color: rgba(149, 106, 59, 0.05);
-                padding: 6px 10px;
-                border-radius: 6px;
-                border-left: 3px solid #956a3b;
-            }
-
-            .shipping-info i {
-                margin-right: 8px;
-                font-size: 14px;
-                color: #956a3b;
-            }
-
-            .shipping-info span {
-                font-size: 14px;
-                color: #666;
-            }
-        </style>
     @endpush
 @endsection
