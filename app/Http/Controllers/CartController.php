@@ -390,14 +390,11 @@ class CartController extends Controller
         }
 
         $subtotalAfterDiscount = $cartSubtotal - $discount;
-        $taxRate = floatval(config('cart.tax'));
-        $taxAfterDiscount = ($subtotalAfterDiscount * $taxRate) / 100;
-        $totalAfterDiscount = $subtotalAfterDiscount + $taxAfterDiscount;
+        $totalAfterDiscount = $subtotalAfterDiscount;
 
         Session::put('discounts', [
             'discount' => number_format($discount, 2, '.', ''),
             'subtotal' => number_format($subtotalAfterDiscount, 2, '.', ''),
-            'tax' => number_format($taxAfterDiscount, 2, '.', ''),
             'total' => number_format($totalAfterDiscount, 2, '.', '')
         ]);
     }
@@ -432,7 +429,6 @@ class CartController extends Controller
                 'subtotal' => 0,
                 'discount' => 0,
                 'subtotalAfterDiscount' => 0,
-                'tax' => 0,
                 'total' => 0,
                 'validItems' => $validItems
             ];
@@ -449,15 +445,12 @@ class CartController extends Controller
         }
 
         $subtotalAfterDiscount = $subtotal - $discount;
-        $taxRate = floatval(config('cart.tax'));
-        $taxAfterDiscount = ($subtotalAfterDiscount * $taxRate) / 100;
-        $totalAfterDiscount = $subtotalAfterDiscount + $taxAfterDiscount;
+        $totalAfterDiscount = $subtotalAfterDiscount;
 
         return [
             'subtotal' => $subtotal,
             'discount' => $discount,
             'subtotalAfterDiscount' => $subtotalAfterDiscount,
-            'tax' => $taxAfterDiscount,
             'total' => $totalAfterDiscount,
             'validItems' => $validItems
         ];
@@ -566,7 +559,6 @@ class CartController extends Controller
         session()->put('checkout', [
             'discount' => $calculationResult['discount'],
             'subtotal' => $calculationResult['subtotal'],
-            'tax' => $calculationResult['tax'],
             'total' => $calculationResult['total']
         ]);
 
@@ -590,14 +582,12 @@ class CartController extends Controller
             session()->put('checkout', [
                 'discount' => (float) session()->get('discounts')['discount'],
                 'subtotal' => (float) session()->get('discounts')['subtotal'],
-                'tax' => (float) session()->get('discounts')['tax'],
                 'total' => (float) session()->get('discounts')['total']
             ]);
         } else {
             session()->put('checkout', [
                 'discount' => 0,
                 'subtotal' => (float) Cart::instance('cart')->subtotal(0, '', ''),
-                'tax' => (float) Cart::instance('cart')->tax(0, '', ''),
                 'total' => (float) Cart::instance('cart')->total(0, '', '')
             ]);
         }
@@ -682,7 +672,6 @@ class CartController extends Controller
         $order->user_id = $user_id;
         $order->subtotal = session()->get('checkout')['subtotal'];
         $order->discount = session()->get('checkout')['discount'];
-        $order->tax = session()->get('checkout')['tax'];
         $order->total = session()->get('checkout')['total'] + $request->ongkir;
         $order->name = $address->name;
         $order->phone = $address->phone;
