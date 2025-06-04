@@ -526,7 +526,8 @@ class CartController extends Controller
         $couriers = [
             'jne' => 'JNE',
             'pos' => 'POS Indonesia',
-            'tiki' => 'TIKI'
+            'tiki' => 'TIKI',
+            'jnt' => 'J&T Express'
         ];
 
         // Ambil rekening bank yang aktif

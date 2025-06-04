@@ -48,7 +48,6 @@ class RajaOngkirController extends Controller
                 'status' => 'error',
                 'message' => 'Failed to get origin city info'
             ], 500);
-
         } catch (\Exception $e) {
             Log::error('Origin City Info Error: ' . $e->getMessage());
             return response()->json([
@@ -122,7 +121,7 @@ class RajaOngkirController extends Controller
     {
         $request->validate([
             'city_id' => 'required|numeric',
-            'courier' => 'required|in:jne,pos,tiki'
+            'courier' => 'required|in:jne,pos,tiki,jnt' // Tambahkan jnt di sini
         ]);
 
         try {
@@ -152,7 +151,15 @@ class RajaOngkirController extends Controller
                 'courier' => $request->courier
             ]);
 
-            $shippingCosts = $response->json()['rajaongkir']['results'][0]['costs'];
+            $result = $response->json();
+
+            // Cek apakah response berhasil
+            if (!$response->successful() || !isset($result['rajaongkir']['results'][0]['costs'])) {
+                throw new \Exception('API RajaOngkir tidak memberikan response yang valid');
+            }
+
+            $shippingCosts = $result['rajaongkir']['results'][0]['costs'];
+
             return response()->json([
                 'status' => 'success',
                 'data' => $shippingCosts,
