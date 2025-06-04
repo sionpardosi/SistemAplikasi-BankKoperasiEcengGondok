@@ -1,14 +1,742 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        .cart-total th,
+        .cart-total td {
+            color: green;
+            font-weight: bold;
+            font-size: 21px !important;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-top: 60px !important;
+        }
+
+        /* Menambahkan CSS dari halaman keranjang untuk checkout steps */
+        :root {
+            --primary: #956a3b;
+            --primary-light: rgba(149, 106, 59, 0.12);
+            --primary-lighter: rgba(149, 106, 59, 0.06);
+            --primary-dark: #7d593a;
+            --white: #ffffff;
+            --text-dark: #333333;
+            --text-medium: #555555;
+            --text-light: #767676;
+            --border-radius: 16px;
+            --shadow-soft: 0 10px 30px rgba(149, 106, 59, 0.1);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        /* Product List in Checkout */
+        .selected-product-list {
+            background-color: #fcfaf7;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(149, 106, 59, 0.1);
+        }
+
+        .selected-product-item {
+            border-bottom: 1px dashed rgba(149, 106, 59, 0.1);
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .selected-product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-image-small {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            margin-right: 15px;
+            border: 1px solid rgba(149, 106, 59, 0.1);
+        }
+
+        .product-details {
+            flex: 1;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            margin-bottom: 3px;
+        }
+
+        .product-specs {
+            display: flex;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: var(--text-medium);
+            gap: 10px;
+        }
+
+        .product-specs span {
+            display: flex;
+            align-items: center;
+        }
+
+        .product-specs i {
+            margin-right: 4px;
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+
+        .product-price {
+            text-align: right;
+            white-space: nowrap;
+            margin-left: 15px;
+        }
+
+        /* Checkout Steps - Modern Design */
+        .checkout-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Progress Bar */
+        .checkout-steps:before {
+            content: '';
+            position: absolute;
+            top: 35px;
+            left: 0;
+            height: 3px;
+            width: 100%;
+            background-color: #e7e0d8;
+            z-index: -1;
+        }
+
+        .checkout-steps:after {
+            content: '';
+            position: absolute;
+            top: 35px;
+            left: 0;
+            height: 3px;
+            width: 0%;
+            background: linear-gradient(90deg, var(--primary), #a87c4f);
+            z-index: -1;
+            transition: var(--transition);
+        }
+
+        .checkout-steps.step-1:after {
+            width: 0%;
+        }
+
+        .checkout-steps.step-2:after {
+            width: 50%;
+        }
+
+        .checkout-steps.step-3:after {
+            width: 100%;
+        }
+
+        .checkout-steps__item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            text-decoration: none;
+            position: relative;
+            width: 33.333%;
+            transition: var(--transition);
+        }
+
+        /* Step Number */
+        .checkout-steps__item-number {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-light);
+            background-color: #f0e9e1;
+            border: 3px solid #e7e0d8;
+            margin-bottom: 16px;
+            position: relative;
+            transition: var(--transition);
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .checkout-steps__item-number:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), #a87c4f);
+            opacity: 0;
+            transition: var(--transition);
+            border-radius: 50%;
+            transform: scale(0.8);
+        }
+
+        .checkout-steps__item-number span {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Step Title */
+        .checkout-steps__item-title {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transition: var(--transition);
+        }
+
+        .checkout-steps__item-title span {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-medium);
+            transition: var(--transition);
+        }
+
+        .checkout-steps__item-title em {
+            font-size: 13px;
+            font-style: normal;
+            color: var(--text-light);
+            transition: var(--transition);
+            max-width: 160px;
+            margin: 0 auto;
+        }
+
+        /* Step Icon */
+        .checkout-steps__item-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            opacity: 0;
+            color: var(--white);
+            font-size: 20px;
+            transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
+            z-index: 3;
+        }
+
+        /* Active State */
+        .checkout-steps__item.active .checkout-steps__item-number {
+            border-color: var(--primary);
+            color: var(--white);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(149, 106, 59, 0.25);
+        }
+
+        .checkout-steps__item.active .checkout-steps__item-number:before {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .checkout-steps__item.active .checkout-steps__item-title span {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .checkout-steps__item.active .checkout-steps__item-title em {
+            color: var(--text-medium);
+        }
+
+        /* Completed State */
+        .checkout-steps__item.completed .checkout-steps__item-number {
+            border-color: var(--primary);
+            color: rgba(0, 0, 0, 0);
+            background-color: var(--primary);
+        }
+
+        .checkout-steps__item.completed .checkout-steps__item-number:before {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .checkout-steps__item.completed .checkout-steps__item-icon {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        /* Hover Effects */
+        .checkout-steps__item:not(.active):hover .checkout-steps__item-title span {
+            color: var(--primary-dark);
+        }
+
+        .checkout-steps__item:not(.active):hover .checkout-steps__item-number {
+            transform: translateY(-3px);
+            border-color: #d9ccbc;
+            box-shadow: 0 6px 15px rgba(149, 106, 59, 0.15);
+        }
+
+        .form-floating>.form-control,
+        .form-floating>.form-select {
+            height: 60px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .checkout-steps__item-number {
+                width: 60px;
+                height: 60px;
+                font-size: 18px;
+            }
+
+            .checkout-steps__item-title span {
+                font-size: 15px;
+            }
+
+            .checkout-steps__item-title em {
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .checkout-steps {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .checkout-steps:before,
+            .checkout-steps:after {
+                display: none;
+            }
+
+            .checkout-steps__item {
+                flex-direction: row;
+                justify-content: flex-start;
+                width: 100%;
+                padding: 12px;
+                border-radius: var(--border-radius);
+                background-color: var(--white);
+                box-shadow: var(--shadow-soft);
+                gap: 15px;
+            }
+
+            .checkout-steps__item-number {
+                width: 45px;
+                height: 45px;
+                font-size: 16px;
+                margin-bottom: 0;
+            }
+
+            .checkout-steps__item-title {
+                text-align: left;
+            }
+
+            .checkout-steps__item-title em {
+                margin: 0;
+            }
+
+            .checkout-steps__item.active {
+                background-color: var(--primary-light);
+            }
+
+            .checkout-steps__item:not(.active):hover {
+                background-color: var(--primary-lighter);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .checkout-steps__item-title em {
+                display: none;
+            }
+        }
+
+        /* Styling untuk Detail Pengiriman dan Pembayaran */
+        .billing-info__wrapper {
+            background-color: #fff;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            padding: 30px;
+            margin-bottom: 30px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .billing-info__wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            /* background: linear-gradient(90deg, var(--primary), #a87c4f); */
+        }
+
+        /* Header styling */
+        .shipping-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-bottom: 10px;
+        }
+
+        .shipping-title::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            width: 60px;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        /* Button styles */
+        .address-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-edit,
+        .btn-manage {
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            background-color: #fff1e6;
+            color: #d97706;
+            border: 1px solid #fed7aa;
+        }
+
+        .btn-edit:hover {
+            background-color: #fed7aa;
+            color: #b45309;
+        }
+
+        .btn-manage {
+            background-color: #e5f2ff;
+            color: #0369a1;
+            border: 1px solid #bae6fd;
+        }
+
+        .btn-manage:hover {
+            background-color: #bae6fd;
+            color: #0284c7;
+        }
+
+        /* Address selector styling */
+        .address-selector-container {
+            background-color: #f9f7f5;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .address-label,
+        .courier-label,
+        .service-label {
+            display: flex;
+            align-items: center;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-medium);
+            margin-bottom: 10px;
+        }
+
+        .custom-select {
+            border: 1px solid #e0dcd3;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 15px;
+            height: auto;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+        }
+
+        .custom-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(149, 106, 59, 0.15);
+        }
+
+        /* Address card styling */
+        .address-card {
+            background-color: #fff;
+            border-radius: 10px;
+            border: 1px solid #e5e0da;
+            padding: 20px;
+            margin-top: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .address-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .address-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--primary);
+            border-radius: 10px 0 0 10px;
+        }
+
+        .recipient-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .address-data p {
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            color: var(--text-medium);
+            font-size: 14px;
+        }
+
+        .address-data p i {
+            width: 20px;
+            color: var(--primary);
+        }
+
+        /* Form styling */
+        .custom-input {
+            border: 1px solid #e0dcd3;
+            border-radius: 8px;
+            height: 50px;
+            padding: 12px 15px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .custom-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(149, 106, 59, 0.15);
+        }
+
+        /* Custom checkbox */
+        .custom-checkbox-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .custom-checkbox {
+            position: absolute;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .custom-checkbox-label {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--text-medium);
+            cursor: pointer;
+        }
+
+        .checkbox-icon {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #d6cfc7;
+            border-radius: 4px;
+            margin-right: 10px;
+            position: relative;
+            transition: all 0.2s ease;
+            background-color: #fff;
+        }
+
+        .checkbox-icon::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 6px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+
+        .custom-checkbox:checked+.custom-checkbox-label .checkbox-icon {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .custom-checkbox:checked+.custom-checkbox-label .checkbox-icon::after {
+            opacity: 1;
+        }
+
+        /* Shipping method section */
+        .shipping-method-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #e5e0da;
+        }
+
+        /* Shipping info card */
+        .shipping-info-card {
+            background-color: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
+        }
+
+        .shipping-info-header {
+            background-color: #e0f2fe;
+            padding: 12px 20px;
+            font-size: 15px;
+            color: #0369a1;
+            display: flex;
+            align-items: center;
+        }
+
+        .shipping-info-content {
+            padding: 15px 20px;
+        }
+
+        .service-desc {
+            font-size: 14px;
+            color: var(--text-medium);
+            margin-bottom: 12px;
+        }
+
+        .shipping-details-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .shipping-detail-item {
+            display: flex;
+            align-items: center;
+            font-size: 14px;
+            color: var(--text-medium);
+        }
+
+        .shipping-detail-item i {
+            color: #0369a1;
+        }
+
+        .value {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-left: 5px;
+        }
+
+        /* Shipping info styling */
+        .shipping-info {
+            display: flex;
+            align-items: center;
+            background-color: rgba(149, 106, 59, 0.05);
+            padding: 6px 10px;
+            border-radius: 6px;
+            border-left: 3px solid #956a3b;
+        }
+
+        .shipping-info i {
+            margin-right: 8px;
+            font-size: 14px;
+            color: #956a3b;
+        }
+
+        .shipping-info span {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 767px) {
+            .billing-info__wrapper {
+                padding: 20px 15px;
+            }
+
+            .address-actions {
+                justify-content: flex-start;
+                margin-top: 10px;
+            }
+
+            .shipping-details-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .address-card {
+                padding: 15px;
+            }
+        }
+    </style>
 
     <main class="pt-90">
         <div class="mb-4 pb-4"></div>
         <section class="shop-checkout container">
-            <h2 class="page-title mb-4" style="letter-spacing:1px; margin-bottom: 3.5rem !important;">Pengiriman dan
-                Pembayaran</h2>
+            <h2 class="page-title mb-4" style="letter-spacing:1px; margin-bottom: 3.5rem !important;">Pengiriman dan Metode Pembayaran</h2>
             <!-- Modern Checkout Steps - Menggunakan format yang sama seperti di keranjang -->
-       
+            <div class="checkout-steps step-2">
+                <a href="{{ route('cart.index') }}" class="checkout-steps__item completed">
+                    <div class="checkout-steps__item-number">
+                        <span>01</span>
+                        <div class="checkout-steps__item-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="checkout-steps__item-title">
+                        <span>Keranjang Belanja</span>
+                        <em>Kelola Daftar Barang Anda</em>
+                    </div>
+                </a>
+                <a href="javascript:void(0)" class="checkout-steps__item active">
+                    <div class="checkout-steps__item-number">
+                        <span>02</span>
+                        <div class="checkout-steps__item-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="checkout-steps__item-title">
+                        <span>Pengiriman dan Metode Pembayaran</span>
+                        <em>Pilih Alamat dan Metode</em>
+                    </div>
+                </a>
+                <a href="javascript:void(0);" class="checkout-steps__item">
+                    <div class="checkout-steps__item-number">
+                        <span>03</span>
+                        <div class="checkout-steps__item-icon">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                    <div class="checkout-steps__item-title">
+                        <span>Konfirmasi</span>
+                        <em>Tinjau dan Pembayaran</em>
+                    </div>
+                </a>
+            </div>
+
             <form name="checkout-form" action="{{ route('cart.place.order') }}" method="POST">
                 @csrf
                 <div class="checkout-form">
@@ -453,6 +1181,24 @@
                 $('#courier').on('change', function() {
                     const courier = $(this).val();
                     if (courier) {
+                        // Cek jika kurir yang dipilih adalah J&T
+                        if (courier === 'jnt') {
+                            Swal.fire({
+                                title: 'J&T Express Belum Tersedia',
+                                text: 'Maaf, layanan J&T Express saat ini belum dapat digunakan. Silakan pilih kurir lain.',
+                                icon: 'info',
+                                iconColor: '#3085d6',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#3085d6'
+                            });
+                            $(this).val(''); // Reset pilihan kurir
+                            $('#shipping_service').html('<option value="">-- Pilih Layanan --</option>');
+                            $('#shipping_service').prop('disabled', true);
+                            $('#shipping-info').addClass('d-none');
+                            updateTotal(0);
+                            return;
+                        }
+
                         // Jika ada alamat yang dipilih, gunakan ID kota dari alamat tersebut
                         if (selectedAddressId > 0) {
                             calculateShipping(courier);
@@ -464,7 +1210,14 @@
                             if (cityId) {
                                 calculateShipping(courier);
                             } else {
-                                alert('Silakan pilih kota terlebih dahulu');
+                                Swal.fire({
+                                    title: 'Pilih Kota Terlebih Dahulu',
+                                    text: 'Silakan pilih kota/kabupaten sebelum memilih kurir pengiriman.',
+                                    icon: 'warning',
+                                    iconColor: '#b9a16b',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#28a745'
+                                });
                                 $(this).val('');
                             }
                         }
@@ -522,11 +1275,25 @@
                                 });
                                 $('#province').html(options);
                             } else {
-                                alert('Gagal memuat data provinsi');
+                                Swal.fire({
+                                    title: 'Gagal Memuat Data',
+                                    text: 'Gagal memuat data provinsi. Silakan coba lagi.',
+                                    icon: 'error',
+                                    iconColor: '#e3342f',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#e3342f'
+                                });
                             }
                         },
                         error: function() {
-                            alert('Terjadi kesalahan saat memuat data provinsi');
+                            Swal.fire({
+                                title: 'Kesalahan Koneksi',
+                                text: 'Terjadi kesalahan saat memuat data provinsi. Periksa koneksi internet Anda.',
+                                icon: 'error',
+                                iconColor: '#e3342f',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#e3342f'
+                            });
                         }
                     });
                 }
@@ -549,11 +1316,25 @@
                                 });
                                 $('#city').html(options);
                             } else {
-                                alert('Gagal memuat data kota');
+                                Swal.fire({
+                                    title: 'Gagal Memuat Data',
+                                    text: 'Gagal memuat data kota. Silakan coba lagi.',
+                                    icon: 'error',
+                                    iconColor: '#e3342f',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#e3342f'
+                                });
                             }
                         },
                         error: function() {
-                            alert('Terjadi kesalahan saat memuat data kota');
+                            Swal.fire({
+                                title: 'Kesalahan Koneksi',
+                                text: 'Terjadi kesalahan saat memuat data kota. Periksa koneksi internet Anda.',
+                                icon: 'error',
+                                iconColor: '#e3342f',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#e3342f'
+                            });
                         }
                     });
                 }
@@ -592,11 +1373,25 @@
                                 $('#shipping-info').addClass('d-none');
                                 updateTotal(0);
                             } else {
-                                alert('Gagal memuat data alamat');
+                                Swal.fire({
+                                    title: 'Gagal Memuat Alamat',
+                                    text: 'Gagal memuat data alamat. Silakan coba lagi.',
+                                    icon: 'error',
+                                    iconColor: '#e3342f',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#e3342f'
+                                });
                             }
                         },
                         error: function() {
-                            alert('Terjadi kesalahan saat memuat data alamat');
+                            Swal.fire({
+                                title: 'Kesalahan Koneksi',
+                                text: 'Terjadi kesalahan saat memuat data alamat. Periksa koneksi internet Anda.',
+                                icon: 'error',
+                                iconColor: '#e3342f',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#e3342f'
+                            });
                         }
                     });
                 }
@@ -613,7 +1408,130 @@
                         stateId = $('#idstatelama').val();
                     }
 
-                    console.log('City ID:', cityId);
+                    console.log('Calculating shipping details:', {
+                        cityId: cityId,
+                        courier: courier,
+                        origin: 'Samosir (389)'
+                    });
+
+                    if (!cityId) {
+                        Swal.fire({
+                            title: 'ID Kota Tidak Ditemukan',
+                            text: 'Silakan pilih alamat yang valid atau lengkapi alamat baru.',
+                            icon: 'warning',
+                            iconColor: '#b9a16b',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#28a745'
+                        });
+                        $('#courier').val('');
+                        return;
+                    }
+
+                    $.ajax({
+                        url: '{{ url('api/rajaongkircalculate') }}',
+                        type: 'POST',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                            city_id: cityId,
+                            courier: courier
+                        },
+                        dataType: 'json',
+                        beforeSend: function() {
+                            $('#shipping_service').html('<option value="">⏳ Memuat layanan...</option>');
+                            $('#shipping_service').prop('disabled', true);
+                            console.log('🚚 Mengirim request ke RajaOngkir...');
+                        },
+                        success: function(response) {
+                            console.log('✅ Response from API:', response);
+
+                            if (response.status === 'success' && response.data && response.data.length >
+                                0) {
+                                let options = '<option value="">-- Pilih Layanan --</option>';
+
+                                // Log informasi meta data dari response
+                                if (response.meta) {
+                                    console.log('📍 Origin:', response.meta.origin_info);
+                                    console.log('📦 Berat:', response.meta.weight);
+                                    console.log('🚛 Kurir:', response.meta.courier);
+                                }
+
+                                $.each(response.data, function(index, service) {
+                                    options += `<option value="${service.service}"
+                        data-cost="${service.cost[0].value}"
+                        data-etd="${service.cost[0].etd}"
+                        data-description="${service.description}">
+                        ${service.service} - ${service.description} (${formatRupiah(service.cost[0].value)})
+                    </option>`;
+                                });
+
+                                $('#shipping_service').html(options);
+                                $('#shipping_service').prop('disabled', false);
+
+                                // Tampilkan notifikasi sukses
+                                showShippingInfo(`✅ Ongkir berhasil dihitung dari Kabupaten Samosir`);
+                            } else {
+                                console.error('❌ Invalid response structure:', response);
+                                let errorMsg = response.message || 'Tidak ada layanan pengiriman tersedia';
+
+                                $('#shipping_service').html(`<option value="">❌ ${errorMsg}</option>`);
+                                Swal.fire({
+                                    title: 'Gagal Memuat Layanan',
+                                    text: `Gagal memuat layanan pengiriman: ${errorMsg}`,
+                                    icon: 'error',
+                                    iconColor: '#e3342f',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#e3342f'
+                                });
+                            }
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('❌ Ajax error:', {
+                                status: status,
+                                error: error,
+                                responseText: xhr.responseText,
+                                statusCode: xhr.status
+                            });
+
+                            let errorMessage = 'Terjadi kesalahan saat menghitung ongkos kirim';
+
+                            // Try to parse error response
+                            try {
+                                let errorResponse = JSON.parse(xhr.responseText);
+                                if (errorResponse.message) {
+                                    errorMessage = errorResponse.message;
+                                }
+                            } catch (e) {
+                                console.log('Could not parse error response');
+                            }
+
+                            $('#shipping_service').html(`<option value="">❌ Error</option>`);
+                            Swal.fire({
+                                title: 'Kesalahan Sistem',
+                                html: `${errorMessage}<br><small style="color: #666;">Detail teknis: Status ${xhr.status}</small>`,
+                                icon: 'error',
+                                iconColor: '#e3342f',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#e3342f'
+                            });
+                        }
+                    });
+                }
+
+                // Update di bagian JavaScript checkout.blade.php
+                // Tambahkan kode ini di dalam calculateShipping function
+
+                function calculateShipping(courier) {
+                    let city = $('#idcitynya').val();
+                    // Jika menggunakan alamat baru, ambil ID kota dari dropdown
+                    if (city != '') {
+                        cityId = city;
+                        $('#city_id').val(cityId);
+                    } else {
+                        cityId = $('#idcitylama').val();
+                        stateId = $('#idstatelama').val();
+                    }
+
+                    console.log('Calculating shipping from Samosir to City ID:', cityId);
 
                     $.ajax({
                         url: '{{ url('api/rajaongkircalculate') }}',
@@ -627,121 +1545,80 @@
                         beforeSend: function() {
                             $('#shipping_service').html('<option value="">Memuat layanan...</option>');
                             $('#shipping_service').prop('disabled', true);
+
+                            // Tampilkan info origin city - UPDATE INI
+                            console.log('🚚 Menghitung ongkir dari: Kabupaten Samosir, Sumatera Utara');
                         },
                         success: function(response) {
                             if (response.status === 'success') {
                                 let options = '<option value="">-- Pilih Layanan --</option>';
+
+                                // Log informasi meta data dari response
+                                if (response.meta) {
+                                    console.log('📍 Origin:', response.meta.origin_info);
+                                    console.log('📦 Berat:', response.meta.weight);
+                                    console.log('🚛 Kurir:', response.meta.courier);
+                                }
+
                                 $.each(response.data, function(index, service) {
                                     options += `<option value="${service.service}"
-                                        data-cost="${service.cost[0].value}"
-                                        data-etd="${service.cost[0].etd}"
-                                        data-description="${service.description}">
-                                        ${service.service} - ${service.description} (${formatRupiah(service.cost[0].value)})
-                                    </option>`;
-                                });
-                                $('#shipping_service').html(options);
-                                $('#shipping_service').prop('disabled', false);
-                            } else {
-                                alert('Gagal menghitung ongkos kirim: ' + response.message);
-                                $('#shipping_service').html(
-                                    '<option value="">-- Pilih Layanan --</option>');
-                            }
-                        },
-                        error: function(xhr) {
-                            alert('Terjadi kesalahan saat menghitung ongkos kirim');
-                            $('#shipping_service').html('<option value="">-- Pilih Layanan --</option>');
-                        }
-                    });
-
-                    // Update di bagian JavaScript checkout.blade.php
-                    // Tambahkan kode ini di dalam calculateShipping function
-
-                    function calculateShipping(courier) {
-                        let city = $('#idcitynya').val();
-                        // Jika menggunakan alamat baru, ambil ID kota dari dropdown
-                        if (city != '') {
-                            cityId = city;
-                            $('#city_id').val(cityId);
-                        } else {
-                            cityId = $('#idcitylama').val();
-                            stateId = $('#idstatelama').val();
-                        }
-
-                        console.log('Calculating shipping from Samosir to City ID:', cityId);
-
-                        $.ajax({
-                            url: '{{ url('api/rajaongkircalculate') }}',
-                            type: 'POST',
-                            data: {
-                                _token: '{{ csrf_token() }}',
-                                city_id: cityId,
-                                courier: courier
-                            },
-                            dataType: 'json',
-                            beforeSend: function() {
-                                $('#shipping_service').html('<option value="">Memuat layanan...</option>');
-                                $('#shipping_service').prop('disabled', true);
-
-                                // Tampilkan info origin city - UPDATE INI
-                                console.log('🚚 Menghitung ongkir dari: Kabupaten Samosir, Sumatera Utara');
-                            },
-                            success: function(response) {
-                                if (response.status === 'success') {
-                                    let options = '<option value="">-- Pilih Layanan --</option>';
-
-                                    // Log informasi meta data dari response
-                                    if (response.meta) {
-                                        console.log('📍 Origin:', response.meta.origin_info);
-                                        console.log('📦 Berat:', response.meta.weight);
-                                        console.log('🚛 Kurir:', response.meta.courier);
-                                    }
-
-                                    $.each(response.data, function(index, service) {
-                                        options += `<option value="${service.service}"
                         data-cost="${service.cost[0].value}"
                         data-etd="${service.cost[0].etd}"
                         data-description="${service.description}">
                         ${service.service} - ${service.description} (${formatRupiah(service.cost[0].value)})
                     </option>`;
-                                    });
-                                    $('#shipping_service').html(options);
-                                    $('#shipping_service').prop('disabled', false);
+                                });
+                                $('#shipping_service').html(options);
+                                $('#shipping_service').prop('disabled', false);
 
-                                    // Tampilkan notifikasi sukses
-                                    showShippingInfo(`Ongkir berhasil dihitung dari Kabupaten Samosir`);
-                                } else {
-                                    alert('Gagal menghitung ongkos kirim: ' + response.message);
-                                    $('#shipping_service').html(
-                                        '<option value="">-- Pilih Layanan --</option>');
-                                }
-                            },
-                            error: function(xhr) {
-                                console.error('Error calculating shipping:', xhr.responseText);
-                                alert('Terjadi kesalahan saat menghitung ongkos kirim');
+                                // Tampilkan notifikasi sukses
+                                showShippingInfo(`Ongkir berhasil dihitung dari Kabupaten Samosir`);
+                            } else {
+                                Swal.fire({
+                                    title: 'Gagal Menghitung Ongkir',
+                                    text: 'Gagal menghitung ongkos kirim: ' + response.message,
+                                    icon: 'error',
+                                    iconColor: '#e3342f',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#e3342f'
+                                });
                                 $('#shipping_service').html(
-                                '<option value="">-- Pilih Layanan --</option>');
+                                    '<option value="">-- Pilih Layanan --</option>');
                             }
-                        });
-                    }
+                        },
+                        error: function(xhr) {
+                            console.error('Error calculating shipping:', xhr.responseText);
+                            Swal.fire({
+                                title: 'Kesalahan Koneksi',
+                                text: 'Terjadi kesalahan saat menghitung ongkos kirim. Periksa koneksi internet Anda.',
+                                icon: 'error',
+                                iconColor: '#e3342f',
+                                confirmButtonText: 'OK',
+                                confirmButtonColor: '#e3342f'
+                            });
+                            $('#shipping_service').html(
+                                '<option value="">-- Pilih Layanan --</option>');
+                        }
+                    });
+                }
 
-                    // Fungsi tambahan untuk menampilkan info pengiriman
-                    function showShippingInfo(message) {
-                        // Buat notifikasi sementara
-                        const notification = $(`
+                // Fungsi tambahan untuk menampilkan info pengiriman
+                function showShippingInfo(message) {
+                    // Buat notifikasi sementara
+                    const notification = $(`
         <div class="alert alert-info alert-dismissible fade show" style="margin-top: 10px;">
             <i class="fas fa-info-circle"></i> ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         </div>
     `);
 
-                        // Tampilkan di bawah dropdown kurir
-                        $('#courier').parent().append(notification);
+                    // Tampilkan di bawah dropdown kurir
+                    $('#courier').parent().append(notification);
 
-                        // Auto hide setelah 5 detik
-                        setTimeout(() => {
-                            notification.fadeOut();
-                        }, 5000);
-                    }
+                    // Auto hide setelah 5 detik
+                    setTimeout(() => {
+                        notification.fadeOut();
+                    }, 5000);
                 }
 
                 // Fungsi untuk memperbarui opsi pengiriman

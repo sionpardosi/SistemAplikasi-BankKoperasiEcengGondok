@@ -763,8 +763,8 @@
                         </div>
                     </div>
                     <div class="checkout-steps__item-title">
-                        <span>Pengiriman dan Pembayaran</span>
-                        <em>Lanjutkan ke Pembayaran</em>
+                        <span>Pengiriman dan Metode Pembayaran</span>
+                        <em>Pilih Alamat dan Metode</em>
                     </div>
                 </a>
                 <a href="javascript:void(0);" class="checkout-steps__item">
@@ -776,7 +776,7 @@
                     </div>
                     <div class="checkout-steps__item-title">
                         <span>Konfirmasi</span>
-                        <em>Tinjau dan Kirim Pesanan Anda</em>
+                        <em>Tinjau dan Pembayaran</em>
                     </div>
                 </a>
             </div>

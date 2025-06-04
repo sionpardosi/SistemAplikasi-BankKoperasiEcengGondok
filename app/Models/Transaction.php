@@ -45,9 +45,9 @@ class Transaction extends Model
     public function getModeDisplayAttribute()
     {
         return match ($this->mode) {
-            'midtrans' => 'E-Wallet | Pembayaran Online',
+            'card', 'midtrans' => 'E-Wallet | Pembayaran Online (Midtrans)',
             'manual_atm' => 'Transfer Bank BNI',
-            default => $this->mode
+            default => ucfirst(str_replace('_', ' ', $this->mode))
         };
     }
 
