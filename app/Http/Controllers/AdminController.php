@@ -951,28 +951,36 @@ class AdminController extends Controller
     // Menyimpan Coupon
     public function add_coupon_store(Request $request)
     {
-        // Bersihkan nilai input agar hanya berupa angka
+        // Bersihkan input format rupiah
         $request->merge([
-            'value' => preg_replace('/[^0-9.]/', '', $request->value),
-            'cart_value' => preg_replace('/[^0-9.]/', '', $request->cart_value),
+            'discount_amount' => preg_replace('/[^0-9.]/', '', $request->discount_amount),
+            'minimum_order' => preg_replace('/[^0-9.]/', '', $request->minimum_order),
         ]);
 
         $request->validate([
-            'code' => 'required',
-            'type' => 'required',
-            'value' => 'required|numeric',
-            'cart_value' => 'required|numeric',
-            'expiry_date' => 'required|date'
+            'code' => 'required|unique:coupons,code|max:50',
+            'discount_amount' => 'required|numeric|min:1000', // Minimal Rp 1.000
+            'minimum_order' => 'required|numeric|min:0',
+            'expiry_date' => 'required|date|after:today'
+        ], [
+            'code.required' => 'Kode kupon wajib diisi',
+            'code.unique' => 'Kode kupon sudah digunakan, silakan gunakan kode lain',
+            'discount_amount.required' => 'Nilai diskon wajib diisi',
+            'discount_amount.min' => 'Nilai diskon minimal Rp 1.000',
+            'minimum_order.required' => 'Minimum order wajib diisi',
+            'expiry_date.required' => 'Tanggal kadaluarsa wajib diisi',
+            'expiry_date.after' => 'Tanggal kadaluarsa harus setelah hari ini'
         ]);
 
-        $coupon = new Coupon();
-        $coupon->code = $request->code;
-        $coupon->type = $request->type;
-        $coupon->value = $request->value;
-        $coupon->cart_value = $request->cart_value;
-        $coupon->expiry_date = $request->expiry_date;
-        $coupon->save();
-        return redirect()->route("admin.coupons")->with('status', 'Record has been added successfully !');
+        Coupon::create([
+            'code' => strtoupper($request->code),
+            'discount_amount' => $request->discount_amount,
+            'minimum_order' => $request->minimum_order,
+            'expiry_date' => $request->expiry_date,
+            'is_active' => true
+        ]);
+
+        return redirect()->route("admin.coupons")->with('status', 'Kupon berhasil ditambahkan!');
     }
 
     // Halaman Edit Coupon
@@ -1001,6 +1009,7 @@ class AdminController extends Controller
         $coupon->save();
         return redirect()->route('admin.coupons')->with('status', 'Record has been updated successfully !');
     }
+
     // Halaman Delete Coupon
     public function delete_coupon($id)
     {
