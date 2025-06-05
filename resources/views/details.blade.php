@@ -2468,19 +2468,25 @@
 
             // Tombol konfirmasi tambah ke keranjang
             $('#confirmAddToCart').on('click', function() {
-                // Ambil quantity dari modal
                 const quantity = parseInt($('.modal-qty-input').val());
                 const productName = "{{ $product->name }}";
 
                 // Validasi stok dengan fungsi yang ditingkatkan
                 let availableStock;
+
                 if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }}) {
-                    availableStock = parseInt(selectedSizeStock);
+                    const selectedSizeId = $('#selected-size-id').val();
+                    if (!selectedSizeId) {
+                        showCartNotification('Silakan pilih ukuran terlebih dahulu', false);
+                        return;
+                    }
+
+                    const selectedSizeBtn = $(`.size-btn[data-size-id="${selectedSizeId}"]`);
+                    availableStock = selectedSizeBtn.data('stock') || 0;
                 } else {
-                    availableStock = {{ $product->quantity - $product->reserved_quantity }};
+                    availableStock = {{ $product->quantity - ($product->reserved_quantity ?? 0) }};
                 }
 
-                // Periksa stok dengan fungsi baru kita
                 if (!enhancedStockCheck(quantity, availableStock, productName)) {
                     return;
                 }
