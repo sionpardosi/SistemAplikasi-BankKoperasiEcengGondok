@@ -2265,11 +2265,10 @@
 
             // Fungsi untuk mengupdate informasi stok berdasarkan ukuran yang dipilih
             function updateStockInfo(sizeId, sizeName, stock) {
-                // Simpan stok ukuran yang dipilih
                 selectedSizeStock = stock;
                 $('#selected-size-stock').val(stock);
 
-                // Update tampilan stok spesifik ukuran dengan warna berdasarkan jumlah stok
+                // Update tampilan stok spesifik ukuran
                 let stockClass = 'bg-info';
                 let stockText = `Stok ${sizeName}: ${stock}`;
 
@@ -2287,16 +2286,17 @@
                     .text(stockText);
                 $('#size-specific-stock').removeClass('d-none');
 
-                // Update stok di modal
+                // PERBAIKAN: Update max quantity dengan stok yang tepat
                 $('#modal-available-stock').text(stock);
                 $('.modal-qty-input').attr('max', stock);
 
-                // Reset nilai kuantitas ke 1 jika melebihi stok yang tersedia
-                if (parseInt($('.modal-qty-input').val()) > stock) {
-                    $('.modal-qty-input').val(1);
+                // Reset quantity jika melebihi stok
+                const currentQty = parseInt($('.modal-qty-input').val());
+                if (currentQty > stock) {
+                    $('.modal-qty-input').val(Math.min(1, stock));
                 }
 
-                // Update tombol berdasarkan ketersediaan stok
+                // Update tombol berdasarkan stok
                 if (stock <= 0) {
                     $('#open-quantity-modal, #buy-now').prop('disabled', true)
                         .css('opacity', '0.6')
