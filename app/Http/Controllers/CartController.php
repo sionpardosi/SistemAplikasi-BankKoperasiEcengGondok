@@ -893,6 +893,5 @@ class CartController extends Controller
             return redirect()->back()->with('success', 'Bukti pembayaran berhasil diupload. Pesanan Anda akan segera diverifikasi.');
         }
 
-        return redirect()->back()->with('error', 'Terjadi kesalahan saat mengupload bukti pembayaran.');
     }
 }
