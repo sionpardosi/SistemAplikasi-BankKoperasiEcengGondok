@@ -989,25 +989,36 @@ class AdminController extends Controller
         $coupon = Coupon::find($id);
         return view('admin.coupon-edit', compact('coupon'));
     }
+
     // Halaman Update Coupon
     public function update_coupon(Request $request)
     {
-        $request->validate([
-            'code' => 'required',
-            'type' => 'required',
-            'value' => 'required|numeric',
-            'cart_value' => 'required|numeric',
-            'expiry_date' => 'required|date'
+        // Bersihkan input format rupiah
+        $request->merge([
+            'discount_amount' => preg_replace('/[^0-9.]/', '', $request->discount_amount),
+            'minimum_order' => preg_replace('/[^0-9.]/', '', $request->minimum_order),
         ]);
 
-        $coupon = Coupon::find($request->id);
-        $coupon->code = $request->code;
-        $coupon->type = $request->type;
-        $coupon->value = str_replace(['Rp ', '.'], '', $request->value);
-        $coupon->cart_value = str_replace(['Rp ', '.'], '', $request->cart_value);
-        $coupon->expiry_date = $request->expiry_date;
-        $coupon->save();
-        return redirect()->route('admin.coupons')->with('status', 'Record has been updated successfully !');
+        $request->validate([
+            'code' => 'required|unique:coupons,code,'.$request->id.'|max:50',
+            'discount_amount' => 'required|numeric|min:1000',
+            'minimum_order' => 'required|numeric|min:0',
+            'expiry_date' => 'required|date|after:today'
+        ], [
+            'code.unique' => 'Kode kupon sudah digunakan, silakan gunakan kode lain',
+            'discount_amount.min' => 'Nilai diskon minimal Rp 1.000',
+            'expiry_date.after' => 'Tanggal kadaluarsa harus setelah hari ini'
+        ]);
+
+        $coupon = Coupon::findOrFail($request->id);
+        $coupon->update([
+            'code' => strtoupper($request->code),
+            'discount_amount' => $request->discount_amount,
+            'minimum_order' => $request->minimum_order,
+            'expiry_date' => $request->expiry_date,
+        ]);
+
+        return redirect()->route('admin.coupons')->with('status', 'Kupon berhasil diperbarui!');
     }
 
     // Halaman Delete Coupon
