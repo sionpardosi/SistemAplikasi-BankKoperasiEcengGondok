@@ -30,7 +30,7 @@
         </div>
         <!-- new-coupon -->
         <div class="wg-box">
-            <form class="form-new-product form-style-1" method="POST" action="{{ route('admin.coupon.store') }}">
+            <form class="form-new-product form-style-1" method="POST" action="{{ route('admin.coupon.store') }}" id="couponForm">
                 @csrf
                 <fieldset class="name">
                     <div class="body-title">Kode Kupon <span class="tf-color-1">*</span></div>
@@ -51,7 +51,7 @@
                 <fieldset class="name">
                     <div class="body-title">Minimum Order <span class="tf-color-1">*</span></div>
                     <input class="flex-grow format-rupiah" type="text" placeholder="Rp 100.000" name="minimum_order"
-                           value="{{ old('minimum_order', '0') }}" aria-required="true">
+                           value="{{ old('minimum_order') }}" aria-required="true">
                     <small class="text-muted">Minimum pembelian untuk menggunakan kupon (0 = tidak ada minimum)</small>
                 </fieldset>
                 @error("minimum_order") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
@@ -78,58 +78,50 @@
 
 @push('scripts')
 <script>
-    // Fungsi formatRupiah (sama seperti yang digunakan di halaman lain)
-    function formatRupiah(angka, prefix) {
-        var number_string = angka.toString().replace(/[^,\d]/g, ''),
-            split = number_string.split(','),
-            sisa = split[0].length % 3,
-            rupiah = split[0].substr(0, sisa),
-            ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+    // Fungsi untuk format rupiah
+    function formatRupiah(value) {
+        if (!value) return '';
+        // Hapus semua karakter kecuali angka
+        let number = value.toString().replace(/[^0-9]/g, '');
+        if (number === '') return '';
 
-        if (ribuan) {
-            var separator = sisa ? '.' : '';
-            rupiah += separator + ribuan.join('.');
-        }
-
-        rupiah = split[1] !== undefined ? rupiah + ',' + split[1] : rupiah;
-        return prefix === undefined ? rupiah : (rupiah ? prefix + rupiah : '');
+        // Format dengan pemisah ribuan
+        return 'Rp ' + parseInt(number).toLocaleString('id-ID');
     }
 
-    $(document).ready(function(){
-        $('form').on('submit', function(){
-            // Bersihkan field value
-            var val = $('input[name="value"]').val();
-            val = val.replace(/[^0-9.]/g, '');
-            $('input[name="value"]').val(val);
-            // Bersihkan field cart_value
-            var cartVal = $('input[name="cart_value"]').val();
-            cartVal = cartVal.replace(/[^0-9.]/g, '');
-            $('input[name="cart_value"]').val(cartVal);
-        });
-    });
-</script>
-
-<script>
-    // Format input rupiah
     $(document).ready(function(){
         // Format rupiah saat mengetik
         $('.format-rupiah').on('input', function(){
             let value = this.value.replace(/[^0-9]/g, '');
-            this.value = formatRupiah(value);
+            if (value !== '') {
+                this.value = formatRupiah(value);
+            }
+        });
+
+        // Tangani paste event
+        $('.format-rupiah').on('paste', function(e) {
+            setTimeout(() => {
+                let value = this.value.replace(/[^0-9]/g, '');
+                if (value !== '') {
+                    this.value = formatRupiah(value);
+                }
+            }, 1);
         });
 
         // Bersihkan format sebelum submit
-        $('form').on('submit', function(){
+        $('#couponForm').on('submit', function(e){
             $('.format-rupiah').each(function(){
                 let cleanValue = this.value.replace(/[^0-9]/g, '');
                 this.value = cleanValue;
             });
         });
-    });
 
-    function formatRupiah(value) {
-        if (!value) return '';
-        return 'Rp ' + parseInt(value).toLocaleString('id-ID');
-    }
-    </script>
+        // Set default value untuk minimum order jika kosong
+        $('input[name="minimum_order"]').on('blur', function(){
+            if (this.value === '' || this.value === 'Rp ') {
+                this.value = 'Rp 0';
+            }
+        });
+    });
+</script>
 @endpush
