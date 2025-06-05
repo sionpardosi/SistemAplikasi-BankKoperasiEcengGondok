@@ -350,28 +350,43 @@ class CartController extends Controller
 
     public function apply_coupon_code(Request $request)
     {
-        $coupon_code = $request->coupon_code;
-        if (isset($coupon_code)) {
-            $coupon = Coupon::where('code', $coupon_code)
-                ->where('expiry_date', '>=', Carbon::today())
-                ->where('cart_value', '<=', Cart::instance('cart')->subtotal(0, '', ''))
-                ->first();
+        $coupon_code = strtoupper(trim($request->coupon_code));
 
-            if (!$coupon) {
-                return redirect()->back()->with('error', 'Invalid coupon code!');
-            } else {
-                Session::put('coupon', [
-                    'code' => $coupon->code,
-                    'type' => $coupon->type,
-                    'value' => $coupon->value,
-                    'cart_value' => $coupon->cart_value,
-                ]);
-                $this->calculateDiscount();
-                return redirect()->back()->with('success', 'Coupon has been applied!');
-            }
-        } else {
-            return redirect()->back()->with('error', 'Invalid coupon code!');
+        if (empty($coupon_code)) {
+            return redirect()->back()->with('error', 'Silakan masukkan kode kupon!');
         }
+
+        $coupon = Coupon::where('code', $coupon_code)->active()->first();
+
+        if (!$coupon) {
+            return redirect()->back()->with('error', 'Kode kupon tidak valid atau sudah kadaluarsa!');
+        }
+
+        $cartSubtotal = floatval(Cart::instance('cart')->subtotal(0, '', ''));
+
+        // Validasi minimum order
+        if (!$coupon->isEligibleForOrder($cartSubtotal)) {
+            return redirect()->back()->with('error',
+                'Minimum order untuk kupon ini adalah ' . formatRupiah($coupon->minimum_order));
+        }
+
+        // Validasi jika diskon lebih besar dari subtotal
+        $discountAmount = min($coupon->discount_amount, $cartSubtotal);
+
+        Session::put('coupon', [
+            'code' => $coupon->code,
+            'discount_amount' => $discountAmount,
+            'original_discount' => $coupon->discount_amount,
+        ]);
+
+        $this->calculateDiscount();
+
+        $message = 'Kupon berhasil diterapkan!';
+        if ($discountAmount < $coupon->discount_amount) {
+            $message .= ' (Diskon disesuaikan dengan total belanja)';
+        }
+
+        return redirect()->back()->with('success', $message);
     }
 
     // ----------------- Cakculate Coupon Code -----------------------------------------------
