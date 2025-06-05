@@ -42,11 +42,11 @@ class AdminController extends Controller
         $dashboardDatas = DB::select("
             SELECT
                 sum(total) AS TotalAmount,
-                sum(if(status='ordered', total, 0)) AS TotalOrderedAmount,
+                sum(if(status='ordered' OR status='pending', total, 0)) AS TotalOrderedAmount,
                 sum(if(status='delivered', total, 0)) AS TotalDeliveredAmount,
                 sum(if(status='canceled', total, 0)) AS TotalCanceledAmount,
                 Count(*) AS Total,
-                sum(if(status='ordered', 1, 0)) AS TotalOrdered,
+                sum(if(status='ordered' OR status='pending', 1, 0)) AS TotalOrdered,
                 sum(if(status='delivered', 1, 0)) AS TotalDelivered,
                 sum(if(status='canceled', 1, 0)) AS TotalCanceled
             FROM Orders
@@ -66,7 +66,7 @@ class AdminController extends Controller
                 DATE_FORMAT(created_at, '%b') AS MonthName,
                 MONTH(created_at) AS MonthNo,
                 SUM(total) AS TotalAmount,
-                SUM(if(status='ordered', total, 0)) AS TotalOrderedAmount,
+                SUM(if(status='ordered' OR status='pending', total, 0)) AS TotalOrderedAmount,
                 SUM(if(status='delivered', total, 0)) AS TotalDeliveredAmount,
                 SUM(if(status='canceled', total, 0)) AS TotalCanceledAmount
             FROM Orders
@@ -83,7 +83,6 @@ class AdminController extends Controller
         $TotalOrderedAmount = collect($monthlyDatas)->sum('TotalOrderedAmount');
         $TotalDeliveredAmount = collect($monthlyDatas)->sum('TotalDeliveredAmount');
         $TotalCanceledAmount = collect($monthlyDatas)->sum('TotalCanceledAmount');
-
 
         // dashboard supplier
         $recentRequests = SupplierRequest::latest()->take(10)->get();

@@ -116,7 +116,7 @@
                                         <i class="icon-credit-card"></i>
                                     </div>
                                     <div>
-                                        <div class="body-text mb-2">Canceled Orders Amount</div>
+                                        <div class="body-text mb-2">Total Nilai Pesanan Dibatalkan</div>
                                         <h4>{{ $dashboardDatas[0]->TotalCanceledAmount }}</h4>
                                     </div>
                                 </div>
