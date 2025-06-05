@@ -42,7 +42,7 @@
                                         <i class="icon-shopping-bag"></i>
                                     </div>
                                     <div>
-                                        <div class="body-text mb-2">Pending Orders</div>
+                                        <div class="body-text mb-2">Pesanan Menunggu</div>
                                         <h4>{{ $dashboardDatas[0]->TotalOrdered }}</h4>
                                     </div>
                                 </div>
@@ -56,7 +56,7 @@
                                         <i class="icon-credit-card"></i>
                                     </div>
                                     <div>
-                                        <div class="body-text mb-2">Pending Orders Amount</div>
+                                        <div class="body-text mb-2">Total Nilai Pesanan Menunggu</div>
                                         <h4>{{ $dashboardDatas[0]->TotalOrderedAmount }}</h4>
                                     </div>
                                 </div>
@@ -74,7 +74,7 @@
                                         <i class="icon-shopping-bag"></i>
                                     </div>
                                     <div>
-                                        <div class="body-text mb-2">Delivered Orders</div>
+                                        <div class="body-text mb-2">Pesanan Terkirim</div>
                                         <h4>{{ $dashboardDatas[0]->TotalDelivered }}</h4>
                                     </div>
                                 </div>
@@ -88,7 +88,7 @@
                                         <i class="icon-credit-card"></i>
                                     </div>
                                     <div>
-                                        <div class="body-text mb-2">Delivered Orders Amount</div>
+                                        <div class="body-text mb-2">Total Nilai Pesanan Terkirim</div>
                                         <h4>{{ $dashboardDatas[0]->TotalDeliveredAmount }}</h4>
                                     </div>
                                 </div>
@@ -102,7 +102,7 @@
                                         <i class="icon-shopping-bag"></i>
                                     </div>
                                     <div>
-                                        <div class="body-text mb-2">Canceled Orders</div>
+                                        <div class="body-text mb-2">Pesanan Dibatalkan</div>
                                         <h4>{{ $dashboardDatas[0]->TotalCanceled }}</h4>
                                     </div>
                                 </div>

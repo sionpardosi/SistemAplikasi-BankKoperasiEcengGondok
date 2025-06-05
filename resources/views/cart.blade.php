@@ -7,6 +7,10 @@
             color: #278c04 !important;
         }
 
+        .text-danger {
+            color: #d9304c !important;
+        }
+
         /* Styling untuk informasi stok */
         .product-stock-info {
             display: flex;
@@ -1100,21 +1104,6 @@
                     }
                 }
 
-                // Calculate discount based on coupon type
-                function calculateDiscount(subtotal) {
-                    @if (Session::has('coupon'))
-                        const couponType = "{{ Session::get('coupon')['type'] }}";
-                        const couponValue = parseFloat("{{ Session::get('coupon')['value'] }}");
-
-                        if (couponType === 'fixed') {
-                            return couponValue;
-                        } else {
-                            return (subtotal * couponValue) / 100;
-                        }
-                    @else
-                        return 0;
-                    @endif
-                }
 
                 // Format number to Rupiah
                 function formatRupiah(number) {

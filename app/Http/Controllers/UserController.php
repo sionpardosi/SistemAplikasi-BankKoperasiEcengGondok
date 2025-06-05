@@ -80,6 +80,7 @@ class UserController extends Controller
         return back()->with('status', 'Pesanan berhasil dikonfirmasi telah diterima. Terima kasih!');
     }
 
+    // Halaman untuk menampilkan detail transaksi pembayaran
     public function order_payment($transaction_id)
     {
         $transaction = Transaction::where('id', $transaction_id)->first();

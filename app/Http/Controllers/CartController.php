@@ -449,14 +449,14 @@ class CartController extends Controller
         }
 
         $discount = 0;
-        if (Session::has('coupon')) {
-            $coupon = Session::get('coupon');
-            if ($coupon['type'] == 'fixed') {
-                $discount = floatval($coupon['value']);
-            } else {
-                $discount = ($subtotal * floatval($coupon['value'])) / 100;
-            }
-        }
+        // if (Session::has('coupon')) {
+        //     $coupon = Session::get('coupon');
+        //     if ($coupon['type'] == 'fixed') {
+        //         $discount = floatval($coupon['value']);
+        //     } else {
+        //         $discount = ($subtotal * floatval($coupon['value'])) / 100;
+        //     }
+        // }
 
         $subtotalAfterDiscount = $subtotal - $discount;
         $totalAfterDiscount = $subtotalAfterDiscount;

@@ -91,7 +91,8 @@ class AdminController extends Controller
         // Buat array 12 bulan (biar grafik tetap full Januari-Desember)
         $chartData = [];
         for ($i = 1; $i <= 12; $i++) {
-            $chartData[] = $dataChart[$i] ?? 0;
+            $monthData = collect($monthlyDatas)->where('MonthNo', $i)->first();
+            $chartData[] = $monthData ? $monthData->TotalAmount : 0;
         }
 
         return view('admin.index', compact('orders', 'dashboardDatas', 'AmountM', 'OrderedAmountM', 'DeliveredAmountM', 'CanceledAmountM', 'TotalAmount', 'TotalOrderedAmount', 'TotalDeliveredAmount', 'TotalCanceledAmount', 'recentRequests', 'chartData'));
