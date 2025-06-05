@@ -1352,17 +1352,12 @@
                     }
                 }
 
-                // Calculate discount based on coupon type
+                // Calculate discount based on coupon
                 function calculateDiscount(subtotal) {
                     @if (Session::has('coupon'))
-                        const couponType = "{{ Session::get('coupon')['type'] }}";
-                        const couponValue = parseFloat("{{ Session::get('coupon')['value'] }}");
-
-                        if (couponType === 'fixed') {
-                            return couponValue;
-                        } else {
-                            return (subtotal * couponValue) / 100;
-                        }
+                        const discountAmount = parseFloat("{{ Session::get('coupon')['discount_amount'] }}");
+                        // Pastikan diskon tidak melebihi subtotal
+                        return Math.min(discountAmount, subtotal);
                     @else
                         return 0;
                     @endif

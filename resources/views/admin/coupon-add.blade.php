@@ -33,45 +33,40 @@
             <form class="form-new-product form-style-1" method="POST" action="{{ route('admin.coupon.store') }}">
                 @csrf
                 <fieldset class="name">
-                    <div class="body-title">Coupon Code <span class="tf-color-1">*</span></div>
-                    <input class="flex-grow" type="text" placeholder="Coupon Code" name="code" tabindex="0" value="{{ old('code') }}" aria-required="true">
+                    <div class="body-title">Kode Kupon <span class="tf-color-1">*</span></div>
+                    <input class="flex-grow" type="text" placeholder="Contoh: DISKON50K" name="code"
+                           value="{{ old('code') }}" aria-required="true" style="text-transform: uppercase;">
+                    <small class="text-muted">Gunakan huruf besar dan angka, contoh: DISKON50K</small>
                 </fieldset>
                 @error("code") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
 
-                <fieldset class="category">
-                    <div class="body-title">Coupon Type</div>
-                    <div class="select flex-grow">
-                        <select class="" name="type">
-                            <option value="">Select</option>
-                            <option value="fixed" @if(old('type')=="fixed") selected @endif>Fixed</option>
-                            <option value="percent" @if(old('type')=="percent") selected @endif>Percent</option>
-                        </select>
-                    </div>
+                <fieldset class="name">
+                    <div class="body-title">Nilai Diskon <span class="tf-color-1">*</span></div>
+                    <input class="flex-grow format-rupiah" type="text" placeholder="Rp 50.000" name="discount_amount"
+                           value="{{ old('discount_amount') }}" aria-required="true">
+                    <small class="text-muted">Masukkan nilai diskon dalam rupiah (minimal Rp 1.000)</small>
                 </fieldset>
-                @error("type") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
+                @error("discount_amount") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
 
                 <fieldset class="name">
-                    <div class="body-title">Value <span class="tf-color-1">*</span></div>
-                    <!-- Jika ada nilai lama, format dengan formatRupiah -->
-                    <input class="flex-grow" type="text" placeholder="Coupon Value" name="value" tabindex="0" value="{{ old('value') ? formatRupiah(old('value')) : '' }}" aria-required="true">
+                    <div class="body-title">Minimum Order <span class="tf-color-1">*</span></div>
+                    <input class="flex-grow format-rupiah" type="text" placeholder="Rp 100.000" name="minimum_order"
+                           value="{{ old('minimum_order', '0') }}" aria-required="true">
+                    <small class="text-muted">Minimum pembelian untuk menggunakan kupon (0 = tidak ada minimum)</small>
                 </fieldset>
-                @error("value") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
+                @error("minimum_order") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
 
                 <fieldset class="name">
-                    <div class="body-title">Cart Value <span class="tf-color-1">*</span></div>
-                    <input class="flex-grow" type="text" placeholder="Cart Value" name="cart_value" tabindex="0" value="{{ old('cart_value') ? formatRupiah(old('cart_value')) : '' }}" aria-required="true">
-                </fieldset>
-                @error("cart_value") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
-
-                <fieldset class="name">
-                    <div class="body-title">Expiry Date <span class="tf-color-1">*</span></div>
-                    <input class="flex-grow" type="date" placeholder="Expiry Date" name="expiry_date" tabindex="0" value="{{ old('expiry_date') }}" aria-required="true">
+                    <div class="body-title">Tanggal Kadaluarsa <span class="tf-color-1">*</span></div>
+                    <input class="flex-grow" type="date" name="expiry_date"
+                           value="{{ old('expiry_date') }}" min="{{ date('Y-m-d', strtotime('+1 day')) }}" aria-required="true">
+                    <small class="text-muted">Kupon akan otomatis tidak aktif setelah tanggal ini</small>
                 </fieldset>
                 @error("expiry_date") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
 
                 <div class="bot">
                     <div></div>
-                    <button class="tf-button w208" type="submit">Save</button>
+                    <button class="tf-button w208" type="submit">Simpan Kupon</button>
                 </div>
             </form>
         </div>
@@ -113,4 +108,28 @@
         });
     });
 </script>
+
+<script>
+    // Format input rupiah
+    $(document).ready(function(){
+        // Format rupiah saat mengetik
+        $('.format-rupiah').on('input', function(){
+            let value = this.value.replace(/[^0-9]/g, '');
+            this.value = formatRupiah(value);
+        });
+
+        // Bersihkan format sebelum submit
+        $('form').on('submit', function(){
+            $('.format-rupiah').each(function(){
+                let cleanValue = this.value.replace(/[^0-9]/g, '');
+                this.value = cleanValue;
+            });
+        });
+    });
+
+    function formatRupiah(value) {
+        if (!value) return '';
+        return 'Rp ' + parseInt(value).toLocaleString('id-ID');
+    }
+    </script>
 @endpush

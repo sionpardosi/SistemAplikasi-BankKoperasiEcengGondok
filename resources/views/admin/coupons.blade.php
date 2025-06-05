@@ -56,23 +56,29 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Code</th>
-                                    <th>Type</th>
-                                    <th>Value</th>
-                                    <th>Cart Value</th>
-                                    <th>Expiry Date</th>
-                                    <th>Action</th>
+                                    <th>Kode Kupon</th>
+                                    <th>Nilai Diskon</th>
+                                    <th>Minimum Order</th>
+                                    <th>Tanggal Kadaluarsa</th>
+                                    <th>Status</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($coupons as $coupon)
                                     <tr>
                                         <td>{{ $coupon->id }}</td>
-                                        <td>{{ $coupon->code }}</td>
-                                        <td>{{ $coupon->type }}</td>
-                                        <td>{{ $coupon->value }}</td>
-                                        <td>{{ $coupon->cart_value }}</td>
-                                        <td>{{ $coupon->expiry_date }}</td>
+                                        <td><strong>{{ $coupon->code }}</strong></td>
+                                        <td>{{ formatRupiah($coupon->discount_amount) }}</td>
+                                        <td>{{ formatRupiah($coupon->minimum_order) }}</td>
+                                        <td>{{ $coupon->expiry_date->format('d/m/Y') }}</td>
+                                        <td>
+                                            @if($coupon->isValid())
+                                                <span class="badge bg-success">Aktif</span>
+                                            @else
+                                                <span class="badge bg-danger">Tidak Aktif</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             <div class="list-icon-function">
                                                 <a href="{{ route('admin.coupon.edit', ['id' => $coupon->id]) }}">
@@ -80,9 +86,7 @@
                                                         <i class="icon-edit-3"></i>
                                                     </div>
                                                 </a>
-
-                                                <form action="{{ route('admin.coupon.delete', ['id' => $coupon->id]) }}"
-                                                    method="POST">
+                                                <form action="{{ route('admin.coupon.delete', ['id' => $coupon->id]) }}" method="POST">
                                                     @csrf
                                                     @method('DELETE')
                                                     <div class="item text-danger delete">
@@ -126,4 +130,27 @@
             });
         });
     </script>
+    <script>
+        // Format input rupiah
+        $(document).ready(function(){
+            // Format rupiah saat mengetik
+            $('.format-rupiah').on('input', function(){
+                let value = this.value.replace(/[^0-9]/g, '');
+                this.value = formatRupiah(value);
+            });
+
+            // Bersihkan format sebelum submit
+            $('form').on('submit', function(){
+                $('.format-rupiah').each(function(){
+                    let cleanValue = this.value.replace(/[^0-9]/g, '');
+                    this.value = cleanValue;
+                });
+            });
+        });
+
+        function formatRupiah(value) {
+            if (!value) return '';
+            return 'Rp ' + parseInt(value).toLocaleString('id-ID');
+        }
+        </script>
 @endpush

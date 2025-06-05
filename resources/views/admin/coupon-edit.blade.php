@@ -26,40 +26,42 @@
         </div>
         <!-- new-category -->
         <div class="wg-box">
-            <form class="form-new-product form-style-1" method="POST" action="{{route('admin.coupon.update')}}" >
+            <form class="form-new-product form-style-1" method="POST" action="{{route('admin.coupon.update')}}">
                 @csrf
                 @method("put")
                 <input type="hidden" name="id" value="{{$coupon->id}}" />
+
                 <fieldset class="name">
-                    <div class="body-title">Coupon Code <span class="tf-color-1">*</span></div>
-                    <input class="flex-grow" type="text" placeholder="Coupon Code" name="code" tabindex="0" value="{{$coupon->code}}" aria-required="true" required="">
+                    <div class="body-title">Kode Kupon <span class="tf-color-1">*</span></div>
+                    <input class="flex-grow" type="text" placeholder="Kode Kupon" name="code"
+                           value="{{$coupon->code}}" aria-required="true" style="text-transform: uppercase;">
                 </fieldset>
-                <fieldset class="category">
-                    <div class="body-title">Coupon Type</div>
-                    <div class="select flex-grow">
-                        <select class="" name="type">
-                            <option value="">Select</option>
-                            <option value="fixed" {{$coupon->type=='fixed'? 'selected':''}}>Fixed</option>
-                            <option value="percent" {{$coupon->type=='percent'? 'selected':''}}>Percent</option>
-                        </select>
-                    </div>
-                </fieldset>
+                @error("code") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
+
                 <fieldset class="name">
-                    <div class="body-title">Value <span class="tf-color-1">*</span></div>
-                    <input class="flex-grow" type="text" placeholder="Coupon Value" name="value" tabindex="0" value="{{$coupon->value}}" aria-required="true" required="">
+                    <div class="body-title">Nilai Diskon <span class="tf-color-1">*</span></div>
+                    <input class="flex-grow format-rupiah" type="text" placeholder="Nilai Diskon" name="discount_amount"
+                           value="{{ formatRupiah($coupon->discount_amount) }}" aria-required="true">
                 </fieldset>
+                @error("discount_amount") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
+
                 <fieldset class="name">
-                    <div class="body-title">Cart Value <span class="tf-color-1">*</span></div>
-                    <input class="flex-grow" type="text" placeholder="Cart Value" name="cart_value" tabindex="0" value="{{$coupon->cart_value}}" aria-required="true" required="">
+                    <div class="body-title">Minimum Order <span class="tf-color-1">*</span></div>
+                    <input class="flex-grow format-rupiah" type="text" placeholder="Minimum Order" name="minimum_order"
+                           value="{{ formatRupiah($coupon->minimum_order) }}" aria-required="true">
                 </fieldset>
+                @error("minimum_order") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
+
                 <fieldset class="name">
-                    <div class="body-title">Expiry Date <span class="tf-color-1">*</span></div>
-                    <input class="flex-grow" type="date" placeholder="Expiry Date" name="expiry_date" tabindex="0" value="{{$coupon->expiry_date}}" aria-required="true" required="">
+                    <div class="body-title">Tanggal Kadaluarsa <span class="tf-color-1">*</span></div>
+                    <input class="flex-grow" type="date" name="expiry_date"
+                           value="{{$coupon->expiry_date->format('Y-m-d')}}" min="{{ date('Y-m-d', strtotime('+1 day')) }}" aria-required="true">
                 </fieldset>
+                @error("expiry_date") <span class="alert alert-danger text-center">{{ $message }}</span> @enderror
 
                 <div class="bot">
                     <div></div>
-                    <button class="tf-button w208" type="submit">Save</button>
+                    <button class="tf-button w208" type="submit">Perbarui Kupon</button>
                 </div>
             </form>
         </div>
@@ -69,4 +71,27 @@
 </div>
 
 </div>
+<script>
+    // Format input rupiah
+    $(document).ready(function(){
+        // Format rupiah saat mengetik
+        $('.format-rupiah').on('input', function(){
+            let value = this.value.replace(/[^0-9]/g, '');
+            this.value = formatRupiah(value);
+        });
+
+        // Bersihkan format sebelum submit
+        $('form').on('submit', function(){
+            $('.format-rupiah').each(function(){
+                let cleanValue = this.value.replace(/[^0-9]/g, '');
+                this.value = cleanValue;
+            });
+        });
+    });
+
+    function formatRupiah(value) {
+        if (!value) return '';
+        return 'Rp ' + parseInt(value).toLocaleString('id-ID');
+    }
+    </script>
 @endsection
