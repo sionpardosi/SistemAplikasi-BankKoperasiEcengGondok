@@ -392,16 +392,15 @@ class CartController extends Controller
     // ----------------- Cakculate Coupon Code -----------------------------------------------
     public function calculateDiscount()
     {
-        // Pastikan subtotal yang diambil berupa angka polos (tanpa pemformatan)
         $cartSubtotal = floatval(Cart::instance('cart')->subtotal(0, '', ''));
         $discount = 0;
+
         if (Session::has('coupon')) {
             $coupon = Session::get('coupon');
-            if ($coupon['type'] == 'fixed') {
-                $discount = floatval($coupon['value']);
-            } else {
-                $discount = ($cartSubtotal * floatval($coupon['value'])) / 100;
-            }
+            $discount = floatval($coupon['discount_amount']);
+
+            // Pastikan diskon tidak melebihi subtotal
+            $discount = min($discount, $cartSubtotal);
         }
 
         $subtotalAfterDiscount = $cartSubtotal - $discount;
