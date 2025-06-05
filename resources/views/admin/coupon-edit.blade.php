@@ -26,7 +26,7 @@
         </div>
         <!-- new-category -->
         <div class="wg-box">
-            <form class="form-new-product form-style-1" method="POST" action="{{route('admin.coupon.update')}}">
+            <form class="form-new-product form-style-1" method="POST" action="{{route('admin.coupon.update')}}" id="couponEditForm">
                 @csrf
                 @method("put")
                 <input type="hidden" name="id" value="{{$coupon->id}}" />
@@ -70,28 +70,45 @@
     <!-- /main-content-wrap -->
 </div>
 
-</div>
+@push('scripts')
 <script>
-    // Format input rupiah
+    // Fungsi untuk format rupiah
+    function formatRupiah(value) {
+        if (!value) return '';
+        // Hapus semua karakter kecuali angka
+        let number = value.toString().replace(/[^0-9]/g, '');
+        if (number === '') return '';
+
+        // Format dengan pemisah ribuan
+        return 'Rp ' + parseInt(number).toLocaleString('id-ID');
+    }
+
     $(document).ready(function(){
         // Format rupiah saat mengetik
         $('.format-rupiah').on('input', function(){
             let value = this.value.replace(/[^0-9]/g, '');
-            this.value = formatRupiah(value);
+            if (value !== '') {
+                this.value = formatRupiah(value);
+            }
+        });
+
+        // Tangani paste event
+        $('.format-rupiah').on('paste', function(e) {
+            setTimeout(() => {
+                let value = this.value.replace(/[^0-9]/g, '');
+                if (value !== '') {
+                    this.value = formatRupiah(value);
+                }
+            }, 1);
         });
 
         // Bersihkan format sebelum submit
-        $('form').on('submit', function(){
+        $('#couponEditForm').on('submit', function(e){
             $('.format-rupiah').each(function(){
                 let cleanValue = this.value.replace(/[^0-9]/g, '');
                 this.value = cleanValue;
             });
         });
     });
-
-    function formatRupiah(value) {
-        if (!value) return '';
-        return 'Rp ' + parseInt(value).toLocaleString('id-ID');
-    }
-    </script>
+</script>
 @endsection
