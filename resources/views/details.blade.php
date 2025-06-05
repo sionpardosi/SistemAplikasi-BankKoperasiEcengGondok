@@ -1946,22 +1946,29 @@
 
         // Fungsi pemeriksaan stok yang ditingkatkan
         function enhancedStockCheck(requestedQuantity, availableStock, productName) {
-            if (availableStock <= 0) {
-                // Stok habis total
-                showEnhancedStockNotification(0, requestedQuantity, productName, true);
+            // Untuk produk dengan ukuran, gunakan stok ukuran yang dipilih
+            if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }}) {
+                const selectedSizeId = $('#selected-size-id').val();
+                if (!selectedSizeId) {
+                    showCartNotification('Silakan pilih ukuran terlebih dahulu', false);
+                    return false;
+                }
 
-                // Disable tombol dan berikan visual feedback
+                // Ambil stok dari tombol ukuran yang dipilih
+                const selectedSizeBtn = $(`.size-btn[data-size-id="${selectedSizeId}"]`);
+                availableStock = selectedSizeBtn.data('stock') || 0;
+            }
+
+            if (availableStock <= 0) {
+                showEnhancedStockNotification(0, requestedQuantity, productName, true);
                 updateButtonsForOutOfStock(true);
                 return false;
             } else if (requestedQuantity > availableStock) {
-                // Stok ada tapi tidak cukup
                 showEnhancedStockNotification(availableStock, requestedQuantity, productName, false);
 
-                // Auto-adjust quantity ke max available (opsional)
                 if ($('.modal-qty-input').length) {
                     $('.modal-qty-input').val(availableStock).trigger('change');
                 }
-
                 return false;
             }
 
@@ -3923,6 +3930,8 @@
                 `).appendTo('head');
         });
     </script>
+
+    <!-- Functionality to handle size selection error -->
     <script>
         $(document).ready(function() {
             // Cek apakah ada parameter size_required di URL
