@@ -46,28 +46,79 @@ class CartController extends Controller
      */
     public function addToCart(Request $request)
     {
-        $product = Product::findOrFail($request->id);
+        $product = Product::with('sizes')->findOrFail($request->id);
+        $requestedQuantity = (int) $request->quantity;
+        $sizeId = $request->size_id;
 
-        // Hitung stok yang tersedia = quantity - reserved_quantity
-        $availableStock = $product->quantity - $product->reserved_quantity;
-
-        // Ambil jumlah produk yang sudah ada di keranjang
-        $cartItem = Cart::instance('cart')->content()->where('id', $request->id)->first();
-        $currentCartQty = $cartItem ? $cartItem->qty : 0;
-
-        $totalRequestedQty = $currentCartQty + $request->quantity;
-
-        if ($totalRequestedQty > $availableStock) {
+        // ===== PERBAIKAN: Validasi ukuran jika produk memiliki size =====
+        if ($product->sizes->count() > 0 && !$sizeId) {
             if ($request->ajax()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Total jumlah di keranjang melebihi stok yang tersedia (' . $availableStock . ').'
+                    'message' => 'Silakan pilih ukuran terlebih dahulu'
                 ], 400);
             }
-            return redirect()->back()->with('error', 'Total jumlah di keranjang melebihi stok yang tersedia.');
+            return redirect()->back()->with('error', 'Silakan pilih ukuran terlebih dahulu');
         }
 
-        // Persiapkan options untuk menyimpan informasi ukuran jika ada
+        // ===== PERBAIKAN: Hitung stok yang tersedia berdasarkan ukuran =====
+        $availableStock = 0;
+        if ($product->sizes->count() > 0 && $sizeId) {
+            // Untuk produk dengan ukuran, gunakan stok per ukuran
+            $sizeStock = $product->sizes()->where('size_id', $sizeId)->first();
+            if (!$sizeStock) {
+                if ($request->ajax()) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ukuran yang dipilih tidak valid'
+                    ], 400);
+                }
+                return redirect()->back()->with('error', 'Ukuran yang dipilih tidak valid');
+            }
+            $availableStock = $sizeStock->pivot->stock;
+        } else {
+            // Untuk produk tanpa ukuran
+            $availableStock = $product->quantity - ($product->reserved_quantity ?? 0);
+        }
+
+        // ===== PERBAIKAN: Cek jumlah yang sudah ada di keranjang untuk ukuran yang sama =====
+        $currentCartQty = 0;
+        if ($sizeId) {
+            // Untuk produk dengan ukuran, cek berdasarkan produk ID dan size ID
+            $cartItem = Cart::instance('cart')->content()->first(function ($item) use ($request, $sizeId) {
+                return $item->id == $request->id &&
+                    isset($item->options['size_id']) &&
+                    $item->options['size_id'] == $sizeId;
+            });
+            $currentCartQty = $cartItem ? $cartItem->qty : 0;
+        } else {
+            // Untuk produk tanpa ukuran
+            $cartItem = Cart::instance('cart')->content()->where('id', $request->id)->first();
+            $currentCartQty = $cartItem ? $cartItem->qty : 0;
+        }
+
+        $totalRequestedQty = $currentCartQty + $requestedQuantity;
+
+        // ===== PERBAIKAN: Validasi stok berdasarkan ukuran atau total =====
+        if ($totalRequestedQty > $availableStock) {
+            $errorMessage = '';
+            if ($product->sizes->count() > 0 && $sizeId) {
+                $sizeName = Size::find($sizeId)->name ?? 'Unknown';
+                $errorMessage = "Total jumlah di keranjang untuk ukuran {$sizeName} melebihi stok yang tersedia ({$availableStock} unit).";
+            } else {
+                $errorMessage = "Total jumlah di keranjang melebihi stok yang tersedia ({$availableStock} unit).";
+            }
+
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $errorMessage
+                ], 400);
+            }
+            return redirect()->back()->with('error', $errorMessage);
+        }
+
+        // ===== SISANYA TETAP SAMA - Persiapkan options untuk menyimpan informasi ukuran =====
         $options = [];
         if ($request->has('size_id') && $request->size_id) {
             $size = Size::find($request->size_id);
@@ -78,34 +129,15 @@ class CartController extends Controller
         }
 
         // Jika sudah ada di keranjang dengan ukuran yang sama, update qty
-        if ($cartItem) {
-            // Cek apakah item dengan ukuran yang sama sudah ada
-            $existingItemWithSameSize = Cart::instance('cart')->content()->first(function ($item) use ($request) {
-                return $item->id == $request->id &&
-                    isset($item->options['size_id']) &&
-                    $item->options['size_id'] == $request->size_id;
-            });
-
-            if ($existingItemWithSameSize) {
-                // Update qty item yang sudah ada
-                Cart::instance('cart')->update($existingItemWithSameSize->rowId, $existingItemWithSameSize->qty + $request->quantity);
-            } else {
-                // Tambahkan sebagai item baru dengan ukuran berbeda
-                Cart::instance('cart')->add([
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'qty' => $request->quantity,
-                    'price' => $product->sale_price ?: $product->regular_price,
-                    'weight' => 0,
-                    'options' => $options,
-                ])->associate(Product::class);
-            }
+        if ($currentCartQty > 0) {
+            // Update qty item yang sudah ada
+            Cart::instance('cart')->update($cartItem->rowId, $totalRequestedQty);
         } else {
             // Tambahkan item baru ke keranjang
             Cart::instance('cart')->add([
                 'id' => $product->id,
                 'name' => $product->name,
-                'qty' => $request->quantity,
+                'qty' => $requestedQuantity,
                 'price' => $product->sale_price ?: $product->regular_price,
                 'weight' => 0,
                 'options' => $options,
@@ -116,7 +148,6 @@ class CartController extends Controller
         if (Auth::check()) {
             $userId = Auth::id();
 
-            // Simpan atau update item di database
             if (!empty($options)) {
                 // Cek apakah item dengan produk dan ukuran yang sama sudah ada
                 $dbCartItem = CartItem::where('user_id', $userId)
@@ -126,7 +157,7 @@ class CartController extends Controller
 
                 if ($dbCartItem) {
                     // Update qty item yang sudah ada
-                    $dbCartItem->quantity += $request->quantity;
+                    $dbCartItem->quantity = $totalRequestedQty;
                     $dbCartItem->save();
                 } else {
                     // Buat item baru
@@ -134,27 +165,27 @@ class CartController extends Controller
                         'user_id' => $userId,
                         'product_id' => $product->id,
                         'name' => $product->name,
-                        'quantity' => $request->quantity,
+                        'quantity' => $requestedQuantity,
                         'price' => $product->sale_price ?: $product->regular_price,
                         'options' => $options
                     ]);
                 }
             } else {
-                // Tanpa ukuran, cek item yang sudah ada berdasarkan produk saja
+                // Tanpa ukuran
                 $dbCartItem = CartItem::where('user_id', $userId)
                     ->where('product_id', $product->id)
                     ->whereNull('options')
                     ->first();
 
                 if ($dbCartItem) {
-                    $dbCartItem->quantity += $request->quantity;
+                    $dbCartItem->quantity = $totalRequestedQty;
                     $dbCartItem->save();
                 } else {
                     CartItem::create([
                         'user_id' => $userId,
                         'product_id' => $product->id,
                         'name' => $product->name,
-                        'quantity' => $request->quantity,
+                        'quantity' => $requestedQuantity,
                         'price' => $product->sale_price ?: $product->regular_price,
                         'options' => null
                     ]);
@@ -366,8 +397,10 @@ class CartController extends Controller
 
         // Validasi minimum order
         if (!$coupon->isEligibleForOrder($cartSubtotal)) {
-            return redirect()->back()->with('error',
-                'Minimum order untuk kupon ini adalah ' . formatRupiah($coupon->minimum_order));
+            return redirect()->back()->with(
+                'error',
+                'Minimum order untuk kupon ini adalah ' . formatRupiah($coupon->minimum_order)
+            );
         }
 
         // Validasi jika diskon lebih besar dari subtotal
@@ -893,5 +926,6 @@ class CartController extends Controller
             return redirect()->back()->with('success', 'Bukti pembayaran berhasil diupload. Pesanan Anda akan segera diverifikasi.');
         }
 
+        return redirect()->back()->with('error', 'Terjadi kesalahan saat mengupload bukti pembayaran.');
     }
 }
