@@ -38,74 +38,137 @@ class AdminController extends Controller
     // ====================================================================================================
     public function index()
     {
-        $orders = Order::orderBy('created_at', 'DESC')->get()->take(10);
-        $dashboardDatas = DB::select("
-            SELECT
-                sum(total) AS TotalAmount,
-                sum(if(status='ordered' OR status='pending', total, 0)) AS TotalOrderedAmount,
-                sum(if(status='delivered', total, 0)) AS TotalDeliveredAmount,
-                sum(if(status='canceled', total, 0)) AS TotalCanceledAmount,
-                Count(*) AS Total,
-                sum(if(status='ordered' OR status='pending', 1, 0)) AS TotalOrdered,
-                sum(if(status='delivered', 1, 0)) AS TotalDelivered,
-                sum(if(status='canceled', 1, 0)) AS TotalCanceled
-            FROM Orders
-        ");
+        // Ambil 10 pesanan terbaru
+        $orders = Order::orderBy('created_at', 'DESC')->take(10)->get();
 
-        $monthlyDatas = DB::select("
-        SELECT
-            M.id AS MonthNo,
-            M.name AS MonthName,
-            IFNULL(D.TotalAmount, 0) AS TotalAmount,
-            IFNULL(D.TotalOrderedAmount, 0) AS TotalOrderedAmount,
-            IFNULL(D.TotalDeliveredAmount, 0) AS TotalDeliveredAmount,
-            IFNULL(D.TotalCanceledAmount, 0) AS TotalCanceledAmount
-        FROM month_names M
-        LEFT JOIN (
-            SELECT
-                DATE_FORMAT(created_at, '%b') AS MonthName,
-                MONTH(created_at) AS MonthNo,
-                SUM(total) AS TotalAmount,
-                SUM(if(status='ordered' OR status='pending', total, 0)) AS TotalOrderedAmount,
-                SUM(if(status='delivered', total, 0)) AS TotalDeliveredAmount,
-                SUM(if(status='canceled', total, 0)) AS TotalCanceledAmount
-            FROM Orders
-            WHERE YEAR(created_at) = YEAR(NOW())
-            GROUP BY YEAR(created_at), MONTH(created_at), DATE_FORMAT(created_at, '%b')
-        ORDER BY MONTH(created_at)) D ON D.MonthNo = M.id");
+        // Data ringkasan dashboard
+        $dashboardDatas = collect([
+            (object)[
+                'TotalAmount' => Order::sum('total') ?? 0,
+                'TotalOrderedAmount' => Order::whereIn('status', ['pending', 'ordered'])->sum('total') ?? 0,
+                'TotalDeliveredAmount' => Order::where('status', 'delivered')->sum('total') ?? 0,
+                'TotalCanceledAmount' => Order::where('status', 'canceled')->sum('total') ?? 0,
+                'Total' => Order::count() ?? 0,
+                'TotalOrdered' => Order::whereIn('status', ['pending', 'ordered'])->count() ?? 0,
+                'TotalDelivered' => Order::where('status', 'delivered')->count() ?? 0,
+                'TotalCanceled' => Order::where('status', 'canceled')->count() ?? 0
+            ]
+        ]);
 
-        $AmountM = implode(',', collect($monthlyDatas)->pluck('TotalAmount')->toArray());
-        $OrderedAmountM = implode(',', collect($monthlyDatas)->pluck('TotalOrderedAmount')->toArray());
-        $DeliveredAmountM = implode(',', collect($monthlyDatas)->pluck('TotalDeliveredAmount')->toArray());
-        $CanceledAmountM = implode(',', collect($monthlyDatas)->pluck('TotalCanceledAmount')->toArray());
+        // Data bulanan untuk chart (tahun berjalan)
+        $currentYear = date('Y');
 
-        $TotalAmount = collect($monthlyDatas)->sum('TotalAmount');
-        $TotalOrderedAmount = collect($monthlyDatas)->sum('TotalOrderedAmount');
-        $TotalDeliveredAmount = collect($monthlyDatas)->sum('TotalDeliveredAmount');
-        $TotalCanceledAmount = collect($monthlyDatas)->sum('TotalCanceledAmount');
+        // Inisialisasi array untuk 12 bulan
+        $monthlyAmounts = array_fill(0, 12, 0);
+        $monthlyOrdered = array_fill(0, 12, 0);
+        $monthlyDelivered = array_fill(0, 12, 0);
+        $monthlyCanceled = array_fill(0, 12, 0);
 
-        // dashboard supplier
-        $recentRequests = SupplierRequest::latest()->take(10)->get();
+        // Ambil data dari database
+        $monthlyData = Order::selectRaw('
+            MONTH(created_at) as month,
+            SUM(total) as total_amount,
+            SUM(CASE WHEN status IN ("pending", "ordered") THEN total ELSE 0 END) as ordered_amount,
+            SUM(CASE WHEN status = "delivered" THEN total ELSE 0 END) as delivered_amount,
+            SUM(CASE WHEN status = "canceled" THEN total ELSE 0 END) as canceled_amount
+        ')
+        ->whereYear('created_at', $currentYear)
+        ->groupBy(DB::raw('MONTH(created_at)'))
+        ->get();
 
-        // Buat array 12 bulan (biar grafik tetap full Januari-Desember)
-        $chartData = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $monthData = collect($monthlyDatas)->where('MonthNo', $i)->first();
-            $chartData[] = $monthData ? $monthData->TotalAmount : 0;
+        // Isi data ke array berdasarkan bulan
+        foreach ($monthlyData as $data) {
+            $monthIndex = $data->month - 1; // Array dimulai dari 0, bulan dari 1
+            $monthlyAmounts[$monthIndex] = floatval($data->total_amount);
+            $monthlyOrdered[$monthIndex] = floatval($data->ordered_amount);
+            $monthlyDelivered[$monthIndex] = floatval($data->delivered_amount);
+            $monthlyCanceled[$monthIndex] = floatval($data->canceled_amount);
         }
 
-        return view('admin.index', compact('orders', 'dashboardDatas', 'AmountM', 'OrderedAmountM', 'DeliveredAmountM', 'CanceledAmountM', 'TotalAmount', 'TotalOrderedAmount', 'TotalDeliveredAmount', 'TotalCanceledAmount', 'recentRequests', 'chartData'));
+        // Convert ke format string untuk JavaScript
+        $AmountM = implode(',', $monthlyAmounts);
+        $OrderedAmountM = implode(',', $monthlyOrdered);
+        $DeliveredAmountM = implode(',', $monthlyDelivered);
+        $CanceledAmountM = implode(',', $monthlyCanceled);
+
+        // Total untuk tampilan Monthly Revenue
+        $TotalAmount = formatRupiah(array_sum($monthlyAmounts));
+        $TotalOrderedAmount = formatRupiah(array_sum($monthlyOrdered));
+        $TotalDeliveredAmount = formatRupiah(array_sum($monthlyDelivered));
+        $TotalCanceledAmount = formatRupiah(array_sum($monthlyCanceled));
+
+        // Statistics tambahan
+        $additionalStats = $this->getAdditionalStats();
+
+        // Debug log untuk memastikan data terkirim
+        Log::info('Dashboard Data:', [
+            'AmountM' => $AmountM,
+            'OrderedAmountM' => $OrderedAmountM,
+            'DeliveredAmountM' => $DeliveredAmountM,
+            'CanceledAmountM' => $CanceledAmountM,
+            'orders_count' => $orders->count(),
+            'dashboard_data' => $dashboardDatas->toArray()
+        ]);
+
+        return view('admin.index', compact(
+            'orders',
+            'dashboardDatas',
+            'AmountM',
+            'OrderedAmountM',
+            'DeliveredAmountM',
+            'CanceledAmountM',
+            'TotalAmount',
+            'TotalOrderedAmount',
+            'TotalDeliveredAmount',
+            'TotalCanceledAmount',
+            'additionalStats'
+        ));
+    }
+
+    /**
+     * Get additional statistics
+     */
+    private function getAdditionalStats()
+    {
+        try {
+            $currentMonth = now()->month;
+            $lastMonth = now()->subMonth()->month;
+            $currentYear = now()->year;
+
+            // Current month total
+            $currentMonthTotal = Order::whereMonth('created_at', $currentMonth)
+                                   ->whereYear('created_at', $currentYear)
+                                   ->sum('total') ?? 0;
+
+            // Last month total
+            $lastMonthTotal = Order::whereMonth('created_at', $lastMonth)
+                                 ->whereYear('created_at', $currentYear)
+                                 ->sum('total') ?? 0;
+
+            // Calculate growth
+            $revenueGrowth = $lastMonthTotal > 0 ?
+                           (($currentMonthTotal - $lastMonthTotal) / $lastMonthTotal) * 100 : 0;
+
+            return [
+                'revenue_growth' => round($revenueGrowth, 2),
+                'current_month_revenue' => $currentMonthTotal,
+                'last_month_revenue' => $lastMonthTotal,
+            ];
+        } catch (\Exception $e) {
+            Log::error('Error in getAdditionalStats: ' . $e->getMessage());
+            return [
+                'revenue_growth' => 0,
+                'current_month_revenue' => 0,
+                'last_month_revenue' => 0,
+            ];
+        }
     }
 
     public function readall()
     {
-        DB::table('notifications')->update([
-            'status' => 'read'
-        ]);
-
+        DB::table('notifications')->update(['status' => 'read']);
         return back();
     }
-
     // ====================================================================================================
     // Halaman Brands
     // ====================================================================================================

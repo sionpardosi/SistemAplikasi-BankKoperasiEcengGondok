@@ -314,6 +314,9 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // ====================================================================================================
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
 
+    // API untuk Chart Data (TAMBAHKAN INI)
+    Route::get('/admin/chart-data', [AdminController::class, 'getChartData'])->name('admin.chart.data');
+
 
     // ====================================================================================================
     // Halaman Brands

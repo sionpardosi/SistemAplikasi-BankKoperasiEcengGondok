@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Middleware\AuthAdmin;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ChatController;
@@ -237,6 +238,10 @@ Route::middleware('auth.user')->group(function () {
     // =====================================================================================================================================================================================================
     // -------------------------------------------------------------------------------------------- ADMIN --------------------------------------------------------------------------------------------------
     // =====================================================================================================================================================================================================
+
+    Route::prefix('api')->middleware(['auth', AuthAdmin::class])->group(function () {
+        Route::get('/admin/chart-data', [AdminController::class, 'getChartData'])->name('api.admin.chart.data');
+    });
 
     Route::middleware('isAdmin')->prefix('admin')->controller(AdminController::class)->group(function () {
         Route::get('/', 'index');
