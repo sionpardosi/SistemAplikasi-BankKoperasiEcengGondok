@@ -2471,9 +2471,9 @@
                 const quantity = parseInt($('.modal-qty-input').val());
                 const productName = "{{ $product->name }}";
 
-                // Validasi stok dengan fungsi yang ditingkatkan
                 let availableStock;
 
+                // PERBAIKAN: Gunakan stok per ukuran
                 if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }}) {
                     const selectedSizeId = $('#selected-size-id').val();
                     if (!selectedSizeId) {
@@ -2487,10 +2487,10 @@
                     availableStock = {{ $product->quantity - ($product->reserved_quantity ?? 0) }};
                 }
 
+                // Periksa stok dengan fungsi yang sudah diperbaiki
                 if (!enhancedStockCheck(quantity, availableStock, productName)) {
                     return;
                 }
-
                 // Update quantity di form
                 $('#cart-quantity').val(quantity);
 
@@ -2531,19 +2531,33 @@
 
             // Tombol Beli Sekarang
             $('#buy-now').on('click', function() {
-                // Cek apakah produk punya ukuran dan ukuran sudah dipilih
-                if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }} && !$('#selected-size-id')
-                    .val()) {
-                    $('#size-error').removeClass('d-none');
-                    $('html, body').animate({
-                        scrollTop: $("#size-buttons").offset().top - 100
-                    }, 500);
-                    return;
+                // Cek ukuran untuk produk yang memiliki size
+                if ({{ $product->sizes->count() > 0 ? 'true' : 'false' }}) {
+                    const selectedSizeId = $('#selected-size-id').val();
+                    if (!selectedSizeId) {
+                        $('#size-error').removeClass('d-none');
+                        $('html, body').animate({
+                            scrollTop: $("#size-buttons").offset().top - 100
+                        }, 500);
+                        return;
+                    }
+
+                    // Ambil stok dari ukuran yang dipilih
+                    const selectedSizeBtn = $(`.size-btn[data-size-id="${selectedSizeId}"]`);
+                    const availableStock = selectedSizeBtn.data('stock') || 0;
+
+                    // Validasi stok
+                    if (availableStock <= 0) {
+                        const sizeName = selectedSizeBtn.data('size-name');
+                        showCartNotification(`Ukuran ${sizeName} tidak tersedia`, false);
+                        return;
+                    }
                 }
 
                 // Set default quantity
                 const quantity = 1;
                 const productName = "{{ $product->name }}";
+
 
                 // Validasi stok dengan fungsi yang ditingkatkan
                 let availableStock;
