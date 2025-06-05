@@ -46,8 +46,8 @@
 
                     <fieldset class="name">
                         <div class="body-title mb-10">Slug <span class="tf-color-1">*</span></div>
-                        <input class="mb-10" type="text" placeholder="Masukkan slug produk" name="slug" tabindex="0"
-                            value="{{ old('slug') }}" aria-required="true">
+                        <input class="mb-10" type="text" placeholder="Masukkan slug produk" name="slug"
+                            tabindex="0" value="{{ old('slug') }}" aria-required="true">
                         <div class="text-tiny">Jangan melebihi 100 karakter saat memasukkan slug produk.</div>
                     </fieldset>
                     @error('slug')
@@ -149,8 +149,10 @@
                     <div class="cols gap22">
                         <fieldset class="name">
                             <div class="body-title mb-10">Harga Normal <span class="tf-color-1">*</span></div>
-                            <input class="mb-10" type="text" placeholder="Masukkan Harga Normal" name="regular_price" tabindex="0"
-                                value="{{ old('regular_price') ? formatRupiah(old('regular_price')) : '' }}" aria-required="true" required="">
+                            <input class="mb-10" type="text" placeholder="Masukkan Harga Normal"
+                                name="regular_price" tabindex="0"
+                                value="{{ old('regular_price') ? formatRupiah(old('regular_price')) : '' }}"
+                                aria-required="true" required="">
                         </fieldset>
                         @error('regular_price')
                             <span class="alert alert-danger text-center">{{ $message }}</span>
@@ -158,8 +160,9 @@
 
                         <fieldset class="name">
                             <div class="body-title mb-10">Harga Diskon <span class="tf-color-1">*</span></div>
-                            <input class="mb-10" type="text" placeholder="Masukkan Harga Diskon" name="sale_price" tabindex="0"
-                                value="{{ old('sale_price') ? formatRupiah(old('sale_price')) : '' }}" aria-required="true" required="">
+                            <input class="mb-10" type="text" placeholder="Masukkan Harga Diskon" name="sale_price"
+                                tabindex="0" value="{{ old('sale_price') ? formatRupiah(old('sale_price')) : '' }}"
+                                aria-required="true" required="">
                         </fieldset>
                         @error('sale_price')
                             <span class="alert alert-danger text-center">{{ $message }}</span>
@@ -171,7 +174,7 @@
                         <fieldset>
                             <div class="d-flex align-items-center mb-3">
                                 <input type="checkbox" name="has_sizes" id="has_sizes" class="me-2"
-                                       {{ old('has_sizes') ? 'checked' : '' }}>
+                                    {{ old('has_sizes') ? 'checked' : '' }}>
                                 <label for="has_sizes" class="body-title mb-0">Produk ini memiliki ukuran</label>
                             </div>
 
@@ -179,7 +182,8 @@
                             <div id="sizes-container" style="{{ old('has_sizes') ? '' : 'display: none;' }}">
                                 <div class="mb-3">
                                     <div class="body-title mb-10">Ukuran Produk</div>
-                                    <small class="text-muted d-block mb-2">Pilih ukuran yang tersedia beserta stoknya.</small>
+                                    <small class="text-muted d-block mb-2">Pilih ukuran yang tersedia beserta
+                                        stoknya.</small>
 
                                     <!-- Ukuran yang sudah ada dalam database -->
                                     <div class="existing-sizes mb-4">
@@ -188,15 +192,18 @@
                                             @foreach ($sizes as $index => $size)
                                                 <div class="col-md-4 mb-2">
                                                     <div class="d-flex align-items-center">
-                                                        <input type="checkbox" name="sizes[]" id="size_{{ $size->id }}"
-                                                               value="{{ $size->id }}" class="size-checkbox me-2"
-                                                               {{ (is_array(old('sizes')) && in_array($size->id, old('sizes'))) ? 'checked' : '' }}>
-                                                        <label for="size_{{ $size->id }}" class="me-2">{{ $size->name }}</label>
+                                                        <input type="checkbox" name="sizes[]"
+                                                            id="size_{{ $size->id }}" value="{{ $size->id }}"
+                                                            class="size-checkbox me-2"
+                                                            {{ is_array(old('sizes')) && in_array($size->id, old('sizes')) ? 'checked' : '' }}>
+                                                        <label for="size_{{ $size->id }}"
+                                                            class="me-2">{{ $size->name }}</label>
                                                     </div>
-                                                    <div class="stock-input" style="{{ (is_array(old('sizes')) && in_array($size->id, old('sizes'))) ? '' : 'display: none;' }}">
+                                                    <div class="stock-input"
+                                                        style="{{ is_array(old('sizes')) && in_array($size->id, old('sizes')) ? '' : 'display: none;' }}">
                                                         <input type="number" name="stocks[{{ $size->id }}]"
-                                                               min="0" placeholder="Stok" class="form-control"
-                                                               value="{{ old('stocks.'.$size->id, 0) }}">
+                                                            min="0" placeholder="Stok" class="form-control"
+                                                            value="{{ old('stocks.' . $size->id, 0) }}">
                                                     </div>
                                                 </div>
                                             @endforeach
@@ -207,26 +214,31 @@
                                     <div class="new-sizes-section">
                                         <div class="body-title mb-2" style="font-size: 14px;">Tambah Ukuran Baru</div>
                                         <div id="new-sizes-container">
-                                            @if(old('new_sizes'))
-                                                @foreach(old('new_sizes') as $key => $newSize)
-                                                    @if(!empty($newSize))
-                                                    <div class="new-size-row d-flex align-items-center mb-2">
-                                                        <input type="text" name="new_sizes[]" placeholder="Ukuran baru"
-                                                               class="form-control me-2" style="width: 150px;" value="{{ $newSize }}">
-                                                        <input type="number" name="new_stocks[]" min="0" placeholder="Stok"
-                                                               class="form-control" style="width: 100px;"
-                                                               value="{{ old('new_stocks.'.$key, 0) }}">
-                                                        <button type="button" class="btn btn-danger ms-2 remove-new-size">Hapus</button>
-                                                    </div>
+                                            @if (old('new_sizes'))
+                                                @foreach (old('new_sizes') as $key => $newSize)
+                                                    @if (!empty($newSize))
+                                                        <div class="new-size-row d-flex align-items-center mb-2">
+                                                            <input type="text" name="new_sizes[]"
+                                                                placeholder="Ukuran baru" class="form-control me-2"
+                                                                style="width: 150px;" value="{{ $newSize }}">
+                                                            <input type="number" name="new_stocks[]" min="0"
+                                                                placeholder="Stok" class="form-control"
+                                                                style="width: 100px;"
+                                                                value="{{ old('new_stocks.' . $key, 0) }}">
+                                                            <button type="button"
+                                                                class="btn btn-danger ms-2 remove-new-size">Hapus</button>
+                                                        </div>
                                                     @endif
                                                 @endforeach
                                             @else
                                                 <div class="new-size-row d-flex align-items-center mb-2">
                                                     <input type="text" name="new_sizes[]" placeholder="Ukuran baru"
-                                                           class="form-control me-2" style="width: 150px;">
-                                                    <input type="number" name="new_stocks[]" min="0" placeholder="Stok"
-                                                           class="form-control" style="width: 100px;" value="0">
-                                                    <button type="button" class="btn btn-danger ms-2 remove-new-size" style="display:none;">Hapus</button>
+                                                        class="form-control me-2" style="width: 150px;">
+                                                    <input type="number" name="new_stocks[]" min="0"
+                                                        placeholder="Stok" class="form-control" style="width: 100px;"
+                                                        value="0">
+                                                    <button type="button" class="btn btn-danger ms-2 remove-new-size"
+                                                        style="display:none;">Hapus</button>
                                                 </div>
                                             @endif
                                         </div>
@@ -255,8 +267,8 @@
                     <div class="cols gap22">
                         <fieldset class="name">
                             <div class="body-title mb-10">SKU <span class="tf-color-1">*</span></div>
-                            <input class="mb-10" type="text" placeholder="Masukkan SKU" name="SKU" tabindex="0"
-                                value="{{ old('SKU') }}" aria-required="true">
+                            <input class="mb-10" type="text" placeholder="Masukkan SKU" name="SKU"
+                                tabindex="0" value="{{ old('SKU') }}" aria-required="true">
                         </fieldset>
                         @error('SKU')
                             <span class="alert alert-danger text-center">{{ $message }}</span>
@@ -348,7 +360,9 @@
                     $("#sizes-container").slideDown();
                     // Reset quantity field jika ukuran diaktifkan
                     if ($(".size-checkbox:checked").length > 0 ||
-                        $("input[name='new_sizes[]']").filter(function() { return $(this).val() !== ""; }).length > 0) {
+                        $("input[name='new_sizes[]']").filter(function() {
+                            return $(this).val() !== "";
+                        }).length > 0) {
                         $("#quantity-field").hide();
                     }
                 } else {
@@ -461,5 +475,43 @@
             // Ubah nilai input menjadi format Rupiah
             $(this).val(formatRupiah(numeric, 'Rp '));
         });
+    </script>
+
+    <script>
+        // Fungsi untuk menghitung total stok secara real-time
+        function calculateTotalStock() {
+            if ($("#has_sizes").is(":checked")) {
+                let totalStock = 0;
+
+                // Hitung dari ukuran yang sudah ada
+                $(".size-checkbox:checked").each(function() {
+                    let sizeId = $(this).val();
+                    let stock = parseInt($("input[name='stocks[" + sizeId + "]']").val()) || 0;
+                    totalStock += stock;
+                });
+
+                // Hitung dari ukuran baru
+                $("input[name='new_stocks[]']").each(function() {
+                    let stock = parseInt($(this).val()) || 0;
+                    let sizeName = $(this).closest('.new-size-row').find("input[name='new_sizes[]']").val();
+                    if (sizeName && sizeName.trim() !== '') {
+                        totalStock += stock;
+                    }
+                });
+
+                // Update display total stok (opsional)
+                if ($("#total-stock-display").length === 0) {
+                    $("#sizes-container").append(
+                        '<div id="total-stock-display" class="alert alert-info mt-2"><strong>Total Stok: <span id="total-stock-value">0</span></strong></div>'
+                        );
+                }
+                $("#total-stock-value").text(totalStock);
+            }
+        }
+
+        // Event listeners untuk menghitung ulang stok
+        $(document).on('input', 'input[name^="stocks"], input[name^="new_stocks"]', calculateTotalStock);
+        $(document).on('change', '.size-checkbox', calculateTotalStock);
+        $(document).on('input', 'input[name^="new_sizes"]', calculateTotalStock);
     </script>
 @endpush

@@ -134,35 +134,21 @@ class ShopController extends Controller
         ));
     }
 
-    // Halaman Detail Produk
-    // public function product_details($product_slug)
-    // {
-    //     $product = Product::where('slug', $product_slug)->first();
-
-    //     // Find previous product
-    //     $prevProduct = Product::where('id', '<', $product->id)
-    //         ->orderBy('id', 'desc')
-    //         ->first();
-
-    //     // Find next product
-    //     $nextProduct = Product::where('id', '>', $product->id)
-    //         ->orderBy('id', 'asc')
-    //         ->first();
-
-    //     $rproducts = Product::where('slug', "<>", $product_slug)->get()->take(8);
-    //     $product = Product::with(['reviews.reviewMedia', 'reviews.user'])->where('slug', $product_slug)->first();
-    //     $product = Product::with(['reviews.user', 'reviews.reviewMedia'])->where('slug', $product_slug)->first();
-
-
-
-    //     return view('details', compact("product", "rproducts", "prevProduct", "nextProduct"));
-    // }
-
     public function product_details($product_slug)
     {
         $product = Product::with(['sizes', 'reviews.user', 'reviews.reviewMedia'])
             ->where('slug', $product_slug)
             ->firstOrFail();
+
+        // Pastikan quantity produk sesuai dengan total stok sizes jika ada
+        if ($product->sizes->count() > 0) {
+            $totalSizeStock = $product->sizes->sum('pivot.stock');
+            // Update quantity jika tidak sesuai
+            if ($product->quantity != $totalSizeStock) {
+                $product->update(['quantity' => $totalSizeStock]);
+                $product->refresh(); // Refresh model setelah update
+            }
+        }
 
         $prevProduct = Product::where('id', '<', $product->id)->orderBy('id', 'desc')->first();
         $nextProduct = Product::where('id', '>', $product->id)->orderBy('id', 'asc')->first();

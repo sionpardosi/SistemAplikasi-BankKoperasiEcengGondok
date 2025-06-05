@@ -301,6 +301,27 @@ class Product extends Model
     // ====================================================================================================
 
     /**
+     * Sinkronisasi quantity dengan total stok dari sizes
+     */
+    public function syncQuantityWithSizes()
+    {
+        if ($this->sizes->count() > 0) {
+            $totalStock = $this->sizes()->sum('stock');
+            $this->update(['quantity' => $totalStock]);
+            return $totalStock;
+        }
+        return $this->quantity;
+    }
+
+    /**
+     * Update stock untuk size tertentu dan sinkronisasi quantity
+     */
+    public function updateSizeStock($sizeId, $stock)
+    {
+        $this->sizes()->updateExistingPivot($sizeId, ['stock' => $stock]);
+        return $this->syncQuantityWithSizes();
+    }
+    /**
      * Check if product can be deleted
      */
     public function canBeDeleted()

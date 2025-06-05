@@ -437,4 +437,42 @@
             return prefix == undefined ? rupiah : (rupiah ? prefix + rupiah : '');
         }
     </script>
+
+    <script>
+        // Fungsi untuk menghitung total stok secara real-time
+        function calculateTotalStock() {
+            if ($("#has_sizes").is(":checked")) {
+                let totalStock = 0;
+
+                // Hitung dari ukuran yang sudah ada
+                $(".size-checkbox:checked").each(function() {
+                    let sizeId = $(this).val();
+                    let stock = parseInt($("input[name='stocks[" + sizeId + "]']").val()) || 0;
+                    totalStock += stock;
+                });
+
+                // Hitung dari ukuran baru
+                $("input[name='new_stocks[]']").each(function() {
+                    let stock = parseInt($(this).val()) || 0;
+                    let sizeName = $(this).closest('.new-size-row').find("input[name='new_sizes[]']").val();
+                    if (sizeName && sizeName.trim() !== '') {
+                        totalStock += stock;
+                    }
+                });
+
+                // Update display total stok (opsional)
+                if ($("#total-stock-display").length === 0) {
+                    $("#sizes-container").append(
+                        '<div id="total-stock-display" class="alert alert-info mt-2"><strong>Total Stok: <span id="total-stock-value">0</span></strong></div>'
+                    );
+                }
+                $("#total-stock-value").text(totalStock);
+            }
+        }
+
+        // Event listeners untuk menghitung ulang stok
+        $(document).on('input', 'input[name^="stocks"], input[name^="new_stocks"]', calculateTotalStock);
+        $(document).on('change', '.size-checkbox', calculateTotalStock);
+        $(document).on('input', 'input[name^="new_sizes"]', calculateTotalStock);
+    </script>
 @endpush

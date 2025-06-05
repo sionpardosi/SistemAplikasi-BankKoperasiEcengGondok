@@ -220,13 +220,11 @@
                                         <th class="text-center">Phone</th>
                                         <th class="text-center">Subtotal</th>
                                         <th class="text-center">Total</th>
-                                        {{-- <th class="text-center" style="width:260px;">Address</th> --}}
                                         <th class="text-center">Status</th>
                                         <th class="text-center">Order Date</th>
                                         <th class="text-center">Total Items</th>
                                         <th class="text-center">Delivered On</th>
-                                                                           <th class="text-center">Aksi</th>
-                                        <th></th>
+                                        <th class="text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>

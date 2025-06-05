@@ -72,9 +72,9 @@ class AdminController extends Controller
             SUM(CASE WHEN status = "delivered" THEN total ELSE 0 END) as delivered_amount,
             SUM(CASE WHEN status = "canceled" THEN total ELSE 0 END) as canceled_amount
         ')
-        ->whereYear('created_at', $currentYear)
-        ->groupBy(DB::raw('MONTH(created_at)'))
-        ->get();
+            ->whereYear('created_at', $currentYear)
+            ->groupBy(DB::raw('MONTH(created_at)'))
+            ->get();
 
         // Isi data ke array berdasarkan bulan
         foreach ($monthlyData as $data) {
@@ -137,17 +137,17 @@ class AdminController extends Controller
 
             // Current month total
             $currentMonthTotal = Order::whereMonth('created_at', $currentMonth)
-                                   ->whereYear('created_at', $currentYear)
-                                   ->sum('total') ?? 0;
+                ->whereYear('created_at', $currentYear)
+                ->sum('total') ?? 0;
 
             // Last month total
             $lastMonthTotal = Order::whereMonth('created_at', $lastMonth)
-                                 ->whereYear('created_at', $currentYear)
-                                 ->sum('total') ?? 0;
+                ->whereYear('created_at', $currentYear)
+                ->sum('total') ?? 0;
 
             // Calculate growth
             $revenueGrowth = $lastMonthTotal > 0 ?
-                           (($currentMonthTotal - $lastMonthTotal) / $lastMonthTotal) * 100 : 0;
+                (($currentMonthTotal - $lastMonthTotal) / $lastMonthTotal) * 100 : 0;
 
             return [
                 'revenue_growth' => round($revenueGrowth, 2),
@@ -355,12 +355,6 @@ class AdminController extends Controller
     // ====================================================================================================
     // Halaman Produk
     // // ====================================================================================================
-    // public function products()
-    // {
-    //     $products = Product::OrderBy('created_at', 'DESC')->paginate(10);
-    //     return view("admin.products", compact('products'));
-    // }
-    // Halaman Menambahkan Produk
     public function add_product()
     {
         $categories = Category::Select('id', 'name')->orderBy('name')->get();
@@ -383,7 +377,17 @@ class AdminController extends Controller
             'short_description' => 'required',
             'description' => 'required',
             'regular_price' => 'required',
-            'sale_price' => 'required',
+            'sale_price' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $regularPrice = (float) str_replace(['Rp ', '.'], '', $request->regular_price);
+                    $salePrice = (float) str_replace(['Rp ', '.'], '', $value);
+
+                    if ($salePrice >= $regularPrice) {
+                        $fail('Harga diskon harus lebih kecil dari harga normal.');
+                    }
+                },
+            ],
             'SKU' => 'required',
             'stock_status' => 'required',
             'featured' => 'required',
@@ -428,30 +432,12 @@ class AdminController extends Controller
         $product->stock_status = $request->stock_status;
         $product->featured = $request->featured;
 
-        // Set quantity hanya jika produk tidak memiliki ukuran
+        // Set quantity berdasarkan apakah produk memiliki ukuran atau tidak
         if (!$request->has('has_sizes')) {
             $product->quantity = $request->quantity;
         } else {
-            // Jika produk memiliki ukuran, quantity diambil dari total stok ukuran
-            $totalStock = 0;
-
-            // Hitung stok dari ukuran yang ada
-            if ($request->has('sizes') && is_array($request->sizes)) {
-                foreach ($request->sizes as $sizeId) {
-                    $totalStock += (int)($request->stocks[$sizeId] ?? 0);
-                }
-            }
-
-            // Hitung stok dari ukuran baru
-            if ($request->has('new_sizes') && is_array($request->new_sizes)) {
-                foreach ($request->new_sizes as $index => $newSize) {
-                    if (!empty($newSize) && isset($request->new_stocks[$index])) {
-                        $totalStock += (int)$request->new_stocks[$index];
-                    }
-                }
-            }
-
-            $product->quantity = $totalStock;
+            // Sementara set ke 0, akan dihitung ulang setelah sync sizes
+            $product->quantity = 0;
         }
 
         $product->category_id = $request->category_id;
@@ -498,6 +484,7 @@ class AdminController extends Controller
         $product->images = $gallery_images;
 
         // Simpan produk terlebih dahulu
+        // Simpan produk terlebih dahulu
         $product->save();
 
         // Proses ukuran produk hanya jika fitur ukuran diaktifkan
@@ -526,6 +513,10 @@ class AdminController extends Controller
 
             // Sync dengan tabel pivot
             $product->sizes()->sync($syncData);
+
+            // TAMBAHAN: Hitung ulang total quantity setelah sync
+            $totalStock = $product->sizes()->sum('stock');
+            $product->update(['quantity' => $totalStock]);
         }
 
         return redirect()->route('admin.products')->with('status', 'Berhasil Menyimpan Produk!');
@@ -570,7 +561,17 @@ class AdminController extends Controller
             'short_description' => 'required',
             'description' => 'required',
             'regular_price' => 'required',
-            'sale_price' => 'required',
+            'sale_price' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $regularPrice = (float) str_replace(['Rp ', '.'], '', $request->regular_price);
+                    $salePrice = (float) str_replace(['Rp ', '.'], '', $value);
+
+                    if ($salePrice >= $regularPrice) {
+                        $fail('Harga diskon harus lebih kecil dari harga normal.');
+                    }
+                },
+            ],
             'SKU' => 'required',
             'stock_status' => 'required',
             'featured' => 'required',
@@ -614,26 +615,8 @@ class AdminController extends Controller
         if (!$request->has('has_sizes')) {
             $product->quantity = $request->quantity;
         } else {
-            // Jika produk memiliki ukuran, quantity diambil dari total stok ukuran
-            $totalStock = 0;
-
-            // Hitung stok dari ukuran yang ada
-            if ($request->has('sizes') && is_array($request->sizes)) {
-                foreach ($request->sizes as $sizeId) {
-                    $totalStock += (int)($request->stocks[$sizeId] ?? 0);
-                }
-            }
-
-            // Hitung stok dari ukuran baru
-            if ($request->has('new_sizes') && is_array($request->new_sizes)) {
-                foreach ($request->new_sizes as $index => $newSize) {
-                    if (!empty($newSize) && isset($request->new_stocks[$index])) {
-                        $totalStock += (int)$request->new_stocks[$index];
-                    }
-                }
-            }
-
-            $product->quantity = $totalStock;
+            // Sementara set ke 0, akan dihitung ulang setelah sync sizes
+            $product->quantity = 0;
         }
 
         $product->category_id = $request->category_id;
@@ -714,6 +697,10 @@ class AdminController extends Controller
 
             // Sync dengan tabel pivot (akan menghapus semua relasi yang tidak ada di $syncData)
             $product->sizes()->sync($syncData);
+
+            // TAMBAHAN: Hitung ulang total quantity setelah sync
+            $totalStock = $product->sizes()->sum('stock');
+            $product->update(['quantity' => $totalStock]);
         } else {
             // Jika fitur ukuran dinonaktifkan, hapus semua relasi ukuran
             $product->sizes()->detach();
