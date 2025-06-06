@@ -201,6 +201,84 @@
             transform: translate(-50%, -50%) scale(1);
         }
 
+        /* Payment Timeout Alert - NEW */
+        .payment-timeout-alert {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .payment-timeout-alert::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% {
+                left: -100%;
+            }
+
+            100% {
+                left: 100%;
+            }
+        }
+
+        .timeout-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .timeout-header i {
+            font-size: 24px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .timeout-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .countdown-display {
+            font-size: 2.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .timeout-message {
+            font-size: 14px;
+            text-align: center;
+            margin: 0;
+            opacity: 0.9;
+        }
+
         /* New Styles for Order Confirmation Page */
         .order-complete {
             max-width: 1200px;
@@ -208,64 +286,173 @@
         }
 
         .order-complete__message {
-            background-color: #f9f7f5;
-            padding: 40px 20px;
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 30px 20px;
             border-radius: 16px;
-            margin-bottom: 40px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.2);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .order-complete__message::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        .success-icon {
+            margin-bottom: 20px;
+            animation: bounceIn 0.8s ease-out;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: scale(0.3);
+                opacity: 0;
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            70% {
+                transform: scale(0.9);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .order-complete__message h3 {
-            margin-top: 25px;
-            margin-bottom: 15px;
+            margin: 0 0 15px 0;
             font-size: 24px;
             font-weight: 700;
-            color: var(--text-dark);
             letter-spacing: 0.5px;
         }
 
         .order-complete__message p {
-            max-width: 600px;
+            max-width: 500px;
             margin: 0 auto;
             font-size: 16px;
-            color: var(--text-medium);
             line-height: 1.6;
+            opacity: 0.95;
         }
 
-        /* Order Info */
-        .order-info {
+        /* Quick Order Info - NEW */
+        .quick-order-info {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 15px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
         }
 
-        .order-info__item {
-            background-color: #fff;
+        .quick-info-card {
+            background: white;
             padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.03);
-            display: flex;
-            flex-direction: column;
+            box-shadow: 0 3px 15px rgba(0, 0, 0, 0.08);
             border-left: 4px solid var(--primary);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
-        .order-info__item label {
+        .quick-info-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+        }
+
+        .quick-info-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .quick-info-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--primary-light);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .quick-info-label {
             font-size: 14px;
-            font-weight: 600;
             color: var(--text-light);
-            margin-bottom: 8px;
+            font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        .order-info__item span {
+        .quick-info-value {
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-dark);
+            margin-top: 5px;
         }
 
-        /* Order Details Boxes */
+        /* Badge Styling Fix */
+        .badge {
+            padding: 8px 12px !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            border-radius: 6px !important;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-block;
+            min-width: 80px;
+            text-align: center;
+        }
+
+        .badge.bg-warning {
+            background-color: #f39c12 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+        }
+
+        .badge.bg-info {
+            background-color: #3498db !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.3);
+        }
+
+        .badge.bg-success {
+            background-color: #27ae60 !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+        }
+
+        .badge.bg-danger {
+            background-color: #e74c3c !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+        }
+
+        .badge.bg-secondary {
+            background-color: #7f8c8d !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(127, 140, 141, 0.3);
+        }
+
+        .badge.bg-primary {
+            background-color: var(--primary) !important;
+            color: #ffffff !important;
+            box-shadow: 0 2px 8px rgba(149, 106, 59, 0.3);
+        }
+
+        /* Enhanced Order Details */
         .order-details-container {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -280,12 +467,18 @@
         }
 
         .order-details-box {
-            background-color: #fff;
+            background: white;
             border-radius: 16px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.08);
             padding: 30px;
             position: relative;
             overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+
+        .order-details-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.12);
         }
 
         .order-details-box::before {
@@ -302,12 +495,12 @@
             font-size: 18px;
             font-weight: 700;
             color: var(--text-dark);
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             letter-spacing: 0.5px;
             display: flex;
             align-items: center;
             position: relative;
-            padding-bottom: 10px;
+            padding-bottom: 15px;
         }
 
         .order-details-box h4::after {
@@ -318,55 +511,36 @@
             width: 60px;
             height: 3px;
             background: var(--primary);
+            border-radius: 2px;
         }
 
         .order-details-box h4 i {
-            margin-right: 10px;
+            margin-right: 12px;
             color: var(--primary);
+            font-size: 20px;
         }
 
-        .address-detail,
-        .shipping-detail {
-            background-color: #f9f7f5;
+        /* Enhanced Address & Shipping Details */
+        .address-detail {
+            background: #f8f9fa;
             border-radius: 12px;
             padding: 20px;
             margin-top: 15px;
+            border: 1px solid #e9ecef;
         }
 
-        .shipping-detail {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .shipping-detail-item {
-            flex: 1 1 calc(50% - 15px);
-            min-width: 180px;
-            padding: 15px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .shipping-detail-item h5 {
-            font-size: 14px;
-            color: var(--text-light);
-            margin-bottom: 5px;
+        .recipient-name {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 15px;
             display: flex;
             align-items: center;
+            gap: 10px;
         }
 
-        .shipping-detail-item h5 i {
-            margin-right: 5px;
-            font-size: 14px;
+        .recipient-name i {
             color: var(--primary);
-        }
-
-        .shipping-detail-item p {
-            font-size: 16px;
-            font-weight: 600;
-            color: var(--text-dark);
-            margin: 0;
         }
 
         .address-detail p {
@@ -374,6 +548,7 @@
             color: var(--text-medium);
             display: flex;
             align-items: flex-start;
+            line-height: 1.6;
         }
 
         .address-detail p i {
@@ -383,18 +558,64 @@
             margin-top: 4px;
         }
 
-        .address-detail .recipient-name {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-dark);
-            margin-bottom: 15px;
+        .shipping-detail {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
         }
 
-        /* Product Items */
+        .shipping-detail-item {
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 3px solid var(--primary);
+            transition: transform 0.2s ease;
+        }
+
+        .shipping-detail-item:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .shipping-detail-item h5 {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .shipping-detail-item h5 i {
+            margin-right: 6px;
+            font-size: 14px;
+            color: var(--primary);
+        }
+
+        .shipping-detail-item p {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin: 0;
+        }
+
+        /* Enhanced Product Items */
         .order-product-item {
             display: flex;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
+            padding: 20px 0;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.3s ease;
+        }
+
+        .order-product-item:hover {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            margin: 0 -10px;
+            padding: 20px 10px;
         }
 
         .order-product-item:last-child {
@@ -404,17 +625,23 @@
         .order-product-item__image {
             width: 100px;
             height: 100px;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
             margin-right: 20px;
             background-color: #f7f7f7;
             border: 1px solid #eee;
+            position: relative;
         }
 
         .order-product-item__image img {
             width: 100%;
             height: 100%;
             object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .order-product-item:hover .order-product-item__image img {
+            transform: scale(1.05);
         }
 
         .order-product-item__details {
@@ -425,8 +652,9 @@
             font-size: 16px;
             font-weight: 600;
             color: var(--text-dark);
-            margin-bottom: 5px;
+            margin-bottom: 8px;
             display: block;
+            line-height: 1.4;
         }
 
         .order-product-item__meta {
@@ -441,11 +669,14 @@
             color: var(--text-light);
             display: flex;
             align-items: center;
+            background: #f8f9fa;
+            padding: 4px 8px;
+            border-radius: 6px;
         }
 
         .order-product-item__meta-item i {
             margin-right: 5px;
-            font-size: 14px;
+            font-size: 12px;
             color: var(--primary);
         }
 
@@ -457,7 +688,7 @@
             align-self: flex-start;
         }
 
-        /* Totals */
+        /* Enhanced Order Summary */
         .order-summary {
             margin-top: 30px;
         }
@@ -469,6 +700,13 @@
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 2px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .order-summary-title i {
+            color: var(--primary);
         }
 
         .checkout-totals {
@@ -476,7 +714,7 @@
         }
 
         .checkout-totals tr {
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #f5f5f5;
         }
 
         .checkout-totals tr:last-child {
@@ -487,7 +725,7 @@
             font-size: 15px;
             font-weight: 600;
             color: var(--text-medium);
-            padding: 12px 0;
+            padding: 15px 0;
             text-align: left;
         }
 
@@ -495,19 +733,20 @@
             font-size: 15px;
             font-weight: 600;
             color: var(--text-dark);
-            padding: 12px 0;
+            padding: 15px 0;
             text-align: right;
         }
 
         .checkout-totals .cart-total th,
         .checkout-totals .cart-total td {
-            font-size: 18px !important;
+            font-size: 20px !important;
             font-weight: 700;
             color: var(--primary);
-            padding-top: 20px;
+            padding-top: 25px;
+            border-top: 2px solid var(--primary);
         }
 
-        /* Payment Button */
+        /* Enhanced Payment Button */
         .payment-actions {
             margin-top: 30px;
             display: flex;
@@ -516,11 +755,11 @@
         }
 
         .btn-pay {
-            background: linear-gradient(to right, var(--primary), #a87c4f);
+            background: linear-gradient(135deg, var(--primary), #a87c4f);
             color: white;
             border: none;
-            border-radius: 8px;
-            padding: 15px 30px;
+            border-radius: 12px;
+            padding: 18px 30px;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
@@ -528,30 +767,134 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
-            box-shadow: 0 5px 15px rgba(149, 106, 59, 0.2);
+            gap: 12px;
+            box-shadow: 0 6px 20px rgba(149, 106, 59, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-pay::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-pay:hover::before {
+            left: 100%;
         }
 
         .btn-pay:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(149, 106, 59, 0.3);
-            background: linear-gradient(to right, #a87c4f, var(--primary));
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(149, 106, 59, 0.4);
+        }
+
+        .btn-pay i {
+            font-size: 18px;
         }
 
         .payment-info {
-            padding: 15px;
-            background-color: #f9f7f5;
-            border-radius: 8px;
-            border-left: 3px solid var(--primary);
+            padding: 18px;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
             font-size: 14px;
             color: var(--text-medium);
             line-height: 1.6;
-            margin-top: 10px;
+            margin-top: 15px;
         }
 
         .payment-info i {
             color: var(--primary);
-            margin-right: 5px;
+            margin-right: 8px;
+        }
+
+        /* Order Tracking Feature - NEW */
+        .order-tracking {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            margin-top: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+
+        .tracking-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .tracking-title i {
+            color: var(--primary);
+        }
+
+        .tracking-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .tracking-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .tracking-item i {
+            font-size: 24px;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        .tracking-item span {
+            display: block;
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 600;
+        }
+
+        /* Quick Actions - NEW */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .quick-action-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 15px;
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            text-decoration: none;
+            color: var(--text-dark);
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .quick-action-btn:hover {
+            border-color: var(--primary);
+            background: var(--primary-lighter);
+            color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn i {
+            font-size: 20px;
         }
 
         /* Responsive adjustments */
@@ -570,12 +913,12 @@
                 font-size: 12px;
             }
 
-            .order-info {
+            .quick-order-info {
                 grid-template-columns: 1fr;
             }
 
-            .shipping-detail-item {
-                flex: 1 1 100%;
+            .shipping-detail {
+                grid-template-columns: 1fr;
             }
 
             .order-product-item {
@@ -585,11 +928,21 @@
             .order-product-item__image {
                 margin-right: 0;
                 margin-bottom: 15px;
+                width: 80px;
+                height: 80px;
             }
 
             .order-product-item__price {
                 margin-left: 0;
                 margin-top: 10px;
+            }
+
+            .countdown-display {
+                font-size: 2rem;
+            }
+
+            .quick-actions {
+                grid-template-columns: 1fr;
             }
         }
 
@@ -601,14 +954,18 @@
             .order-details-box {
                 padding: 20px 15px;
             }
+
+            .countdown-display {
+                font-size: 1.8rem;
+            }
         }
     </style>
 
     <main class="pt-90">
         <div class="mb-4 pb-4"></div>
         <section class="shop-checkout container">
-            <h2 class="page-title mb-4" style="letter-spacing:1px; margin-bottom: 3.5rem !important;">KONFIRMASI PESANAN
-            </h2>
+            <h2 class="page-title mb-4" style="letter-spacing:1px; margin-bottom: 3.5rem !important;">KONFIRMASI PESANAN</h2>
+
             <!-- Modern Checkout Steps -->
             <div class="checkout-steps step-3">
                 <a href="{{ route('cart.index') }}" class="checkout-steps__item completed">
@@ -650,43 +1007,66 @@
             </div>
 
             <div class="order-complete">
-                <!-- Success Message -->
-                <!-- Di resources/views/order-confirmation.blade.php -->
-                <div class="order-complete__message text-center">
-                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                        <circle cx="40" cy="40" r="40" fill="#B9A16B" />
-                        <path d="M54.6667 29.3333L35.3333 48.6667L25.3333 38.6667" stroke="white" stroke-width="5"
-                            stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <h3>PESANAN ANDA TELAH DITERIMA</h3>
-                    <p>Terima kasih! Pesanan Anda telah berhasil kami terima dan sedang <strong>menunggu
-                            pembayaran</strong>. Silakan selesaikan
-                        pembayaran untuk konfirmasi.</p>
-                </div>
+                <!-- Payment Timeout Alert -->
+                @if ($order->transaction && $order->transaction->status === 'pending')
+                    <div class="payment-timeout-alert">
+                        <div class="timeout-header">
+                            <i class="fas fa-clock"></i>
+                            <h4 class="timeout-title">Batas Waktu Pembayaran</h4>
+                        </div>
+                        <div class="countdown-display" id="payment-countdown">23:59:59</div>
+                        <p class="timeout-message">Selesaikan pembayaran sebelum waktu habis untuk mengonfirmasi pesanan
+                            Anda</p>
+                    </div>
+                @endif
 
-                <!-- Order Information Cards -->
-                <div class="order-info">
-                    <div class="order-info__item">
-                        <label>Nomor Pesanan</label>
-                        <span>#{{ $order->id }}</span>
+                <!-- Quick Order Information -->
+                <div class="quick-order-info">
+                    <div class="quick-info-card">
+                        <div class="quick-info-header">
+                            <div class="quick-info-icon">
+                                <i class="fas fa-receipt"></i>
+                            </div>
+                            <div class="quick-info-label">Nomor Pesanan</div>
+                        </div>
+                        <div class="quick-info-value">#{{ $order->id }}</div>
                     </div>
-                    <div class="order-info__item">
-                        <label>Tanggal</label>
-                        <span>{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y, H:i') }}</span>
+
+                    <div class="quick-info-card">
+                        <div class="quick-info-header">
+                            <div class="quick-info-icon">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <div class="quick-info-label">Tanggal Pesanan</div>
+                        </div>
+                        <div class="quick-info-value">{{ \Carbon\Carbon::parse($order->created_at)->format('d M Y, H:i') }}
+                        </div>
                     </div>
-                    <div class="order-info__item">
-                        <label>Total Pembayaran</label>
-                        <span>{{ formatRupiah($order->total) }}</span>
+
+                    <div class="quick-info-card">
+                        <div class="quick-info-header">
+                            <div class="quick-info-icon">
+                                <i class="fas fa-money-bill-wave"></i>
+                            </div>
+                            <div class="quick-info-label">Total Pembayaran</div>
+                        </div>
+                        <div class="quick-info-value">{{ formatRupiah($order->total) }}</div>
                     </div>
-                    <div class="order-info__item">
-                        <label>Metode Pembayaran</label>
-                        <span>
+
+                    <div class="quick-info-card">
+                        <div class="quick-info-header">
+                            <div class="quick-info-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <div class="quick-info-label">Metode Pembayaran</div>
+                        </div>
+                        <div class="quick-info-value">
                             @if ($order->transaction)
                                 {{ $order->transaction->mode_display }}
                             @else
                                 -
                             @endif
-                        </span>
+                        </div>
                     </div>
                 </div>
 
@@ -697,7 +1077,10 @@
                         <h4><i class="fas fa-shipping-fast"></i> INFORMASI PENGIRIMAN</h4>
 
                         <div class="address-detail">
-                            <div class="recipient-name">{{ $order->name }}</div>
+                            <div class="recipient-name">
+                                <i class="fas fa-user"></i>
+                                {{ $order->name }}
+                            </div>
                             <p><i class="fas fa-map-marker-alt"></i> <span>{{ $order->address }}</span></p>
                             <p><i class="fas fa-road"></i> <span>{{ $order->locality }}</span></p>
                             <p><i class="fas fa-city"></i> <span>{{ $order->city }}, {{ $order->state }},
@@ -735,16 +1118,7 @@
                                 <h5><i class="fas fa-box"></i> Status Pesanan</h5>
                                 <p>{!! $order->status_badge !!}</p>
                             </div>
-                            <div class="shipping-detail-item">
-                                <h5><i class="fas fa-credit-card"></i> Status Pembayaran</h5>
-                                <p>
-                                    @if ($order->transaction)
-                                        {!! $order->transaction->status_badge !!}
-                                    @else
-                                        <span class="badge bg-warning">Menunggu</span>
-                                    @endif
-                                </p>
-                            </div>
+
                         </div>
                     </div>
 
@@ -771,7 +1145,7 @@
                                         <span class="order-product-item__name">{{ $item->product->name }}</span>
                                         <div class="order-product-item__meta">
                                             <span class="order-product-item__meta-item">
-                                                <i class="fas fa-box"></i> Jumlah: {{ $item->quantity }}
+                                                <i class="fas fa-box"></i> Qty: {{ $item->quantity }}
                                             </span>
 
                                             @if ($item->options)
@@ -784,8 +1158,7 @@
                                                 @endphp
                                                 @if (isset($options['size_name']))
                                                     <span class="order-product-item__meta-item">
-                                                        <i class="fas fa-ruler-combined"></i> Ukuran:
-                                                        {{ $options['size_name'] }}
+                                                        <i class="fas fa-ruler-combined"></i> {{ $options['size_name'] }}
                                                     </span>
                                                 @endif
                                             @endif
@@ -800,7 +1173,10 @@
 
                         <!-- Order Totals -->
                         <div class="order-summary">
-                            <div class="order-summary-title">TOTAL PEMBAYARAN</div>
+                            <div class="order-summary-title">
+                                <i class="fas fa-calculator"></i>
+                                TOTAL PEMBAYARAN
+                            </div>
                             <table class="checkout-totals">
                                 <tbody>
                                     <tr>
@@ -833,361 +1209,42 @@
                                 </button>
 
                                 <div class="payment-info">
-                                    <i class="fas fa-info-circle"></i> Setelah pembayaran berhasil, pesanan Anda akan segera
-                                    diproses. Detil pembayaran dan status pesanan dapat dilihat di halaman akun Anda.
+                                    <i class="fas fa-info-circle"></i> Setelah pembayaran berhasil, pesanan akan segera
+                                    diproses. Status dapat dilihat di halaman akun Anda.
                                 </div>
                             @else
-                                <a href="{{ route('account-orders') }}" class="btn-pay">
+                                <a href="{{ route('user.account.orders') }}" class="btn-pay">
                                     <i class="fas fa-user"></i> LIHAT PESANAN SAYA
                                 </a>
                             @endif
                         </div>
-
-                        <!-- Transfer Bank Section - Tambahkan setelah payment-actions div -->
-                        @if ($order->transaction && $order->transaction->mode === 'manual_atm' && $order->transaction->status === 'pending')
-                            <div class="bank-transfer-section mt-4">
-                                <div class="bank-transfer-info">
-                                    <h4><i class="fas fa-university"></i> INFORMASI TRANSFER BANK</h4>
-
-                                    <!-- Timer Countdown -->
-                                    <div class="payment-timer">
-                                        <div class="timer-header">
-                                            <i class="fas fa-clock"></i>
-                                            <span>Batas Waktu Pembayaran</span>
-                                        </div>
-                                        <div class="countdown-timer" id="payment-countdown">
-                                            <span id="countdown-display">23:59:59</span>
-                                        </div>
-                                        <p class="timer-note">Harap selesaikan pembayaran sebelum batas waktu berakhir</p>
-                                    </div>
-
-                                    <!-- Bank Account Info -->
-                                    <div class="bank-account-info">
-                                        <h5><i class="fas fa-credit-card"></i> Detail Rekening Transfer</h5>
-                                        <div class="bank-details">
-                                            <div class="bank-logo">
-                                                <img src="{{ asset('assets/images/bank-bni.png') }}" alt="Bank BNI"
-                                                    style="height: 40px;" onerror="this.style.display='none'">
-                                                <span class="bank-name">Bank BNI</span>
-                                            </div>
-                                            <div class="account-details">
-                                                <div class="account-item">
-                                                    <label>Nomor Rekening:</label>
-                                                    <span class="account-number">1234567890123456</span>
-                                                    <button type="button" class="copy-btn"
-                                                        onclick="copyToClipboard('1234567890123456')">
-                                                        <i class="fas fa-copy"></i> Salin
-                                                    </button>
-                                                </div>
-                                                <div class="account-item">
-                                                    <label>Nama Penerima:</label>
-                                                    <span>PT Bank Koperasi Eceng Gondok</span>
-                                                </div>
-                                                <div class="account-item">
-                                                    <label>Jumlah Transfer:</label>
-                                                    <span class="transfer-amount">{{ formatRupiah($order->total) }}</span>
-                                                    <button type="button" class="copy-btn"
-                                                        onclick="copyToClipboard('{{ $order->total }}')">
-                                                        <i class="fas fa-copy"></i> Salin
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Upload Bukti Pembayaran -->
-                                    <div class="payment-proof-upload">
-                                        <h5><i class="fas fa-upload"></i> Upload Bukti Pembayaran</h5>
-                                        <form action="{{ route('upload.payment.proof') }}" method="POST"
-                                            enctype="multipart/form-data" id="payment-proof-form">
-                                            @csrf
-                                            <input type="hidden" name="order_id" value="{{ $order->id }}">
-
-                                            <div class="upload-area">
-                                                <div class="upload-zone"
-                                                    onclick="document.getElementById('payment-proof').click()">
-                                                    <i class="fas fa-cloud-upload-alt"></i>
-                                                    <p>Klik untuk upload bukti transfer</p>
-                                                    <small>Format: JPG, PNG, PDF (Max 2MB)</small>
-                                                </div>
-                                                <input type="file" id="payment-proof" name="payment_proof"
-                                                    accept="image/*,.pdf" style="display: none;">
-                                            </div>
-
-                                            <div class="upload-preview" id="upload-preview" style="display: none;">
-                                                <img id="preview-image" src="" alt="Preview">
-                                                <div class="preview-info">
-                                                    <span id="file-name"></span>
-                                                    <button type="button" onclick="removeFile()">
-                                                        <i class="fas fa-times"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <button type="submit" class="btn-upload" disabled>
-                                                <i class="fas fa-paper-plane"></i> Kirim Bukti Pembayaran
-                                            </button>
-                                        </form>
-                                    </div>
-
-                                    <!-- Instruction -->
-                                    <div class="transfer-instructions">
-                                        <h5><i class="fas fa-info-circle"></i> Petunjuk Transfer</h5>
-                                        <ol>
-                                            <li>Transfer sesuai jumlah yang tertera <strong>persis</strong></li>
-                                            <li>Simpan bukti transfer dari bank</li>
-                                            <li>Upload bukti transfer melalui form di atas</li>
-                                            <li>Pesanan akan diproses setelah pembayaran dikonfirmasi</li>
-                                            <li>Konfirmasi pembayaran maksimal 1x24 jam</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <style>
-                                .bank-transfer-section {
-                                    background: #f8f9fa;
-                                    border-radius: 8px;
-                                    padding: 20px;
-                                    margin-top: 20px;
-                                }
-
-                                .payment-timer {
-                                    background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-                                    color: white;
-                                    padding: 15px;
-                                    border-radius: 8px;
-                                    text-align: center;
-                                    margin-bottom: 20px;
-                                }
-
-                                .countdown-timer {
-                                    font-size: 2rem;
-                                    font-weight: bold;
-                                    margin: 10px 0;
-                                }
-
-                                .bank-account-info {
-                                    background: white;
-                                    padding: 20px;
-                                    border-radius: 8px;
-                                    margin-bottom: 20px;
-                                    border: 1px solid #dee2e6;
-                                }
-
-                                .bank-details {
-                                    display: flex;
-                                    flex-wrap: wrap;
-                                    gap: 20px;
-                                }
-
-                                .bank-logo {
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 10px;
-                                    margin-bottom: 15px;
-                                }
-
-                                .account-item {
-                                    display: flex;
-                                    justify-content: space-between;
-                                    align-items: center;
-                                    padding: 10px 0;
-                                    border-bottom: 1px solid #eee;
-                                }
-
-                                .account-item:last-child {
-                                    border-bottom: none;
-                                }
-
-                                .account-number,
-                                .transfer-amount {
-                                    font-weight: bold;
-                                    color: #2c3e50;
-                                }
-
-                                .copy-btn {
-                                    background: #3498db;
-                                    color: white;
-                                    border: none;
-                                    padding: 5px 10px;
-                                    border-radius: 4px;
-                                    cursor: pointer;
-                                    font-size: 0.8rem;
-                                }
-
-                                .copy-btn:hover {
-                                    background: #2980b9;
-                                }
-
-                                .payment-proof-upload {
-                                    background: white;
-                                    padding: 20px;
-                                    border-radius: 8px;
-                                    margin-bottom: 20px;
-                                    border: 1px solid #dee2e6;
-                                }
-
-                                .upload-zone {
-                                    border: 2px dashed #bdc3c7;
-                                    padding: 40px 20px;
-                                    text-align: center;
-                                    border-radius: 8px;
-                                    cursor: pointer;
-                                    transition: all 0.3s;
-                                }
-
-                                .upload-zone:hover {
-                                    border-color: #3498db;
-                                    background: #f8f9fa;
-                                }
-
-                                .upload-preview {
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 15px;
-                                    padding: 15px;
-                                    background: #f8f9fa;
-                                    border-radius: 8px;
-                                    margin: 15px 0;
-                                }
-
-                                .upload-preview img {
-                                    width: 80px;
-                                    height: 80px;
-                                    object-fit: cover;
-                                    border-radius: 4px;
-                                }
-
-                                .btn-upload {
-                                    background: #27ae60;
-                                    color: white;
-                                    border: none;
-                                    padding: 12px 30px;
-                                    border-radius: 6px;
-                                    cursor: pointer;
-                                    width: 100%;
-                                    margin-top: 15px;
-                                }
-
-                                .btn-upload:disabled {
-                                    background: #bdc3c7;
-                                    cursor: not-allowed;
-                                }
-
-                                .btn-upload:not(:disabled):hover {
-                                    background: #229954;
-                                }
-
-                                .transfer-instructions {
-                                    background: white;
-                                    padding: 20px;
-                                    border-radius: 8px;
-                                    border: 1px solid #dee2e6;
-                                }
-
-                                .transfer-instructions ol {
-                                    margin: 0;
-                                    padding-left: 20px;
-                                }
-
-                                .transfer-instructions li {
-                                    margin-bottom: 8px;
-                                    line-height: 1.5;
-                                }
-                            </style>
-
-                            <script>
-                                // Timer countdown
-                                function startCountdown() {
-                                    const createdAt = new Date('{{ $order->created_at }}');
-                                    const deadline = new Date(createdAt.getTime() + (24 * 60 * 60 * 1000)); // 24 jam dari created_at
-
-                                    function updateCountdown() {
-                                        const now = new Date();
-                                        const timeLeft = deadline - now;
-
-                                        if (timeLeft <= 0) {
-                                            document.getElementById('countdown-display').textContent = '00:00:00';
-                                            document.querySelector('.payment-timer').style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
-                                            document.querySelector('.timer-note').textContent = 'Waktu pembayaran telah berakhir';
-                                            return;
-                                        }
-
-                                        const hours = Math.floor(timeLeft / (1000 * 60 * 60));
-                                        const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-                                        const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-                                        document.getElementById('countdown-display').textContent =
-                                            `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-                                    }
-
-                                    updateCountdown();
-                                    setInterval(updateCountdown, 1000);
-                                }
-
-                                // Copy to clipboard function
-                                function copyToClipboard(text) {
-                                    navigator.clipboard.writeText(text).then(function() {
-                                        // Show success message
-                                        const btn = event.target.closest('.copy-btn');
-                                        const originalText = btn.innerHTML;
-                                        btn.innerHTML = '<i class="fas fa-check"></i> Tersalin!';
-                                        btn.style.background = '#27ae60';
-
-                                        setTimeout(() => {
-                                            btn.innerHTML = originalText;
-                                            btn.style.background = '#3498db';
-                                        }, 2000);
-                                    });
-                                }
-
-                                // File upload handling
-                                document.getElementById('payment-proof').addEventListener('change', function(e) {
-                                    const file = e.target.files[0];
-                                    if (file) {
-                                        const preview = document.getElementById('upload-preview');
-                                        const previewImage = document.getElementById('preview-image');
-                                        const fileName = document.getElementById('file-name');
-                                        const uploadBtn = document.querySelector('.btn-upload');
-
-                                        // Show preview for images
-                                        if (file.type.startsWith('image/')) {
-                                            const reader = new FileReader();
-                                            reader.onload = function(e) {
-                                                previewImage.src = e.target.result;
-                                                previewImage.style.display = 'block';
-                                            };
-                                            reader.readAsDataURL(file);
-                                        } else {
-                                            previewImage.style.display = 'none';
-                                        }
-
-                                        fileName.textContent = file.name;
-                                        preview.style.display = 'flex';
-                                        uploadBtn.disabled = false;
-                                    }
-                                });
-
-                                function removeFile() {
-                                    document.getElementById('payment-proof').value = '';
-                                    document.getElementById('upload-preview').style.display = 'none';
-                                    document.querySelector('.btn-upload').disabled = true;
-                                }
-
-                                // Start countdown when page loads
-                                document.addEventListener('DOMContentLoaded', function() {
-                                    startCountdown();
-                                });
-                            </script>
-                        @endif
                     </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="{{ route('user.account.orders') }}" class="quick-action-btn">
+                        <i class="fas fa-list"></i>
+                        <span>Lihat Semua Pesanan</span>
+                    </a>
+                    {{-- <a href="#" class="quick-action-btn" onclick="window.print()">
+                        <i class="fas fa-print"></i>
+                        <span>Cetak Invoice</span>
+                    </a> --}}
+                    <a href="{{ route('home.contact.index') }}" class="quick-action-btn" target="_blank">
+                        <i class="fab fa-whatsapp"></i>
+                        <span>Hubungi Kami</span>
+                    </a>
                 </div>
             </div>
         </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @if ($order->transaction && $order->transaction->snap_token && $order->transaction->status === 'pending')
+        <!-- SweetAlert2 CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <!-- Midtrans Script -->
         <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}">
         </script>
@@ -1196,55 +1253,140 @@
                 snap.pay('{{ $order->transaction->snap_token }}', {
                     onSuccess: function(result) {
                         console.log("Success", result);
-                        alert("Pembayaran berhasil!");
-                        window.location.href = '{{ url('payment_success') }}';
+                        Swal.fire({
+                            title: 'Pembayaran Berhasil!',
+                            text: 'Terima kasih! Pembayaran Anda telah berhasil diproses. Pesanan akan segera kami proses.',
+                            icon: 'success',
+                            iconColor: '#28a745',
+                            confirmButtonText: 'Lanjutkan',
+                            confirmButtonColor: '#28a745',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then(() => {
+                            window.location.href = '{{ url('payment_success') }}';
+                        });
                     },
                     onPending: function(result) {
                         console.log("Pending", result);
-                        alert("Pembayaran sedang diproses.");
-                        window.location.href = '{{ url('payment_pending') }}';
+                        Swal.fire({
+                            title: 'Pembayaran Sedang Diproses',
+                            text: 'Pembayaran Anda sedang dalam proses verifikasi. Mohon tunggu beberapa saat.',
+                            icon: 'info',
+                            iconColor: '#b9a16b',
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#b9a16b',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false
+                        }).then(() => {
+                            window.location.href = '{{ url('payment_pending') }}';
+                        });
                     },
                     onError: function(result) {
                         console.log("Error", result);
-                        alert("Terjadi kesalahan saat pembayaran.");
+                        Swal.fire({
+                            title: 'Pembayaran Gagal',
+                            text: 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi atau hubungi customer service.',
+                            icon: 'error',
+                            iconColor: '#e74c3c',
+                            confirmButtonText: 'Coba Lagi',
+                            confirmButtonColor: '#e74c3c',
+                            showCancelButton: true,
+                            cancelButtonText: 'Hubungi CS',
+                            cancelButtonColor: '#6c757d'
+                        }).then((result) => {
+                            if (!result.isConfirmed) {
+                                // Redirect ke halaman contact jika pilih "Hubungi CS"
+                                window.location.href = '{{ route('home.contact.index') }}';
+                            }
+                        });
                     },
                     onClose: function() {
-                        alert("Anda menutup popup tanpa menyelesaikan pembayaran.");
+                        Swal.fire({
+                            title: 'Pembayaran Dibatalkan',
+                            text: 'Anda menutup jendela pembayaran tanpa menyelesaikan transaksi. Pesanan masih tersimpan dan dapat dibayar nanti.',
+                            icon: 'warning',
+                            iconColor: '#f39c12',
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#f39c12',
+                            showCancelButton: true,
+                            cancelButtonText: 'Coba Bayar Lagi',
+                            cancelButtonColor: '#b9a16b',
+                            reverseButtons: true
+                        }).then((result) => {
+                            if (!result.isConfirmed) {
+                                // Jika pilih "Coba Bayar Lagi", panggil ulang fungsi pembayaran
+                                document.getElementById('pay-button').click();
+                            }
+                        });
                     }
                 });
             });
         </script>
     @endif
 
-    @push('scripts')
-        <!-- JavaScript for Step Navigation -->
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                // Pada halaman konfirmasi, set langkah ke-3
-                updateCheckoutStep(3);
+    <script>
+        // Enhanced Payment Countdown Timer
+        document.addEventListener('DOMContentLoaded', function() {
+            const countdownElement = document.getElementById('payment-countdown');
+            if (countdownElement) {
+                const createdAt = new Date('{{ $order->created_at }}');
+                const deadline = new Date(createdAt.getTime() + (24 * 60 * 60 * 1000)); // 24 jam dari created_at
 
-                // Fungsi ini sama dengan yang ada di halaman pengiriman dan pembayaran
-                function updateCheckoutStep(step) {
-                    const checkoutSteps = document.querySelector('.checkout-steps');
-                    const stepItems = document.querySelectorAll('.checkout-steps__item');
+                function updateCountdown() {
+                    const now = new Date();
+                    const timeLeft = deadline - now;
 
-                    // Update progress bar
-                    checkoutSteps.className = 'checkout-steps';
-                    checkoutSteps.classList.add(`step-${step}`);
-
-                    // Reset all steps
-                    stepItems.forEach((item, index) => {
-                        item.classList.remove('active', 'completed');
-
-                        // Mark steps as completed or active
-                        if (index + 1 < step) {
-                            item.classList.add('completed');
-                        } else if (index + 1 === step) {
-                            item.classList.add('active');
+                    if (timeLeft <= 0) {
+                        countdownElement.textContent = '00:00:00';
+                        const alertBox = document.querySelector('.payment-timeout-alert');
+                        if (alertBox) {
+                            alertBox.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                            alertBox.querySelector('.timeout-message').textContent =
+                                'Waktu pembayaran telah berakhir';
                         }
-                    });
+                        return;
+                    }
+
+                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                    countdownElement.textContent =
+                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                    // Change color when less than 1 hour
+                    if (timeLeft < 3600000) { // 1 hour in milliseconds
+                        const alertBox = document.querySelector('.payment-timeout-alert');
+                        if (alertBox) {
+                            alertBox.style.background = 'linear-gradient(135deg, #e67e22, #d35400)';
+                        }
+                    }
                 }
-            });
-        </script>
-    @endpush
+
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            }
+
+            // Update checkout step
+            updateCheckoutStep(3);
+
+            function updateCheckoutStep(step) {
+                const checkoutSteps = document.querySelector('.checkout-steps');
+                const stepItems = document.querySelectorAll('.checkout-steps__item');
+
+                checkoutSteps.className = 'checkout-steps';
+                checkoutSteps.classList.add(`step-${step}`);
+
+                stepItems.forEach((item, index) => {
+                    item.classList.remove('active', 'completed');
+
+                    if (index + 1 < step) {
+                        item.classList.add('completed');
+                    } else if (index + 1 === step) {
+                        item.classList.add('active');
+                    }
+                });
+            }
+        });
+    </script>
 @endsection

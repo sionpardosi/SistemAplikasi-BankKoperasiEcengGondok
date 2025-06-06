@@ -91,23 +91,21 @@
                                     <th class="text-center">Name</th>
                                     <th class="text-center">Phone</th>
                                     <th class="text-center">Subtotal</th>
-                                    <th class="text-center">Tax</th>
                                     <th class="text-center">Total</th>
                                     <th class="text-center">Status</th>
                                     <th class="text-center">Order Date</th>
                                     <th class="text-center">Total Items</th>
                                     <th class="text-center">Delivered On</th>
-                                    <th></th>
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse ($orders as $order) 
+                                @forelse ($orders as $order)
                                     <tr>
                                         <td class="text-center">{{ '1' . str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</td>
                                         <td class="text-center">{{ $order->name }}</td>
                                         <td class="text-center">{{ $order->phone }}</td>
                                         <td class="text-center">Rp. {{ number_format($order->subtotal) }}</td>
-                                        <td class="text-center">Rp. {{ number_format($order->tax) }}</td>
                                         <td class="text-center">Rp. {{ number_format($order->total) }}</td>
                                         <td class="text-center">
                                             @if ($order->status == 'delivered')
