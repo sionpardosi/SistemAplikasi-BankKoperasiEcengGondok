@@ -87,6 +87,25 @@ class UserController extends Controller
         return back()->with('status', 'Pesanan berhasil dikonfirmasi telah diterima. Terima kasih!');
     }
 
+    /**
+     * Check payment status untuk AJAX request
+     */
+    public function checkPaymentStatus($transaction_id)
+    {
+        $transaction = Transaction::where('id', $transaction_id)
+            ->where('user_id', Auth::user()->id)
+            ->first();
+
+        if (!$transaction) {
+            return response()->json(['error' => 'Transaction not found'], 404);
+        }
+
+        return response()->json([
+            'status' => $transaction->status,
+            'order_status' => $transaction->order ? $transaction->order->status : null
+        ]);
+    }
+
     // Halaman untuk menampilkan detail transaksi pembayaran
     public function order_payment($transaction_id)
     {
