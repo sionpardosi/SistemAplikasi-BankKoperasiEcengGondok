@@ -1,7 +1,1006 @@
 @extends('layouts.app')
 
 @section('content')
+    <style>
+        .text-danger {
+            color: #e53935 !important;
+        }
 
+        /* Modern Wishlist Button */
+        .wishlist-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
+            background-color: #fff;
+            color: #555;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            min-width: 180px;
+        }
+
+        .wishlist-btn:hover {
+            background-color: #f8f8f8;
+            border-color: #d0d0d0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+
+        .wishlist-btn svg {
+            margin-right: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-btn:hover svg {
+            transform: scale(1.1);
+        }
+
+        /* Filled heart for when item is in wishlist */
+        .wishlist-btn.in-wishlist {
+            color: #e53935;
+            border-color: #ffcdd2;
+            background-color: #ffebee;
+        }
+
+        .wishlist-btn.in-wishlist:hover {
+            background-color: #ffcdd2;
+        }
+
+        /* Heart animation */
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.2);
+            }
+
+            50% {
+                transform: scale(1);
+            }
+
+            75% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Styling untuk notifikasi favorit - tambahkan ke CSS Anda */
+
+        /* Favorit notification - mirip dengan cart notification tapi posisi di kanan atas */
+        .favorit-notification {
+            position: fixed;
+            top: 190px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            z-index: 1000;
+            max-width: 350px;
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease;
+            transform: translateY(-20px);
+            opacity: 0;
+            border-left: 4px solid #e53935;
+        }
+
+        .favorit-notification.success {
+            border-left-color: #e53935;
+        }
+
+        .favorit-notification.removed {
+            border-left-color: #607d8b;
+        }
+
+        .favorit-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .favorit-notification__icon {
+            margin-right: 15px;
+            width: 30px;
+            height: 30px;
+            background: #fff2f2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .favorit-notification.success .favorit-notification__icon {
+            color: #e53935;
+        }
+
+        .favorit-notification.removed .favorit-notification__icon {
+            color: #607d8b;
+            background: #f5f5f5;
+        }
+
+        .favorit-notification__content {
+            flex: 1;
+        }
+
+        .favorit-notification__title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+            color: #333;
+        }
+
+        .favorit-notification.success .favorit-notification__title {
+            color: #e53935;
+        }
+
+        .favorit-notification.removed .favorit-notification__title {
+            color: #607d8b;
+        }
+
+        .favorit-notification__message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .favorit-notification__close {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .favorit-notification__close:hover {
+            color: #e53935;
+        }
+
+        /* Heart animation */
+        @keyframes heartbeat {
+            0% {
+                transform: scale(1);
+            }
+
+            25% {
+                transform: scale(1.2);
+            }
+
+            50% {
+                transform: scale(1);
+            }
+
+            75% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .heart-beat {
+            animation: heartbeat 0.8s ease-in-out;
+        }
+
+        /* Tambahkan styles untuk tombol wishlist yang lebih baik */
+        .wishlist-btn {
+            transition: all 0.3s ease;
+        }
+
+        .wishlist-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .wishlist-btn.in-wishlist {
+            animation: pulse-heart 1s;
+        }
+
+        @keyframes pulse-heart {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        /* Badge untuk counter di header */
+        .cart-amount,
+        .wishlist-amount {
+            font-size: 10px;
+            line-height: 15px;
+            background-color: #e53935;
+            color: white;
+            border-radius: 50%;
+            width: 15px;
+            height: 15px;
+            text-align: center;
+            top: -5px;
+            right: -5px;
+            transition: all 0.3s ease;
+        }
+
+        .js-wishlist-count {
+            transition: all 0.3s ease;
+        }
+
+        /* Counter animation */
+        @keyframes count-pop {
+            0% {
+                transform: scale(0.5);
+            }
+
+            50% {
+                transform: scale(1.2);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .counter-animation {
+            animation: count-pop 0.3s ease-out;
+        }
+
+        .heart-beat {
+            animation: heartbeat 0.8s ease-in-out;
+        }
+
+        /* Modern Share Button */
+        .share-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            border: 1px solid #e0e0e0;
+            background-color: #fff;
+            color: #555;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            min-width: 120px;
+        }
+
+        .share-btn svg {
+            margin-right: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .share-btn:hover {
+            background-color: #f8f8f8;
+            border-color: #d0d0d0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08);
+        }
+
+        .share-btn:hover svg {
+            transform: scale(1.1);
+        }
+
+        /* Share Dropdown Menu */
+        .share-dropdown {
+            position: relative;
+        }
+
+        .share-menu {
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 280px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 30px rgba(0, 0, 0, 0.15);
+            padding: 18px;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
+        }
+
+        .share-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .share-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #f0f0f0;
+            padding-bottom: 12px;
+        }
+
+        .share-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: #333;
+        }
+
+        .share-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .share-option {
+            display: flex;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: #333;
+            cursor: pointer;
+        }
+
+        .share-option:hover {
+            background: #f5f5f5;
+            transform: translateX(2px);
+        }
+
+        .share-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 14px;
+            color: white;
+            font-size: 16px;
+        }
+
+        .facebook-icon {
+            background: #1877F2;
+        }
+
+        .twitter-icon {
+            background: #1DA1F2;
+        }
+
+        .whatsapp-icon {
+            background: #25D366;
+        }
+
+        .link-icon {
+            background: #6c757d;
+        }
+
+        .copy-feedback {
+            font-size: 0.8rem;
+            color: #4CAF50;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .copy-feedback.active {
+            opacity: 1;
+        }
+
+        /* Custom notification */
+        .wishlist-notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            z-index: 1000;
+            max-width: 350px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(20px);
+            opacity: 0;
+            border-left: 4px solid;
+        }
+
+        .wishlist-notification.success {
+            border-left-color: #4CAF50;
+        }
+
+        .wishlist-notification.removed {
+            border-left-color: #e53935;
+        }
+
+        .wishlist-notification.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .wishlist-notification__icon {
+            margin-right: 15px;
+            width: 30px;
+            height: 30px;
+            background: #f5f5f5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wishlist-notification.success .wishlist-notification__icon {
+            color: #4CAF50;
+        }
+
+        .wishlist-notification.removed .wishlist-notification__icon {
+            color: #e53935;
+        }
+
+        .wishlist-notification__content {
+            flex: 1;
+        }
+
+        .wishlist-notification__title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+        }
+
+        .wishlist-notification__message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .wishlist-notification__close {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .wishlist-notification__close:hover {
+            color: #666;
+        }
+
+        /* discount */
+        .discount-text {
+            color: #e53935;
+            font-weight: 600;
+        }
+
+        .breadcrumb {
+
+            font-size: 0.85rem;
+        }
+
+        .breadcrumb-item+.breadcrumb-item::before {
+            content: "/";
+            color: #ced4da;
+        }
+
+        .product-nav-link {
+            transition: color 0.2s ease;
+        }
+
+        .product-nav-link:hover {
+            color: #956a3b;
+        }
+
+        .product-info-box {
+            transition: box-shadow 0.3s ease;
+        }
+
+        .product-info-box:hover {
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .qty-control {
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .qty-control__number {
+            border: 1px solid #ced4da;
+            font-weight: 500;
+        }
+
+        .qty-control__number:focus {
+            outline: none;
+            border-color: #956a3b;
+            box-shadow: 0 0 0 0.2rem rgba(149, 106, 59, 0.25);
+        }
+
+        .qty-control__reduce,
+        .qty-control__increase {
+            cursor: pointer;
+            width: 24px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #f8f9fa;
+            transition: background-color 0.2s ease;
+        }
+
+        .qty-control__reduce:hover,
+        .qty-control__increase:hover {
+            background-color: #e9ecef;
+        }
+
+        .btn-primary,
+        .btn-dark {
+            border-radius: 4px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-primary:hover,
+        .btn-dark:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* New Modal Styles */
+        .quantity-modal .modal-content {
+            border: none;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .quantity-modal .modal-header {
+            border-bottom: 1px solid #f0f0f0;
+            background-color: #fcfcfc;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .quantity-modal .modal-title {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .quantity-modal .modal-body {
+            padding: 2rem;
+        }
+
+        .quantity-modal .product-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .quantity-modal .product-info img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-right: 1rem;
+        }
+
+        .quantity-modal .product-details h5 {
+            margin-bottom: 0.25rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .quantity-modal .product-price {
+            color: #956a3b;
+            font-weight: 600;
+        }
+
+        .quantity-modal .stock-info {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        .quantity-modal .quantity-controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .quantity-modal .qty-btn {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background-color: #f8f9fa;
+            border: 1px solid #ced4da;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-modal .qty-btn:hover {
+            background-color: #e9ecef;
+        }
+
+        .quantity-modal .qty-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 0.2rem rgba(149, 106, 59, 0.25);
+        }
+
+        .quantity-modal .qty-input {
+            width: 80px;
+            height: 45px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin: 0 0.75rem;
+        }
+
+        .quantity-modal .qty-input:focus {
+            outline: none;
+            border-color: #956a3b;
+            box-shadow: 0 0 0 0.2rem rgba(149, 106, 59, 0.25);
+        }
+
+        .quantity-modal .modal-footer {
+            border-top: 1px solid #f0f0f0;
+            padding: 1rem 1.5rem;
+        }
+
+        .quantity-modal .btn-confirm {
+            background-color: #956a3b;
+            border-color: #956a3b;
+            color: white;
+            padding: 0.6rem 2rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-modal .btn-confirm:hover {
+            background-color: #7d5931;
+            border-color: #7d5931;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .quantity-modal .btn-cancel {
+            color: #6c757d;
+            background-color: #f8f9fa;
+            border-color: #f8f9fa;
+            padding: 0.6rem 1.5rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .quantity-modal .btn-cancel:hover {
+            background-color: #e2e6ea;
+            border-color: #dae0e5;
+        }
+
+        .nav-tabs .nav-link {
+            font-weight: 500;
+            color: #555;
+            border: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: #956a3b;
+            border-color: #956a3b;
+            background-color: transparent;
+        }
+
+        .tab-content {
+            padding: 20px;
+            /* border: 1px solid #e0e0e0; */
+            /* border-top: none; */
+            /* border-radius: 0 0 80px 80px; */
+            background-color: #fff;
+        }
+
+        .review-item {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .review-rating svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* Cart notification */
+        .cart-notification {
+            position: fixed;
+            top: 130px;
+            /* Tetap di atas */
+            right: 20px;
+            /* Diubah ke posisi kanan */
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            padding: 15px 20px;
+            display: none;
+            align-items: center;
+            z-index: 1000;
+            max-width: 350px;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            transform: translateY(-20px);
+            /* Hanya transform Y untuk efek muncul dari atas */
+            opacity: 0;
+            border-left: 4px solid #956a3b;
+            /* Warna coklat default */
+        }
+
+        .cart-notification.success {
+            border-left-color: #956a3b;
+            /* Warna coklat */
+        }
+
+        .cart-notification.error {
+            border-left-color: #e53935;
+            /* Tetap merah untuk error */
+        }
+
+        .cart-notification.show {
+            transform: translateY(0);
+            /* Normal position */
+            opacity: 1;
+        }
+
+        .cart-notification__icon {
+            margin-right: 15px;
+            width: 30px;
+            height: 30px;
+            background: #f9f3ec;
+            /* Background lebih terang dari coklat */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-notification.success .cart-notification__icon {
+            color: #956a3b;
+            /* Warna coklat */
+        }
+
+        .cart-notification.error .cart-notification__icon {
+            color: #e53935;
+            /* Tetap merah untuk error */
+        }
+
+        .cart-notification__content {
+            flex: 1;
+        }
+
+        .cart-notification__title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 3px;
+            color: #956a3b;
+            /* Judul berwarna coklat */
+        }
+
+        .cart-notification__message {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .cart-notification__close {
+            background: transparent;
+            border: none;
+            color: #aaa;
+            cursor: pointer;
+            padding: 5px;
+            margin-left: 5px;
+            font-size: 16px;
+            transition: color 0.2s;
+        }
+
+        .cart-notification__close:hover {
+            color: #956a3b;
+            /* Hover menjadi coklat */
+        }
+
+        /* Peningkatan desain notifikasi */
+        .cart-notification {
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55), opacity 0.3s ease;
+            z-index: 9999;
+        }
+
+        /* Notifikasi error yang lebih mencolok */
+        .cart-notification.error {
+            background: #fff;
+            border-left: 4px solid #ff5252;
+        }
+
+        .cart-notification.error .cart-notification__icon {
+            background: #fff2f2;
+            color: #ff5252;
+        }
+
+        .cart-notification.error .cart-notification__title {
+            color: #ff5252;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* Tampilan stock level untuk indikator visual */
+        .stock-level-indicator {
+            height: 6px;
+            width: 100%;
+            background: #f0f0f0;
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .stock-level-bar {
+            height: 100%;
+            transition: width 0.5s ease;
+        }
+
+        .stock-level-high {
+            background: linear-gradient(to right, #4CAF50, #8BC34A);
+        }
+
+        .stock-level-medium {
+            background: linear-gradient(to right, #FFC107, #FF9800);
+        }
+
+        .stock-level-low {
+            background: linear-gradient(to right, #FF5722, #F44336);
+        }
+
+        /* Desain tombol aksi di notifikasi */
+        .cart-notification__actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+            gap: 8px;
+        }
+
+        .cart-notification__action-btn {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .cart-notification__primary-btn {
+            background-color: #956a3b;
+            color: white;
+        }
+
+        .cart-notification__primary-btn:hover {
+            background-color: #7d5931;
+        }
+
+        .cart-notification__secondary-btn {
+            background-color: transparent;
+            border-color: #6c757d;
+            color: #6c757d;
+        }
+
+        .cart-notification__secondary-btn:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Animasi untuk notifikasi */
+        @keyframes attention-pulse {
+            0% {
+                box-shadow: 0 5px 15px rgba(255, 82, 82, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 5px 20px rgba(255, 82, 82, 0.35);
+            }
+
+            100% {
+                box-shadow: 0 5px 15px rgba(255, 82, 82, 0.2);
+            }
+        }
+
+        .cart-notification.error.show {
+            animation: attention-pulse 1.5s ease-in-out infinite;
+        }
+
+        /* ===== RESPONSIVE ADJUSTMENTS ===== */
+
+        /* Untuk header yang lebih tinggi */
+        @media (min-width: 1200px) {
+
+            .cart-notification,
+            .favorit-notification {
+                top: 130px;
+                /* Sesuaikan jika header lebih tinggi di desktop */
+                right: 30px;
+            }
+        }
+
+        /* Untuk tablet */
+        @media (max-width: 991px) {
+
+            .cart-notification,
+            .favorit-notification {
+                top: 70px;
+                /* Header biasanya lebih pendek di tablet */
+                right: 15px;
+                max-width: 350px;
+                min-width: 280px;
+            }
+        }
+
+        /* Untuk mobile */
+        @media (max-width: 767px) {
+
+            .cart-notification,
+            .favorit-notification {
+                top: 130px;
+                /* Header mobile biasanya lebih kompak */
+                right: 10px;
+                left: 10px;
+                /* Full width di mobile dengan margin */
+                max-width: none;
+                min-width: auto;
+                width: calc(100% - 20px);
+            }
+        }
+
+        /* Untuk mobile sangat kecil */
+        @media (max-width: 480px) {
+
+            .cart-notification,
+            .favorit-notification {
+                top: 55px;
+                padding: 12px 16px;
+                font-size: 14px;
+            }
+
+            .cart-notification__title,
+            .favorit-notification__title {
+                font-size: 13px;
+            }
+
+            .cart-notification__message,
+            .favorit-notification__message {
+                font-size: 12px;
+            }
+        }
+    </style>
 
     <main class="pt-90">
         <div class="mb-md-1 pb-md-3"></div>
@@ -75,8 +1074,76 @@
                     </div>
                 </div>
                 <div class="col-lg-5">
+                    <!-- Improved Breadcrumb Navigation -->
+                    <div class="d-flex justify-content-between mb-4 pb-md-2">
+                        <nav aria-label="breadcrumb" class="breadcrumb mb-0 d-none d-md-block flex-grow-1">
+                            <ol class="breadcrumb m-0 p-0 d-flex flex-wrap align-items-center">
+                                <li class="breadcrumb-item">
+                                    <a href="{{ route('home.index') }}"
+                                        class="menu-link menu-link_us-s text-uppercase fw-medium">
+                                        <i class="fas fa-home me-1 small"></i>Beranda
+                                    </a>
+                                </li>
+                                <li class="breadcrumb-item">
+                                    <a href="{{ route('shop.index') }}"
+                                        class="menu-link menu-link_us-s text-uppercase fw-medium">Produk</a>
+                                </li>
+                                <li class="breadcrumb-item active text-uppercase fw-medium" aria-current="page">Detail
+                                    Produk</li>
+                            </ol>
+                        </nav>
+
+                        <div
+                            class="product-single__prev-next d-flex align-items-center justify-content-between justify-content-md-end flex-grow-1">
+                            @if ($prevProduct)
+                                <a href="{{ route('shop.product.details', ['product_slug' => $prevProduct->slug]) }}"
+                                    class="nav-item text-uppercase fw-medium product-nav-link me-2 d-flex align-items-center"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $prevProduct->name }}">
+                                    <svg width="10" height="10" viewBox="0 0 25 25"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <use href="#icon_prev_md" />
+                                    </svg>
+                                    <span class="menu-link menu-link_us-s ms-1">Sebelum</span>
+                                </a>
+                            @endif
+
+                            @if ($nextProduct)
+                                <a href="{{ route('shop.product.details', ['product_slug' => $nextProduct->slug]) }}"
+                                    class="nav-item text-uppercase fw-medium product-nav-link ms-2 d-flex align-items-center"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $nextProduct->name }}">
+                                    <span class="menu-link menu-link_us-s me-1">Berikut</span>
+                                    <svg width="10" height="10" viewBox="0 0 25 25"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <use href="#icon_next_md" />
+                                    </svg>
+                                </a>
+                            @endif
+                        </div>
+                    </div>
+
                     <h1 class="product-single__name">{{ $product->name }}</h1>
 
+                    <div class="product-single__rating">
+                        <div class="reviews-group d-flex">
+                            @php
+                                $averageRating = $product->reviews()->avg('rating');
+                                $totalReviews = $product->reviews()->count();
+                            @endphp
+
+                            {{-- Display stars dynamically based on the average rating --}}
+                            @for ($i = 1; $i <= 5; $i++)
+                                <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg"
+                                    style="fill: {{ $i <= $averageRating ? '#FFD700' : '#E0E0E0' }};">
+                                    <use href="#icon_star" />
+                                </svg>
+                            @endfor
+                        </div>
+
+                        {{-- Display total reviews count --}}
+                        <span class="reviews-note text-lowercase text-secondary ms-1">
+                            {{ $totalReviews > 1000 ? round($totalReviews / 1000, 1) . 'k+' : $totalReviews }} Ulasan
+                        </span>
+                    </div>
 
                     <div class="product-single__price">
                         <span class="current-price">
@@ -296,6 +1363,59 @@
                             </form>
                         @endif
 
+                        <!-- Improved Share Button -->
+                        <div class="share-dropdown position-relative">
+                            <button class="share-btn" id="shareButton">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="18" cy="5" r="3"></circle>
+                                    <circle cx="6" cy="12" r="3"></circle>
+                                    <circle cx="18" cy="19" r="3"></circle>
+                                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+                                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+                                </svg>
+                                <span>Bagikan</span>
+                            </button>
+                            <div class="share-menu" id="shareMenu">
+                                <div class="share-header">
+                                    <span class="share-title">Bagikan Produk</span>
+                                    <button type="button" class="btn-close" id="closeShareMenu"></button>
+                                </div>
+                                <div class="share-options">
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ urlencode(Request::url()) }}"
+                                        target="_blank" class="share-option">
+                                        <div class="share-icon facebook-icon">
+                                            <i class="fab fa-facebook-f"></i>
+                                        </div>
+                                        <span>Facebook</span>
+                                    </a>
+                                    <a href="https://twitter.com/intent/tweet?url={{ urlencode(Request::url()) }}&text={{ urlencode($product->name) }}"
+                                        target="_blank" class="share-option">
+                                        <div class="share-icon twitter-icon">
+                                            <i class="fab fa-twitter"></i>
+                                        </div>
+                                        <span>Twitter</span>
+                                    </a>
+                                    <a href="https://wa.me/?text={{ urlencode($product->name . ' - ' . Request::url()) }}"
+                                        target="_blank" class="share-option">
+                                        <div class="share-icon whatsapp-icon">
+                                            <i class="fab fa-whatsapp"></i>
+                                        </div>
+                                        <span>WhatsApp</span>
+                                    </a>
+                                    <div class="share-option" id="copyLink" data-url="{{ Request::url() }}">
+                                        <div class="share-icon link-icon">
+                                            <i class="fas fa-link"></i>
+                                        </div>
+                                        <div>
+                                            <span>Salin Link</span>
+                                            <div class="copy-feedback" id="copyFeedback">Link berhasil disalin!</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Custom notification element -->
@@ -312,11 +1432,372 @@
                         </button>
                     </div>
 
+                    <div class="product-single__meta-info mt-4">
+                        <div class="meta-item">
+                            <label>Kategori Produk : </label>
+                            <span>{{ $product->category->name }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <label>Merek asli : </label>
+                            <span>{{ $product->brand->name }}</span>
+                        </div>
+                    </div>
+
+                    <div class="product-reviews mt-4">
+                        <h4 class="mb-4">Ulasan Produk</h4>
+                        @php
+                            $reviews = $product->reviews()->with('user', 'reviewMedia')->get();
+                        @endphp
+
+                        @if ($reviews->count() > 0)
+                            @foreach ($reviews as $review)
+                                <div class="review-item mb-4 p-3 border rounded">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <strong>{{ $review->user->name }}</strong>
+                                        <span class="ms-3 text-muted">{{ $review->created_at->format('d M Y') }}</span>
+                                    </div>
+                                    <div class="review-rating mb-2">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            <svg class="review-star" viewBox="0 0 9 9" xmlns="http://www.w3.org/2000/svg"
+                                                style="fill: {{ $i <= $review->rating ? '#FFD700' : '#E0E0E0' }};">
+                                                <use href="#icon_star" />
+                                            </svg>
+                                        @endfor
+                                    </div>
+                                    <p class="review-comment">{{ $review->comment }}</p>
+                                    @if ($review->reviewMedia->count() > 0)
+                                        <div class="review-media mt-2">
+                                            @foreach ($review->reviewMedia as $media)
+                                                @if ($media->file_type === 'image')
+                                                    <img src="{{ asset('storage/' . $media->file_path) }}"
+                                                        alt="Review Media"
+                                                        style="max-width: 100px; max-height: 100px; margin-right: 10px; border-radius: 5px;">
+                                                @elseif ($media->file_type === 'video')
+                                                    <video controls
+                                                        style="max-width: 200px; max-height: 150px; margin-right: 10px;">
+                                                        <source src="{{ asset('storage/' . $media->file_path) }}"
+                                                            type="video/mp4">
+                                                        Video tidak didukung.
+                                                    </video>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </div>
+                            @endforeach
+                        @else
+                            <p class="text-muted">Belum ada ulasan untuk produk ini.</p>
+                        @endif
+                    </div>
                 </div>
             </div>
 
+            <div class="product-single__details-tab">
+                <!-- Tab Navigation -->
+                <ul class="nav nav-tabs justify-content-center" id="productDetailsTab" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active" id="tab-description-tab" data-bs-toggle="tab"
+                            data-bs-target="#tab-description" type="button" role="tab"
+                            aria-controls="tab-description" aria-selected="true">
+                            <i class="fas fa-info-circle me-2"></i>Deskripsi
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-additional-info-tab" data-bs-toggle="tab"
+                            data-bs-target="#tab-additional-info" type="button" role="tab"
+                            aria-controls="tab-additional-info" aria-selected="false">
+                            <i class="fas fa-list-alt me-2"></i>Informasi Tambahan
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="tab-reviews-tab" data-bs-toggle="tab" data-bs-target="#tab-reviews"
+                            type="button" role="tab" aria-controls="tab-reviews" aria-selected="false">
+                            <i class="fas fa-star me-2"></i>Semua Ulasan ({{ $product->reviews()->count() }})
+                        </button>
+                    </li>
+                </ul>
 
+                <!-- Tab Content -->
+                <div class="tab-content mt-4">
+                    <!-- Description Tab -->
+                    <div class="tab-pane fade show active" id="tab-description" role="tabpanel"
+                        aria-labelledby="tab-description-tab">
+                        <div class="product-single__description">
+                            <h4 class="mb-3">Tentang Produk</h4>
+                            <p>{{ $product->description }}</p>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info Tab -->
+                    <div class="tab-pane fade" id="tab-additional-info" role="tabpanel"
+                        aria-labelledby="tab-additional-info-tab">
+                        <div class="product-single__additional-info">
+                            <h4 class="mb-3">Informasi Tambahan</h4>
+                            <ul class="list-unstyled">
+                                <li><strong>Kategori:</strong> {{ $product->category->name }}</li>
+                                <li><strong>Brand:</strong> {{ $product->brand->name }}</li>
+                                <li><strong>SKU:</strong> {{ $product->SKU }}</li>
+                                <li><strong>Stok:</strong> {{ $product->quantity }}</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Reviews Tab -->
+                    <div class="tab-pane fade" id="tab-reviews" role="tabpanel" aria-labelledby="tab-reviews-tab">
+                        <div class="product-reviews mt-4">
+                            <h4 class="mb-4">Ulasan Produk</h4>
+                            @php
+                                $reviews = $product->reviews()->with('user', 'reviewMedia')->get();
+                            @endphp
+
+                            @if ($reviews->count() > 0)
+                                @foreach ($reviews as $review)
+                                    <div class="review-item mb-4 p-3 border rounded">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <strong>{{ $review->user->name }}</strong>
+                                            <span
+                                                class="ms-3 text-muted">{{ $review->created_at->format('d M Y') }}</span>
+                                        </div>
+                                        <div class="review-rating mb-2">
+                                            @for ($i = 1; $i <= 5; $i++)
+                                                <svg class="review-star" viewBox="0 0 9 9"
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    style="fill: {{ $i <= $review->rating ? '#FFD700' : '#E0E0E0' }};">
+                                                    <use href="#icon_star" />
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                        <p class="review-comment">{{ $review->comment }}</p>
+                                        @if ($review->reviewMedia->count() > 0)
+                                            <div class="review-media mt-2">
+                                                @foreach ($review->reviewMedia as $media)
+                                                    @if ($media->file_type === 'image')
+                                                        <img src="{{ asset('storage/' . $media->file_path) }}"
+                                                            alt="Review Media"
+                                                            style="max-width: 100px; max-height: 100px; margin-right: 10px; border-radius: 5px;">
+                                                    @elseif ($media->file_type === 'video')
+                                                        <video controls
+                                                            style="max-width: 200px; max-height: 150px; margin-right: 10px;">
+                                                            <source src="{{ asset('storage/' . $media->file_path) }}"
+                                                                type="video/mp4">
+                                                            Video tidak didukung.
+                                                        </video>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endforeach
+                            @else
+                                <p class="text-muted">Belum ada ulasan untuk produk ini.</p>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
+
+        <section class="products-carousel container">
+            <h2 class="h3 text-uppercase mb-4 pb-xl-2 mb-xl-4">Produk <strong>Terkait</strong></h2>
+            <div id="related_products" class="position-relative">
+                <div class="swiper-container js-swiper-slider"
+                    data-settings='
+                    {
+        "autoplay": false,
+        "slidesPerView": 4,
+        "slidesPerGroup": 4,
+        "effect": "none",
+        "loop": true,
+        "pagination": {
+          "el": "#related_products .products-pagination",
+          "type": "bullets",
+          "clickable": true
+        },
+        "navigation": {
+          "nextEl": "#related_products .products-carousel__next",
+          "prevEl": "#related_products .products-carousel__prev"
+        },
+        "breakpoints": {
+          "320": {
+            "slidesPerView": 2,
+            "slidesPerGroup": 2,
+            "spaceBetween": 14
+          },
+          "768": {
+            "slidesPerView": 3,
+            "slidesPerGroup": 3,
+            "spaceBetween": 24
+          },
+          "992": {
+            "slidesPerView": 4,
+            "slidesPerGroup": 4,
+            "spaceBetween": 30
+          }
+        }
+      }'>
+                    <div class="swiper-wrapper">
+                        @foreach ($rproducts as $rproduct)
+                            <div class="swiper-slide product-card"
+                                data-stock="{{ $rproduct->quantity - $rproduct->reserved_quantity }}">
+                                <div class="pc__img-wrapper">
+                                    <!-- Tambahkan badge stok habis jika stok <= 0 -->
+                                    @if ($rproduct->quantity - $rproduct->reserved_quantity <= 0)
+                                        <div class="stock-badge">Stok Habis</div>
+                                    @elseif($rproduct->quantity - $rproduct->reserved_quantity <= 5)
+                                        <div class="stock-badge" style="background-color: #ff9800;">Stok Terbatas
+                                            ({{ $rproduct->quantity - $rproduct->reserved_quantity }})
+                                        </div>
+                                    @endif
+
+                                    <a href="{{ route('shop.product.details', ['product_slug' => $rproduct->slug]) }}">
+                                        <img loading="lazy" src="{{ asset('uploads/products') }}/{{ $rproduct->image }}"
+                                            width="330" height="400" alt="{{ $rproduct->name }}" class="pc__img">
+                                        @foreach (explode(',', $rproduct->images) as $gimg)
+                                            <img loading="lazy"
+                                                src="{{ asset('uploads/products') }}/{{ trim(explode(',', $rproduct->images)[0]) }}"
+                                                width="330" height="400" alt="{{ $rproduct->name }}"
+                                                class="pc__img pc__img-second">
+                                        @endforeach
+                                    </a>
+
+                                    <!-- Form add-to-cart dengan kondisi stok -->
+                                    @if ($rproduct->quantity - $rproduct->reserved_quantity > 0)
+                                        <!-- Tampilkan form normal jika stok tersedia -->
+                                        <form name="addtocart-form" class="related-product-form" method="POST"
+                                            action="{{ route('cart.add') }}">
+                                            @csrf
+                                            <div class="product-single__addtocart">
+                                                <input type="hidden" name="id" value="{{ $rproduct->id }}" />
+                                                <input type="hidden" name="name" value="{{ $rproduct->name }}" />
+                                                <input type="hidden" name="quantity" value="1" />
+                                                <input type="hidden" name="price"
+                                                    value="{{ $rproduct->sale_price == '' ? $rproduct->regular_price : $rproduct->sale_price }}" />
+                                                <button type="submit"
+                                                    class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium js-add-cart"
+                                                    style="background-color:#956a3b; color:#ffffff;">
+                                                    Tambahkan ke Keranjang
+                                                </button>
+                                            </div>
+                                        </form>
+                                    @else
+                                        <!-- Tampilkan tombol disabled jika stok habis -->
+                                        <div class="product-single__addtocart">
+                                            <button type="button" disabled
+                                                class="pc__atc btn anim_appear-bottom position-absolute border-0 text-uppercase fw-medium out-of-stock"
+                                                style="background-color: #f5f5f5; color: #aaa; cursor: not-allowed;">
+                                                <i class="fas fa-ban me-1"></i> Stok Habis
+                                            </button>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <div class="pc__info position-relative">
+                                    <p class="pc__category">{{ $rproduct->category->name }}</p>
+                                    <h6 class="pc__title">
+                                        <a
+                                            href="{{ route('shop.product.details', ['product_slug' => $rproduct->slug]) }}">
+                                            {{ $rproduct->name }}
+                                        </a>
+                                    </h6>
+                                    <div class="product-card__price d-flex">
+                                        <span class="money price">
+                                            @if ($rproduct->sale_price < $rproduct->regular_price)
+                                                <s>{{ formatRupiah($rproduct->regular_price) }}</s>
+                                                {{ formatRupiah($rproduct->sale_price) }}
+                                                <span class="discount-text">
+                                                    {{ round((($rproduct->regular_price - $rproduct->sale_price) * 100) / $rproduct->regular_price) }}%
+                                                    DISKON
+                                                </span>
+                                            @else
+                                                {{ formatRupiah($rproduct->regular_price) }}
+                                            @endif
+                                        </span>
+                                    </div>
+
+                                    <!-- Tambahkan info stok -->
+                                    <div class="product-stock-info mt-1">
+                                        @if ($rproduct->quantity - $rproduct->reserved_quantity <= 0)
+                                            {{-- Info stok kosong tidak ditampilkan untuk tidak mengulang badge --}}
+                                        @elseif($rproduct->quantity - $rproduct->reserved_quantity <= 5)
+                                            <small class="text-warning fw-semibold">
+                                                <i class="fas fa-exclamation-triangle me-1"></i>
+                                                Stok terbatas: {{ $rproduct->quantity - $rproduct->reserved_quantity }}
+                                                tersisa
+                                            </small>
+                                        @endif
+                                    </div>
+
+                                    <!-- Wishlist Button Section - Disable jika stok habis -->
+                                    @if ($rproduct->quantity - $rproduct->reserved_quantity > 0)
+                                        <!-- Wishlist normal jika stok tersedia -->
+                                        @if (\Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->where('id', $rproduct->id)->count() > 0)
+                                            <form method="POST"
+                                                action="{{ route('wishlist.remove', ['rowId' => \Surfsidemedia\Shoppingcart\Facades\Cart::instance('wishlist')->content()->Where('id', $rproduct->id)->first()->rowId]) }}">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 filled-heart"
+                                                    title="Remove from Wishlist">
+                                                    <svg width="16" height="16" viewBox="0 0 20 20"
+                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <use href="#icon_heart" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @else
+                                            <form method="POST" action="{{ route('wishlist.add') }}">
+                                                @csrf
+                                                <input type="hidden" name="id" value="{{ $rproduct->id }}" />
+                                                <input type="hidden" name="name" value="{{ $rproduct->name }}" />
+                                                <input type="hidden" name="price"
+                                                    value="{{ $rproduct->sale_price == '' ? $rproduct->regular_price : $rproduct->sale_price }}" />
+                                                <input type="hidden" name="quantity" value="1" />
+                                                <button type="submit"
+                                                    class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0 js-add-wishlist"
+                                                    title="Tambahkan Ke Favorit">
+                                                    <svg width="16" height="16" viewBox="0 0 20 20"
+                                                        fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                        <use href="#icon_heart" />
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <!-- Wishlist disabled jika stok habis -->
+                                        <button type="button" disabled
+                                            class="pc__btn-wl position-absolute top-0 end-0 bg-transparent border-0"
+                                            title="Produk tidak tersedia" style="opacity: 0.5; cursor: not-allowed;">
+                                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"
+                                                xmlns="http://www.w3.org/2000/svg">
+                                                <use href="#icon_heart" />
+                                            </svg>
+                                        </button>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    <!-- /.swiper-wrapper -->
+                </div><!-- /.swiper-container js-swiper-slider -->
+
+                <div
+                    class="products-carousel__prev position-absolute top-50 d-flex align-items-center justify-content-center">
+                    <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
+                        <use href="#icon_prev_md" />
+                    </svg>
+                </div><!-- /.products-carousel__prev -->
+                <div
+                    class="products-carousel__next position-absolute top-50 d-flex align-items-center justify-content-center">
+                    <svg width="25" height="25" viewBox="0 0 25 25" xmlns="http://www.w3.org/2000/svg">
+                        <use href="#icon_next_md" />
+                    </svg>
+                </div><!-- /.products-carousel__next -->
+
+                <div class="products-pagination mt-4 mb-5 d-flex align-items-center justify-content-center"></div>
+                <!-- /.products-pagination -->
+            </div><!-- /.position-relative -->
+
+        </section><!-- /.products-carousel container -->
 
         <!-- Cart notification -->
         <div class="cart-notification" id="cart-notification">
@@ -1149,6 +2630,478 @@
         });
     </script>
 
+    <!-- JavaScript for Wishlist functionalities -->
+    <script>
+        // Script untuk perbaikan favorit/wishlist
+
+        $(document).ready(function() {
+            // Function to show favorit notification di atas kanan seperti cart
+            function showFavoritNotification(message, isSuccess = true) {
+                // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
+                if (!$('#favorit-notification').length) {
+                    $('body').append(`
+                <div class="favorit-notification" id="favorit-notification">
+                    <div class="favorit-notification__icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="favorit-notification__content">
+                        <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
+                        <div class="favorit-notification__message" id="favorit-notification-message"></div>
+                    </div>
+                    <button class="favorit-notification__close" id="close-favorit-notification">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `);
+
+                    // Tambahkan event handler untuk tombol close
+                    $(document).on('click', '#close-favorit-notification', function() {
+                        $('#favorit-notification').removeClass('show');
+                        setTimeout(function() {
+                            $('#favorit-notification').css('display', 'none');
+                        }, 300);
+                    });
+                }
+
+                const notification = $('#favorit-notification');
+                const title = $('#favorit-notification-title');
+                const messageEl = $('#favorit-notification-message');
+
+                // Set content
+                messageEl.text(message);
+
+                // Set type (success or error)
+                if (isSuccess) {
+                    notification.removeClass('removed').addClass('success');
+                    title.text('Ditambahkan ke Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-trash').addClass('fa-heart');
+                } else {
+                    notification.removeClass('success').addClass('removed');
+                    title.text('Dihapus dari Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-heart').addClass('fa-trash');
+                }
+
+                // Show notification
+                notification.css('display', 'flex').addClass('show');
+
+                // Auto hide after 3 seconds
+                setTimeout(function() {
+                    notification.removeClass('show');
+                    setTimeout(function() {
+                        notification.css('display', 'none');
+                    }, 300);
+                }, 3000);
+            }
+
+            // Function to update wishlist count in both desktop and mobile headers
+            function updateWishlistCount(count) {
+                $('.js-wishlist-items-count').text(count > 0 ? count : '');
+                $('.js-wishlist-count').text(count > 0 ? count : '');
+            }
+
+            // Handle add to wishlist button
+            $(document).on('click', '#add-to-wishlist', function(e) {
+                e.preventDefault();
+                const form = $('#wishlist-form');
+                const button = $(this);
+                const formData = form.serialize();
+
+                // Add loading state
+                button.prop('disabled', true).css('opacity', '0.7');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        // Remove loading state
+                        button.prop('disabled', false).css('opacity', '1');
+
+                        // Add heart beat animation
+                        button.find('svg').addClass('heart-beat');
+                        setTimeout(function() {
+                            button.find('svg').removeClass('heart-beat');
+                        }, 800);
+
+                        // Show success notification dengan style baru
+                        showFavoritNotification(
+                            'Produk berhasil ditambahkan ke daftar favorit Anda.', true);
+
+                        // Update wishlist count
+                        updateWishlistCount(response.count || parseInt($(
+                            '.js-wishlist-items-count').text()) + 1);
+
+                        // Replace the button with remove from wishlist button
+                        const removeForm = `
+                <form method="POST" action="${response.removeUrl || '#'}" id="frm-remove-item">
+                    @csrf
+                    @method('DELETE')
+                    <input type="hidden" name="rowId" value="${response.rowId || ''}">
+                    <button type="button" class="wishlist-btn in-wishlist" id="remove-from-wishlist">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="#e53935">
+                            <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
+                        </svg>
+                        <span>Hapus dari Favorit</span>
+                    </button>
+                </form>`;
+
+                        // Replace form
+                        $('#wishlist-form').replaceWith(removeForm);
+                    },
+                    error: function(xhr) {
+                        // Remove loading state
+                        button.prop('disabled', false).css('opacity', '1');
+
+                        let errorMsg = 'Gagal menambahkan ke favorit. Silakan coba lagi.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        // Show error notification
+                        showFavoritNotification(errorMsg, false);
+                    }
+                });
+            });
+
+            // Handle remove from wishlist button
+            $(document).on('click', '#remove-from-wishlist', function(e) {
+                e.preventDefault();
+                const form = $(this).closest('form');
+                const button = $(this);
+
+                // Add loading state
+                button.prop('disabled', true).css('opacity', '0.7');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    dataType: 'json',
+                    success: function(response) {
+                        // Remove loading state
+                        button.prop('disabled', false).css('opacity', '1');
+
+                        // Show removed notification
+                        showFavoritNotification(
+                            'Produk berhasil dihapus dari daftar favorit Anda.', false);
+
+                        // Update wishlist count
+                        const currentCount = parseInt($('.js-wishlist-items-count').text());
+                        updateWishlistCount(response.count || Math.max(0, currentCount - 1));
+
+                        // Replace with add to wishlist button
+                        const productId = form.find('input[name="id"]').val() || response
+                            .productId;
+                        const productName = response.productName || '';
+                        const productPrice = response.productPrice || 0;
+
+                        const addForm = `
+                <form method="POST" action="/wishlist/add" id="wishlist-form">
+                    @csrf
+                    <input type="hidden" name="id" value="${productId}" />
+                    <input type="hidden" name="name" value="${productName}" />
+                    <input type="hidden" name="price" value="${productPrice}" />
+                    <input type="hidden" name="quantity" value="1" />
+                    <button type="button" class="wishlist-btn" id="add-to-wishlist">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="none" stroke="#555" stroke-width="1.5">
+                            <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
+                        </svg>
+                        <span>Tambahkan ke Favorit</span>
+                    </button>
+                </form>`;
+
+                        // Replace form
+                        form.replaceWith(addForm);
+                    },
+                    error: function(xhr) {
+                        // Remove loading state
+                        button.prop('disabled', false).css('opacity', '1');
+
+                        let errorMsg = 'Gagal menghapus dari favorit. Silakan coba lagi.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        // Show error notification
+                        showFavoritNotification(errorMsg, false);
+                    }
+                });
+            });
+
+            // Additional cleanup for wishlist form handling
+            $(document).on('submit', '#wishlist-form', function(e) {
+                e.preventDefault();
+                $('#add-to-wishlist').trigger('click');
+            });
+
+            $(document).on('submit', '#frm-remove-item', function(e) {
+                e.preventDefault();
+                $('#remove-from-wishlist').trigger('click');
+            });
+        });
+    </script>
+
+    <!-- JavaScript for Wishlist functionalities -->
+    <script>
+        // Menambahkan kode ini ke file JavaScript produk detail (misalnya di bawah script notifikasi Cart)
+
+        $(document).ready(function() {
+            // Perubahan untuk interaksi wishlist di halaman detail produk
+
+            // Tambah ke wishlist
+            $('#add-to-wishlist').on('click', function(e) {
+                e.preventDefault();
+                const form = $('#wishlist-form');
+                const formData = form.serialize();
+
+                // Tambahkan efek loading/disabled pada tombol
+                $(this).prop('disabled', true);
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update jumlah wishlist di navbar
+                            $('.js-wishlist-items-count').text(response.count).addClass(
+                                'counter-animation');
+
+                            // Tampilkan notifikasi sukses
+                            showFavoritNotification(
+                                'Produk berhasil ditambahkan ke daftar favorit Anda.', true);
+
+                            // Ganti tombol Add dengan tombol Remove
+                            const removeForm = `
+                    <form method="POST" action="${response.removeUrl}" id="frm-remove-item">
+                        @csrf
+                        @method('DELETE')
+                        <button type="button" class="wishlist-btn in-wishlist" id="remove-from-wishlist">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="#e53935">
+                                <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
+                            </svg>
+                            <span>Hapus dari Favorit</span>
+                        </button>
+                    </form>`;
+
+                            $('#wishlist-form').replaceWith(removeForm);
+
+                            // Tambahkan event handler untuk tombol remove
+                            attachRemoveHandler();
+                        }
+                    },
+                    error: function(xhr) {
+                        // Tampilkan pesan error
+                        let errorMsg = 'Gagal menambahkan ke favorit. Silakan coba lagi.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        // Gunakan fungsi notifikasi
+                        showFavoritNotification(errorMsg, false);
+                    },
+                    complete: function() {
+                        // Hapus efek loading
+                        $('#add-to-wishlist').prop('disabled', false);
+                    }
+                });
+            });
+
+            // Fungsi untuk menambahkan event handler pada tombol remove
+            function attachRemoveHandler() {
+                $('#remove-from-wishlist').on('click', function(e) {
+                    e.preventDefault();
+                    const form = $('#frm-remove-item');
+
+                    // Tambahkan efek loading
+                    $(this).prop('disabled', true);
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        dataType: 'json',
+                        success: function(response) {
+                            if (response.success) {
+                                // Update jumlah wishlist di navbar
+                                $('.js-wishlist-items-count').text(response.count || '')
+                                    .addClass('counter-animation');
+
+                                // Tampilkan notifikasi sukses
+                                showFavoritNotification(
+                                    'Produk berhasil dihapus dari daftar favorit Anda.',
+                                    false);
+
+                                // Ganti tombol Remove dengan tombol Add
+                                const addForm = `
+                        <form method="POST" action="{{ route('wishlist.add') }}" id="wishlist-form">
+                            @csrf
+                            <input type="hidden" name="id" value="{{ $product->id }}" />
+                            <input type="hidden" name="name" value="{{ $product->name }}" />
+                            <input type="hidden" name="price" value="{{ $product->sale_price == '' ? $product->regular_price : $product->sale_price }}" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="button" class="wishlist-btn" id="add-to-wishlist">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="16" viewBox="0 0 20 18" fill="none" stroke="#555" stroke-width="1.5">
+                                    <path d="M10 18L8.55 16.7C3.4 12.1 0 9.1 0 5.5C0 2.5 2.42 0 5.5 0C7.24 0 8.91 0.81 10 2.09C11.09 0.81 12.76 0 14.5 0C17.58 0 20 2.5 20 5.5C20 9.1 16.6 12.1 11.45 16.7L10 18Z" />
+                                </svg>
+                                <span>Tambahkan ke Favorit</span>
+                            </button>
+                        </form>`;
+
+                                $('#frm-remove-item').replaceWith(addForm);
+
+                                // Tambahkan event handler untuk tombol add yang baru
+                                $('#add-to-wishlist').on('click', function() {
+                                    $(this).off(
+                                        'click'
+                                    ); // Hapus handler sebelumnya untuk menghindari duplikasi
+                                    $('#add-to-wishlist').trigger(
+                                        'click'); // Terapkan handler utama
+                                });
+                            }
+                        },
+                        error: function(xhr) {
+                            // Tampilkan pesan error
+                            let errorMsg = 'Gagal menghapus dari favorit. Silakan coba lagi.';
+                            if (xhr.responseJSON && xhr.responseJSON.message) {
+                                errorMsg = xhr.responseJSON.message;
+                            }
+
+                            // Gunakan fungsi notifikasi
+                            showFavoritNotification(errorMsg, false);
+                        },
+                        complete: function() {
+                            // Hapus efek loading
+                            $('#remove-from-wishlist').prop('disabled', false);
+                        }
+                    });
+                });
+            }
+
+            // Implementasi fungsi untuk menampilkan notifikasi favorit
+            function showFavoritNotification(message, isSuccess = true) {
+                // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
+                if (!$('#favorit-notification').length) {
+                    $('body').append(`
+                <div class="favorit-notification" id="favorit-notification">
+                    <div class="favorit-notification__icon">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <div class="favorit-notification__content">
+                        <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
+                        <div class="favorit-notification__message" id="favorit-notification-message"></div>
+                    </div>
+                    <button class="favorit-notification__close" id="close-favorit-notification">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `);
+
+                    // Tambahkan event handler untuk tombol close
+                    $(document).on('click', '#close-favorit-notification', function() {
+                        $('#favorit-notification').removeClass('show');
+                        setTimeout(function() {
+                            $('#favorit-notification').css('display', 'none');
+                        }, 300);
+                    });
+                }
+
+                const notification = $('#favorit-notification');
+                const title = $('#favorit-notification-title');
+                const messageEl = $('#favorit-notification-message');
+
+                // Set content
+                messageEl.text(message);
+
+                // Set type (success or error)
+                if (isSuccess) {
+                    notification.removeClass('removed').addClass('success');
+                    title.text('Ditambahkan ke Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-trash').addClass('fa-heart');
+                } else {
+                    notification.removeClass('success').addClass('removed');
+                    title.text('Dihapus dari Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-heart').addClass('fa-trash');
+                }
+
+                // Show notification
+                notification.css('display', 'flex').addClass('show');
+
+                // Auto hide after 3 seconds
+                setTimeout(function() {
+                    notification.removeClass('show');
+                    setTimeout(function() {
+                        notification.css('display', 'none');
+                    }, 300);
+                }, 3000);
+            }
+
+            // Initialize handlers jika tombol sudah ada di halaman
+            if ($('#remove-from-wishlist').length) {
+                attachRemoveHandler();
+            }
+        });
+    </script>
+
+    <!-- JavaScript for Share functionalities -->
+    <script>
+        // Share button functionality
+        $(document).ready(function() {
+            // Initialize share button functionality
+            const shareButton = $('#shareButton');
+            const shareMenu = $('#shareMenu');
+            const closeShareMenu = $('#closeShareMenu');
+            const copyLinkBtn = $('#copyLink');
+            const copyFeedback = $('#copyFeedback');
+
+            // Toggle share menu
+            shareButton.on('click', function(e) {
+                e.stopPropagation();
+                shareMenu.toggleClass('active');
+            });
+
+            // Close share menu
+            closeShareMenu.on('click', function() {
+                shareMenu.removeClass('active');
+            });
+
+            // Close share menu when clicking outside
+            $(document).on('click', function(e) {
+                if (!shareButton[0].contains(e.target) && !shareMenu[0].contains(e.target)) {
+                    shareMenu.removeClass('active');
+                }
+            });
+
+            // Copy link functionality
+            copyLinkBtn.on('click', function() {
+                const url = $(this).data('url');
+
+                try {
+                    navigator.clipboard.writeText(url).then(function() {
+                        copyFeedback.addClass('active');
+                        setTimeout(() => {
+                            copyFeedback.removeClass('active');
+                        }, 2000);
+                    });
+                } catch (err) {
+                    // Fallback for older browsers
+                    const tempInput = $('<input>');
+                    $('body').append(tempInput);
+                    tempInput.val(url).select();
+                    document.execCommand('copy');
+                    tempInput.remove();
+
+                    copyFeedback.addClass('active');
+                    setTimeout(() => {
+                        copyFeedback.removeClass('active');
+                    }, 2000);
+                }
+            });
+        });
+    </script>
+
     <script>
         $(document).ready(function() {
             // ======================================================================
@@ -1547,6 +3500,454 @@
 
         // Panggil inisialisasi
         initializeWishlistUI();
+        });
+    </script>
+
+    <script>
+        // Script untuk perbaikan produk terkait
+        $(document).ready(function() {
+            // ======================================================================
+            // 1. PERBAIKAN TAMBAH KE KERANJANG UNTUK PRODUK TERKAIT
+            // ======================================================================
+
+            // Fungsi untuk menampilkan notifikasi keranjang
+            function showCartNotification(message, isSuccess = true) {
+                const notification = $('#cart-notification');
+                const title = $('#cart-notification-title');
+                const messageEl = $('#cart-notification-message');
+
+                // Set konten
+                messageEl.text(message);
+
+                // Set type (success atau error)
+                if (isSuccess) {
+                    notification.removeClass('error').addClass('success');
+                    title.text('Ditambahkan ke Keranjang');
+                    $('.cart-notification__icon i').removeClass('fa-exclamation-circle').addClass(
+                        'fa-shopping-cart');
+                } else {
+                    notification.removeClass('success').addClass('error');
+                    title.text('Gagal Ditambahkan');
+                    $('.cart-notification__icon i').removeClass('fa-shopping-cart').addClass(
+                        'fa-exclamation-circle');
+                }
+
+                // Show notification
+                notification.css('display', 'flex').addClass('show');
+
+                // Auto hide after 3 seconds
+                setTimeout(() => {
+                    notification.removeClass('show');
+                    setTimeout(() => notification.css('display', 'none'), 300);
+                }, 3000);
+            }
+
+            function checkRelatedProductsStock() {
+                $('.related-product-form').each(function() {
+                    const form = $(this);
+                    const productCard = form.closest('.product-card');
+                    const availableStock = parseInt(productCard.data('stock')) || 0;
+                    const submitButton = form.find('button[type="submit"]');
+
+                    // Jika stok kosong atau habis (data sudah dari server)
+                    if (availableStock <= 0) {
+                        // Button sudah di-disable dari server-side, tidak perlu JavaScript
+                        return;
+                    }
+
+                    // Jika stok terbatas, tambahkan warning visual
+                    if (availableStock <= 5) {
+                        submitButton.addClass('stock-warning');
+                    }
+                });
+            }
+
+            // Jalankan cek stok saat halaman dimuat
+            checkRelatedProductsStock();
+
+            // Mencegah form submit biasa dan menggunakan AJAX untuk tambah ke keranjang
+            $('.related-product-form').on('submit', function(e) {
+                e.preventDefault();
+
+                const form = $(this);
+                const formData = form.serialize();
+                const productId = form.find('input[name="id"]').val();
+                const productName = form.find('input[name="name"]').val();
+                const submitButton = form.find('button[type="submit"]');
+
+                // Jika tombol disabled (stok habis), jangan lakukan apa-apa
+                if (submitButton.prop('disabled')) {
+                    return false;
+                }
+
+                // Show loading state
+                submitButton.prop('disabled', true);
+                submitButton.html('<i class="fas fa-spinner fa-spin"></i> Proses...');
+
+                // Request AJAX untuk tambah ke keranjang
+                $.ajax({
+                    url: '/cart/add',
+                    type: 'POST',
+                    data: formData,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update cart count di navbar
+                            $('.js-cart-items-count').text(response.cartCount);
+
+                            // Tampilkan notifikasi sukses
+                            showCartNotification(
+                                `${productName} berhasil ditambahkan ke keranjang Anda.`,
+                                true);
+                        } else {
+                            // Jika response error (misal stok tidak cukup)
+                            showCartNotification(response.message ||
+                                'Gagal menambahkan produk ke keranjang', false);
+                        }
+                    },
+                    error: function(xhr) {
+                        // Handle error response
+                        let errorMsg = 'Gagal menambahkan produk ke keranjang';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        showCartNotification(errorMsg, false);
+                    },
+                    complete: function() {
+                        // Restore button state
+                        submitButton.prop('disabled', false);
+                        submitButton.html('Tambahkan ke Keranjang');
+                    }
+                });
+            });
+
+            // ======================================================================
+            // 2. PERBAIKAN FUNGSI WISHLIST PADA PRODUK TERKAIT
+            // ======================================================================
+
+            // Fungsi untuk menampilkan notifikasi favorit
+            function showFavoritNotification(message, isSuccess = true) {
+                // Cek apakah notifikasi sudah ada, jika belum tambahkan ke body
+                if (!$('#favorit-notification').length) {
+                    $('body').append(`
+                            <div class="favorit-notification" id="favorit-notification">
+                                <div class="favorit-notification__icon">
+                                    <i class="fas fa-heart"></i>
+                                </div>
+                                <div class="favorit-notification__content">
+                                    <div class="favorit-notification__title" id="favorit-notification-title">Ditambahkan ke Favorit</div>
+                                    <div class="favorit-notification__message" id="favorit-notification-message"></div>
+                                </div>
+                                <button class="favorit-notification__close" id="close-favorit-notification">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `);
+
+                    // Tambahkan event handler untuk tombol close
+                    $(document).on('click', '#close-favorit-notification', function() {
+                        $('#favorit-notification').removeClass('show');
+                        setTimeout(function() {
+                            $('#favorit-notification').css('display', 'none');
+                        }, 300);
+                    });
+                }
+
+                const notification = $('#favorit-notification');
+                const title = $('#favorit-notification-title');
+                const messageEl = $('#favorit-notification-message');
+
+                // Set konten
+                messageEl.text(message);
+
+                // Set type (success atau error)
+                if (isSuccess) {
+                    notification.removeClass('removed').addClass('success');
+                    title.text('Ditambahkan ke Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-trash').addClass('fa-heart');
+                } else {
+                    notification.removeClass('success').addClass('removed');
+                    title.text('Dihapus dari Favorit');
+                    $('.favorit-notification__icon i').removeClass('fa-heart').addClass('fa-trash');
+                }
+
+                // Tampilkan notifikasi
+                notification.css('display', 'flex').addClass('show');
+
+                // Auto hide setelah 3 detik
+                setTimeout(function() {
+                    notification.removeClass('show');
+                    setTimeout(function() {
+                        notification.css('display', 'none');
+                    }, 300);
+                }, 3000);
+            }
+
+            // Check status wishlist dan update UI
+            function initializeWishlistStatus() {
+                // Ambil wishlist dari server
+                $.ajax({
+                    url: '/wishlist',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        // Jika mendapatkan data wishlist
+                        if (response && response.items) {
+                            const wishlistItems = response.items;
+                            const wishlistProductIds = wishlistItems.map(item => item.id);
+
+                            // Loop semua tombol wishlist di produk terkait
+                            $('.pc__btn-wl').each(function() {
+                                const productCard = $(this).closest('.product-card');
+                                const productId = productCard.find('input[name="id"]').val();
+
+                                // Jika produk ini ada di wishlist
+                                if (wishlistProductIds.includes(parseInt(productId))) {
+                                    $(this).addClass('in-wishlist');
+                                    $(this).find('svg').attr('fill', '#e53935').removeAttr(
+                                        'stroke');
+                                }
+                            });
+                        }
+                    },
+                    error: function() {
+                        console.log('Gagal memuat data wishlist');
+                    }
+                });
+            }
+
+            // Initialize wishlist status
+            initializeWishlistStatus();
+
+            // Tambahkan data product-id ke tombol wishlist untuk tracking
+            $('.pc__btn-wl').each(function() {
+                const productCard = $(this).closest('.product-card');
+                const productId = productCard.find('input[name="id"]').val();
+                const productName = productCard.find('input[name="name"]').val();
+                const productPrice = productCard.find('input[name="price"]').val();
+
+                $(this).attr('data-product-id', productId);
+                $(this).attr('data-product-name', productName);
+                $(this).attr('data-product-price', productPrice);
+            });
+
+            // Handle click event untuk tombol wishlist
+            $('.pc__btn-wl').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const $this = $(this);
+                const productId = $this.attr('data-product-id');
+                const productName = $this.attr('data-product-name');
+                const productPrice = $this.attr('data-product-price');
+
+                // Jika belum login, redirect ke login page
+                if (!$('meta[name="user-logged-in"]').attr('content') === 'true') {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                // Toggle class untuk visual feedback
+                const isInWishlist = $this.hasClass('in-wishlist');
+
+                if (isInWishlist) {
+                    // Jika sudah di wishlist, hapus dari wishlist
+                    removeFromWishlist($this);
+                } else {
+                    // Jika belum di wishlist, tambahkan ke wishlist
+                    addToWishlist($this, productId, productName, productPrice);
+                }
+            });
+
+            // Fungsi untuk menambahkan ke wishlist
+            function addToWishlist(button, productId, productName, productPrice) {
+                // Show loading state
+                button.addClass('loading');
+
+                // Data untuk AJAX request
+                const data = {
+                    id: productId,
+                    name: productName,
+                    price: productPrice,
+                    quantity: 1,
+                    _token: $('meta[name="csrf-token"]').attr('content')
+                };
+
+                // AJAX request
+                $.ajax({
+                    url: '/wishlist/add',
+                    type: 'POST',
+                    data: data,
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response.success) {
+                            // Update UI
+                            button.addClass('in-wishlist');
+                            button.find('svg').attr('fill', '#e53935').removeAttr('stroke');
+
+                            // Animasi heart beat
+                            button.find('svg').addClass('heart-beat');
+                            setTimeout(function() {
+                                button.find('svg').removeClass('heart-beat');
+                            }, 800);
+
+                            // Update counter di navbar
+                            $('.js-wishlist-items-count, .js-wishlist-count').text(response.count ||
+                                parseInt($('.js-wishlist-items-count').text()) + 1).addClass(
+                                'counter-animation');
+
+                            // Tampilkan notifikasi
+                            showFavoritNotification(
+                                `${productName} berhasil ditambahkan ke daftar favorit Anda.`, true);
+                        } else {
+                            // Jika gagal, tampilkan error
+                            showFavoritNotification(response.message || 'Gagal menambahkan ke favorit',
+                                false);
+
+                            // Jika perlu login
+                            if (response.redirect) {
+                                setTimeout(function() {
+                                    window.location.href = response.redirect;
+                                }, 2000);
+                            }
+                        }
+                    },
+                    error: function(xhr) {
+                        // Handle error response
+                        let errorMsg = 'Gagal menambahkan ke favorit';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+
+                        showFavoritNotification(errorMsg, false);
+
+                        // Jika error 401 (unauthorized), redirect ke login
+                        if (xhr.status === 401) {
+                            setTimeout(function() {
+                                window.location.href = '/login';
+                            }, 2000);
+                        }
+                    },
+                    complete: function() {
+                        // Remove loading state
+                        button.removeClass('loading');
+                    }
+                });
+            }
+
+            // Fungsi untuk menghapus dari wishlist
+            function removeFromWishlist(button) {
+                // Show loading state
+                button.addClass('loading');
+
+                const productId = button.attr('data-product-id');
+                const productName = button.attr('data-product-name');
+
+                // Ambil wishlist dari server untuk mendapatkan rowId
+                $.ajax({
+                    url: '/wishlist',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(response) {
+                        if (response && response.items) {
+                            const item = response.items.find(item => item.id == productId);
+
+                            if (item && item.rowId) {
+                                // AJAX request untuk hapus dari wishlist
+                                $.ajax({
+                                    url: `/wishlist/remove/${item.rowId}`,
+                                    type: 'DELETE',
+                                    data: {
+                                        _token: $('meta[name="csrf-token"]').attr('content')
+                                    },
+                                    dataType: 'json',
+                                    success: function(response) {
+                                        if (response.success) {
+                                            // Update UI
+                                            button.removeClass('in-wishlist');
+                                            button.find('svg').attr('fill', 'none').attr(
+                                                'stroke', 'currentColor');
+
+                                            // Update counter di navbar
+                                            const currentCount = parseInt($(
+                                                '.js-wishlist-items-count').text());
+                                            $('.js-wishlist-items-count, .js-wishlist-count')
+                                                .text(response.count || Math.max(0,
+                                                    currentCount - 1));
+
+                                            // Tampilkan notifikasi
+                                            showFavoritNotification(
+                                                `${productName} berhasil dihapus dari daftar favorit Anda.`,
+                                                false);
+                                        } else {
+                                            showFavoritNotification(response.message ||
+                                                'Gagal menghapus dari favorit', false);
+                                        }
+                                    },
+                                    error: function(xhr) {
+                                        let errorMsg = 'Gagal menghapus dari favorit';
+                                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                                            errorMsg = xhr.responseJSON.message;
+                                        }
+                                        showFavoritNotification(errorMsg, false);
+                                    },
+                                    complete: function() {
+                                        button.removeClass('loading');
+                                    }
+                                });
+                            } else {
+                                // Fallback jika rowId tidak ditemukan
+                                directRemoveFromWishlist(button, productId, productName);
+                            }
+                        } else {
+                            // Fallback jika tidak bisa mengambil data wishlist
+                            directRemoveFromWishlist(button, productId, productName);
+                        }
+                    },
+                    error: function() {
+                        // Fallback jika error get wishlist
+                        directRemoveFromWishlist(button, productId, productName);
+                    }
+                });
+            }
+
+            // Fungsi fallback untuk remove wishlist
+            function directRemoveFromWishlist(button, productId, productName) {
+                // Update UI
+                button.removeClass('in-wishlist');
+                button.find('svg').attr('fill', 'none').attr('stroke', 'currentColor');
+
+                // Update counter di navbar
+                const currentCount = parseInt($('.js-wishlist-items-count').text());
+                $('.js-wishlist-items-count, .js-wishlist-count').text(Math.max(0, currentCount - 1));
+
+                // Tampilkan notifikasi
+                showFavoritNotification(`${productName} berhasil dihapus dari daftar favorit Anda.`, false);
+
+                // Remove loading state
+                button.removeClass('loading');
+            }
+
+            // Tambahkan meta tag untuk status login user (jika belum ada)
+            if (!$('meta[name="user-logged-in"]').length) {
+                // Cek dari keberadaan elemen yang menandakan user sudah login
+                const isLoggedIn = $('#userMenuButton').length > 0;
+                $('head').append(`<meta name="user-logged-in" content="${isLoggedIn}">`);
+            }
+
+            // Tambahkan styles untuk tombol wishlist
+            $('<style>').text(`
+                    .pc__btn-wl.in-wishlist {
+                        color: #e53935 !important;
+                    }
+                    .pc__btn-wl.loading {
+                        opacity: 0.7;
+                        pointer-events: none;
+                    }
+                    .heart-beat {
+                        animation: heartbeat 0.8s ease-in-out;
+                    }
+                `).appendTo('head');
         });
     </script>
 
