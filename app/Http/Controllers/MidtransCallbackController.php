@@ -50,6 +50,10 @@ class MidtransCallbackController extends Controller
             switch ($transactionStatus) {
                 case 'capture':
                 case 'settlement':
+                    // Update status transaksi
+                    $transaction->status = 'approved';
+                    $transaction->save();
+
                     // PERUBAHAN: Konversi pending order menjadi order sesungguhnya
                     if ($transaction->pending_order_id) {
                         $pendingOrder = PendingOrder::with(['items', 'stockReservations'])->find($transaction->pending_order_id);
@@ -60,22 +64,21 @@ class MidtransCallbackController extends Controller
 
                             // Update transaksi
                             $transaction->order_id = $order->id;
-                            $transaction->status = 'approved';
-                            $transaction->save();
+                            $transaction->save(); // Simpan sekali lagi untuk update order_id
 
                             Log::info("Pending order {$pendingOrder->id} converted to order {$order->id}");
                         }
                     } else {
-                        // Fallback untuk transaksi lama
-                        $transaction->status = 'approved';
-                        $transaction->save();
-
+                        // Fallback untuk transaksi lama (YANG ANDA GUNAKAN SEKARANG)
                         if ($transaction->order_id) {
                             $order = Order::find($transaction->order_id);
                             if ($order) {
+                                // Update status order menjadi confirmed
                                 $order->status = 'confirmed';
                                 $order->confirmed_date = now();
                                 $order->save();
+
+                                Log::info("Order {$order->id} status updated to confirmed");
                             }
                         }
                     }
@@ -84,6 +87,9 @@ class MidtransCallbackController extends Controller
                 case 'expire':
                 case 'cancel':
                 case 'deny':
+                    $transaction->status = 'declined';
+                    $transaction->save();
+
                     // PERUBAHAN: Release semua reservasi stok
                     if ($transaction->pending_order_id) {
                         $pendingOrder = PendingOrder::with('stockReservations')->find($transaction->pending_order_id);
@@ -107,12 +113,11 @@ class MidtransCallbackController extends Controller
                                 $order->status = 'canceled';
                                 $order->canceled_date = now();
                                 $order->save();
+
+                                Log::info("Order {$order->id} status updated to canceled");
                             }
                         }
                     }
-
-                    $transaction->status = 'declined';
-                    $transaction->save();
                     break;
 
                 case 'pending':
@@ -123,13 +128,12 @@ class MidtransCallbackController extends Controller
             }
 
             DB::commit();
+            Log::info('Status transaksi diperbarui untuk ' . $orderId . ' menjadi ' . $transaction->status);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error Midtrans webhook: ' . $e->getMessage());
             return response()->json(['message' => 'Internal server error'], 500);
         }
-
-        Log::info('Status transaksi diperbarui untuk ' . $orderId . ' menjadi ' . $transaction->status);
 
         return response()->json(['message' => 'Callback handled']);
     }

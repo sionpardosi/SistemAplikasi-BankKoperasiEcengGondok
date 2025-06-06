@@ -457,6 +457,31 @@
         .bank-details strong {
             min-width: 120px;
         }
+
+        /* Payment Success Styles */
+        .payment-success-info {
+            background: #f8f9fa;
+            border: 1px solid #d1ecf1;
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .payment-success-info p {
+            margin-bottom: 8px;
+        }
+
+        .payment-success-info strong {
+            color: var(--text-dark);
+        }
+
+        .alert-success {
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-danger {
+            border-left: 4px solid #dc3545;
+        }
     </style>
     <main class="pt-90">
         {{-- @if (session('status'))
@@ -811,12 +836,12 @@
                         </div>
                     </div>
 
-                    <!-- Payment Action Section - Perbaikan untuk Mode Kosong -->
+                    <!-- Payment Action Section - Perbaikan Logic untuk Status Sudah Dibayar -->
                     @if ($transaction->status == 'pending')
                         <div class="wg-box animate-fade">
                             <h5><i class="fa fa-credit-card me-2"></i>Lanjutkan Pembayaran</h5>
 
-                            {{-- Logika baru: Jika ada snap_token, anggap sebagai Midtrans --}}
+                            {{-- Logika: Jika ada snap_token, anggap sebagai Midtrans --}}
                             @if ($transaction->snap_token)
                                 <!-- Midtrans Payment -->
                                 <div class="alert alert-info">
@@ -884,23 +909,63 @@
                                         Bukti pembayaran sudah diupload dan sedang menunggu verifikasi admin.
                                     </div>
                                 @endif
-                            @else
-                                {{-- Fallback jika tidak ada snap_token dan mode kosong --}}
-                                <div class="alert alert-warning">
-                                    <i class="fa fa-exclamation-triangle me-2"></i>
-                                    Metode pembayaran tidak dikenali. Silakan hubungi customer service atau buat pesanan
-                                    baru.
-                                </div>
-
-                                <div class="d-flex gap-2">
-                                    <a href="{{ route('user.account.orders') }}" class="btn btn-secondary">
-                                        <i class="fa fa-arrow-left me-1"></i> Kembali ke Pesanan
-                                    </a>
-                                    <a href="{{ route('home.contact.index') }}" class="btn btn-warning">
-                                        <i class="fa fa-phone me-1"></i> Hubungi CS
-                                    </a>
-                                </div>
                             @endif
+                        </div>
+
+                        {{-- Tambahkan section untuk status SUDAH DIBAYAR --}}
+                    @elseif (in_array($transaction->status, ['approved', 'paid']))
+                        <div class="wg-box animate-fade">
+                            <h5><i class="fa fa-check-circle me-2 text-success"></i>Status Pembayaran</h5>
+                            <div class="alert alert-success">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-check-circle fa-2x text-success me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1"><strong>Pembayaran Berhasil!</strong></h6>
+                                        <p class="mb-0">Terima kasih! Pembayaran Anda telah dikonfirmasi dan pesanan
+                                            sedang diproses.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="payment-success-info">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Metode Pembayaran:</strong> {{ $transaction->mode_display }}</p>
+                                        <p><strong>Status:</strong> <span class="badge bg-success">Lunas</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Total Dibayar:</strong> {{ formatRupiah($transaction->order->total) }}
+                                        </p>
+                                        <p><strong>Tanggal Pembayaran:</strong>
+                                            {{ $transaction->updated_at->format('d M Y, H:i') }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Section untuk status DITOLAK atau GAGAL --}}
+                    @elseif (in_array($transaction->status, ['declined', 'failed']))
+                        <div class="wg-box animate-fade">
+                            <h5><i class="fa fa-times-circle me-2 text-danger"></i>Status Pembayaran</h5>
+                            <div class="alert alert-danger">
+                                <div class="d-flex align-items-center">
+                                    <i class="fa fa-times-circle fa-2x text-danger me-3"></i>
+                                    <div>
+                                        <h6 class="mb-1"><strong>Pembayaran Gagal</strong></h6>
+                                        <p class="mb-0">Pembayaran tidak dapat diproses. Silakan coba lagi atau hubungi
+                                            customer service.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex gap-2">
+                                <a href="{{ route('user.account.orders') }}" class="btn btn-secondary">
+                                    <i class="fa fa-arrow-left me-1"></i> Kembali ke Pesanan
+                                </a>
+                                <a href="{{ route('home.contact.index') }}" class="btn btn-warning">
+                                    <i class="fa fa-phone me-1"></i> Hubungi CS
+                                </a>
+                            </div>
                         </div>
                     @endif
 
@@ -1059,68 +1124,73 @@
 @endsection
 
 @push('scripts')
-@if ($transaction->status == 'pending' && $transaction->snap_token)
-<!-- Midtrans Script untuk Payment Detail -->
-<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
-<script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', function() {
-        const payButton = document.getElementById('pay-button-detail');
-        if (payButton) {
-            payButton.addEventListener('click', function() {
-                snap.pay('{{ $transaction->snap_token }}', {
-                    onSuccess: function(result) {
-                        console.log("Success", result);
-                        Swal.fire({
-                            title: 'Pembayaran Berhasil!',
-                            text: 'Terima kasih! Pembayaran Anda telah berhasil diproses.',
-                            icon: 'success',
-                            iconColor: '#28a745',
-                            confirmButtonText: 'OK',
-                            confirmButtonColor: '#28a745',
-                        }).then(() => {
-                            location.reload();
+    @if ($transaction->status == 'pending' && $transaction->snap_token)
+        <!-- Midtrans Script untuk Payment Detail -->
+        <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}">
+        </script>
+        <script type="text/javascript">
+            document.addEventListener('DOMContentLoaded', function() {
+                const payButton = document.getElementById('pay-button-detail');
+                if (payButton) {
+                    payButton.addEventListener('click', function() {
+                        snap.pay('{{ $transaction->snap_token }}', {
+                            onSuccess: function(result) {
+                                console.log("Success", result);
+                                Swal.fire({
+                                    title: 'Pembayaran Berhasil!',
+                                    text: 'Terima kasih! Pembayaran Anda telah berhasil diproses.',
+                                    icon: 'success',
+                                    iconColor: '#28a745',
+                                    confirmButtonText: 'OK',
+                                    confirmButtonColor: '#28a745',
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false
+                                }).then(() => {
+                                    // Force refresh untuk update status
+                                    window.location.reload();
+                                });
+                            },
+                            onPending: function(result) {
+                                console.log("Pending", result);
+                                Swal.fire({
+                                    title: 'Pembayaran Sedang Diproses',
+                                    text: 'Pembayaran Anda sedang dalam proses verifikasi.',
+                                    icon: 'info',
+                                    iconColor: '#b9a16b',
+                                    confirmButtonText: 'Mengerti',
+                                    confirmButtonColor: '#b9a16b',
+                                }).then(() => {
+                                    // Refresh untuk cek status terbaru
+                                    window.location.reload();
+                                });
+                            },
+                            onError: function(result) {
+                                console.log("Error", result);
+                                Swal.fire({
+                                    title: 'Pembayaran Gagal',
+                                    text: 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.',
+                                    icon: 'error',
+                                    iconColor: '#e74c3c',
+                                    confirmButtonText: 'Coba Lagi',
+                                    confirmButtonColor: '#e74c3c',
+                                });
+                            },
+                            onClose: function() {
+                                Swal.fire({
+                                    title: 'Pembayaran Dibatalkan',
+                                    text: 'Anda menutup jendela pembayaran. Anda dapat mencoba lagi kapan saja.',
+                                    icon: 'warning',
+                                    iconColor: '#f39c12',
+                                    confirmButtonText: 'Mengerti',
+                                    confirmButtonColor: '#f39c12',
+                                });
+                            }
                         });
-                    },
-                    onPending: function(result) {
-                        console.log("Pending", result);
-                        Swal.fire({
-                            title: 'Pembayaran Sedang Diproses',
-                            text: 'Pembayaran Anda sedang dalam proses verifikasi.',
-                            icon: 'info',
-                            iconColor: '#b9a16b',
-                            confirmButtonText: 'Mengerti',
-                            confirmButtonColor: '#b9a16b',
-                        }).then(() => {
-                            location.reload();
-                        });
-                    },
-                    onError: function(result) {
-                        console.log("Error", result);
-                        Swal.fire({
-                            title: 'Pembayaran Gagal',
-                            text: 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.',
-                            icon: 'error',
-                            iconColor: '#e74c3c',
-                            confirmButtonText: 'Coba Lagi',
-                            confirmButtonColor: '#e74c3c',
-                        });
-                    },
-                    onClose: function() {
-                        Swal.fire({
-                            title: 'Pembayaran Dibatalkan',
-                            text: 'Anda menutup jendela pembayaran. Anda dapat mencoba lagi kapan saja.',
-                            icon: 'warning',
-                            iconColor: '#f39c12',
-                            confirmButtonText: 'Mengerti',
-                            confirmButtonColor: '#f39c12',
-                        });
-                    }
-                });
+                    });
+                }
             });
-        }
-    });
-</script>
-@endif
+        </script>
+    @endif
 
     <script>
         // Script untuk countdown timer payment detail
