@@ -1388,6 +1388,11 @@
                         return;
                     }
 
+                    // Simpan nilai sebelumnya untuk rollback jika gagal
+                    const previousQty = $this.data('previous-qty') || parseInt($this.attr(
+                        'data-original-qty')) || 1;
+                    $this.data('previous-qty', previousQty);
+
                     // Update the cart via AJAX dengan validasi stok
                     $.ajax({
                         url: '{{ url('/cart/update-qty') }}/' + rowId,
@@ -1410,19 +1415,29 @@
                                 $(`input[value="${rowId}"]`).data('qty', newQty);
                                 $(`input[value="${rowId}"]`).data('subtotal', newSubtotal);
 
+                                // Update nilai sebelumnya
+                                $this.data('previous-qty', newQty);
+                                $this.attr('data-original-qty', newQty);
+
                                 updateCartTotals();
+
+                                // Tampilkan notifikasi sukses
+                                showCartNotification('Kuantitas berhasil diperbarui', true);
                             } else {
                                 // Jika gagal, kembalikan ke nilai sebelumnya dan tampilkan error
                                 showCartNotification(response.message, false);
 
                                 // Jika ada max_quantity dari response, set ke nilai maksimum
-                                if (response.max_quantity) {
+                                if (response.max_quantity && response.max_quantity > 0) {
                                     $this.val(response.max_quantity);
-                                    $this.trigger(
-                                        'change'); // Trigger change dengan nilai yang benar
+                                    $this.data('previous-qty', response.max_quantity);
+                                    $this.attr('data-original-qty', response.max_quantity);
+                                    // Trigger change dengan nilai yang benar
+                                    setTimeout(() => {
+                                        $this.trigger('change');
+                                    }, 100);
                                 } else {
                                     // Kembalikan ke nilai sebelumnya
-                                    const previousQty = $this.data('previous-qty') || 1;
                                     $this.val(previousQty);
                                 }
                             }
@@ -1435,7 +1450,6 @@
                             showCartNotification(errorMsg, false);
 
                             // Kembalikan ke nilai sebelumnya
-                            const previousQty = $this.data('previous-qty') || 1;
                             $this.val(previousQty);
                         }
                     });
