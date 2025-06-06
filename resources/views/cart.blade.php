@@ -1466,6 +1466,7 @@
 
                     // Simpan nilai sebelumnya untuk rollback jika gagal
                     $input.data('previous-qty', currentQty);
+                    $input.attr('data-original-qty', currentQty);
 
                     // Update input value dan trigger change untuk validasi
                     $input.val(newQty).trigger('change');
@@ -1483,6 +1484,7 @@
 
                     // Simpan nilai sebelumnya untuk rollback jika gagal
                     $input.data('previous-qty', currentQty);
+                    $input.attr('data-original-qty', currentQty);
 
                     // Update input value dan trigger change untuk validasi
                     $input.val(newQty).trigger('change');
@@ -1496,27 +1498,15 @@
                     return false;
                 });
 
-                // Handle remove item
-                $('.remove-cart').on("click", function() {
-                    $(this).closest('form').submit();
+                // TAMBAHAN: Simpan nilai awal quantity untuk rollback pada load halaman
+                $(document).ready(function() {
+                    $('.qty-input').each(function() {
+                        const initialQty = parseInt($(this).val());
+                        $(this).data('previous-qty', initialQty);
+                        $(this).attr('data-original-qty', initialQty);
+                    });
                 });
 
-                // Initialize totals on page load
-                updateCartTotals();
-
-                // Form submit handler for checkout
-                $('#checkout-form').on('submit', function(e) {
-                    const selectedItems = $('.item-checkbox:checked').length;
-                    if (selectedItems === 0) {
-                        e.preventDefault();
-                        alert('Silakan pilih setidaknya satu produk untuk checkout');
-                    }
-                });
-
-                // TAMBAHAN: Simpan nilai awal quantity untuk rollback
-                $('.qty-input').each(function() {
-                    $(this).data('previous-qty', parseInt($(this).val()));
-                });
             });
         </script>
     @endpush
