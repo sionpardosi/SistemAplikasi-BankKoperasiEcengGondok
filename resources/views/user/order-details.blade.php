@@ -882,33 +882,101 @@
                                     </div>
                                 </div>
 
-                                <!-- Upload Payment Proof Form -->
-                                <form action="{{ route('upload.payment.proof') }}" method="POST"
-                                    enctype="multipart/form-data">
-                                    @csrf
-                                    <input type="hidden" name="order_id" value="{{ $transaction->order->id }}">
+                                @if ($transaction->payment_proof)
+                                    <!-- Bukti Pembayaran Sudah Diupload -->
+                                    <div class="payment-proof-uploaded">
+                                        <div class="alert alert-success">
+                                            <div class="d-flex align-items-center">
+                                                <i class="fa fa-check-circle fa-2x text-success me-3"></i>
+                                                <div>
+                                                    <h6 class="mb-1"><strong>Bukti Pembayaran Sudah Diupload</strong>
+                                                    </h6>
+                                                    <p class="mb-0">Bukti pembayaran Anda sedang dalam proses verifikasi
+                                                        oleh admin. Mohon tunggu konfirmasi.</p>
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                    <div class="mb-3">
-                                        <label for="payment_proof" class="form-label">
-                                            <i class="fa fa-upload me-1"></i> Upload Bukti Pembayaran
-                                        </label>
-                                        <input type="file" class="form-control" id="payment_proof"
-                                            name="payment_proof" accept="image/*,.pdf" required>
-                                        <div class="form-text">
-                                            Format yang diterima: JPG, PNG, PDF (maksimal 2MB)
+                                        <div class="uploaded-proof-info">
+                                            <div class="row">
+                                                <div class="col-md-6">
+                                                    <p><strong>Status Verifikasi:</strong>
+                                                        <span class="badge bg-warning">Menunggu Verifikasi</span>
+                                                    </p>
+                                                    <p><strong>Tanggal Upload:</strong>
+                                                        {{ $transaction->updated_at->format('d M Y, H:i') }}</p>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <p><strong>File:</strong>
+                                                        <a href="{{ asset('storage/' . $transaction->payment_proof) }}"
+                                                            target="_blank" class="btn btn-sm btn-outline-primary">
+                                                            <i class="fa fa-eye me-1"></i> Lihat Bukti
+                                                        </a>
+                                                    </p>
+                                                    <p><strong>Estimasi Verifikasi:</strong> 1x24 jam</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Form untuk Upload Ulang (Jika diperlukan) -->
+                                        <div class="reupload-section mt-3">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                                id="reupload-toggle">
+                                                <i class="fa fa-upload me-1"></i> Upload Ulang Bukti Pembayaran
+                                            </button>
+
+                                            <div id="reupload-form" style="display: none;" class="mt-3">
+                                                <form action="{{ route('upload.payment.proof') }}" method="POST"
+                                                    enctype="multipart/form-data">
+                                                    @csrf
+                                                    <input type="hidden" name="order_id"
+                                                        value="{{ $transaction->order->id }}">
+
+                                                    <div class="mb-3">
+                                                        <label for="payment_proof_reupload" class="form-label">
+                                                            <i class="fa fa-upload me-1"></i> Upload Bukti Pembayaran Baru
+                                                        </label>
+                                                        <input type="file" class="form-control"
+                                                            id="payment_proof_reupload" name="payment_proof"
+                                                            accept="image/*,.pdf" required>
+                                                        <div class="form-text">
+                                                            Format yang diterima: JPG, PNG, PDF (maksimal 2MB)
+                                                        </div>
+                                                    </div>
+
+                                                    <button type="submit" class="btn btn-warning btn-sm">
+                                                        <i class="fa fa-upload me-2"></i> Upload Ulang
+                                                    </button>
+                                                    <button type="button" class="btn btn-secondary btn-sm ms-2"
+                                                        id="cancel-reupload">
+                                                        Batal
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
+                                @else
+                                    <!-- Form Upload Bukti Pembayaran (Belum Upload) -->
+                                    <form action="{{ route('upload.payment.proof') }}" method="POST"
+                                        enctype="multipart/form-data">
+                                        @csrf
+                                        <input type="hidden" name="order_id" value="{{ $transaction->order->id }}">
 
-                                    <button type="submit" class="btn btn-success">
-                                        <i class="fa fa-upload me-2"></i> Upload Bukti Pembayaran
-                                    </button>
-                                </form>
+                                        <div class="mb-3">
+                                            <label for="payment_proof" class="form-label">
+                                                <i class="fa fa-upload me-1"></i> Upload Bukti Pembayaran
+                                            </label>
+                                            <input type="file" class="form-control" id="payment_proof"
+                                                name="payment_proof" accept="image/*,.pdf" required>
+                                            <div class="form-text">
+                                                Format yang diterima: JPG, PNG, PDF (maksimal 2MB)
+                                            </div>
+                                        </div>
 
-                                @if ($transaction->payment_proof)
-                                    <div class="mt-3 alert alert-success">
-                                        <i class="fa fa-check-circle me-2"></i>
-                                        Bukti pembayaran sudah diupload dan sedang menunggu verifikasi admin.
-                                    </div>
+                                        <button type="submit" class="btn btn-success">
+                                            <i class="fa fa-upload me-2"></i> Upload Bukti Pembayaran
+                                        </button>
+                                    </form>
                                 @endif
                             @endif
                         </div>
