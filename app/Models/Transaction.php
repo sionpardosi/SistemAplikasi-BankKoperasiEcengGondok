@@ -42,14 +42,14 @@ class Transaction extends Model
         };
     }
 
-    public function getModeDisplayAttribute()
-    {
-        return match ($this->mode) {
-            'card', 'midtrans' => 'E-Wallet | Pembayaran Online (Midtrans)',
-            'manual_atm' => 'Transfer Bank BNI',
-            default => ucfirst(str_replace('_', ' ', $this->mode))
-        };
-    }
+    // public function getModeDisplayAttribute()
+    // {
+    //     return match ($this->mode) {
+    //         'card', 'midtrans' => 'E-Wallet | Pembayaran Online (Midtrans)',
+    //         'manual_atm' => 'Transfer Bank BNI',
+    //         default => ucfirst(str_replace('_', ' ', $this->mode))
+    //     };
+    // }
 
     public function getBankNameAttribute()
     {
@@ -64,4 +64,31 @@ class Transaction extends Model
     {
         return $this->belongsTo(PendingOrder::class);
     }
+
+    /**
+ * Cek apakah snap token sudah expired (24 jam dari created_at)
+ */
+public function isSnapTokenExpired()
+{
+    if (!$this->snap_token) {
+        return true;
+    }
+
+    // Snap token Midtrans berlaku 24 jam
+    return $this->created_at->addHours(24)->isPast();
+}
+
+/**
+ * Get mode display name
+ */
+public function getModeDisplayAttribute()
+{
+    $modeMap = [
+        'card' => 'Midtrans (Card/E-Wallet/VA)',
+        'manual_atm' => 'Transfer Bank BNI',
+        'cod' => 'Cash on Delivery'
+    ];
+
+    return $modeMap[$this->mode] ?? ucfirst($this->mode);
+}
 }

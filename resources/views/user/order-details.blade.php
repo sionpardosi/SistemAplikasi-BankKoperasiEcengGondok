@@ -918,7 +918,7 @@
 
 
                     <!-- Payment Action Section - Perbaikan Logic untuk Status Sudah Dibayar -->
-                    @if ($transaction->status == 'pending')
+                    @if ($transaction->status == 'pending' && $transaction->snap_token)
                         <div class="wg-box animate-fade">
                             <h5><i class="fa fa-credit-card me-2"></i>Lanjutkan Pembayaran</h5>
 
@@ -1273,6 +1273,8 @@
 @endsection
 
 @push('scripts')
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     @if ($transaction->status == 'pending' && $transaction->snap_token)
         <!-- Midtrans Script untuk Payment Detail -->
         <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}">
@@ -1282,9 +1284,12 @@
                 const payButton = document.getElementById('pay-button-detail');
                 if (payButton) {
                     payButton.addEventListener('click', function() {
+                        let paymentProcessed = false; // ← Flag untuk tracking status
+
                         snap.pay('{{ $transaction->snap_token }}', {
                             onSuccess: function(result) {
                                 console.log("Success", result);
+                                paymentProcessed = true; // ← Set flag ketika sukses
 
                                 // Tampilkan loading state
                                 Swal.fire({
@@ -1304,6 +1309,8 @@
                             },
                             onPending: function(result) {
                                 console.log("Pending", result);
+                                paymentProcessed = true; // ← Set flag ketika pending juga
+
                                 Swal.fire({
                                     title: 'Pembayaran Sedang Diproses',
                                     text: 'Pembayaran Anda sedang dalam proses verifikasi.',
@@ -1318,6 +1325,8 @@
                             },
                             onError: function(result) {
                                 console.log("Error", result);
+                                paymentProcessed = true; // ← Set flag ketika error
+
                                 Swal.fire({
                                     title: 'Pembayaran Gagal',
                                     text: 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.',
@@ -1328,99 +1337,103 @@
                                 });
                             },
                             onClose: function() {
-                                Swal.fire({
-                                    title: 'Pembayaran Dibatalkan',
-                                    text: 'Anda menutup jendela pembayaran. Anda dapat mencoba lagi kapan saja.',
-                                    icon: 'warning',
-                                    iconColor: '#f39c12',
-                                    confirmButtonText: 'Mengerti',
-                                    confirmButtonColor: '#f39c12',
-                                });
-                            }
-                        });
-                    });
-                }
-
-                // Function untuk check payment status
-                function checkPaymentStatus() {
-                    let attempts = 0;
-                    const maxAttempts = 20; // 20 attempts = 2 menit
-
-                    const checkInterval = setInterval(() => {
-                        attempts++;
-
-                        // Call ke server untuk refresh status dari Midtrans API
-                        fetch('{{ route('auto.check.payment.status') }}', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    transaction_id: {{ $transaction->id }}
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                console.log('Payment check result:', data);
-
-                                if (data.status === 'approved' || data.status === 'paid') {
-                                    clearInterval(checkInterval);
-                                    Swal.close();
-
+                                // ← Hanya tampilkan "dibatalkan" jika tidak ada callback lain yang dipanggil
+                                if (!paymentProcessed) {
                                     Swal.fire({
-                                        title: 'Pembayaran Berhasil!',
-                                        text: 'Terima kasih! Pembayaran Anda telah dikonfirmasi.',
-                                        icon: 'success',
-                                        iconColor: '#28a745',
-                                        confirmButtonText: 'OK',
-                                        confirmButtonColor: '#28a745',
-                                    }).then(() => {
-                                        window.location.reload();
-                                    });
-
-                                } else if (attempts >= maxAttempts) {
-                                    clearInterval(checkInterval);
-                                    Swal.close();
-
-                                    Swal.fire({
-                                        title: 'Verifikasi Manual Diperlukan',
-                                        text: 'Pembayaran mungkin sudah berhasil. Silakan refresh halaman atau klik tombol "Refresh Status Manual".',
+                                        title: 'Pembayaran Dibatalkan',
+                                        text: 'Anda menutup jendela pembayaran. Anda dapat mencoba lagi kapan saja.',
                                         icon: 'warning',
                                         iconColor: '#f39c12',
-                                        confirmButtonText: 'Refresh Halaman',
+                                        confirmButtonText: 'Mengerti',
                                         confirmButtonColor: '#f39c12',
-                                        showCancelButton: true,
-                                        cancelButtonText: 'Batal',
-                                    }).then((result) => {
-                                        if (result.isConfirmed) {
-                                            window.location.reload();
+                                    });
+                                }
+                            }
+                        });
+
+                        // Function untuk check payment status
+                        function checkPaymentStatus() {
+                            let attempts = 0;
+                            const maxAttempts = 20; // 20 attempts = 2 menit
+
+                            const checkInterval = setInterval(() => {
+                                attempts++;
+
+                                // Call ke server untuk refresh status dari Midtrans API
+                                fetch('{{ route('auto.check.payment.status') }}', {
+                                        method: 'POST',
+                                        headers: {
+                                            'Content-Type': 'application/json',
+                                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                        },
+                                        body: JSON.stringify({
+                                            transaction_id: {{ $transaction->id }}
+                                        })
+                                    })
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        console.log('Payment check result:', data);
+
+                                        if (data.status === 'approved' || data.status === 'paid') {
+                                            clearInterval(checkInterval);
+                                            Swal.close();
+
+                                            Swal.fire({
+                                                title: 'Pembayaran Berhasil!',
+                                                text: 'Terima kasih! Pembayaran Anda telah dikonfirmasi dan pesanan sedang diproses.',
+                                                icon: 'success',
+                                                iconColor: '#28a745',
+                                                confirmButtonText: 'OK',
+                                                confirmButtonColor: '#28a745',
+                                            }).then(() => {
+                                                window.location.reload();
+                                            });
+
+                                        } else if (attempts >= maxAttempts) {
+                                            clearInterval(checkInterval);
+                                            Swal.close();
+
+                                            Swal.fire({
+                                                title: 'Verifikasi Manual Diperlukan',
+                                                text: 'Pembayaran mungkin sudah berhasil. Silakan refresh halaman atau klik tombol "Refresh Status Manual".',
+                                                icon: 'warning',
+                                                iconColor: '#f39c12',
+                                                confirmButtonText: 'Refresh Halaman',
+                                                confirmButtonColor: '#f39c12',
+                                                showCancelButton: true,
+                                                cancelButtonText: 'Batal',
+                                            }).then((result) => {
+                                                if (result.isConfirmed) {
+                                                    window.location.reload();
+                                                }
+                                            });
+                                        }
+                                    })
+                                    .catch(error => {
+                                        console.error('Error checking payment status:', error);
+                                        if (attempts >= maxAttempts) {
+                                            clearInterval(checkInterval);
+                                            Swal.close();
+
+                                            Swal.fire({
+                                                title: 'Tidak Dapat Memverifikasi',
+                                                text: 'Silakan refresh halaman untuk melihat status terbaru.',
+                                                icon: 'warning',
+                                                confirmButtonText: 'Refresh Halaman',
+                                            }).then(() => {
+                                                window.location.reload();
+                                            });
                                         }
                                     });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error checking payment status:', error);
-                                if (attempts >= maxAttempts) {
-                                    clearInterval(checkInterval);
-                                    Swal.close();
-
-                                    Swal.fire({
-                                        title: 'Tidak Dapat Memverifikasi',
-                                        text: 'Silakan refresh halaman untuk melihat status terbaru.',
-                                        icon: 'warning',
-                                        confirmButtonText: 'Refresh Halaman',
-                                    }).then(() => {
-                                        window.location.reload();
-                                    });
-                                }
-                            });
-                    }, 6000); // Check every 6 seconds
+                            }, 6000); // Check every 6 seconds
+                        }
+                    });
                 }
             });
         </script>
     @endif
 
+    <!-- For reupload payment proof toggle -->
     <script>
         // Script untuk countdown timer payment detail
         document.addEventListener('DOMContentLoaded', function() {
@@ -1474,6 +1487,8 @@
             }
         });
     </script>
+
+    <!-- Konfirmasi penerimaan pesanan untuk Rating-->
     <script>
         // Script untuk konfirmasi penerimaan pesanan
         document.addEventListener('DOMContentLoaded', function() {
@@ -1503,6 +1518,7 @@
         });
     </script>
 
+    <!--    Script untuk preview media review -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Untuk semua form review di halaman
@@ -1540,6 +1556,7 @@
         });
     </script>
 
+    <!-- Script untuk rating stars -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Handle rating stars interaction
@@ -1594,35 +1611,35 @@
         });
     </script>
 
-<!-- Form untuk upload ulang bukti pembayaran -->
+    <!-- Form untuk upload ulang bukti pembayaran -->
     <script>
-// Script untuk toggle reupload form
-document.addEventListener('DOMContentLoaded', function() {
-    const reuploadToggle = document.getElementById('reupload-toggle');
-    const reuploadForm = document.getElementById('reupload-form');
-    const cancelReupload = document.getElementById('cancel-reupload');
+        // Script untuk toggle reupload form
+        document.addEventListener('DOMContentLoaded', function() {
+            const reuploadToggle = document.getElementById('reupload-toggle');
+            const reuploadForm = document.getElementById('reupload-form');
+            const cancelReupload = document.getElementById('cancel-reupload');
 
-    if (reuploadToggle && reuploadForm) {
-        reuploadToggle.addEventListener('click', function() {
-            if (reuploadForm.style.display === 'none' || reuploadForm.style.display === '') {
-                reuploadForm.style.display = 'block';
-                reuploadToggle.style.display = 'none';
+            if (reuploadToggle && reuploadForm) {
+                reuploadToggle.addEventListener('click', function() {
+                    if (reuploadForm.style.display === 'none' || reuploadForm.style.display === '') {
+                        reuploadForm.style.display = 'block';
+                        reuploadToggle.style.display = 'none';
+                    }
+                });
+            }
+
+            if (cancelReupload && reuploadForm && reuploadToggle) {
+                cancelReupload.addEventListener('click', function() {
+                    reuploadForm.style.display = 'none';
+                    reuploadToggle.style.display = 'inline-block';
+
+                    // Reset form
+                    const form = reuploadForm.querySelector('form');
+                    if (form) {
+                        form.reset();
+                    }
+                });
             }
         });
-    }
-
-    if (cancelReupload && reuploadForm && reuploadToggle) {
-        cancelReupload.addEventListener('click', function() {
-            reuploadForm.style.display = 'none';
-            reuploadToggle.style.display = 'inline-block';
-
-            // Reset form
-            const form = reuploadForm.querySelector('form');
-            if (form) {
-                form.reset();
-            }
-        });
-    }
-});
-        </script>
+    </script>
 @endpush

@@ -100,6 +100,24 @@ class UserController extends Controller
             return response()->json(['error' => 'Transaction not found'], 404);
         }
 
+        // ✅ PERBAIKAN: Cek dulu apakah sudah dibayar di database
+if (in_array($transaction->status, ['approved', 'paid'])) {
+    return response()->json([
+        'status' => 'approved',
+        'message' => 'Payment already confirmed',
+        'already_paid' => true
+    ]);
+}
+
+// Cek apakah snap token masih valid
+if (!$transaction->snap_token || $transaction->isSnapTokenExpired()) {
+    return response()->json([
+        'status' => $transaction->status,
+        'error' => 'Snap token expired or invalid',
+        'token_expired' => true
+    ]);
+}
+
         try {
             // Cek status di Midtrans API langsung
             \Midtrans\Config::$serverKey = config('midtrans.serverKey');
