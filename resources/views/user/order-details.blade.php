@@ -482,6 +482,86 @@
         .alert-danger {
             border-left: 4px solid #dc3545;
         }
+
+        /* Payment Proof Uploaded Styles */
+        .payment-proof-uploaded {
+            background: #f8f9fa;
+            border: 1px solid #d1ecf1;
+            border-radius: var(--radius-sm);
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .uploaded-proof-info {
+            background: white;
+            border-radius: var(--radius-sm);
+            padding: 15px;
+            margin-top: 15px;
+            border: 1px solid #e9ecef;
+        }
+
+        .uploaded-proof-info p {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .uploaded-proof-info strong {
+            color: var(--text-dark);
+            min-width: 140px;
+        }
+
+        .reupload-section {
+            border-top: 1px dashed #dee2e6;
+            padding-top: 15px;
+        }
+
+        #reupload-form {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+        }
+
+        #reupload-form .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+        }
+
+        #reupload-form .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(106, 110, 81, 0.25);
+        }
+
+        /* Enhanced Alert Styles */
+        .alert-success {
+            border-left: 4px solid #28a745;
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        }
+
+        .alert-info {
+            border-left: 4px solid #17a2b8;
+            background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+        }
+
+        .alert-warning {
+            border-left: 4px solid #ffc107;
+            background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        }
+
+        /* Button Enhancements */
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
     </style>
     <main class="pt-90">
         {{-- @if (session('status'))
