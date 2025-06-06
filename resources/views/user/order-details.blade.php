@@ -836,6 +836,23 @@
                         </div>
                     </div>
 
+
+                    <!-- DEBUG: Tambahkan ini sementara untuk cek status -->
+<div class="wg-box" style="background: #e3f2fd; border: 2px solid #1976d2;">
+    <h5 style="color: #1976d2;">🔍 DEBUG STATUS (Hapus setelah selesai)</h5>
+    <p><strong>Transaction Status:</strong> {{ $transaction->status }}</p>
+    <p><strong>Order Status:</strong> {{ $transaction->order->status ?? 'N/A' }}</p>
+    <p><strong>Transaction ID:</strong> {{ $transaction->id }}</p>
+    <p><strong>Invoice:</strong> {{ $transaction->invoice }}</p>
+    <p><strong>Last Updated:</strong> {{ $transaction->updated_at }}</p>
+
+    <form action="{{ route('manual.refresh.status') }}" method="POST" style="display: inline;">
+        @csrf
+        <input type="hidden" name="transaction_id" value="{{ $transaction->id }}">
+        <button type="submit" class="btn btn-sm btn-info">🔄 Refresh Status Manual</button>
+    </form>
+</div>
+
                     <!-- Payment Action Section - Perbaikan Logic untuk Status Sudah Dibayar -->
                     @if ($transaction->status == 'pending')
                         <div class="wg-box animate-fade">
@@ -1138,7 +1155,7 @@
                                 console.log("Success", result);
                                 Swal.fire({
                                     title: 'Pembayaran Berhasil!',
-                                    text: 'Terima kasih! Pembayaran Anda telah berhasil diproses.',
+                                    text: 'Terima kasih! Pembayaran Anda telah berhasil diproses. Halaman akan diperbarui dalam beberapa detik.',
                                     icon: 'success',
                                     iconColor: '#28a745',
                                     confirmButtonText: 'OK',
@@ -1146,8 +1163,10 @@
                                     allowOutsideClick: false,
                                     allowEscapeKey: false
                                 }).then(() => {
-                                    // Force refresh untuk update status
-                                    window.location.reload();
+                                    // Tunggu sebentar untuk callback selesai, lalu refresh
+                                    setTimeout(function() {
+                                        window.location.reload();
+                                    }, 2000);
                                 });
                             },
                             onPending: function(result) {
@@ -1161,7 +1180,9 @@
                                     confirmButtonColor: '#b9a16b',
                                 }).then(() => {
                                     // Refresh untuk cek status terbaru
-                                    window.location.reload();
+                                    setTimeout(function() {
+                                        window.location.reload();
+                                    }, 2000);
                                 });
                             },
                             onError: function(result) {

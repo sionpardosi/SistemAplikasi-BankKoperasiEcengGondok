@@ -88,6 +88,53 @@ class UserController extends Controller
     }
 
     /**
+ * Manual refresh status transaksi (untuk debugging)
+ */
+public function manualRefreshStatus(Request $request)
+{
+    $transaction = Transaction::where('id', $request->transaction_id)
+        ->where('user_id', Auth::user()->id)
+        ->first();
+
+    if (!$transaction) {
+        return redirect()->back()->with('error', 'Transaksi tidak ditemukan');
+    }
+
+    // Log current status
+    \Log::info('Manual refresh - Current status: ' . $transaction->status);
+
+    // Cek di Midtrans API langsung
+    try {
+        \Midtrans\Config::$serverKey = config('midtrans.serverKey');
+        \Midtrans\Config::$isProduction = config('midtrans.isProduction');
+
+        $status = \Midtrans\Transaction::status($transaction->invoice);
+
+        \Log::info('Midtrans API Response: ', (array) $status);
+
+        // Update status berdasarkan response dari Midtrans
+        if (in_array($status->transaction_status, ['capture', 'settlement'])) {
+            $transaction->status = 'approved';
+            $transaction->save();
+
+            if ($transaction->order) {
+                $transaction->order->status = 'confirmed';
+                $transaction->order->confirmed_date = now();
+                $transaction->order->save();
+            }
+
+            return redirect()->back()->with('success', 'Status berhasil diperbarui menjadi PAID');
+        } else {
+            return redirect()->back()->with('info', 'Status Midtrans: ' . $status->transaction_status);
+        }
+
+    } catch (\Exception $e) {
+        \Log::error('Error checking Midtrans status: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+    }
+}
+
+    /**
      * Check payment status untuk AJAX request
      */
     public function checkPaymentStatus($transaction_id)

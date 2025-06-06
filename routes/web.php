@@ -141,6 +141,10 @@ Route::post('/upload-payment-proof', [CartController::class, 'uploadPaymentProof
 Route::get('/account-orders', [CartController::class, 'accountOrders'])->name('account-orders')->middleware('auth');
 // Route untuk menampilkan detail order
 Route::post('/upload-payment-proof', [CartController::class, 'uploadPaymentProof'])->name('upload.payment.proof');
+// Route untuk memeriksa status pembayaran
+Route::get('/check-payment-status/{transaction_id}', [UserController::class, 'checkPaymentStatus'])->name('check.payment.status');
+ // Route untuk manual refresh status (debugging)
+ Route::post('/manual-refresh-status', [UserController::class, 'manualRefreshStatus'])->name('manual.refresh.status');
 
 
 // ====================================================================================================
