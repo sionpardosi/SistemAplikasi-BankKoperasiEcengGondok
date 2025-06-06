@@ -826,13 +826,12 @@ class CartController extends Controller
         }
 
 
-        // Simpan transaksi dengan status 'pending'
         $transaction = [
             'user_id' => $user_id,
             'order_id' => $order->id,
             'invoice' => $invoice,
-            'mode' => $request->mode,
-            'status' => 'pending', // Pastikan status awal transaksi adalah pending
+            'mode' => $request->mode ?: 'card', // Fallback ke 'card' jika kosong
+            'status' => 'pending',
             'snap_token' => $snapToken,
             'created_at' => now(),
             'updated_at' => now(),
@@ -840,8 +839,10 @@ class CartController extends Controller
 
         // Tambahkan bank_code untuk metode manual_atm
         if ($request->mode == 'manual_atm') {
-            $transaction['bank_code'] = 'BNI'; // Set default ke BNI sesuai requirement
-            // Hapus baris ini: $transaction['payment_proof'] = $paymentProofPath;
+            $transaction['bank_code'] = 'BNI';
+        } else if ($snapToken) {
+            // Jika ada snap token, pastikan mode adalah card/midtrans
+            $transaction['mode'] = 'card';
         }
 
         DB::table('transactions')->insert($transaction);

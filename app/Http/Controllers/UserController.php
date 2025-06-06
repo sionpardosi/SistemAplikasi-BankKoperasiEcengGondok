@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\PendingOrder;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
+use App\Models\BankAccount;
 
 class UserController extends Controller
 {
@@ -42,8 +43,14 @@ class UserController extends Controller
     public function account_order_details($order_id)
     {
         $order = Order::where('user_id', Auth::user()->id)->find($order_id);
+
+        if (!$order) {
+            return redirect()->route('user.account.orders')->with('error', 'Pesanan tidak ditemukan');
+        }
+
         $orderItems = OrderItem::where('order_id', $order_id)->orderBy('id')->paginate(12);
         $transaction = Transaction::where('order_id', $order_id)->first();
+
         return view('user.order-details', compact('order', 'orderItems', 'transaction'));
     }
 

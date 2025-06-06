@@ -139,6 +139,8 @@ Route::get('/order-confirmation', [CartController::class, 'confirmation'])->name
 Route::post('/upload-payment-proof', [CartController::class, 'uploadPaymentProof'])->name('upload.payment.proof');
 // Route untuk menampilkan halaman pembayaran
 Route::get('/account-orders', [CartController::class, 'accountOrders'])->name('account-orders')->middleware('auth');
+// Route untuk menampilkan detail order
+Route::post('/upload-payment-proof', [CartController::class, 'uploadPaymentProof'])->name('upload.payment.proof');
 
 
 // ====================================================================================================

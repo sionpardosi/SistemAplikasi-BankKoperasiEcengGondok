@@ -398,6 +398,65 @@
         .rating>label.active {
             color: #f6b500;
         }
+
+        /* Payment Section Styles */
+        .payment-timeout-alert {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 15px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 20px;
+        }
+
+        .timeout-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .timeout-title {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .countdown-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin: 10px 0;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timeout-message {
+            margin: 0;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        .bank-info-card {
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 20px;
+        }
+
+        .bank-info-card h6 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .bank-details p {
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .bank-details strong {
+            min-width: 120px;
+        }
     </style>
     <main class="pt-90">
         {{-- @if (session('status'))
@@ -752,6 +811,99 @@
                         </div>
                     </div>
 
+                    <!-- Payment Action Section - Perbaikan untuk Mode Kosong -->
+                    @if ($transaction->status == 'pending')
+                        <div class="wg-box animate-fade">
+                            <h5><i class="fa fa-credit-card me-2"></i>Lanjutkan Pembayaran</h5>
+
+                            {{-- Logika baru: Jika ada snap_token, anggap sebagai Midtrans --}}
+                            @if ($transaction->snap_token)
+                                <!-- Midtrans Payment -->
+                                <div class="alert alert-info">
+                                    <i class="fa fa-info-circle me-2"></i>
+                                    Pesanan Anda belum dibayar. Silakan lanjutkan pembayaran dengan Midtrans.
+                                </div>
+
+                                <div class="payment-timeout-alert mb-3">
+                                    <div class="timeout-header">
+                                        <i class="fas fa-clock"></i>
+                                        <h6 class="timeout-title">Batas Waktu Pembayaran</h6>
+                                    </div>
+                                    <div class="countdown-display" id="payment-countdown-detail">23:59:59</div>
+                                    <p class="timeout-message">Selesaikan pembayaran sebelum waktu habis</p>
+                                </div>
+
+                                <button id="pay-button-detail" class="btn btn-primary btn-lg">
+                                    <i class="fa fa-credit-card me-2"></i> Bayar Sekarang (Midtrans)
+                                </button>
+                            @elseif ($transaction->mode == 'manual_atm' || $transaction->bank_code)
+                                <!-- Manual Bank Transfer -->
+                                <div class="alert alert-info">
+                                    <i class="fa fa-university me-2"></i>
+                                    Silakan lakukan transfer ke rekening bank BNI dan upload bukti pembayaran.
+                                </div>
+
+                                <!-- Bank Account Info -->
+                                <div class="bank-info-card mb-3">
+                                    <h6><i class="fa fa-university me-1"></i> Informasi Rekening Bank BNI</h6>
+                                    <div class="bank-details">
+                                        <p><strong>Bank:</strong> Bank BNI</p>
+                                        <p><strong>No. Rekening:</strong> 1234567890</p>
+                                        <p><strong>Atas Nama:</strong> Bank Koperasi Eceng Gondok</p>
+                                        <p><strong>Jumlah Transfer:</strong> <span
+                                                class="text-danger fw-bold">{{ formatRupiah($transaction->order->total) }}</span>
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Upload Payment Proof Form -->
+                                <form action="{{ route('upload.payment.proof') }}" method="POST"
+                                    enctype="multipart/form-data">
+                                    @csrf
+                                    <input type="hidden" name="order_id" value="{{ $transaction->order->id }}">
+
+                                    <div class="mb-3">
+                                        <label for="payment_proof" class="form-label">
+                                            <i class="fa fa-upload me-1"></i> Upload Bukti Pembayaran
+                                        </label>
+                                        <input type="file" class="form-control" id="payment_proof"
+                                            name="payment_proof" accept="image/*,.pdf" required>
+                                        <div class="form-text">
+                                            Format yang diterima: JPG, PNG, PDF (maksimal 2MB)
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fa fa-upload me-2"></i> Upload Bukti Pembayaran
+                                    </button>
+                                </form>
+
+                                @if ($transaction->payment_proof)
+                                    <div class="mt-3 alert alert-success">
+                                        <i class="fa fa-check-circle me-2"></i>
+                                        Bukti pembayaran sudah diupload dan sedang menunggu verifikasi admin.
+                                    </div>
+                                @endif
+                            @else
+                                {{-- Fallback jika tidak ada snap_token dan mode kosong --}}
+                                <div class="alert alert-warning">
+                                    <i class="fa fa-exclamation-triangle me-2"></i>
+                                    Metode pembayaran tidak dikenali. Silakan hubungi customer service atau buat pesanan
+                                    baru.
+                                </div>
+
+                                <div class="d-flex gap-2">
+                                    <a href="{{ route('user.account.orders') }}" class="btn btn-secondary">
+                                        <i class="fa fa-arrow-left me-1"></i> Kembali ke Pesanan
+                                    </a>
+                                    <a href="{{ route('home.contact.index') }}" class="btn btn-warning">
+                                        <i class="fa fa-phone me-1"></i> Hubungi CS
+                                    </a>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+
                     <!-- Cancel Order Button - only show for pending orders -->
                     @if ($transaction->order->status == 'pending')
                         <div class="wg-box animate-fade">
@@ -907,6 +1059,122 @@
 @endsection
 
 @push('scripts')
+@if ($transaction->status == 'pending' && $transaction->snap_token)
+<!-- Midtrans Script untuk Payment Detail -->
+<script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}"></script>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const payButton = document.getElementById('pay-button-detail');
+        if (payButton) {
+            payButton.addEventListener('click', function() {
+                snap.pay('{{ $transaction->snap_token }}', {
+                    onSuccess: function(result) {
+                        console.log("Success", result);
+                        Swal.fire({
+                            title: 'Pembayaran Berhasil!',
+                            text: 'Terima kasih! Pembayaran Anda telah berhasil diproses.',
+                            icon: 'success',
+                            iconColor: '#28a745',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#28a745',
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    onPending: function(result) {
+                        console.log("Pending", result);
+                        Swal.fire({
+                            title: 'Pembayaran Sedang Diproses',
+                            text: 'Pembayaran Anda sedang dalam proses verifikasi.',
+                            icon: 'info',
+                            iconColor: '#b9a16b',
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#b9a16b',
+                        }).then(() => {
+                            location.reload();
+                        });
+                    },
+                    onError: function(result) {
+                        console.log("Error", result);
+                        Swal.fire({
+                            title: 'Pembayaran Gagal',
+                            text: 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.',
+                            icon: 'error',
+                            iconColor: '#e74c3c',
+                            confirmButtonText: 'Coba Lagi',
+                            confirmButtonColor: '#e74c3c',
+                        });
+                    },
+                    onClose: function() {
+                        Swal.fire({
+                            title: 'Pembayaran Dibatalkan',
+                            text: 'Anda menutup jendela pembayaran. Anda dapat mencoba lagi kapan saja.',
+                            icon: 'warning',
+                            iconColor: '#f39c12',
+                            confirmButtonText: 'Mengerti',
+                            confirmButtonColor: '#f39c12',
+                        });
+                    }
+                });
+            });
+        }
+    });
+</script>
+@endif
+
+    <script>
+        // Script untuk countdown timer payment detail
+        document.addEventListener('DOMContentLoaded', function() {
+            const countdownElement = document.getElementById('payment-countdown-detail');
+            if (countdownElement) {
+                const createdAt = new Date('{{ $transaction->order->created_at }}');
+                const deadline = new Date(createdAt.getTime() + (24 * 60 * 60 * 1000)); // 24 jam
+
+                function updateCountdown() {
+                    const now = new Date();
+                    const timeLeft = deadline - now;
+
+                    if (timeLeft <= 0) {
+                        countdownElement.textContent = '00:00:00';
+                        const alertBox = document.querySelector('.payment-timeout-alert');
+                        if (alertBox) {
+                            alertBox.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+                            alertBox.querySelector('.timeout-message').textContent =
+                                'Waktu pembayaran telah berakhir';
+                        }
+
+                        // Disable pay button if exists
+                        const payButton = document.getElementById('pay-button-detail');
+                        if (payButton) {
+                            payButton.disabled = true;
+                            payButton.innerHTML = '<i class="fa fa-times me-2"></i> Waktu Pembayaran Habis';
+                            payButton.classList.remove('btn-primary');
+                            payButton.classList.add('btn-secondary');
+                        }
+                        return;
+                    }
+
+                    const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+                    const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+                    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+                    countdownElement.textContent =
+                        `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                    // Change color when less than 1 hour
+                    if (timeLeft < 3600000) {
+                        const alertBox = document.querySelector('.payment-timeout-alert');
+                        if (alertBox) {
+                            alertBox.style.background = 'linear-gradient(135deg, #e67e22, #d35400)';
+                        }
+                    }
+                }
+
+                updateCountdown();
+                setInterval(updateCountdown, 1000);
+            }
+        });
+    </script>
     <script>
         // Script untuk konfirmasi penerimaan pesanan
         document.addEventListener('DOMContentLoaded', function() {
@@ -973,56 +1241,57 @@
         });
     </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle rating stars interaction
-    document.querySelectorAll('.rating').forEach(function(ratingContainer) {
-        const stars = ratingContainer.querySelectorAll('label');
-        const inputs = ratingContainer.querySelectorAll('input[type="radio"]');
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle rating stars interaction
+            document.querySelectorAll('.rating').forEach(function(ratingContainer) {
+                const stars = ratingContainer.querySelectorAll('label');
+                const inputs = ratingContainer.querySelectorAll('input[type="radio"]');
 
-        // Add click event to each star
-        stars.forEach(function(star, index) {
-            star.addEventListener('click', function() {
-                const ratingValue = index + 1;
+                // Add click event to each star
+                stars.forEach(function(star, index) {
+                    star.addEventListener('click', function() {
+                        const ratingValue = index + 1;
 
-                // Set the corresponding radio input as checked
-                inputs[index].checked = true;
+                        // Set the corresponding radio input as checked
+                        inputs[index].checked = true;
 
-                // Update visual state
-                updateStarDisplay(ratingContainer, ratingValue);
+                        // Update visual state
+                        updateStarDisplay(ratingContainer, ratingValue);
+                    });
+
+                    // Add hover effect
+                    star.addEventListener('mouseenter', function() {
+                        const hoverValue = index + 1;
+                        updateStarDisplay(ratingContainer, hoverValue);
+                    });
+                });
+
+                // Reset to actual value when mouse leaves rating container
+                ratingContainer.addEventListener('mouseleave', function() {
+                    const checkedInput = ratingContainer.querySelector(
+                        'input[type="radio"]:checked');
+                    const currentValue = checkedInput ? parseInt(checkedInput.value) : 0;
+                    updateStarDisplay(ratingContainer, currentValue);
+                });
+
+                // Initialize display based on current checked value
+                const checkedInput = ratingContainer.querySelector('input[type="radio"]:checked');
+                if (checkedInput) {
+                    updateStarDisplay(ratingContainer, parseInt(checkedInput.value));
+                }
             });
 
-            // Add hover effect
-            star.addEventListener('mouseenter', function() {
-                const hoverValue = index + 1;
-                updateStarDisplay(ratingContainer, hoverValue);
-            });
-        });
-
-        // Reset to actual value when mouse leaves rating container
-        ratingContainer.addEventListener('mouseleave', function() {
-            const checkedInput = ratingContainer.querySelector('input[type="radio"]:checked');
-            const currentValue = checkedInput ? parseInt(checkedInput.value) : 0;
-            updateStarDisplay(ratingContainer, currentValue);
-        });
-
-        // Initialize display based on current checked value
-        const checkedInput = ratingContainer.querySelector('input[type="radio"]:checked');
-        if (checkedInput) {
-            updateStarDisplay(ratingContainer, parseInt(checkedInput.value));
-        }
-    });
-
-    function updateStarDisplay(container, rating) {
-        const stars = container.querySelectorAll('label');
-        stars.forEach(function(star, index) {
-            if (index < rating) {
-                star.style.color = '#f6b500';
-            } else {
-                star.style.color = '#ccc';
+            function updateStarDisplay(container, rating) {
+                const stars = container.querySelectorAll('label');
+                stars.forEach(function(star, index) {
+                    if (index < rating) {
+                        star.style.color = '#f6b500';
+                    } else {
+                        star.style.color = '#ccc';
+                    }
+                });
             }
         });
-    }
-});
-</script>
+    </script>
 @endpush
