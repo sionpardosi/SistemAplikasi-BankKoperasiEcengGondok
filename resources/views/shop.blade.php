@@ -987,25 +987,25 @@
 
             /* Opsi 1: Buat menjadi 2 baris teks */
             /*
-                                    .product-single__addtocart .pc__atc {
-                                        white-space: normal !important;
-                                        line-height: 1.1 !important;
-                                        height: auto !important;
-                                        padding-top: 4px !important;
-                                        padding-bottom: 4px !important;
-                                    }
-                                    */
+                                        .product-single__addtocart .pc__atc {
+                                            white-space: normal !important;
+                                            line-height: 1.1 !important;
+                                            height: auto !important;
+                                            padding-top: 4px !important;
+                                            padding-bottom: 4px !important;
+                                        }
+                                        */
 
             /* Opsi 2: Gunakan singkatan + ikon */
             /*
-                                    .product-single__addtocart .pc__atc:before {
-                                        content: "🛒 ";
-                                        font-size: 0.8rem;
-                                    }
-                                    .product-single__addtocart .pc__atc {
-                                        content: "Tambah" !important;
-                                    }
-                                    */
+                                        .product-single__addtocart .pc__atc:before {
+                                            content: "🛒 ";
+                                            font-size: 0.8rem;
+                                        }
+                                        .product-single__addtocart .pc__atc {
+                                            content: "Tambah" !important;
+                                        }
+                                        */
         }
     </style>
 
@@ -1072,6 +1072,24 @@
                 padding-right: 0 !important;
             }
         }
+
+        .wgp-pagination .page-item .page-link {
+    background-color: white;
+    color: #212529; /* teks default Bootstrap */
+    border-color: #dee2e6;
+}
+
+.wgp-pagination .page-item.active .page-link {
+    background-color: #956a3b;
+    color: white;
+    border-color: #956a3b;
+}
+
+.wgp-pagination .page-item .page-link:hover {
+    background-color: #f0f0f0; /* efek hover ringan */
+    color: #212529;
+}
+
     </style>
 
     <main class="pt-90">
