@@ -959,6 +959,78 @@
                 font-size: 1.8rem;
             }
         }
+
+        /* Bank Transfer Styles */
+        .bank-transfer-section {
+            background: white;
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--primary);
+        }
+
+        .bank-info-card {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .bank-info-card h6 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .bank-details p {
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .bank-details strong {
+            min-width: 120px;
+            color: var(--text-dark);
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px dashed #dee2e6;
+            transition: border-color 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary);
+        }
+
+        .upload-section .form-label {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .upload-section .form-control {
+            border: 1px solid #ced4da;
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        .upload-section .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(149, 106, 59, 0.25);
+        }
+
+        .form-text {
+            color: #6c757d;
+            font-size: 12px;
+            margin-top: 5px;
+        }
     </style>
 
     <main class="pt-90">
@@ -1202,16 +1274,70 @@
                         </div>
 
                         <!-- Payment Button -->
+                        <!-- Payment Button -->
                         <div class="payment-actions">
                             @if ($order->transaction && $order->transaction->status === 'pending')
-                                <button id="pay-button" class="btn-pay">
-                                    <i class="fas fa-credit-card"></i> BAYAR SEKARANG
-                                </button>
+                                @if ($order->transaction->mode === 'card' && $order->transaction->snap_token)
+                                    <!-- Midtrans Payment -->
+                                    <button id="pay-button" class="btn-pay">
+                                        <i class="fas fa-credit-card"></i> BAYAR SEKARANG
+                                    </button>
 
-                                <div class="payment-info">
-                                    <i class="fas fa-info-circle"></i> Setelah pembayaran berhasil, pesanan akan segera
-                                    diproses. Status dapat dilihat di halaman akun Anda.
-                                </div>
+                                    <div class="payment-info">
+                                        <i class="fas fa-info-circle"></i> Setelah pembayaran berhasil, pesanan akan segera
+                                        diproses. Status dapat dilihat di halaman akun Anda.
+                                    </div>
+                                @elseif ($order->transaction->mode === 'manual_atm')
+                                    <!-- Manual Bank Transfer -->
+                                    <div class="bank-transfer-section">
+                                        <h4 style="color: var(--primary); margin-bottom: 20px;">
+                                            <i class="fas fa-university"></i> Pembayaran Transfer Bank BNI
+                                        </h4>
+
+                                        <!-- Bank Account Info -->
+                                        <div class="bank-info-card mb-4">
+                                            <h6><i class="fa fa-university me-1"></i> Informasi Rekening Bank BNI</h6>
+                                            <div class="bank-details">
+                                                <p><strong>Bank:</strong> Bank BNI</p>
+                                                <p><strong>No. Rekening:</strong> 1234567890</p>
+                                                <p><strong>Atas Nama:</strong> Bank Koperasi Eceng Gondok</p>
+                                                <p><strong>Jumlah Transfer:</strong> <span
+                                                        class="text-danger fw-bold">{{ formatRupiah($order->total) }}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Upload Payment Proof Form -->
+                                        <div class="upload-section">
+                                            <form action="{{ route('upload.payment.proof') }}" method="POST"
+                                                enctype="multipart/form-data" id="upload-payment-form">
+                                                @csrf
+                                                <input type="hidden" name="order_id" value="{{ $order->id }}">
+
+                                                <div class="mb-3">
+                                                    <label for="payment_proof" class="form-label">
+                                                        <i class="fa fa-upload me-1"></i> Upload Bukti Pembayaran
+                                                    </label>
+                                                    <input type="file" class="form-control" id="payment_proof"
+                                                        name="payment_proof" accept="image/*,.pdf" required>
+                                                    <div class="form-text">
+                                                        Format yang diterima: JPG, PNG, PDF (maksimal 2MB)
+                                                    </div>
+                                                </div>
+
+                                                <button type="submit" class="btn-pay"
+                                                    style="background: linear-gradient(135deg, #28a745, #20c997);">
+                                                    <i class="fa fa-upload me-2"></i> UPLOAD BUKTI PEMBAYARAN
+                                                </button>
+                                            </form>
+                                        </div>
+
+                                        <div class="payment-info" style="margin-top: 20px;">
+                                            <i class="fas fa-info-circle"></i> Setelah upload bukti pembayaran, pesanan
+                                            Anda akan diverifikasi oleh admin dalam 1x24 jam.
+                                        </div>
+                                    </div>
+                                @endif
                             @else
                                 <a href="{{ route('user.account.orders') }}" class="btn-pay">
                                     <i class="fas fa-user"></i> LIHAT PESANAN SAYA
@@ -1459,4 +1585,126 @@
             }
         });
     </script>
+
+    <!-- Functionality for Upload Payment Proof -->
+    <script>
+        // Script untuk Upload Bukti Pembayaran
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadForm = document.getElementById('upload-payment-form');
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+
+                    const fileInput = document.getElementById('payment_proof');
+                    const file = fileInput.files[0];
+
+                    if (!file) {
+                        Swal.fire({
+                            title: 'File Tidak Dipilih',
+                            text: 'Silakan pilih file bukti pembayaran terlebih dahulu.',
+                            icon: 'warning',
+                            iconColor: '#f39c12',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#f39c12'
+                        });
+                        return;
+                    }
+
+                    // Validasi ukuran file (2MB = 2048KB)
+                    if (file.size > 2048 * 1024) {
+                        Swal.fire({
+                            title: 'File Terlalu Besar',
+                            text: 'Ukuran file maksimal 2MB. Silakan pilih file yang lebih kecil.',
+                            icon: 'error',
+                            iconColor: '#e74c3c',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#e74c3c'
+                        });
+                        return;
+                    }
+
+                    // Validasi tipe file
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf'];
+                    if (!allowedTypes.includes(file.type)) {
+                        Swal.fire({
+                            title: 'Format File Tidak Valid',
+                            text: 'Hanya file JPG, PNG, dan PDF yang diperbolehkan.',
+                            icon: 'error',
+                            iconColor: '#e74c3c',
+                            confirmButtonText: 'OK',
+                            confirmButtonColor: '#e74c3c'
+                        });
+                        return;
+                    }
+
+                    // Tampilkan loading
+                    Swal.fire({
+                        title: 'Mengupload Bukti Pembayaran...',
+                        text: 'Mohon tunggu, sedang memproses upload Anda.',
+                        icon: 'info',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        didOpen: () => {
+                            Swal.showLoading();
+                        }
+                    });
+
+                    // Submit form
+                    const formData = new FormData(uploadForm);
+
+                    fetch(uploadForm.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                    .getAttribute('content')
+                            }
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            Swal.close();
+
+                            if (data.success) {
+                                Swal.fire({
+                                    title: 'Upload Berhasil!',
+                                    text: 'Bukti pembayaran Anda telah berhasil diupload. Pesanan akan segera diverifikasi oleh admin.',
+                                    icon: 'success',
+                                    iconColor: '#28a745',
+                                    confirmButtonText: 'Lihat Detail Pesanan',
+                                    confirmButtonColor: '#28a745',
+                                }).then(() => {
+                                    // Redirect ke halaman order details
+                                    window.location.href =
+                                        '{{ route('user.account.order.details', ['order_id' => $order->id]) }}';
+                                });
+                            } else {
+                                Swal.fire({
+                                    title: 'Upload Gagal',
+                                    text: data.message ||
+                                        'Terjadi kesalahan saat mengupload file.',
+                                    icon: 'error',
+                                    iconColor: '#e74c3c',
+                                    confirmButtonText: 'Coba Lagi',
+                                    confirmButtonColor: '#e74c3c'
+                                });
+                            }
+                        })
+                        .catch(error => {
+                            Swal.close();
+                            console.error('Error:', error);
+                            Swal.fire({
+                                title: 'Terjadi Kesalahan',
+                                text: 'Gagal mengupload bukti pembayaran. Silakan coba lagi.',
+                                icon: 'error',
+                                iconColor: '#e74c3c',
+                                confirmButtonText: 'Coba Lagi',
+                                confirmButtonColor: '#e74c3c'
+                            });
+                        });
+                });
+            }
+        });
+    </script>
+
 @endsection

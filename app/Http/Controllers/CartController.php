@@ -919,34 +919,75 @@ class CartController extends Controller
     {
         $request->validate([
             'order_id' => 'required|exists:orders,id',
-            'payment_proof' => 'required|image|mimes:jpeg,png,jpg,pdf|max:2048',
+            'payment_proof' => 'required|file|mimes:jpeg,png,jpg,pdf|max:2048',
         ]);
 
         $order = Order::findOrFail($request->order_id);
 
         // Pastikan order milik user yang login
         if ($order->user_id !== Auth::id()) {
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Akses ditolak.'
+                ], 403);
+            }
             return redirect()->back()->with('error', 'Akses ditolak.');
         }
 
-        // Upload file
-        $file = $request->file('payment_proof');
-        $fileName = time() . '_' . $file->getClientOriginalName();
-        $paymentProofPath = $file->storeAs('payment_proofs', $fileName, 'public');
+        try {
+            // Upload file
+            $file = $request->file('payment_proof');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $paymentProofPath = $file->storeAs('payment_proofs', $fileName, 'public');
 
-        // Update transaction dengan bukti pembayaran
-        $transaction = Transaction::where('order_id', $order->id)->first();
-        if ($transaction) {
-            $transaction->payment_proof = $paymentProofPath;
-            $transaction->save();
+            // Update transaction dengan bukti pembayaran
+            $transaction = Transaction::where('order_id', $order->id)->first();
+            if ($transaction) {
+                $transaction->payment_proof = $paymentProofPath;
+                $transaction->save();
 
-            // Update status order jika diperlukan
-            $order->status = 'pending'; // Ubah status menjadi pending menunggu verifikasi admin
-            $order->save();
+                // Update status order menjadi pending menunggu verifikasi admin
+                $order->status = 'pending';
+                $order->save();
 
-            return redirect()->back()->with('success', 'Bukti pembayaran berhasil diupload. Pesanan Anda akan segera diverifikasi.');
+                // Tambahkan notifikasi untuk admin
+                DB::table('notifications')->insert([
+                    'pesan' => 'Bukti pembayaran baru dari ' . $order->name . ' untuk pesanan #' . $order->id,
+                    'waktu' => now(),
+                    'status' => 'unread',
+                ]);
+
+                if ($request->expectsJson()) {
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Bukti pembayaran berhasil diupload. Pesanan Anda akan segera diverifikasi.',
+                        'order_id' => $order->id
+                    ]);
+                }
+
+                return redirect()->back()->with('success', 'Bukti pembayaran berhasil diupload. Pesanan Anda akan segera diverifikasi.');
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Transaksi tidak ditemukan.'
+                ], 404);
+            }
+
+            return redirect()->back()->with('error', 'Transaksi tidak ditemukan.');
+        } catch (\Exception $e) {
+            Log::error('Error uploading payment proof: ' . $e->getMessage());
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Terjadi kesalahan saat mengupload bukti pembayaran.'
+                ], 500);
+            }
+
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengupload bukti pembayaran.');
         }
-
-        return redirect()->back()->with('error', 'Terjadi kesalahan saat mengupload bukti pembayaran.');
     }
 }
