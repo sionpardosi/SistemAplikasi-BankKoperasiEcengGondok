@@ -1593,4 +1593,36 @@
             }
         });
     </script>
+
+<!-- Form untuk upload ulang bukti pembayaran -->
+    <script>
+// Script untuk toggle reupload form
+document.addEventListener('DOMContentLoaded', function() {
+    const reuploadToggle = document.getElementById('reupload-toggle');
+    const reuploadForm = document.getElementById('reupload-form');
+    const cancelReupload = document.getElementById('cancel-reupload');
+
+    if (reuploadToggle && reuploadForm) {
+        reuploadToggle.addEventListener('click', function() {
+            if (reuploadForm.style.display === 'none' || reuploadForm.style.display === '') {
+                reuploadForm.style.display = 'block';
+                reuploadToggle.style.display = 'none';
+            }
+        });
+    }
+
+    if (cancelReupload && reuploadForm && reuploadToggle) {
+        cancelReupload.addEventListener('click', function() {
+            reuploadForm.style.display = 'none';
+            reuploadToggle.style.display = 'inline-block';
+
+            // Reset form
+            const form = reuploadForm.querySelector('form');
+            if (form) {
+                form.reset();
+            }
+        });
+    }
+});
+        </script>
 @endpush
