@@ -392,27 +392,50 @@
             --transition-normal: all 0.3s ease;
         }
 
-        /* Header dan Judul */
+        :root {
+            --primary-brown: #8B4513;
+            --accent-brown: #D2B48C;
+            --dark-brown: #654321;
+            --light-brown: #F5E6D3;
+            --cream: #FFF8DC;
+            --gold: #DAA520;
+            --success-green: #228B22;
+            --danger-red: #DC143C;
+            --warning-orange: #FF8C00;
+            --info-blue: #4682B4;
+            --text-dark: #2F1B14;
+            --text-muted: #8B7355;
+            --border-light: #E6DDD4;
+            --shadow-subtle: 0 2px 8px rgba(139, 69, 19, 0.08);
+            --shadow-elegant: 0 4px 20px rgba(139, 69, 19, 0.12);
+            --shadow-prominent: 0 8px 32px rgba(139, 69, 19, 0.16);
+            --border-radius-sm: 8px;
+            --border-radius: 12px;
+            --border-radius-lg: 16px;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* General */
+        /* Typography */
         .page-title {
-            font-size: 1.75rem;
+            font-size: 2.25rem;
             font-weight: 700;
             color: var(--text-dark);
             margin-top: 60px !important;
+            margin-bottom: 2.5rem !important;
             position: relative;
-            display: inline-block;
-            padding-bottom: 12px;
-            letter-spacing: 1px;
-            margin-bottom: 1.5rem !important;
+            letter-spacing: -0.025em;
         }
 
         .page-title::after {
             content: '';
             position: absolute;
-            bottom: 0;
+            bottom: -8px;
             left: 0;
-            width: 60px;
-            height: 3px;
-            background-color: var(--accent-color);
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-brown), var(--gold));
+            border-radius: 2px;
         }
 
         /* Button Styling */
