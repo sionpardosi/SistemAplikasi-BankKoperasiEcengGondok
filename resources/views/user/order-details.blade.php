@@ -837,22 +837,6 @@
                     </div>
 
 
-                    <!-- DEBUG: Tambahkan ini sementara untuk cek status -->
-<div class="wg-box" style="background: #e3f2fd; border: 2px solid #1976d2;">
-    <h5 style="color: #1976d2;">🔍 DEBUG STATUS (Hapus setelah selesai)</h5>
-    <p><strong>Transaction Status:</strong> {{ $transaction->status }}</p>
-    <p><strong>Order Status:</strong> {{ $transaction->order->status ?? 'N/A' }}</p>
-    <p><strong>Transaction ID:</strong> {{ $transaction->id }}</p>
-    <p><strong>Invoice:</strong> {{ $transaction->invoice }}</p>
-    <p><strong>Last Updated:</strong> {{ $transaction->updated_at }}</p>
-
-    <form action="{{ route('manual.refresh.status') }}" method="POST" style="display: inline;">
-        @csrf
-        <input type="hidden" name="transaction_id" value="{{ $transaction->id }}">
-        <button type="submit" class="btn btn-sm btn-info">🔄 Refresh Status Manual</button>
-    </form>
-</div>
-
                     <!-- Payment Action Section - Perbaikan Logic untuk Status Sudah Dibayar -->
                     @if ($transaction->status == 'pending')
                         <div class="wg-box animate-fade">
@@ -1153,21 +1137,22 @@
                         snap.pay('{{ $transaction->snap_token }}', {
                             onSuccess: function(result) {
                                 console.log("Success", result);
+
+                                // Tampilkan loading state
                                 Swal.fire({
-                                    title: 'Pembayaran Berhasil!',
-                                    text: 'Terima kasih! Pembayaran Anda telah berhasil diproses. Halaman akan diperbarui dalam beberapa detik.',
-                                    icon: 'success',
-                                    iconColor: '#28a745',
-                                    confirmButtonText: 'OK',
-                                    confirmButtonColor: '#28a745',
+                                    title: 'Memproses Pembayaran...',
+                                    text: 'Sedang memverifikasi pembayaran Anda. Mohon tunggu.',
+                                    icon: 'info',
                                     allowOutsideClick: false,
-                                    allowEscapeKey: false
-                                }).then(() => {
-                                    // Tunggu sebentar untuk callback selesai, lalu refresh
-                                    setTimeout(function() {
-                                        window.location.reload();
-                                    }, 2000);
+                                    allowEscapeKey: false,
+                                    showConfirmButton: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
                                 });
+
+                                // Auto-check status dengan polling
+                                checkPaymentStatus();
                             },
                             onPending: function(result) {
                                 console.log("Pending", result);
@@ -1179,10 +1164,8 @@
                                     confirmButtonText: 'Mengerti',
                                     confirmButtonColor: '#b9a16b',
                                 }).then(() => {
-                                    // Refresh untuk cek status terbaru
-                                    setTimeout(function() {
-                                        window.location.reload();
-                                    }, 2000);
+                                    // Check status juga untuk pending
+                                    checkPaymentStatus();
                                 });
                             },
                             onError: function(result) {
@@ -1208,6 +1191,83 @@
                             }
                         });
                     });
+                }
+
+                // Function untuk check payment status
+                function checkPaymentStatus() {
+                    let attempts = 0;
+                    const maxAttempts = 20; // 20 attempts = 2 menit
+
+                    const checkInterval = setInterval(() => {
+                        attempts++;
+
+                        // Call ke server untuk refresh status dari Midtrans API
+                        fetch('{{ route('auto.check.payment.status') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    transaction_id: {{ $transaction->id }}
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Payment check result:', data);
+
+                                if (data.status === 'approved' || data.status === 'paid') {
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+
+                                    Swal.fire({
+                                        title: 'Pembayaran Berhasil!',
+                                        text: 'Terima kasih! Pembayaran Anda telah dikonfirmasi.',
+                                        icon: 'success',
+                                        iconColor: '#28a745',
+                                        confirmButtonText: 'OK',
+                                        confirmButtonColor: '#28a745',
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+
+                                } else if (attempts >= maxAttempts) {
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+
+                                    Swal.fire({
+                                        title: 'Verifikasi Manual Diperlukan',
+                                        text: 'Pembayaran mungkin sudah berhasil. Silakan refresh halaman atau klik tombol "Refresh Status Manual".',
+                                        icon: 'warning',
+                                        iconColor: '#f39c12',
+                                        confirmButtonText: 'Refresh Halaman',
+                                        confirmButtonColor: '#f39c12',
+                                        showCancelButton: true,
+                                        cancelButtonText: 'Batal',
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            window.location.reload();
+                                        }
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error checking payment status:', error);
+                                if (attempts >= maxAttempts) {
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+
+                                    Swal.fire({
+                                        title: 'Tidak Dapat Memverifikasi',
+                                        text: 'Silakan refresh halaman untuk melihat status terbaru.',
+                                        icon: 'warning',
+                                        confirmButtonText: 'Refresh Halaman',
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                }
+                            });
+                    }, 6000); // Check every 6 seconds
                 }
             });
         </script>

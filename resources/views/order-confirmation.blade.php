@@ -1249,77 +1249,147 @@
         <script src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="{{ config('midtrans.client_key') }}">
         </script>
         <script type="text/javascript">
-            document.getElementById('pay-button').addEventListener('click', function() {
-                snap.pay('{{ $order->transaction->snap_token }}', {
-                    onSuccess: function(result) {
-                        console.log("Success", result);
-                        Swal.fire({
-                            title: 'Pembayaran Berhasil!',
-                            text: 'Terima kasih! Pembayaran Anda telah berhasil diproses. Pesanan akan segera kami proses.',
-                            icon: 'success',
-                            iconColor: '#28a745',
-                            confirmButtonText: 'Lanjutkan',
-                            confirmButtonColor: '#28a745',
-                            allowOutsideClick: false,
-                            allowEscapeKey: false
-                        }).then(() => {
-                            window.location.href = '{{ url('payment_success') }}';
-                        });
-                    },
-                    onPending: function(result) {
-                        console.log("Pending", result);
-                        Swal.fire({
-                            title: 'Pembayaran Sedang Diproses',
-                            text: 'Pembayaran Anda sedang dalam proses verifikasi. Mohon tunggu beberapa saat.',
-                            icon: 'info',
-                            iconColor: '#b9a16b',
-                            confirmButtonText: 'Mengerti',
-                            confirmButtonColor: '#b9a16b',
-                            allowOutsideClick: false,
-                            allowEscapeKey: false
-                        }).then(() => {
-                            window.location.href = '{{ url('payment_pending') }}';
-                        });
-                    },
-                    onError: function(result) {
-                        console.log("Error", result);
-                        Swal.fire({
-                            title: 'Pembayaran Gagal',
-                            text: 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi atau hubungi customer service.',
-                            icon: 'error',
-                            iconColor: '#e74c3c',
-                            confirmButtonText: 'Coba Lagi',
-                            confirmButtonColor: '#e74c3c',
-                            showCancelButton: true,
-                            cancelButtonText: 'Hubungi CS',
-                            cancelButtonColor: '#6c757d'
-                        }).then((result) => {
-                            if (!result.isConfirmed) {
-                                // Redirect ke halaman contact jika pilih "Hubungi CS"
-                                window.location.href = '{{ route('home.contact.index') }}';
+            document.addEventListener('DOMContentLoaded', function() {
+                const payButton = document.getElementById('pay-button');
+                if (payButton) {
+                    payButton.addEventListener('click', function() {
+                        snap.pay('{{ $order->transaction->snap_token }}', {
+                            onSuccess: function(result) {
+                                console.log("Success", result);
+
+                                // Tampilkan loading state
+                                Swal.fire({
+                                    title: 'Memproses Pembayaran...',
+                                    text: 'Sedang memverifikasi pembayaran Anda. Mohon tunggu.',
+                                    icon: 'info',
+                                    allowOutsideClick: false,
+                                    allowEscapeKey: false,
+                                    showConfirmButton: false,
+                                    didOpen: () => {
+                                        Swal.showLoading();
+                                    }
+                                });
+
+                                // Auto-check status dengan polling
+                                checkPaymentStatus();
+                            },
+                            onPending: function(result) {
+                                console.log("Pending", result);
+                                Swal.fire({
+                                    title: 'Pembayaran Sedang Diproses',
+                                    text: 'Pembayaran Anda sedang dalam proses verifikasi.',
+                                    icon: 'info',
+                                    iconColor: '#b9a16b',
+                                    confirmButtonText: 'Mengerti',
+                                    confirmButtonColor: '#b9a16b',
+                                }).then(() => {
+                                    // Check status juga untuk pending
+                                    checkPaymentStatus();
+                                });
+                            },
+                            onError: function(result) {
+                                console.log("Error", result);
+                                Swal.fire({
+                                    title: 'Pembayaran Gagal',
+                                    text: 'Terjadi kesalahan saat memproses pembayaran. Silakan coba lagi.',
+                                    icon: 'error',
+                                    iconColor: '#e74c3c',
+                                    confirmButtonText: 'Coba Lagi',
+                                    confirmButtonColor: '#e74c3c',
+                                });
+                            },
+                            onClose: function() {
+                                Swal.fire({
+                                    title: 'Pembayaran Dibatalkan',
+                                    text: 'Anda menutup jendela pembayaran. Anda dapat mencoba lagi kapan saja.',
+                                    icon: 'warning',
+                                    iconColor: '#f39c12',
+                                    confirmButtonText: 'Mengerti',
+                                    confirmButtonColor: '#f39c12',
+                                });
                             }
                         });
-                    },
-                    onClose: function() {
-                        Swal.fire({
-                            title: 'Pembayaran Dibatalkan',
-                            text: 'Anda menutup jendela pembayaran tanpa menyelesaikan transaksi. Pesanan masih tersimpan dan dapat dibayar nanti.',
-                            icon: 'warning',
-                            iconColor: '#f39c12',
-                            confirmButtonText: 'Mengerti',
-                            confirmButtonColor: '#f39c12',
-                            showCancelButton: true,
-                            cancelButtonText: 'Coba Bayar Lagi',
-                            cancelButtonColor: '#b9a16b',
-                            reverseButtons: true
-                        }).then((result) => {
-                            if (!result.isConfirmed) {
-                                // Jika pilih "Coba Bayar Lagi", panggil ulang fungsi pembayaran
-                                document.getElementById('pay-button').click();
-                            }
-                        });
-                    }
-                });
+                    });
+                }
+
+                // Function untuk check payment status
+                function checkPaymentStatus() {
+                    let attempts = 0;
+                    const maxAttempts = 20; // 20 attempts = 2 menit
+
+                    const checkInterval = setInterval(() => {
+                        attempts++;
+
+                        // Call ke server untuk refresh status dari Midtrans API
+                        fetch('{{ route('auto.check.payment.status') }}', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    transaction_id: {{ $order->transaction->id }}
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                console.log('Payment check result:', data);
+
+                                if (data.status === 'approved' || data.status === 'paid') {
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+
+                                    Swal.fire({
+                                        title: 'Pembayaran Berhasil!',
+                                        text: 'Terima kasih! Pembayaran Anda telah dikonfirmasi.',
+                                        icon: 'success',
+                                        iconColor: '#28a745',
+                                        confirmButtonText: 'OK',
+                                        confirmButtonColor: '#28a745',
+                                    }).then(() => {
+                                        // Redirect ke halaman order details dengan order ID
+                                        window.location.href =
+                                            '{{ route('user.account.order.details', ['order_id' => $order->id]) }}';
+                                    });
+
+                                } else if (attempts >= maxAttempts) {
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+
+                                    Swal.fire({
+                                        title: 'Verifikasi Manual Diperlukan',
+                                        text: 'Pembayaran mungkin sudah berhasil. Silakan refresh halaman atau klik tombol "Refresh Status Manual".',
+                                        icon: 'warning',
+                                        iconColor: '#f39c12',
+                                        confirmButtonText: 'Refresh Halaman',
+                                        confirmButtonColor: '#f39c12',
+                                        showCancelButton: true,
+                                        cancelButtonText: 'Batal',
+                                    }).then((result) => {
+                                        if (result.isConfirmed) {
+                                            window.location.reload();
+                                        }
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error checking payment status:', error);
+                                if (attempts >= maxAttempts) {
+                                    clearInterval(checkInterval);
+                                    Swal.close();
+
+                                    Swal.fire({
+                                        title: 'Tidak Dapat Memverifikasi',
+                                        text: 'Silakan refresh halaman untuk melihat status terbaru.',
+                                        icon: 'warning',
+                                        confirmButtonText: 'Refresh Halaman',
+                                    }).then(() => {
+                                        window.location.reload();
+                                    });
+                                }
+                            });
+                    }, 6000); // Check every 6 seconds
+                }
             });
         </script>
     @endif

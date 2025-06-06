@@ -145,6 +145,8 @@ Route::post('/upload-payment-proof', [CartController::class, 'uploadPaymentProof
 Route::get('/check-payment-status/{transaction_id}', [UserController::class, 'checkPaymentStatus'])->name('check.payment.status');
  // Route untuk manual refresh status (debugging)
  Route::post('/manual-refresh-status', [UserController::class, 'manualRefreshStatus'])->name('manual.refresh.status');
+//  Route untuk auto check payment status
+Route::post('/auto-check-payment-status', [UserController::class, 'autoCheckPaymentStatus'])->name('auto.check.payment.status');
 
 
 // ====================================================================================================
