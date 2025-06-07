@@ -746,6 +746,42 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * Enhanced product validation with real-time feedback
+     */
+    public function validateProductData(Request $request)
+    {
+        $rules = [
+            'name' => 'required|max:100',
+            'slug' => 'required|max:100',
+            'regular_price' => 'required|numeric|min:1000',
+            'sale_price' => 'nullable|numeric|min:1000',
+            'SKU' => 'required|string|max:50',
+        ];
+
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), $rules);
+
+        $errors = [];
+        if ($validator->fails()) {
+            $errors = $validator->errors()->toArray();
+        }
+
+        // Additional custom validations
+        if ($request->sale_price && $request->regular_price) {
+            $regular = (float) str_replace(['Rp ', '.'], '', $request->regular_price);
+            $sale = (float) str_replace(['Rp ', '.'], '', $request->sale_price);
+
+            if ($sale >= $regular) {
+                $errors['sale_price'][] = 'Harga diskon harus lebih kecil dari harga normal';
+            }
+        }
+
+        return response()->json([
+            'valid' => empty($errors),
+            'errors' => $errors
+        ]);
+    }
+
     // Halaman menampilkan Edit Produk
     public function edit_product($id)
     {
