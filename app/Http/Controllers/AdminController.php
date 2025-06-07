@@ -672,7 +672,7 @@ class AdminController extends Controller
         }
     }
 
-        /**
+    /**
      * AJAX endpoint to check product name uniqueness
      */
     public function checkProductNameUniqueness(Request $request)
@@ -690,6 +690,27 @@ class AdminController extends Controller
         return response()->json([
             'exists' => $exists,
             'message' => $exists ? 'Nama produk sudah digunakan' : 'Nama produk tersedia'
+        ]);
+    }
+
+    /**
+     * AJAX endpoint to check SKU uniqueness
+     */
+    public function checkSKUUniqueness(Request $request)
+    {
+        $sku = $request->get('sku');
+        $id = $request->get('id', null);
+
+        $query = Product::where('SKU', $sku);
+        if ($id) {
+            $query->where('id', '!=', $id);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'SKU sudah digunakan' : 'SKU tersedia'
         ]);
     }
 
