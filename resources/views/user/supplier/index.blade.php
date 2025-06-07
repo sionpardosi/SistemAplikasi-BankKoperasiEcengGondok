@@ -522,69 +522,88 @@
         }
     </style>
 
-<style>
-    .location-detection-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 12px;
-        padding: 20px;
-        margin-bottom: 20px;
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
+    <style>
+        .location-detection-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
 
-    .location-status {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 15px;
-    }
+        .location-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
 
-    .location-indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        animation: pulse-dot 2s infinite;
-    }
+        .location-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
 
-    .location-indicator.detecting { background-color: #ffc107; }
-    .location-indicator.valid { background-color: #28a745; }
-    .location-indicator.invalid { background-color: #dc3545; }
+        .location-indicator.detecting {
+            background-color: #ffc107;
+        }
 
-    @keyframes pulse-dot {
-        0% { transform: scale(1); opacity: 1; }
-        50% { transform: scale(1.2); opacity: 0.7; }
-        100% { transform: scale(1); opacity: 1; }
-    }
+        .location-indicator.valid {
+            background-color: #28a745;
+        }
 
-    .location-toggle {
-        background: rgba(255,255,255,0.2);
-        border: 1px solid rgba(255,255,255,0.3);
-        backdrop-filter: blur(10px);
-        border-radius: 8px;
-        color: white;
-        transition: all 0.3s ease;
-    }
+        .location-indicator.invalid {
+            background-color: #dc3545;
+        }
 
-    .location-toggle:hover {
-        background: rgba(255,255,255,0.3);
-        transform: translateY(-1px);
-    }
+        @keyframes pulse-dot {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
 
-    .manual-selection-disabled {
-        pointer-events: none;
-        opacity: 0.6;
-        position: relative;
-    }
+            50% {
+                transform: scale(1.2);
+                opacity: 0.7;
+            }
 
-    .manual-selection-disabled::before {
-        content: "🔒 Pilihan manual dinonaktifkan saat deteksi otomatis aktif";
-        position: absolute;
-        top: -25px;
-        left: 0;
-        font-size: 12px;
-        color: #6c757d;
-        font-style: italic;
-    }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .location-toggle {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 8px;
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .location-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .manual-selection-disabled {
+            pointer-events: none;
+            opacity: 0.6;
+            position: relative;
+        }
+
+        .manual-selection-disabled::before {
+            content: "🔒 Pilihan manual dinonaktifkan saat deteksi otomatis aktif";
+            position: absolute;
+            top: -25px;
+            left: 0;
+            font-size: 12px;
+            color: #6c757d;
+            font-style: italic;
+        }
     </style>
 
     <!-- AOS Animations -->
@@ -918,8 +937,8 @@
                         {!! $supplierInfo
                             ? $supplierInfo->description
                             : '<strong>Bank Koperasi Eceng Gondok</strong> membantu Anda mendapatkan penghasilan tambahan
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                dengan mudah. Kami membayarkan insentif <em>langsung</em> setelah penjemputan,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                dan setiap pengiriman dipastikan <strong>aman</strong> dan <strong>terjadwal</strong>.' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                dengan mudah. Kami membayarkan insentif <em>langsung</em> setelah penjemputan,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                dan setiap pengiriman dipastikan <strong>aman</strong> dan <strong>terjadwal</strong>.' !!}
                     </p>
                     <ul class="info-list">
                         <li data-aos="fade-right" data-aos-delay="100">
@@ -1137,76 +1156,78 @@
                             </div>
 
                             <!-- Kecamatan & Desa -->
-<!-- Fitur Deteksi Lokasi Otomatis -->
-<div class="mb-4">
-    <div class="location-detection-card">
-        <h6 class="mb-3">
-            <i class="fas fa-map-marker-alt me-2"></i>
-            Deteksi Lokasi Otomatis
-        </h6>
+                            <!-- Fitur Deteksi Lokasi Otomatis -->
+                            <div class="mb-4">
+                                <div class="location-detection-card">
+                                    <h6 class="mb-3">
+                                        <i class="fas fa-map-marker-alt me-2"></i>
+                                        Deteksi Lokasi Otomatis
+                                    </h6>
 
-        <div class="location-status">
-            <div class="location-indicator" id="locationIndicator"></div>
-            <span id="locationStatus">Siap mendeteksi lokasi...</span>
-        </div>
+                                    <div class="location-status">
+                                        <div class="location-indicator" id="locationIndicator"></div>
+                                        <span id="locationStatus">Siap mendeteksi lokasi...</span>
+                                    </div>
 
-        <div class="row g-2">
-            <div class="col-md-6">
-                <button type="button" class="btn location-toggle w-100" id="detectLocationBtn">
-                    <i class="fas fa-crosshairs me-2"></i>
-                    Deteksi Lokasi Saya
-                </button>
-            </div>
-            <div class="col-md-6">
-                <button type="button" class="btn location-toggle w-100" id="manualLocationBtn">
-                    <i class="fas fa-edit me-2"></i>
-                    Pilih Manual
-                </button>
-            </div>
-        </div>
+                                    <div class="row g-2">
+                                        <div class="col-md-6">
+                                            <button type="button" class="btn location-toggle w-100"
+                                                id="detectLocationBtn">
+                                                <i class="fas fa-crosshairs me-2"></i>
+                                                Deteksi Lokasi Saya
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <button type="button" class="btn location-toggle w-100"
+                                                id="manualLocationBtn">
+                                                <i class="fas fa-edit me-2"></i>
+                                                Pilih Manual
+                                            </button>
+                                        </div>
+                                    </div>
 
-        <div class="mt-3" id="locationInfo" style="display: none;">
-            <div class="d-flex justify-content-between align-items-center">
-                <small>
-                    <i class="fas fa-info-circle me-1"></i>
-                    <span id="coordinateInfo"></span>
-                </small>
-                <small id="distanceInfo"></small>
-            </div>
-        </div>
-    </div>
-</div>
+                                    <div class="mt-3" id="locationInfo" style="display: none;">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <small>
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                <span id="coordinateInfo"></span>
+                                            </small>
+                                            <small id="distanceInfo"></small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-<!-- Kecamatan & Desa (akan disable/enable otomatis) -->
-<div class="row mb-3" id="manualLocationSection">
-    <div class="col-md-6">
-        <label for="kecamatan">Kecamatan</label>
-        <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-            <select id="kecamatan" name="kecamatan" class="form-control" required>
-                <option value="">-- Pilih Kecamatan --</option>
-                <option value="Harian">Harian</option>
-                <option value="Nainggolan">Nainggolan</option>
-                <option value="Onan Runggu">Onan Runggu</option>
-                <option value="Palipi">Palipi</option>
-                <option value="Pangururan">Pangururan</option>
-                <option value="Ronggur Nihuta">Ronggur Nihuta</option>
-                <option value="Sianjur Mulamula">Sianjur Mulamula</option>
-                <option value="Simanindo">Simanindo</option>
-                <option value="Sitio-tio">Sitio-tio</option>
-            </select>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <label for="desa">Desa</label>
-        <div class="input-group">
-            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-            <select id="desa" name="desa" class="form-control" required disabled>
-                <option value="">-- Pilih Desa --</option>
-            </select>
-        </div>
-    </div>
-</div>
+                            <!-- Kecamatan & Desa (akan disable/enable otomatis) -->
+                            <div class="row mb-3" id="manualLocationSection">
+                                <div class="col-md-6">
+                                    <label for="kecamatan">Kecamatan</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                        <select id="kecamatan" name="kecamatan" class="form-control" required>
+                                            <option value="">-- Pilih Kecamatan --</option>
+                                            <option value="Harian">Harian</option>
+                                            <option value="Nainggolan">Nainggolan</option>
+                                            <option value="Onan Runggu">Onan Runggu</option>
+                                            <option value="Palipi">Palipi</option>
+                                            <option value="Pangururan">Pangururan</option>
+                                            <option value="Ronggur Nihuta">Ronggur Nihuta</option>
+                                            <option value="Sianjur Mulamula">Sianjur Mulamula</option>
+                                            <option value="Simanindo">Simanindo</option>
+                                            <option value="Sitio-tio">Sitio-tio</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="desa">Desa</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+                                        <select id="desa" name="desa" class="form-control" required disabled>
+                                            <option value="">-- Pilih Desa --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                             <!-- Lokasi & Catatan -->
                             <div class="mb-3">
                                 <label for="detail_lokasi">Detail Lokasi</label>
@@ -2872,6 +2893,328 @@
 
                     updateCounter();
                 });
+            });
+        </script>
+
+        <!-- Script untuk deteksi lokasi otomatis -->
+        <script>
+            // Koordinat batas wilayah Samosir
+            const SAMOSIR_BOUNDS = {
+                minLat: 2.55,
+                maxLat: 2.88,
+                minLng: 98.78,
+                maxLng: 98.95
+            };
+
+            // Mapping koordinat ke kecamatan
+            const KECAMATAN_COORDINATES = {
+                "Pangururan": {
+                    lat: 2.69,
+                    lng: 98.94
+                },
+                "Simanindo": {
+                    lat: 2.68,
+                    lng: 98.86
+                },
+                "Harian": {
+                    lat: 2.84,
+                    lng: 98.93
+                },
+                "Nainggolan": {
+                    lat: 2.61,
+                    lng: 98.89
+                },
+                "Onan Runggu": {
+                    lat: 2.58,
+                    lng: 98.83
+                },
+                "Palipi": {
+                    lat: 2.75,
+                    lng: 98.89
+                },
+                "Ronggur Nihuta": {
+                    lat: 2.64,
+                    lng: 98.94
+                },
+                "Sianjur Mulamula": {
+                    lat: 2.72,
+                    lng: 98.82
+                },
+                "Sitio-tio": {
+                    lat: 2.81,
+                    lng: 98.87
+                }
+            };
+
+            class LocationDetector {
+                constructor() {
+                    this.isDetecting = false;
+                    this.isAutoMode = false;
+                    this.currentPosition = null;
+                    this.init();
+                }
+
+                init() {
+                    this.bindEvents();
+                    this.checkGeolocationSupport();
+                }
+
+                bindEvents() {
+                    const detectBtn = document.getElementById('detectLocationBtn');
+                    const manualBtn = document.getElementById('manualLocationBtn');
+
+                    if (detectBtn) {
+                        detectBtn.addEventListener('click', () => this.detectLocation());
+                    }
+
+                    if (manualBtn) {
+                        manualBtn.addEventListener('click', () => this.enableManualMode());
+                    }
+                }
+
+                checkGeolocationSupport() {
+                    if (!navigator.geolocation) {
+                        this.updateStatus('Geolocation tidak didukung browser ini', 'invalid');
+                        document.getElementById('detectLocationBtn').disabled = true;
+                    }
+                }
+
+                detectLocation() {
+                    if (this.isDetecting) return;
+
+                    this.isDetecting = true;
+                    this.updateStatus('Mendeteksi lokasi...', 'detecting');
+
+                    const detectBtn = document.getElementById('detectLocationBtn');
+                    detectBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mendeteksi...';
+                    detectBtn.disabled = true;
+
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => this.onLocationSuccess(position),
+                        (error) => this.onLocationError(error), {
+                            enableHighAccuracy: true,
+                            timeout: 10000,
+                            maximumAge: 300000
+                        }
+                    );
+                }
+
+                onLocationSuccess(position) {
+                    this.isDetecting = false;
+                    this.currentPosition = {
+                        lat: position.coords.latitude,
+                        lng: position.coords.longitude
+                    };
+
+                    document.getElementById('coordinateInfo').textContent =
+                        `${this.currentPosition.lat.toFixed(6)}, ${this.currentPosition.lng.toFixed(6)}`;
+
+                    const isInSamosir = this.isWithinSamosir(this.currentPosition);
+
+                    if (isInSamosir) {
+                        this.handleValidLocation();
+                    } else {
+                        this.handleInvalidLocation();
+                    }
+
+                    const detectBtn = document.getElementById('detectLocationBtn');
+                    detectBtn.innerHTML = '<i class="fas fa-crosshairs me-2"></i>Deteksi Ulang';
+                    detectBtn.disabled = false;
+
+                    document.getElementById('locationInfo').style.display = 'block';
+                }
+
+                onLocationError(error) {
+                    this.isDetecting = false;
+                    let errorMessage = 'Gagal mendeteksi lokasi: ';
+
+                    switch (error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += 'Akses lokasi ditolak.';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += 'Informasi lokasi tidak tersedia.';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += 'Timeout. Coba lagi.';
+                            break;
+                        default:
+                            errorMessage += 'Error tidak dikenal.';
+                            break;
+                    }
+
+                    this.updateStatus(errorMessage, 'invalid');
+
+                    const detectBtn = document.getElementById('detectLocationBtn');
+                    detectBtn.innerHTML = '<i class="fas fa-crosshairs me-2"></i>Coba Lagi';
+                    detectBtn.disabled = false;
+                }
+
+                isWithinSamosir(position) {
+                    return position.lat >= SAMOSIR_BOUNDS.minLat &&
+                        position.lat <= SAMOSIR_BOUNDS.maxLat &&
+                        position.lng >= SAMOSIR_BOUNDS.minLng &&
+                        position.lng <= SAMOSIR_BOUNDS.maxLng;
+                }
+
+                handleValidLocation() {
+                    this.isAutoMode = true;
+                    this.updateStatus('✅ Lokasi valid - Anda berada di wilayah Samosir!', 'valid');
+
+                    const nearestKecamatan = this.findNearestKecamatan();
+                    if (nearestKecamatan) {
+                        this.autoFillLocation(nearestKecamatan);
+                    }
+
+                    this.toggleManualSelection(false);
+                    this.enableFormSubmission(true);
+                }
+
+                handleInvalidLocation() {
+                    this.updateStatus('❌ Lokasi tidak valid - Anda berada di luar wilayah Samosir', 'invalid');
+
+                    const distance = this.calculateDistanceToSamosir();
+                    document.getElementById('distanceInfo').textContent =
+                        `Jarak ke Samosir: ~${distance.toFixed(1)} km`;
+
+                    this.enableFormSubmission(false);
+                    this.showLocationWarning();
+                }
+
+                findNearestKecamatan() {
+                    let nearest = null;
+                    let minDistance = Infinity;
+
+                    Object.entries(KECAMATAN_COORDINATES).forEach(([kecamatan, coords]) => {
+                        const distance = this.calculateDistance(
+                            this.currentPosition.lat, this.currentPosition.lng,
+                            coords.lat, coords.lng
+                        );
+
+                        if (distance < minDistance) {
+                            minDistance = distance;
+                            nearest = kecamatan;
+                        }
+                    });
+
+                    return nearest;
+                }
+
+                calculateDistance(lat1, lng1, lat2, lng2) {
+                    const R = 6371;
+                    const dLat = (lat2 - lat1) * Math.PI / 180;
+                    const dLng = (lng2 - lng1) * Math.PI / 180;
+                    const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                        Math.sin(dLng / 2) * Math.sin(dLng / 2);
+                    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                    return R * c;
+                }
+
+                calculateDistanceToSamosir() {
+                    const samosirCenter = {
+                        lat: 2.715,
+                        lng: 98.865
+                    };
+                    return this.calculateDistance(
+                        this.currentPosition.lat, this.currentPosition.lng,
+                        samosirCenter.lat, samosirCenter.lng
+                    );
+                }
+
+                autoFillLocation(kecamatan) {
+                    const kecamatanSelect = document.getElementById('kecamatan');
+                    const desaSelect = document.getElementById('desa');
+
+                    kecamatanSelect.value = kecamatan;
+                    kecamatanSelect.dispatchEvent(new Event('change'));
+
+                    setTimeout(() => {
+                        if (desaSelect.options.length > 1) {
+                            desaSelect.selectedIndex = 1;
+                        }
+                    }, 100);
+                }
+
+                enableManualMode() {
+                    this.isAutoMode = false;
+                    this.updateStatus('Mode manual diaktifkan', 'detecting');
+                    this.toggleManualSelection(true);
+                    this.enableFormSubmission(true);
+                    document.getElementById('locationInfo').style.display = 'none';
+                }
+
+                toggleManualSelection(enabled) {
+                    const manualSection = document.getElementById('manualLocationSection');
+
+                    if (enabled) {
+                        manualSection.classList.remove('manual-selection-disabled');
+                    } else {
+                        manualSection.classList.add('manual-selection-disabled');
+                    }
+
+                    const kecamatanSelect = document.getElementById('kecamatan');
+                    const desaSelect = document.getElementById('desa');
+
+                    kecamatanSelect.disabled = !enabled;
+                    if (enabled) {
+                        desaSelect.disabled = kecamatanSelect.value === '';
+                    } else {
+                        desaSelect.disabled = false;
+                    }
+                }
+
+                enableFormSubmission(enabled) {
+                    const formButtons = document.querySelectorAll('#supplierForm button[type="submit"]');
+                    formButtons.forEach(button => {
+                        button.disabled = !enabled;
+
+                        if (!enabled) {
+                            button.innerHTML = '<i class="fas fa-lock me-2"></i>Lokasi Tidak Valid';
+                            button.classList.add('btn-secondary');
+                            button.classList.remove('btn-become');
+                        } else {
+                            button.innerHTML = '<i class="fas fa-send me-2"></i>Kirim Permintaan';
+                            button.classList.remove('btn-secondary');
+                            button.classList.add('btn-become');
+                        }
+                    });
+                }
+
+                showLocationWarning() {
+                    Swal.fire({
+                        title: 'Lokasi Di Luar Jangkauan',
+                        text: 'Maaf, layanan penjemputan kami hanya tersedia untuk wilayah Samosir dan sekitarnya. Anda dapat menggunakan mode manual jika yakin berada di wilayah yang tepat.',
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Gunakan Manual',
+                        cancelButtonText: 'Mengerti',
+                        confirmButtonColor: '#28a745',
+                        cancelButtonColor: '#6c757d'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.enableManualMode();
+                        }
+                    });
+                }
+
+                updateStatus(message, type) {
+                    const statusElement = document.getElementById('locationStatus');
+                    const indicatorElement = document.getElementById('locationIndicator');
+
+                    if (statusElement) {
+                        statusElement.textContent = message;
+                    }
+
+                    if (indicatorElement) {
+                        indicatorElement.className = `location-indicator ${type}`;
+                    }
+                }
+            }
+
+            // Initialize location detector
+            document.addEventListener('DOMContentLoaded', function() {
+                window.locationDetector = new LocationDetector();
             });
         </script>
     </main>
