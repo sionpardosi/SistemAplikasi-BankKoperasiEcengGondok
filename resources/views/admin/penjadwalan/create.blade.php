@@ -208,7 +208,6 @@
         }
 
         .auto-filled-label::before {
-            content: '🔒 ';
             margin-right: 4px;
         }
 
@@ -496,7 +495,7 @@
                                     <label class="form-label auto-filled-label">Kecamatan</label>
                                     <input type="text" name="kecamatan" id="kecamatan" class="form-control auto-filled" readonly>
                                     <div class="help-text">
-                                        <i class="icon-lock"></i> Diisi otomatis dari data permintaan pemasok
+                                       Diisi otomatis dari data permintaan pemasok
                                     </div>
                                 </div>
                             </div>
@@ -507,7 +506,7 @@
                                     <label class="form-label auto-filled-label">Desa</label>
                                     <input type="text" name="desa" id="desa" class="form-control auto-filled" readonly>
                                     <div class="help-text">
-                                        <i class="icon-lock"></i> Diisi otomatis dari data permintaan pemasok
+                                       Diisi otomatis dari data permintaan pemasok
                                     </div>
                                 </div>
                             </div>
@@ -518,7 +517,7 @@
                             <label class="form-label auto-filled-label">Detail Lokasi</label>
                             <input type="text" name="detail_lokasi" id="detail_lokasi" class="form-control auto-filled" readonly>
                             <div class="help-text">
-                                <i class="icon-lock"></i> Diisi otomatis dari data permintaan pemasok
+                               Diisi otomatis dari data permintaan pemasok
                             </div>
                         </div>
 
@@ -527,7 +526,7 @@
                             <label class="form-label auto-filled-label">Estimasi Berat (kg)</label>
                             <input type="number" name="estimasi_kg" id="estimasi_kg" class="form-control auto-filled" readonly>
                             <div class="help-text">
-                                <i class="icon-lock"></i> Diisi otomatis dari data permintaan pemasok
+                               Diisi otomatis dari data permintaan pemasok
                             </div>
                         </div>
 
