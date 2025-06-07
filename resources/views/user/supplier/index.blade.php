@@ -594,39 +594,72 @@
         }
 
         .location-status {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 20px;
-    position: relative;
-    z-index: 2;
-    background: rgba(255, 255, 255, 0.1);
-    padding: 12px 15px;
-    border-radius: 10px;
-    backdrop-filter: blur(10px);
-}
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 2;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
 
-.location-toggle {
-    background: rgba(255, 255, 255, 0.15);
-    border: 2px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(15px);
-    border-radius: 12px;
-    color: white;
-    font-weight: 600;
-    padding: 12px 20px;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    z-index: 2;
-    font-size: 0.95rem;
-}
+        .location-toggle {
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            padding: 12px 20px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            z-index: 2;
+            font-size: 0.95rem;
+        }
 
-.location-toggle:hover {
-    background: rgba(255, 255, 255, 0.25);
-    border-color: rgba(255, 255, 255, 0.4);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    color: white;
-}
+        .location-toggle:hover {
+            background: rgba(255, 255, 255, 0.25);
+            border-color: rgba(255, 255, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            color: white;
+        }
+
+        /* Form styling enhancement */
+        #manualLocationSection {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            padding: 15px;
+            background: linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%);
+            border: 1px solid rgba(149, 106, 59, 0.1);
+            margin-top: 15px;
+        }
+
+        #manualLocationSection.manual-selection-disabled {
+            background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+            border-color: rgba(149, 106, 59, 0.05);
+        }
+
+        #manualLocationSection label {
+            color: #956a3b;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        #manualLocationSection .form-control:focus {
+            border-color: #956a3b;
+            box-shadow: 0 0 0 3px rgba(149, 106, 59, 0.1);
+        }
+
+        #manualLocationSection .input-group-text {
+            background: linear-gradient(145deg, #956a3b 0%, #b8864a 100%);
+            color: white;
+            border-color: #956a3b;
+        }
     </style>
 
     <!-- AOS Animations -->
@@ -960,8 +993,8 @@
                         {!! $supplierInfo
                             ? $supplierInfo->description
                             : '<strong>Bank Koperasi Eceng Gondok</strong> membantu Anda mendapatkan penghasilan tambahan
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        dengan mudah. Kami membayarkan insentif <em>langsung</em> setelah penjemputan,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        dan setiap pengiriman dipastikan <strong>aman</strong> dan <strong>terjadwal</strong>.' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        dengan mudah. Kami membayarkan insentif <em>langsung</em> setelah penjemputan,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        dan setiap pengiriman dipastikan <strong>aman</strong> dan <strong>terjadwal</strong>.' !!}
                     </p>
                     <ul class="info-list">
                         <li data-aos="fade-right" data-aos-delay="100">
@@ -1194,7 +1227,8 @@
 
                                     <div class="row g-2">
                                         <div class="col-12">
-                                            <button type="button" class="btn location-toggle w-100" id="detectLocationBtn">
+                                            <button type="button" class="btn location-toggle w-100"
+                                                id="detectLocationBtn">
                                                 <i class="fas fa-crosshairs me-2"></i>
                                                 Deteksi Lokasi Saya Sekarang
                                             </button>
@@ -2972,6 +3006,7 @@
                 init() {
                     this.bindEvents();
                     this.checkGeolocationSupport();
+                    this.updateStatus('Klik tombol untuk mendeteksi lokasi Anda', 'detecting');
                 }
 
                 bindEvents() {
@@ -3068,8 +3103,7 @@
                 }
 
                 handleValidLocation() {
-                    this.isAutoMode = true;
-                    this.updateStatus('✅ Lokasi valid - Anda berada di wilayah Samosir!', 'valid');
+                    this.updateStatus('✅ Lokasi terdeteksi di wilayah Samosir!', 'valid');
 
                     const nearestKecamatan = this.findNearestKecamatan();
                     if (nearestKecamatan) {
@@ -3078,6 +3112,9 @@
 
                     this.toggleManualSelection(false);
                     this.enableFormSubmission(true);
+
+                    // TAMBAHKAN baris ini:
+                    this.showSuccessNotification();
                 }
 
                 handleInvalidLocation() {
@@ -3206,6 +3243,19 @@
                             this.enableManualMode();
                         }
                     });
+                }
+
+                showSuccessNotification() {
+                    const detectBtn = document.getElementById('detectLocationBtn');
+                    const originalText = detectBtn.innerHTML;
+
+                    detectBtn.innerHTML = '<i class="fas fa-check me-2"></i>Lokasi Berhasil Terdeteksi!';
+                    detectBtn.style.background = 'rgba(74, 222, 128, 0.3)';
+
+                    setTimeout(() => {
+                        detectBtn.innerHTML = originalText;
+                        detectBtn.style.background = '';
+                    }, 3000);
                 }
 
                 updateStatus(message, type) {

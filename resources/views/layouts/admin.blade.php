@@ -28,6 +28,45 @@
 
 </head>
 
+<style>
+    /* Menu Separator Styles - Tambahkan ini ke css/custom.css */
+    .menu-separator {
+        margin: 24px 0;
+        position: relative;
+        text-align: center;
+    }
+
+    .menu-separator::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e0e0e0 20%, #e0e0e0 80%, transparent);
+        transform: translateY(-50%);
+    }
+
+    .menu-separator-label {
+        background: #fff;
+        padding: 0 16px;
+        font-size: 11px;
+        color: #6c757d;
+        font-weight: 600;
+        letter-spacing: 0.8px;
+        text-transform: uppercase;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Alternative simple line separator */
+    .separator-line {
+        margin: 20px 16px;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, #e9ecef 20%, #e9ecef 80%, transparent);
+    }
+</style>
+
 <body class="body">
     <div id="wrapper">
         <div id="page" class="">
@@ -169,6 +208,10 @@
                                     </ul>
                                 </li>
 
+                                <div class="menu-separator">
+                                    <span class="menu-separator-label">Manajemen Pemasok</span>
+                                </div>
+
                                 <li class="menu-item has-children">
                                     <a href="#" class="menu-item-button">
                                         <div class="icon"><i class="icon-briefcase"></i></div>
@@ -176,41 +219,45 @@
                                     </a>
                                     <ul class="sub-menu">
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.supplier.dashboard') }}" class="">
-                                                <div class="text">Dashboard</div>
+                                            <a href="{{ route('admin.supplier.dashboard') }}">
+                                                <div class="text">Dashboard Pemasok</div>
                                             </a>
                                         </li>
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.supplier.index') }}" class="">
-                                                <div class="text">Request Pemasok</div>
+                                            <a href="{{ route('admin.supplier.index') }}">
+                                                <div class="text">Permintaan Pemasok</div>
                                             </a>
                                         </li>
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.penjadwalan.index') }}" class="">
-                                                <div class="text">Atur Jadwal Penjemputan</div>
+                                            <a href="{{ route('admin.penjadwalan.index') }}">
+                                                <div class="text">Penjadwalan Penjemputan</div>
                                             </a>
                                         </li>
                                     </ul>
                                     <ul class="sub-menu">
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.adminsupplier.informasi_supplier.index') }}" class="">
-                                                <div class="text">Informasi Deskripsi Pemasok</div>
+                                            <a href="{{ route('admin.adminsupplier.informasi_supplier.index') }}">
+                                                <div class="text">Daftar Informasi Pemasok</div>
                                             </a>
                                         </li>
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.adminsupplier.informasi_supplier.create') }}" class="">
-                                                <div class="text">Tambah Informasi Deskripsi Pemasok</div>
+                                            <a href="{{ route('admin.adminsupplier.informasi_supplier.create') }}">
+                                                <div class="text">Tambah Informasi Pemasok</div>
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
 
+                                <div class="menu-separator">
+                                    <span class="menu-separator-label">Manajemen Stok</span>
+                                </div>
                                 <li class="menu-item">
                                     <a href="{{ route('admin.stok.index') }}" class="">
                                         <div class="icon"><i class="icon-image"></i></div>
                                         <div class="text">Stok Bahan Baku</div>
                                     </a>
                                 </li>
+
                                 <li class="menu-item">
                                     <a href="{{ route('admin.slides') }}" class="">
                                         <div class="icon"><i class="icon-image"></i></div>
