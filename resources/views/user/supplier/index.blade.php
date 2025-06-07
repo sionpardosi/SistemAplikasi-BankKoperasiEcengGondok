@@ -524,86 +524,109 @@
 
     <style>
         .location-detection-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #956a3b 0%, #b8864a 50%, #daa764 100%);
+            position: relative;
             color: white;
-            border-radius: 12px;
-            padding: 20px;
+            border-radius: 16px;
+            padding: 25px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 30px rgba(149, 106, 59, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
         }
 
-        .location-status {
+        .location-detection-card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .location-detection-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -30%;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 8s ease-in-out infinite reverse;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+
+            33% {
+                transform: translate(10px, -10px) rotate(120deg);
+            }
+
+            66% {
+                transform: translate(-5px, 5px) rotate(240deg);
+            }
+        }
+
+        .location-detection-card h6 {
+            position: relative;
+            z-index: 2;
+            font-weight: 700;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-bottom: 15px;
         }
 
-        .location-indicator {
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            animation: pulse-dot 2s infinite;
-        }
-
-        .location-indicator.detecting {
-            background-color: #ffc107;
-        }
-
-        .location-indicator.valid {
-            background-color: #28a745;
-        }
-
-        .location-indicator.invalid {
-            background-color: #dc3545;
-        }
-
-        @keyframes pulse-dot {
-            0% {
-                transform: scale(1);
-                opacity: 1;
-            }
-
-            50% {
-                transform: scale(1.2);
-                opacity: 0.7;
-            }
-
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        .location-toggle {
+        .location-detection-card h6 i {
             background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            border-radius: 8px;
-            color: white;
-            transition: all 0.3s ease;
+            padding: 8px;
+            border-radius: 50%;
+            font-size: 1rem;
         }
 
-        .location-toggle:hover {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-1px);
-        }
+        .location-status {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 2;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 12px 15px;
+    border-radius: 10px;
+    backdrop-filter: blur(10px);
+}
 
-        .manual-selection-disabled {
-            pointer-events: none;
-            opacity: 0.6;
-            position: relative;
-        }
+.location-toggle {
+    background: rgba(255, 255, 255, 0.15);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    padding: 12px 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    z-index: 2;
+    font-size: 0.95rem;
+}
 
-        .manual-selection-disabled::before {
-            content: "🔒 Pilihan manual dinonaktifkan saat deteksi otomatis aktif";
-            position: absolute;
-            top: -25px;
-            left: 0;
-            font-size: 12px;
-            color: #6c757d;
-            font-style: italic;
-        }
+.location-toggle:hover {
+    background: rgba(255, 255, 255, 0.25);
+    border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    color: white;
+}
     </style>
 
     <!-- AOS Animations -->
@@ -937,8 +960,8 @@
                         {!! $supplierInfo
                             ? $supplierInfo->description
                             : '<strong>Bank Koperasi Eceng Gondok</strong> membantu Anda mendapatkan penghasilan tambahan
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                dengan mudah. Kami membayarkan insentif <em>langsung</em> setelah penjemputan,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                dan setiap pengiriman dipastikan <strong>aman</strong> dan <strong>terjadwal</strong>.' !!}
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        dengan mudah. Kami membayarkan insentif <em>langsung</em> setelah penjemputan,
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        dan setiap pengiriman dipastikan <strong>aman</strong> dan <strong>terjadwal</strong>.' !!}
                     </p>
                     <ul class="info-list">
                         <li data-aos="fade-right" data-aos-delay="100">
@@ -1160,7 +1183,7 @@
                             <div class="mb-4">
                                 <div class="location-detection-card">
                                     <h6 class="mb-3">
-                                        <i class="fas fa-map-marker-alt me-2"></i>
+                                        <i class="fas fa-location-crosshairs"></i>
                                         Deteksi Lokasi Otomatis
                                     </h6>
 
@@ -1170,18 +1193,10 @@
                                     </div>
 
                                     <div class="row g-2">
-                                        <div class="col-md-6">
-                                            <button type="button" class="btn location-toggle w-100"
-                                                id="detectLocationBtn">
+                                        <div class="col-12">
+                                            <button type="button" class="btn location-toggle w-100" id="detectLocationBtn">
                                                 <i class="fas fa-crosshairs me-2"></i>
-                                                Deteksi Lokasi Saya
-                                            </button>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <button type="button" class="btn location-toggle w-100"
-                                                id="manualLocationBtn">
-                                                <i class="fas fa-edit me-2"></i>
-                                                Pilih Manual
+                                                Deteksi Lokasi Saya Sekarang
                                             </button>
                                         </div>
                                     </div>
@@ -2961,14 +2976,9 @@
 
                 bindEvents() {
                     const detectBtn = document.getElementById('detectLocationBtn');
-                    const manualBtn = document.getElementById('manualLocationBtn');
 
                     if (detectBtn) {
                         detectBtn.addEventListener('click', () => this.detectLocation());
-                    }
-
-                    if (manualBtn) {
-                        manualBtn.addEventListener('click', () => this.enableManualMode());
                     }
                 }
 
