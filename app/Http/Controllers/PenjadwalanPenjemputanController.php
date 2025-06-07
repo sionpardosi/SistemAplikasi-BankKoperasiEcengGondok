@@ -52,9 +52,17 @@ class PenjadwalanPenjemputanController extends Controller
         return view('admin.penjadwalan.index', compact('jadwals'));
     }
 
+    /**
+     * Show the form for creating a new pickup schedule
+     */
     public function create()
     {
-        $requests = SupplierRequest::where('status', 'disetujui')->get();
+        // Only get approved requests that don't already have a schedule
+        $requests = SupplierRequest::where('status', 'disetujui')
+            ->whereDoesntHave('penjadwalan')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         return view('admin.penjadwalan.create', compact('requests'));
     }
 
