@@ -1277,7 +1277,7 @@
                             'fa-check-circle');
                     } else {
                         notification.removeClass('success').addClass('error');
-                        title.text('Error');
+                        title.text('Gagal Ditambahkan');
                         $('.cart-notification__icon i').removeClass('fa-check-circle').addClass(
                             'fa-exclamation-circle');
                     }

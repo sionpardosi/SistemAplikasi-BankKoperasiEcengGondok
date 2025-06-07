@@ -1234,6 +1234,7 @@
     <script src="{{ asset('js/chat-widget.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <!-- Fungsi untuk mengupdate jumlah item di keranjang -->
     <script>
         // Updated Script for Search Functionality
         $(function() {
@@ -1361,6 +1362,7 @@
         });
     </script>
 
+    <!-- Script to update the wishlist count -->
     <script>
         // Function to update the wishlist count
         function updateWishlistCount() {
@@ -1379,11 +1381,13 @@
 
         // Call the function when page loads
         $(document).ready(function() {
-                    @auth
-                    updateWishlistCount();
-                @endauth
+            @auth
+            updateWishlistCount();
+        @endauth
+        });
     </script>
 
+    <!-- Script to update the cart count -->
     <script>
         // for mobile
         // Add this to your existing script section or create a new script tag
@@ -1518,6 +1522,7 @@
         });
     </script>
 
+    <!-- region and desa selection script -->
     <script>
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1533,6 +1538,7 @@
         };
     </script>
 
+    <!-- #region -->
     <script>
         const kecamatanDesaData = {
             "Harian": ["Dolok Raja", "Hariara Pintu", "Hariara Pohan", "Huta Galung", "Janji Martahan",
@@ -1573,6 +1579,7 @@
         };
     </script>
 
+    <!-- Script untuk mengisi dropdown kecamatan dan desa -->
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const kecamatanSelect = document.getElementById('kecamatan');
@@ -1598,6 +1605,7 @@
         });
     </script>
 
+    <!-- Script untuk Navbar Profile Picture -->
     <script>
         // Enhanced JavaScript untuk Navbar Profile Picture
         document.addEventListener('DOMContentLoaded', function() {
@@ -1850,6 +1858,7 @@
         document.head.appendChild(rippleStyle);
     </script>
 
+    <!-- Script untuk konfirmasi logout -->
     <script>
         document.getElementById('navbar-logout-button').addEventListener('click', function(e) {
             e.preventDefault();

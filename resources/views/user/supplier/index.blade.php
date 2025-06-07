@@ -522,6 +522,71 @@
         }
     </style>
 
+<style>
+    .location-detection-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .location-status {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+    }
+
+    .location-indicator {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        animation: pulse-dot 2s infinite;
+    }
+
+    .location-indicator.detecting { background-color: #ffc107; }
+    .location-indicator.valid { background-color: #28a745; }
+    .location-indicator.invalid { background-color: #dc3545; }
+
+    @keyframes pulse-dot {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.2); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .location-toggle {
+        background: rgba(255,255,255,0.2);
+        border: 1px solid rgba(255,255,255,0.3);
+        backdrop-filter: blur(10px);
+        border-radius: 8px;
+        color: white;
+        transition: all 0.3s ease;
+    }
+
+    .location-toggle:hover {
+        background: rgba(255,255,255,0.3);
+        transform: translateY(-1px);
+    }
+
+    .manual-selection-disabled {
+        pointer-events: none;
+        opacity: 0.6;
+        position: relative;
+    }
+
+    .manual-selection-disabled::before {
+        content: "🔒 Pilihan manual dinonaktifkan saat deteksi otomatis aktif";
+        position: absolute;
+        top: -25px;
+        left: 0;
+        font-size: 12px;
+        color: #6c757d;
+        font-style: italic;
+    }
+    </style>
+
     <!-- AOS Animations -->
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
@@ -1072,36 +1137,76 @@
                             </div>
 
                             <!-- Kecamatan & Desa -->
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <label for="kecamatan">Kecamatan</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                        <select id="kecamatan" name="kecamatan" class="form-control" required>
-                                            <option value="">-- Pilih Kecamatan --</option>
-                                            <option value="Harian">Harian</option>
-                                            <option value="Nainggolan">Nainggolan</option>
-                                            <option value="Onan Runggu">Onan Runggu</option>
-                                            <option value="Palipi">Palipi</option>
-                                            <option value="Pangururan">Pangururan</option>
-                                            <option value="Ronggur Nihuta">Ronggur Nihuta</option>
-                                            <option value="Sianjur Mulamula">Sianjur Mulamula</option>
-                                            <option value="Simanindo">Simanindo</option>
-                                            <option value="Sitio-tio">Sitio-tio</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="desa">Desa</label>
-                                    <div class="input-group">
-                                        <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
-                                        <select id="desa" name="desa" class="form-control" required disabled>
-                                            <option value="">-- Pilih Desa --</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
+<!-- Fitur Deteksi Lokasi Otomatis -->
+<div class="mb-4">
+    <div class="location-detection-card">
+        <h6 class="mb-3">
+            <i class="fas fa-map-marker-alt me-2"></i>
+            Deteksi Lokasi Otomatis
+        </h6>
 
+        <div class="location-status">
+            <div class="location-indicator" id="locationIndicator"></div>
+            <span id="locationStatus">Siap mendeteksi lokasi...</span>
+        </div>
+
+        <div class="row g-2">
+            <div class="col-md-6">
+                <button type="button" class="btn location-toggle w-100" id="detectLocationBtn">
+                    <i class="fas fa-crosshairs me-2"></i>
+                    Deteksi Lokasi Saya
+                </button>
+            </div>
+            <div class="col-md-6">
+                <button type="button" class="btn location-toggle w-100" id="manualLocationBtn">
+                    <i class="fas fa-edit me-2"></i>
+                    Pilih Manual
+                </button>
+            </div>
+        </div>
+
+        <div class="mt-3" id="locationInfo" style="display: none;">
+            <div class="d-flex justify-content-between align-items-center">
+                <small>
+                    <i class="fas fa-info-circle me-1"></i>
+                    <span id="coordinateInfo"></span>
+                </small>
+                <small id="distanceInfo"></small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Kecamatan & Desa (akan disable/enable otomatis) -->
+<div class="row mb-3" id="manualLocationSection">
+    <div class="col-md-6">
+        <label for="kecamatan">Kecamatan</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+            <select id="kecamatan" name="kecamatan" class="form-control" required>
+                <option value="">-- Pilih Kecamatan --</option>
+                <option value="Harian">Harian</option>
+                <option value="Nainggolan">Nainggolan</option>
+                <option value="Onan Runggu">Onan Runggu</option>
+                <option value="Palipi">Palipi</option>
+                <option value="Pangururan">Pangururan</option>
+                <option value="Ronggur Nihuta">Ronggur Nihuta</option>
+                <option value="Sianjur Mulamula">Sianjur Mulamula</option>
+                <option value="Simanindo">Simanindo</option>
+                <option value="Sitio-tio">Sitio-tio</option>
+            </select>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <label for="desa">Desa</label>
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-map-marker-alt"></i></span>
+            <select id="desa" name="desa" class="form-control" required disabled>
+                <option value="">-- Pilih Desa --</option>
+            </select>
+        </div>
+    </div>
+</div>
                             <!-- Lokasi & Catatan -->
                             <div class="mb-3">
                                 <label for="detail_lokasi">Detail Lokasi</label>

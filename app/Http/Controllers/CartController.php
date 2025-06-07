@@ -312,13 +312,13 @@ class CartController extends Controller
     {
         $cartItem = Cart::instance('cart')->get($rowId);
         if (!$cartItem) {
-            return redirect()->back()->with('Produk Gagal Ditambahkan', 'Item tidak ditemukan di keranjang');
+            return redirect()->back()->with('Gagal Ditambahkan', 'Item tidak ditemukan di keranjang');
         }
 
         // Ambil data produk untuk cek stok
         $product = Product::find($cartItem->id);
         if (!$product) {
-            return redirect()->back()->with('Produk Gagal Ditambahkan', 'Produk tidak ditemukan');
+            return redirect()->back()->with('Gagal Ditambahkan', 'Produk tidak ditemukan');
         }
 
         // Hitung stok yang tersedia
@@ -334,7 +334,7 @@ class CartController extends Controller
             if ($sizeStock) {
                 $availableStock = $sizeStock->stock;
             } else {
-                return redirect()->back()->with('Produk Gagal Ditambahkan', 'Data ukuran produk tidak ditemukan');
+                return redirect()->back()->with('Gagal Ditambahkan', 'Data ukuran produk tidak ditemukan');
             }
         }
 
@@ -347,7 +347,7 @@ class CartController extends Controller
                 $sizeName = ' untuk ukuran ' . $cartItem->options['size_name'];
             }
 
-            return redirect()->back()->with('Produk Gagal Ditambahkan', "Stok yang tersedia{$sizeName} hanya {$availableStock} unit");
+            return redirect()->back()->with('Gagal Ditambahkan', "Stok yang tersedia{$sizeName} hanya {$availableStock} unit");
         }
 
         Cart::instance('cart')->update($rowId, $newQty);
@@ -404,13 +404,13 @@ class CartController extends Controller
         $coupon_code = strtoupper(trim($request->coupon_code));
 
         if (empty($coupon_code)) {
-            return redirect()->back()->with('Gagal Ditambahkan', 'Silakan masukkan kode kupon!');
+            return redirect()->back()->with('error', 'Silakan masukkan kode kupon!');
         }
 
         $coupon = Coupon::where('code', $coupon_code)->active()->first();
 
         if (!$coupon) {
-            return redirect()->back()->with('Gagal Ditambahkan', 'Kode kupon tidak valid atau sudah kadaluarsa!');
+            return redirect()->back()->with('error', 'Kode kupon tidak valid atau sudah kadaluarsa!');
         }
 
         $cartSubtotal = floatval(Cart::instance('cart')->subtotal(0, '', ''));
@@ -418,7 +418,7 @@ class CartController extends Controller
         // Validasi minimum order
         if (!$coupon->isEligibleForOrder($cartSubtotal)) {
             return redirect()->back()->with(
-                'Gagal Ditambahkan',
+                'error',
                 'Minimum order untuk kupon ini adalah ' . formatRupiah($coupon->minimum_order)
             );
         }
@@ -553,7 +553,7 @@ class CartController extends Controller
 
         // Jika tidak ada item valid, redirect ke keranjang dengan pesan error
         if (empty($validItems)) {
-            return redirect()->route('cart.index')->with('Produk Gagal Ditambahkan', 'Item yang dipilih tidak ditemukan di keranjang. Silakan pilih item lagi.');
+            return redirect()->route('cart.index')->with('error', 'Item yang dipilih tidak ditemukan di keranjang. Silakan pilih item lagi.');
         }
 
         // Simpan item yang valid di session untuk digunakan saat checkout
@@ -724,14 +724,14 @@ class CartController extends Controller
 
         // Jika tidak ada item yang dipilih, redirect kembali ke cart
         if (empty($selectedItems)) {
-            return redirect()->route('cart.index')->with('Gagal Ditambahkan', 'Tidak ada produk yang dipilih untuk checkout');
+            return redirect()->route('cart.index')->with('error', 'Tidak ada produk yang dipilih untuk checkout');
         }
 
         // Gunakan rincian pembayaran yang sudah dihitung sebelumnya
         if (!session()->has('checkout')) {
             $validItems = $this->setAmountForCheckoutSelectedItems($selectedItems);
             if (empty($validItems)) {
-                return redirect()->route('cart.index')->with('Gagal Ditambahkan', 'Item yang dipilih tidak ditemukan di keranjang. Silakan pilih item lagi.');
+                return redirect()->route('cart.index')->with('error', 'Item yang dipilih tidak ditemukan di keranjang. Silakan pilih item lagi.');
             }
         }
 
@@ -790,7 +790,7 @@ class CartController extends Controller
         // Jika tidak ada item valid yang bisa diproses, batalkan order
         if (empty($validItems)) {
             $order->delete();
-            return redirect()->route('cart.index')->with('Gagal Ditambahkan', 'Tidak ada produk yang valid untuk diproses');
+            return redirect()->route('cart.index')->with('error', 'Tidak ada produk yang valid untuk diproses');
         }
 
         // Gunakan invoice sebagai order_id yang tetap
@@ -821,7 +821,7 @@ class CartController extends Controller
                 $snapToken = Snap::getSnapToken($params);
             } catch (\Exception $e) {
                 Log::error('Midtrans Snap Error: ' . $e->getMessage());
-                return redirect()->back()->with('Gagal Ditambahkan', 'Terjadi kesalahan saat proses pembayaran: ' . $e->getMessage());
+                return redirect()->back()->with('error', 'Terjadi kesalahan saat proses pembayaran: ' . $e->getMessage());
             }
         }
 
