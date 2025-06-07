@@ -26,6 +26,20 @@ class StokBahanBakuController extends Controller
         return view('admin.stok.index', compact('stok', 'statistik'));
     }
 
+    // Helper method untuk status stok
+    private function getStatusStok($totalStok)
+    {
+        if ($totalStok <= 5) {
+            return ['status' => 'kritis', 'warna' => 'danger', 'pesan' => 'Stok sangat rendah! Segera cari pemasok baru.'];
+        } elseif ($totalStok <= 20) {
+            return ['status' => 'rendah', 'warna' => 'warning', 'pesan' => 'Stok mulai menipis. Siapkan rencana pengisian stok.'];
+        } elseif ($totalStok <= 50) {
+            return ['status' => 'normal', 'warna' => 'info', 'pesan' => 'Stok dalam kondisi normal.'];
+        } else {
+            return ['status' => 'aman', 'warna' => 'success', 'pesan' => 'Stok sangat mencukupi.'];
+        }
+    }
+
     public function store(Request $request)
     {
         $request->validate([
