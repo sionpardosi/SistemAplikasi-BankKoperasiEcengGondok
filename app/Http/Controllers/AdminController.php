@@ -372,6 +372,7 @@ class AdminController extends Controller
     // ====================================================================================================
     // Halaman Produk
     // // ====================================================================================================
+
     /**
      * Update method products untuk mendukung pencarian dan filter
      */
@@ -458,386 +459,31 @@ class AdminController extends Controller
         return view('admin.product-add', compact('categories', 'brands', 'sizes'));
     }
 
-    /**
-     * Enhanced product store method with better validation
-     */
+    // Halaman Menyimpan Produk
     public function product_store(Request $request)
     {
-        // Enhanced validation rules
+        // Validasi dengan logic yang diperbaiki
         $request->validate([
             'name' => [
                 'required',
+                'string',
                 'max:100',
-                'unique:products,name'
-            ],
-            'slug' => 'required|unique:products,slug|max:100',
-            'category_id' => 'required|exists:categories,id',
-            'brand_id' => 'required|exists:brands,id',
-            'short_description' => 'required|max:200',
-            'description' => 'required',
-            'regular_price' => [
-                'required',
-                function ($attribute, $value, $fail) {
-                    $price = (float) str_replace(['Rp ', '.'], '', $value);
-                    if ($price <= 0) {
-                        $fail('Harga normal harus lebih besar dari 0.');
-                    }
-                },
-            ],
-            'sale_price' => [
-                'nullable',
-                function ($attribute, $value, $fail) use ($request) {
-                    if (!empty($value)) {
-                        $regularPrice = (float) str_replace(['Rp ', '.'], '', $request->regular_price);
-                        $salePrice = (float) str_replace(['Rp ', '.'], '', $value);
-
-                        if ($salePrice <= 0) {
-                            $fail('Harga diskon harus lebih besar dari 0.');
-                        }
-
-                        if ($salePrice >= $regularPrice) {
-                            $fail('Harga diskon harus lebih kecil dari harga normal.');
-                        }
-                    }
-                },
-            ],
-            'SKU' => 'required|unique:products,SKU',
-            'stock_status' => 'required|in:instock,outofstock',
-            'featured' => 'required|in:0,1',
-            'quantity' => $request->has('has_sizes') ? 'nullable|integer|min:0' : 'required|integer|min:0',
-            'image' => 'required|image|mimes:png,jpg,jpeg|max:2048',
-            'images.*' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-        ], [
-            'name.unique' => 'Nama produk sudah digunakan. Silakan gunakan nama yang berbeda.',
-            'slug.unique' => 'Slug sudah digunakan. Silakan gunakan slug yang berbeda.',
-            'SKU.unique' => 'SKU sudah digunakan. Silakan gunakan SKU yang berbeda.',
-            'image.required' => 'Gambar produk wajib diupload.',
-            'image.max' => 'Ukuran gambar maksimal 2MB.',
-        ]);
-
-        try {
-            $product = new Product();
-            $product->name = $request->name;
-            $product->slug = Str::slug($request->name);
-            $product->short_description = $request->short_description;
-            $product->description = $request->description;
-            $product->category_id = $request->category_id;
-            $product->brand_id = $request->brand_id;
-            $product->SKU = $request->SKU;
-            $product->stock_status = $request->stock_status;
-            $product->featured = $request->featured;
-
-            // Handle pricing logic
-            $regular_price = str_replace(['Rp ', '.'], '', $request->regular_price);
-            $product->regular_price = (float)$regular_price;
-
-            if (!empty($request->sale_price)) {
-                $sale_price = str_replace(['Rp ', '.'], '', $request->sale_price);
-                $product->sale_price = (float)$sale_price;
-            } else {
-                $product->sale_price = $product->regular_price;
-            }
-
-            $current_timestamp = Carbon::now()->timestamp;
-
-            // Handle image upload
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $imageName = $current_timestamp . '.' . $image->extension();
-
-                if ($this->GenerateProductThumbailImage($image, $imageName)) {
-                    $product->image = $imageName;
-                } else {
-                    return back()->with('error', 'Gagal memproses gambar. Silakan coba lagi.');
-                }
-            }
-
-            // Handle gallery images
-            if ($request->hasFile('images')) {
-                $gallery_arr = [];
-                $counter = 1;
-                $allowedExtensions = ['jpg', 'png', 'jpeg'];
-                $files = $request->file('images');
-
-                foreach ($files as $file) {
-                    $extension = $file->getClientOriginalExtension();
-                    if (in_array(strtolower($extension), $allowedExtensions)) {
-                        $filename = $current_timestamp . "-" . $counter . "." . $extension;
-
-                        if ($this->GenerateProductThumbailImage($file, $filename)) {
-                            $gallery_arr[] = $filename;
-                            $counter++;
-                        }
-                    }
-                }
-
-                $product->images = implode(',', $gallery_arr);
-            }
-
-            // Set initial quantity
-            if (!$request->has('has_sizes')) {
-                $product->quantity = $request->quantity;
-            } else {
-                $product->quantity = 0;
-            }
-
-            // Save product first
-            $product->save();
-
-            // Handle sizes if enabled
-            if ($request->has('has_sizes')) {
-                $syncData = [];
-
-                if ($request->has('sizes') && is_array($request->sizes)) {
-                    foreach ($request->sizes as $sizeId) {
-                        $stock = isset($request->stocks[$sizeId]) ? (int) $request->stocks[$sizeId] : 0;
-                        $syncData[$sizeId] = ['stock' => $stock];
-                    }
-                }
-
-                if ($request->has('new_sizes') && is_array($request->new_sizes)) {
-                    foreach ($request->new_sizes as $index => $newSizeName) {
-                        $newSizeName = trim($newSizeName);
-                        if (!empty($newSizeName)) {
-                            $size = Size::firstOrCreate(['name' => $newSizeName]);
-                            $stock = isset($request->new_stocks[$index]) ? (int) $request->new_stocks[$index] : 0;
-                            $syncData[$size->id] = ['stock' => $stock];
-                        }
-                    }
-                }
-
-                $product->sizes()->sync($syncData);
-                $totalStock = $product->sizes()->sum('stock');
-                $product->update(['quantity' => $totalStock]);
-            }
-
-            return redirect()->route('admin.products')->with('status', 'Produk berhasil ditambahkan!');
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Enhanced image processing with better error handling
-     */
-    public function GenerateProductThumbailImage($image, $imageName)
-    {
-        try {
-            $destinationPathThumbnail = public_path('uploads/products/thumbnails');
-            $destinationPath = public_path('uploads/products');
-
-            // Create directories if they don't exist
-            if (!File::exists($destinationPath)) {
-                File::makeDirectory($destinationPath, 0755, true);
-            }
-            if (!File::exists($destinationPathThumbnail)) {
-                File::makeDirectory($destinationPathThumbnail, 0755, true);
-            }
-
-            $img = Image::read($image->path());
-
-            // Generate main image (540x689)
-            $img->cover(540, 689, "top");
-            $img->resize(540, 689, function ($constraint) {
-                $constraint->aspectRatio();
-            })->save($destinationPath . '/' . $imageName);
-
-            // Generate thumbnail (104x104)
-            $img->resize(104, 104, function ($constraint) {
-                $constraint->aspectRatio();
-            })->save($destinationPathThumbnail . '/' . $imageName);
-
-            return true;
-        } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Image processing error: ' . $e->getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Helper method to delete old images
-     */
-    private function deleteOldImages($imageName)
-    {
-        if ($imageName) {
-            $mainImagePath = public_path('uploads/products/' . $imageName);
-            $thumbnailPath = public_path('uploads/products/thumbnails/' . $imageName);
-
-            if (File::exists($mainImagePath)) {
-                File::delete($mainImagePath);
-            }
-            if (File::exists($thumbnailPath)) {
-                File::delete($thumbnailPath);
-            }
-        }
-    }
-
-    /**
-     * AJAX endpoint to check product name uniqueness
-     */
-    public function checkProductNameUniqueness(Request $request)
-    {
-        $name = $request->get('name');
-        $id = $request->get('id', null);
-
-        $query = Product::where('name', $name);
-        if ($id) {
-            $query->where('id', '!=', $id);
-        }
-
-        $exists = $query->exists();
-
-        return response()->json([
-            'exists' => $exists,
-            'message' => $exists ? 'Nama produk sudah digunakan' : 'Nama produk tersedia'
-        ]);
-    }
-
-    /**
-     * AJAX endpoint to check SKU uniqueness
-     */
-    public function checkSKUUniqueness(Request $request)
-    {
-        $sku = $request->get('sku');
-        $id = $request->get('id', null);
-
-        $query = Product::where('SKU', $sku);
-        if ($id) {
-            $query->where('id', '!=', $id);
-        }
-
-        $exists = $query->exists();
-
-        return response()->json([
-            'exists' => $exists,
-            'message' => $exists ? 'SKU sudah digunakan' : 'SKU tersedia'
-        ]);
-    }
-
-    /**
-     * AJAX endpoint to generate slug from product name
-     */
-    public function generateSlug(Request $request)
-    {
-        $name = $request->get('name');
-        $id = $request->get('id', null);
-
-        $baseSlug = Str::slug($name);
-        $slug = $baseSlug;
-        $counter = 1;
-
-        // Check if slug exists and generate unique one
-        while (true) {
-            $query = Product::where('slug', $slug);
-            if ($id) {
-                $query->where('id', '!=', $id);
-            }
-
-            if (!$query->exists()) {
-                break;
-            }
-
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
-        }
-
-        return response()->json([
-            'slug' => $slug
-        ]);
-    }
-
-    /**
-     * Enhanced product validation with real-time feedback
-     */
-    public function validateProductData(Request $request)
-    {
-        $rules = [
-            'name' => 'required|max:100',
-            'slug' => 'required|max:100',
-            'regular_price' => 'required|numeric|min:1000',
-            'sale_price' => 'nullable|numeric|min:1000',
-            'SKU' => 'required|string|max:50',
-        ];
-
-        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), $rules);
-
-        $errors = [];
-        if ($validator->fails()) {
-            $errors = $validator->errors()->toArray();
-        }
-
-        // Additional custom validations
-        if ($request->sale_price && $request->regular_price) {
-            $regular = (float) str_replace(['Rp ', '.'], '', $request->regular_price);
-            $sale = (float) str_replace(['Rp ', '.'], '', $request->sale_price);
-
-            if ($sale >= $regular) {
-                $errors['sale_price'][] = 'Harga diskon harus lebih kecil dari harga normal';
-            }
-        }
-
-        return response()->json([
-            'valid' => empty($errors),
-            'errors' => $errors
-        ]);
-    }
-
-      /**
-     * Get product statistics for dashboard
-     */
-    public function getProductStatistics()
-    {
-        $stats = [
-            'total_products' => Product::count(),
-            'active_products' => Product::where('stock_status', 'instock')->where('quantity', '>', 0)->count(),
-            'out_of_stock' => Product::where('stock_status', 'outofstock')->orWhere('quantity', 0)->count(),
-            'featured_products' => Product::where('featured', true)->count(),
-            'low_stock' => Product::where('quantity', '>', 0)->where('quantity', '<', 10)->count(),
-            'total_value' => Product::sum(\DB::raw('regular_price * quantity')),
-            'average_price' => Product::avg('regular_price'),
-        ];
-
-        return response()->json($stats);
-    }
-
-    // Halaman menampilkan Edit Produk
-    public function edit_product($id)
-    {
-        $product = Product::find($id);
-        $categories = Category::Select('id', 'name')->orderBy('name')->get();
-        $brands = Brand::Select('id', 'name')->orderBy('name')->get();
-        $sizes = Size::orderBy('name')->get(); // Tambahkan baris ini
-
-        return view('admin.product-edit', compact('product', 'categories', 'brands', 'sizes')); // Tambahkan 'sizes' ke compact
-    }
-
-    /**
-     * Enhanced update method with comprehensive validation and logic improvements
-     */
-    public function update_product(Request $request)
-    {
-        // Custom validation rules with enhanced logic
-        $request->validate([
-            'name' => [
-                'required',
-                'max:100',
-                Rule::unique('products', 'name')->ignore($request->id)->where(function ($query) {
-                    return $query->whereNull('deleted_at'); // Exclude soft deleted
-                })
+                'unique:products,name', // Nama produk harus unik
             ],
             'slug' => [
                 'required',
+                'string',
                 'max:100',
-                Rule::unique('products', 'slug')->ignore($request->id)->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                })
+                'unique:products,slug', // Slug harus unik
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*$/', // Format slug yang valid
             ],
             'category_id' => 'required|exists:categories,id',
             'brand_id' => 'required|exists:brands,id',
-            'short_description' => 'required|max:200',
-            'description' => 'required',
+            'short_description' => 'required|string|max:200',
+            'description' => 'required|string',
             'regular_price' => [
                 'required',
+                'string',
                 function ($attribute, $value, $fail) {
                     $price = (float) str_replace(['Rp ', '.'], '', $value);
                     if ($price <= 0) {
@@ -846,7 +492,8 @@ class AdminController extends Controller
                 },
             ],
             'sale_price' => [
-                'nullable',
+                'nullable', // Sale price bisa kosong (tidak ada diskon)
+                'string',
                 function ($attribute, $value, $fail) use ($request) {
                     if (!empty($value)) {
                         $regularPrice = (float) str_replace(['Rp ', '.'], '', $request->regular_price);
@@ -864,165 +511,523 @@ class AdminController extends Controller
             ],
             'SKU' => [
                 'required',
-                Rule::unique('products', 'SKU')->ignore($request->id)->where(function ($query) {
-                    return $query->whereNull('deleted_at');
-                })
+                'string',
+                'max:50',
+                'unique:products,SKU', // SKU harus unik
             ],
             'stock_status' => 'required|in:instock,outofstock',
             'featured' => 'required|in:0,1',
             'quantity' => $request->has('has_sizes') ? 'nullable|integer|min:0' : 'required|integer|min:0',
-            'image' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-            'images.*' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
-            // Size validation
+            'image' => [
+                'required',
+                'file',
+                'mimetypes:image/jpeg,image/png,image/jpg',
+                'max:2048', // Maksimal 2MB
+            ],
+            'images.*' => [
+                'nullable',
+                'file',
+                'mimetypes:image/jpeg,image/png,image/jpg',
+                'max:2048', // Maksimal 2MB per file
+            ],
+            // Validasi ukuran yang diperbaiki
             'sizes' => $request->has('has_sizes') ? 'nullable|array' : 'nullable',
             'sizes.*' => 'exists:sizes,id',
             'stocks' => $request->has('has_sizes') ? 'nullable|array' : 'nullable',
-            'stocks.*' => 'integer|min:0',
+            'stocks.*' => 'nullable|integer|min:0',
             'new_sizes' => $request->has('has_sizes') ? 'nullable|array' : 'nullable',
-            'new_sizes.*' => 'nullable|string|max:50|unique:sizes,name',
+            'new_sizes.*' => 'nullable|string|max:50|distinct', // Ukuran baru harus unik dalam request
             'new_stocks' => $request->has('has_sizes') ? 'nullable|array' : 'nullable',
             'new_stocks.*' => 'nullable|integer|min:0',
         ], [
             // Custom error messages
             'name.unique' => 'Nama produk sudah digunakan. Silakan gunakan nama yang berbeda.',
             'slug.unique' => 'Slug sudah digunakan. Silakan gunakan slug yang berbeda.',
+            'slug.regex' => 'Format slug tidak valid. Gunakan huruf kecil, angka, dan tanda hubung.',
             'SKU.unique' => 'SKU sudah digunakan. Silakan gunakan SKU yang berbeda.',
             'regular_price.required' => 'Harga normal wajib diisi.',
-            'sale_price.lt' => 'Harga diskon harus lebih kecil dari harga normal.',
+            'image.required' => 'Gambar utama produk wajib diupload.',
             'image.max' => 'Ukuran gambar maksimal 2MB.',
-            'images.*.max' => 'Ukuran gambar galeri maksimal 2MB per file.',
-            'new_sizes.*.unique' => 'Ukuran baru sudah ada dalam sistem.',
+            'images.*.max' => 'Ukuran setiap gambar galeri maksimal 2MB.',
+            'new_sizes.*.distinct' => 'Ukuran baru tidak boleh sama dalam satu produk.',
+            'sizes.*.exists' => 'Ukuran yang dipilih tidak valid.',
+            'stocks.*.min' => 'Stok tidak boleh negatif.',
+            'new_stocks.*.min' => 'Stok ukuran baru tidak boleh negatif.',
         ]);
 
         try {
-            $product = Product::findOrFail($request->id);
+            DB::beginTransaction();
 
-            // Update basic information
+            $product = new Product();
             $product->name = $request->name;
-            $product->slug = Str::slug($request->name);
+            $product->slug = $request->slug; // Gunakan slug dari input (sudah divalidasi unik)
             $product->short_description = $request->short_description;
             $product->description = $request->description;
+
+            // Proses harga dengan pembersihan format
+            $regular_price = str_replace(['Rp ', '.', ','], '', $request->regular_price);
+            $product->regular_price = (float) $regular_price;
+
+            // Proses harga diskon (bisa kosong)
+            if (!empty($request->sale_price)) {
+                $sale_price = str_replace(['Rp ', '.', ','], '', $request->sale_price);
+                $product->sale_price = (float) $sale_price;
+            } else {
+                // Jika tidak ada diskon, set sale_price sama dengan regular_price
+                $product->sale_price = $product->regular_price;
+            }
+
+            $product->SKU = strtoupper($request->SKU); // Convert SKU ke uppercase
+            $product->stock_status = $request->stock_status;
+            $product->featured = (bool) $request->featured;
             $product->category_id = $request->category_id;
             $product->brand_id = $request->brand_id;
-            $product->SKU = $request->SKU;
-            $product->stock_status = $request->stock_status;
-            $product->featured = $request->featured;
 
-            // Process prices with enhanced logic
-            $regular_price = str_replace(['Rp ', '.'], '', $request->regular_price);
-            $product->regular_price = (float)$regular_price;
-
-            // Handle sale price logic - allow empty for no discount
-            if (!empty($request->sale_price)) {
-                $sale_price = str_replace(['Rp ', '.'], '', $request->sale_price);
-                $product->sale_price = (float)$sale_price;
+            // Set quantity berdasarkan apakah produk memiliki ukuran atau tidak
+            if (!$request->has('has_sizes')) {
+                $product->quantity = $request->quantity;
             } else {
-                // No discount - set sale price equal to regular price
-                $product->sale_price = $product->regular_price;
+                // Akan dihitung ulang setelah sync sizes
+                $product->quantity = 0;
             }
 
             $current_timestamp = Carbon::now()->timestamp;
 
-            // Handle main image upload with better error handling
+            // Proses upload gambar utama
             if ($request->hasFile('image')) {
-                // Delete old images
-                $this->deleteOldImages($product->image);
-
                 $image = $request->file('image');
                 $imageName = $current_timestamp . '.' . $image->extension();
 
-                // Generate thumbnails with error handling
-                if ($this->GenerateProductThumbailImage($image, $imageName)) {
-                    $product->image = $imageName;
-                } else {
-                    return back()->with('error', 'Gagal memproses gambar. Silakan coba lagi.');
+                // Validasi tambahan untuk gambar
+                if (!in_array($image->extension(), ['jpg', 'jpeg', 'png'])) {
+                    throw new \Exception('Format gambar tidak didukung. Gunakan JPG, JPEG, atau PNG.');
                 }
+
+                $this->GenerateProductThumbailImage($image, $imageName);
+                $product->image = $imageName;
             }
 
-            // Handle gallery images with validation
-            if ($request->hasFile('images')) {
-                // Delete old gallery images
-                $oldImages = explode(',', $product->images);
-                foreach ($oldImages as $oldImage) {
-                    $this->deleteOldImages(trim($oldImage));
-                }
+            // Proses gambar galeri
+            $gallery_arr = array();
+            $gallery_images = "";
+            $counter = 1;
 
-                $gallery_arr = [];
-                $counter = 1;
-                $allowedExtensions = ['jpg', 'png', 'jpeg'];
+            if ($request->hasFile('images')) {
+                $allowedfileExtension = ['jpg', 'png', 'jpeg'];
                 $files = $request->file('images');
 
-                foreach ($files as $file) {
-                    $extension = $file->getClientOriginalExtension();
-                    if (in_array(strtolower($extension), $allowedExtensions)) {
-                        $filename = $current_timestamp . "-" . $counter . "." . $extension;
-
-                        if ($this->GenerateProductThumbailImage($file, $filename)) {
-                            $gallery_arr[] = $filename;
-                            $counter++;
-                        }
-                    }
+                // Batasi maksimal 10 gambar galeri
+                if (count($files) > 10) {
+                    throw new \Exception('Maksimal 10 gambar galeri yang diizinkan.');
                 }
 
-                $product->images = implode(',', $gallery_arr);
+                foreach ($files as $file) {
+                    $gextension = $file->getClientOriginalExtension();
+                    $check = in_array(strtolower($gextension), $allowedfileExtension);
+                    if ($check) {
+                        $gfilename = $current_timestamp . "-" . $counter . "." . $gextension;
+                        $this->GenerateProductThumbailImage($file, $gfilename);
+                        array_push($gallery_arr, $gfilename);
+                        $counter = $counter + 1;
+                    }
+                }
+                $gallery_images = implode(',', $gallery_arr);
             }
+            $product->images = $gallery_images;
 
-            // Handle size management with improved logic
+            // Simpan produk
+            $product->save();
+
+            // Proses ukuran produk jika fitur ukuran diaktifkan
             if ($request->has('has_sizes')) {
                 $syncData = [];
+                $totalStock = 0;
 
-                // Process existing sizes
+                // 1. Proses ukuran yang sudah ada
                 if ($request->has('sizes') && is_array($request->sizes)) {
                     foreach ($request->sizes as $sizeId) {
                         $stock = isset($request->stocks[$sizeId]) ? (int) $request->stocks[$sizeId] : 0;
                         $syncData[$sizeId] = ['stock' => $stock];
+                        $totalStock += $stock;
                     }
                 }
 
-                // Process new sizes
+                // 2. Proses ukuran baru yang ditambahkan
                 if ($request->has('new_sizes') && is_array($request->new_sizes)) {
                     foreach ($request->new_sizes as $index => $newSizeName) {
                         $newSizeName = trim($newSizeName);
                         if (!empty($newSizeName)) {
-                            // Check if size already exists
-                            $size = Size::firstOrCreate(['name' => $newSizeName]);
+                            // Cek apakah ukuran sudah ada (case insensitive)
+                            $existingSize = Size::whereRaw('LOWER(name) = ?', [strtolower($newSizeName)])->first();
+
+                            if ($existingSize) {
+                                // Jika ukuran sudah ada, gunakan yang existing
+                                $size = $existingSize;
+                            } else {
+                                // Jika belum ada, buat baru
+                                $size = Size::create(['name' => $newSizeName]);
+                            }
+
                             $stock = isset($request->new_stocks[$index]) ? (int) $request->new_stocks[$index] : 0;
                             $syncData[$size->id] = ['stock' => $stock];
+                            $totalStock += $stock;
                         }
                     }
                 }
 
-                // Sync sizes and calculate total quantity
+                // Sync dengan tabel pivot
                 $product->sizes()->sync($syncData);
-                $totalStock = $product->sizes()->sum('stock');
-                $product->quantity = $totalStock;
 
-                // Auto-update stock status based on quantity
-                if ($totalStock == 0) {
-                    $product->stock_status = 'outofstock';
+                // Update total quantity
+                $product->update(['quantity' => $totalStock]);
+
+                // Update stock status berdasarkan total stock
+                if ($totalStock > 0) {
+                    $product->update(['stock_status' => 'instock']);
                 } else {
-                    $product->stock_status = 'instock';
+                    $product->update(['stock_status' => 'outofstock']);
                 }
             } else {
-                // No sizes - use regular quantity
-                $product->sizes()->detach();
-                $product->quantity = $request->quantity;
-
-                // Auto-update stock status
-                if ($product->quantity == 0) {
-                    $product->stock_status = 'outofstock';
-                } else {
-                    $product->stock_status = 'instock';
+                // Jika tidak menggunakan ukuran, pastikan stock_status sesuai dengan quantity
+                if ($product->quantity > 0) {
+                    $product->update(['stock_status' => 'instock']);
                 }
             }
 
-            // Save the product
-            $product->save();
+            DB::commit();
 
-            return redirect()->route('admin.products')->with('status', 'Produk berhasil diperbarui!');
+            // Log aktivitas (opsional)
+            \Illuminate\Support\Facades\Log::info('Product created successfully', [
+                'product_id' => $product->id,
+                'product_name' => $product->name,
+                'created_by' => auth()->user()->id ?? 'system'
+            ]);
+
+            return redirect()->route('admin.products')->with('success', 'Produk berhasil ditambahkan! 🎉');
         } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            DB::rollback();
+
+            // Log error
+            \Illuminate\Support\Facades\Log::error('Error creating product', [
+                'error' => $e->getMessage(),
+                'request_data' => $request->except(['image', 'images']), // Exclude file data from logs
+            ]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan produk: ' . $e->getMessage());
         }
+    }
+
+    // Method helper baru untuk validasi AJAX
+    public function validateProductField(Request $request)
+    {
+        $field = $request->get('field');
+        $value = $request->get('value');
+        $productId = $request->get('product_id'); // Untuk edit mode
+
+        switch ($field) {
+            case 'name':
+                $exists = Product::where('name', $value)
+                    ->when($productId, function ($query) use ($productId) {
+                        return $query->where('id', '!=', $productId);
+                    })
+                    ->exists();
+
+                return response()->json([
+                    'valid' => !$exists,
+                    'message' => $exists ? 'Nama produk sudah digunakan.' : 'Nama produk tersedia.'
+                ]);
+
+            case 'slug':
+                $exists = Product::where('slug', $value)
+                    ->when($productId, function ($query) use ($productId) {
+                        return $query->where('id', '!=', $productId);
+                    })
+                    ->exists();
+
+                return response()->json([
+                    'valid' => !$exists,
+                    'message' => $exists ? 'Slug sudah digunakan.' : 'Slug tersedia.'
+                ]);
+
+            case 'sku':
+                $exists = Product::where('SKU', strtoupper($value))
+                    ->when($productId, function ($query) use ($productId) {
+                        return $query->where('id', '!=', $productId);
+                    })
+                    ->exists();
+
+                return response()->json([
+                    'valid' => !$exists,
+                    'message' => $exists ? 'SKU sudah digunakan.' : 'SKU tersedia.'
+                ]);
+
+            default:
+                return response()->json(['valid' => true, 'message' => '']);
+        }
+    }
+
+    // Method untuk generate SKU otomatis
+    public function generateSKU(Request $request)
+    {
+        $categoryId = $request->get('category_id');
+        $brandId = $request->get('brand_id');
+
+        $category = Category::find($categoryId);
+        $brand = Brand::find($brandId);
+
+        if (!$category || !$brand) {
+            return response()->json(['sku' => '']);
+        }
+
+        // Format SKU: CAT-BRD-001
+        $categoryCode = strtoupper(substr($category->name, 0, 3));
+        $brandCode = strtoupper(substr($brand->name, 0, 3));
+
+        // Cari nomor urut terakhir untuk kombinasi kategori dan brand ini
+        $lastProduct = Product::where('category_id', $categoryId)
+            ->where('brand_id', $brandId)
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $nextNumber = 1;
+        if ($lastProduct) {
+            // Extract nomor dari SKU terakhir
+            $lastSKU = $lastProduct->SKU;
+            preg_match('/(\d+)$/', $lastSKU, $matches);
+            if (isset($matches[1])) {
+                $nextNumber = intval($matches[1]) + 1;
+            }
+        }
+
+        $sku = $categoryCode . '-' . $brandCode . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+
+        // Pastikan SKU unik
+        while (Product::where('SKU', $sku)->exists()) {
+            $nextNumber++;
+            $sku = $categoryCode . '-' . $brandCode . '-' . str_pad($nextNumber, 3, '0', STR_PAD_LEFT);
+        }
+
+        return response()->json(['sku' => $sku]);
+    }
+
+    // Method untuk mendapatkan estimasi harga berdasarkan kategori
+    public function getPriceSuggestion(Request $request)
+    {
+        $categoryId = $request->get('category_id');
+
+        if (!$categoryId) {
+            return response()->json(['suggestion' => null]);
+        }
+
+        // Hitung rata-rata harga dalam kategori yang sama
+        $avgPrice = Product::where('category_id', $categoryId)
+            ->where('regular_price', '>', 0)
+            ->avg('regular_price');
+
+        if ($avgPrice) {
+            // Berikan range harga
+            $minPrice = round($avgPrice * 0.8);
+            $maxPrice = round($avgPrice * 1.2);
+
+            return response()->json([
+                'suggestion' => [
+                    'min' => $minPrice,
+                    'max' => $maxPrice,
+                    'avg' => round($avgPrice)
+                ]
+            ]);
+        }
+
+        return response()->json(['suggestion' => null]);
+    }
+
+    // Halaman Generate Thumbnail Image
+    public function GenerateProductThumbailImage($image, $imageName)
+    {
+        $destinationPathThumbnail = public_path('uploads/products/thumbnails');
+        $destinationPath = public_path('uploads/products');
+        $img = Image::read($image->path());
+
+        $img->cover(540, 689, "top");
+        $img->resize(540, 689, function ($constraint) {
+            $constraint->aspectRatio();
+        })->save($destinationPath . '/' . $imageName);
+
+        $img->resize(104, 104, function ($constraint) {
+            $constraint->aspectRatio();
+        })->save($destinationPathThumbnail . '/' . $imageName);
+    }
+
+    // Halaman menampilkan Edit Produk
+    public function edit_product($id)
+    {
+        $product = Product::find($id);
+        $categories = Category::Select('id', 'name')->orderBy('name')->get();
+        $brands = Brand::Select('id', 'name')->orderBy('name')->get();
+        $sizes = Size::orderBy('name')->get(); // Tambahkan baris ini
+
+        return view('admin.product-edit', compact('product', 'categories', 'brands', 'sizes')); // Tambahkan 'sizes' ke compact
+    }
+
+    // Halaman Update Produk
+    public function update_product(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'slug' => 'required|unique:products,slug,' . $request->id,
+            'category_id' => 'required',
+            'brand_id' => 'required',
+            'short_description' => 'required',
+            'description' => 'required',
+            'regular_price' => 'required',
+            'sale_price' => [
+                'required',
+                function ($attribute, $value, $fail) use ($request) {
+                    $regularPrice = (float) str_replace(['Rp ', '.'], '', $request->regular_price);
+                    $salePrice = (float) str_replace(['Rp ', '.'], '', $value);
+
+                    if ($salePrice >= $regularPrice) {
+                        $fail('Harga diskon harus lebih kecil dari harga normal.');
+                    }
+                },
+            ],
+            'SKU' => 'required',
+            'stock_status' => 'required',
+            'featured' => 'required',
+            'quantity' => $request->has('has_sizes') ? 'nullable' : 'required', // Jika ukuran diaktifkan, quantity boleh kosong
+            'image' => 'mimes:png,jpg,jpeg|max:2048',
+            // Validasi ukuran jika diaktifkan
+            'sizes' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'sizes.*' => 'exists:sizes,id',
+            'stocks' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'stocks.*' => 'integer|min:0',
+            // Validasi ukuran baru
+            'new_sizes' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'new_sizes.*' => 'nullable|string|max:50',
+            'new_stocks' => $request->has('has_sizes') ? 'array' : 'nullable',
+            'new_stocks.*' => 'nullable|integer|min:0',
+        ], [
+            'sizes.*.exists' => 'Ukuran yang dipilih tidak valid.',
+            'stocks.*.integer' => 'Stok harus berupa angka.',
+            'stocks.*.min' => 'Stok minimal 0.',
+            'new_stocks.*.integer' => 'Stok ukuran baru harus berupa angka.',
+            'new_stocks.*.min' => 'Stok ukuran baru minimal 0.',
+        ]);
+
+        $product = Product::find($request->id);
+        $product->name = $request->name;
+        $product->slug = Str::slug($request->name);
+        $product->short_description = $request->short_description;
+        $product->description = $request->description;
+
+        // Bersihkan format rupiah dan konversi ke numeric
+        $regular_price = str_replace(['Rp ', '.'], '', $request->regular_price);
+        $sale_price = str_replace(['Rp ', '.'], '', $request->sale_price);
+        $product->regular_price = (float)$regular_price;
+        $product->sale_price = (float)$sale_price;
+
+        $product->SKU = $request->SKU;
+        $product->stock_status = $request->stock_status;
+        $product->featured = $request->featured;
+
+        // Set quantity berdasarkan apakah produk memiliki ukuran atau tidak
+        if (!$request->has('has_sizes')) {
+            $product->quantity = $request->quantity;
+        } else {
+            // Sementara set ke 0, akan dihitung ulang setelah sync sizes
+            $product->quantity = 0;
+        }
+
+        $product->category_id = $request->category_id;
+        $product->brand_id = $request->brand_id;
+
+        $current_timestamp = Carbon::now()->timestamp;
+
+        // Proses upload gambar (kode tetap sama)
+        if ($request->hasFile('image')) {
+            if (File::exists(public_path('uploads/products') . '/' . $product->image)) {
+                File::delete(public_path('uploads/products') . '/' . $product->image);
+            }
+            if (File::exists(public_path('uploads/products/thumbnails') . '/' . $product->image)) {
+                File::delete(public_path('uploads/products/thumbnails') . '/' . $product->image);
+            }
+            $image = $request->file('image');
+            $imageName = $current_timestamp . '.' . $image->extension();
+            $this->GenerateProductThumbailImage($image, $imageName);
+            $product->image = $imageName;
+        }
+
+        // Proses gambar galeri (kode tetap sama)
+        $gallery_arr = array();
+        $gallery_images = "";
+        $counter = 1;
+
+        if ($request->hasFile('images')) {
+            foreach (explode(',', $product->images) as $ofile) {
+                if (File::exists(public_path('uploads/products') . '/' . $ofile)) {
+                    File::delete(public_path('uploads/products') . '/' . $ofile);
+                }
+                if (File::exists(public_path('uploads/products/thumbnails') . '/' . $ofile)) {
+                    File::delete(public_path('uploads/products/thumbnails') . '/' . $ofile);
+                }
+            }
+            $allowedfileExtension = ['jpg', 'png', 'jpeg'];
+            $files = $request->file('images');
+            foreach ($files as $file) {
+                $gextension = $file->getClientOriginalExtension();
+                $gcheck = in_array($gextension, $allowedfileExtension);
+                if ($gcheck) {
+                    $gfilename = $current_timestamp . "-" . $counter . "." . $gextension;
+                    $this->GenerateProductThumbailImage($file, $gfilename);
+                    array_push($gallery_arr, $gfilename);
+                    $counter = $counter + 1;
+                }
+            }
+            $gallery_images = implode(',', $gallery_arr);
+            $product->images = $gallery_images;
+        }
+
+        // Simpan produk
+        $product->save();
+
+        // Jika fitur ukuran diaktifkan, proses data ukuran
+        if ($request->has('has_sizes')) {
+            $syncData = [];
+
+            // 1. Proses ukuran yang sudah ada
+            if ($request->has('sizes') && is_array($request->sizes)) {
+                foreach ($request->sizes as $sizeId) {
+                    $stock = isset($request->stocks[$sizeId]) ? (int) $request->stocks[$sizeId] : 0;
+                    $syncData[$sizeId] = ['stock' => $stock];
+                }
+            }
+
+            // 2. Proses ukuran baru yang ditambahkan
+            if ($request->has('new_sizes') && is_array($request->new_sizes)) {
+                foreach ($request->new_sizes as $index => $newSizeName) {
+                    $newSizeName = trim($newSizeName);
+                    if (!empty($newSizeName)) {
+                        $size = Size::firstOrCreate(['name' => $newSizeName]);
+                        $stock = isset($request->new_stocks[$index]) ? (int) $request->new_stocks[$index] : 0;
+                        $syncData[$size->id] = ['stock' => $stock];
+                    }
+                }
+            }
+
+            // Sync dengan tabel pivot (akan menghapus semua relasi yang tidak ada di $syncData)
+            $product->sizes()->sync($syncData);
+
+            // TAMBAHAN: Hitung ulang total quantity setelah sync
+            $totalStock = $product->sizes()->sum('stock');
+            $product->update(['quantity' => $totalStock]);
+        } else {
+            // Jika fitur ukuran dinonaktifkan, hapus semua relasi ukuran
+            $product->sizes()->detach();
+        }
+
+        return redirect()->route('admin.products')->with('status', 'Produk Berhasil Di Perbaharui!');
     }
 
     // Halaman Delete Produk

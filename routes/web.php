@@ -386,11 +386,16 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/admin/products/export', [AdminController::class, 'export_products'])->name('admin.products.export');
     // Get product detail (AJAX)
     Route::get('/admin/product/{id}/detail', [AdminController::class, 'product_detail'])->name('admin.product.detail');
-    // ====================================================================================================
     // Optional: Import produk dari CSV (fitur tambahan)
-    // ====================================================================================================
     Route::get('/admin/products/import', [AdminController::class, 'import_products_form'])->name('admin.products.import.form');
     Route::post('/admin/products/import', [AdminController::class, 'import_products'])->name('admin.products.import');
+    // AJAX validation routes
+    Route::post('/admin/product/validate-field', [AdminController::class, 'validateProductField'])->name('admin.product.validate_field');
+    // Helper routes untuk form tambah produk
+    Route::post('/admin/product/generate-sku', [AdminController::class, 'generateSKU'])->name('admin.product.generate_sku');
+    Route::post('/admin/product/price-suggestion', [AdminController::class, 'getPriceSuggestion'])->name('admin.product.price_suggestion');
+    // Route untuk mendapatkan ukuran berdasarkan kategori (opsional)
+    Route::get('/admin/product/sizes-by-category/{categoryId}', [AdminController::class, 'getSizesByCategory'])->name('admin.product.sizes_by_category');
 
 
     // ====================================================================================================
@@ -539,6 +544,7 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Route untuk menghapus penjadwalan penjemputan
     Route::delete('/admin/penjadwalan-penjemputan/{id}', [PenjadwalanPenjemputanController::class, 'destroy'])->name('admin.penjadwalan.delete');
 
+
     // ===============================================================
     // Analytics Dashboard Penjadwalan Penjemputan
     // ===============================================================
@@ -561,8 +567,14 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/admin/penjadwalan-penjemputan/optimize-route', [PenjadwalanPenjemputanController::class, 'optimizeRoute'])->name('admin.penjadwalan.optimize-route');
     // Tambahkan di bagian middleware admin group
     Route::patch('/api/admin/schedule/{id}/status', [PenjadwalanPenjemputanController::class, 'updateStatus']);
+    // Tambahkan route untuk menghapus penjadwalan
     Route::get('/api/admin/search-schedules', [PenjadwalanPenjemputanController::class, 'searchSchedules']);
-
+    // Tambahkan route untuk menghapus penjadwalan
+    Route::post('/admin/schedule-update-status', [PenjadwalanPenjemputanController::class, 'updateStatusSimple']);
+    // Tambahkan route untuk menghapus penjadwalan
+    Route::post('/admin/schedule-search', [PenjadwalanPenjemputanController::class, 'searchSchedulesSimple']);
+    // Tambahkan route untuk menghapus penjadwalan
+    Route::get('/admin/calendar-events', [PenjadwalanPenjemputanController::class, 'getCalendarEvents']);
     // Get available requests for scheduling
     Route::get('/api/admin/available-requests', function () {
         try {
@@ -591,7 +603,6 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     })->name('api.admin.available-requests');
-
     // Get schedule statistics
     Route::get('/api/admin/schedule-stats', function () {
         try {
@@ -617,7 +628,6 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     })->name('api.admin.schedule-stats');
-
     // Get upcoming schedules
     Route::get('/api/admin/upcoming-schedules', function () {
         try {
@@ -645,57 +655,6 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     })->name('api.admin.upcoming-schedules');
-
-    // Ganti route yang error dengan ini (lebih sederhana)
-    Route::post('/admin/schedule-update-status', [PenjadwalanPenjemputanController::class, 'updateStatusSimple']);
-    Route::post('/admin/schedule-search', [PenjadwalanPenjemputanController::class, 'searchSchedulesSimple']);
-    Route::get('/admin/calendar-events', [PenjadwalanPenjemputanController::class, 'getCalendarEvents']);
-
-    // // Search schedules
-    // Route::get('/api/admin/search-schedules', function(Request $request) {
-    //     try {
-    //         $query = \App\Models\PenjadwalanPenjemputan::with('request');
-
-    //         if ($request->filled('search')) {
-    //             $searchTerm = $request->search;
-    //             $query->whereHas('request', function ($q) use ($searchTerm) {
-    //                 $q->where('nama', 'like', '%' . $searchTerm . '%')
-    //                   ->orWhere('email', 'like', '%' . $searchTerm . '%');
-    //             });
-    //         }
-
-    //         if ($request->filled('status')) {
-    //             $query->where('status_jemput', $request->status);
-    //         }
-
-    //         if ($request->filled('date_from') && $request->filled('date_to')) {
-    //             $query->whereBetween('tanggal_jemput', [$request->date_from, $request->date_to]);
-    //         }
-
-    //         $schedules = $query->latest('tanggal_jemput')
-    //                           ->limit(50)
-    //                           ->get()
-    //                           ->map(function($schedule) {
-    //                               return [
-    //                                   'id' => $schedule->id,
-    //                                   'tanggal_jemput' => $schedule->tanggal_jemput->format('d F Y'),
-    //                                   'supplier_name' => $schedule->request->nama ?? '-',
-    //                                   'supplier_email' => $schedule->request->email ?? '-',
-    //                                   'location' => ($schedule->kecamatan ?? '') . ', ' . ($schedule->desa ?? ''),
-    //                                   'estimasi_kg' => $schedule->estimasi_kg,
-    //                                   'status' => ucfirst($schedule->status_jemput),
-    //                                   'status_color' => $schedule->status_jemput == 'terjadwal' ? 'warning' :
-    //                                                    ($schedule->status_jemput == 'dijemput' ? 'success' : 'danger'),
-    //                                   'created_at' => $schedule->created_at->format('d M Y'),
-    //                               ];
-    //                           });
-
-    //         return response()->json($schedules);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['error' => $e->getMessage()], 500);
-    //     }
-    // })->name('api.admin.search-schedules');
-
     // Get calendar events for full calendar integration
     Route::get('/api/admin/calendar-events', function (Request $request) {
         try {
@@ -735,7 +694,6 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     })->name('api.admin.calendar-events');
-
     // Quick stats for dashboard widgets
     Route::get('/api/admin/dashboard-stats', function () {
         try {
@@ -774,6 +732,7 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
             return response()->json(['error' => $e->getMessage()], 500);
         }
     })->name('api.admin.dashboard-stats');
+
 
     // ====================================================================================================
     // Halaman About
