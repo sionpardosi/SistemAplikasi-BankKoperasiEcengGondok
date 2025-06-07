@@ -714,6 +714,37 @@ class AdminController extends Controller
         ]);
     }
 
+    /**
+     * AJAX endpoint to generate slug from product name
+     */
+    public function generateSlug(Request $request)
+    {
+        $name = $request->get('name');
+        $id = $request->get('id', null);
+
+        $baseSlug = Str::slug($name);
+        $slug = $baseSlug;
+        $counter = 1;
+
+        // Check if slug exists and generate unique one
+        while (true) {
+            $query = Product::where('slug', $slug);
+            if ($id) {
+                $query->where('id', '!=', $id);
+            }
+
+            if (!$query->exists()) {
+                break;
+            }
+
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return response()->json([
+            'slug' => $slug
+        ]);
+    }
 
     // Halaman menampilkan Edit Produk
     public function edit_product($id)
