@@ -24,9 +24,70 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('css/sweetalert.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/custom.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<!-- Ganti dengan CDN alternatif -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/main.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/main.min.js"></script>
+    <!-- Admin Penjadwalan JavaScript -->
+    <script src="{{ asset('assets/js/admin-penjadwalan.js') }}"></script>
     @stack('styles')
 
 </head>
+<!-- Custom CSS untuk override jika diperlukan -->
+<style>
+    /* Custom styles untuk penjadwalan */
+    .search-results {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1050;
+    }
+
+    .search-result-item:hover {
+        background-color: #f8f9fa !important;
+    }
+
+    .timeline-item:hover {
+        transform: translateY(-2px);
+    }
+
+    .summary-card:hover {
+        transform: translateY(-3px);
+    }
+
+    /* Loading spinner */
+    .loading-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid #f3f4f6;
+        border-top: 2px solid #007bff;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+        margin-right: 5px;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Toast custom styles */
+    .swal2-toast {
+        font-size: 14px;
+    }
+
+    /* Calendar custom styles */
+    .fc-event {
+        cursor: pointer;
+    }
+
+    .fc-event:hover {
+        opacity: 0.8;
+    }
+</style>
 
 <style>
     /* ===========================
@@ -49,10 +110,10 @@
         flex: 1;
         height: 1px;
         background: linear-gradient(90deg,
-            transparent 0%,
-            #e5e7eb 20%,
-            #e5e7eb 80%,
-            transparent 100%);
+                transparent 0%,
+                #e5e7eb 20%,
+                #e5e7eb 80%,
+                transparent 100%);
     }
 
     .menu-category-header::before {
@@ -86,14 +147,28 @@
         animation: slideInLeft 0.5s ease forwards;
     }
 
-    .menu-list .menu-item:nth-child(1) { animation-delay: 0.1s; }
-    .menu-list .menu-item:nth-child(2) { animation-delay: 0.15s; }
-    .menu-list .menu-item:nth-child(3) { animation-delay: 0.2s; }
-    .menu-list .menu-item:nth-child(4) { animation-delay: 0.25s; }
-    .menu-list .menu-item:nth-child(5) { animation-delay: 0.3s; }
+    .menu-list .menu-item:nth-child(1) {
+        animation-delay: 0.1s;
+    }
 
-    .menu-item > a,
-    .menu-item > .menu-item-button {
+    .menu-list .menu-item:nth-child(2) {
+        animation-delay: 0.15s;
+    }
+
+    .menu-list .menu-item:nth-child(3) {
+        animation-delay: 0.2s;
+    }
+
+    .menu-list .menu-item:nth-child(4) {
+        animation-delay: 0.25s;
+    }
+
+    .menu-list .menu-item:nth-child(5) {
+        animation-delay: 0.3s;
+    }
+
+    .menu-item>a,
+    .menu-item>.menu-item-button {
         position: relative;
         margin: 0 16px;
         border-radius: 10px;
@@ -105,16 +180,16 @@
         align-items: center;
     }
 
-    .menu-item > a:hover,
-    .menu-item > .menu-item-button:hover {
+    .menu-item>a:hover,
+    .menu-item>.menu-item-button:hover {
         background: #f8fafc;
         border-color: #e2e8f0;
         transform: translateX(4px);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
-    .menu-item > a .icon,
-    .menu-item > .menu-item-button .icon {
+    .menu-item>a .icon,
+    .menu-item>.menu-item-button .icon {
         width: 20px;
         height: 20px;
         display: flex;
@@ -129,23 +204,23 @@
         border: 1px solid #e2e8f0;
     }
 
-    .menu-item > a:hover .icon,
-    .menu-item > .menu-item-button:hover .icon {
+    .menu-item>a:hover .icon,
+    .menu-item>.menu-item-button:hover .icon {
         background: #e2e8f0;
         color: #475569;
         transform: scale(1.05);
     }
 
-    .menu-item > a .text,
-    .menu-item > .menu-item-button .text {
+    .menu-item>a .text,
+    .menu-item>.menu-item-button .text {
         font-weight: 500;
         color: #374151;
         transition: color 0.3s ease;
         font-size: 14px;
     }
 
-    .menu-item > a:hover .text,
-    .menu-item > .menu-item-button:hover .text {
+    .menu-item>a:hover .text,
+    .menu-item>.menu-item-button:hover .text {
         color: #1f2937;
         font-weight: 600;
     }
@@ -164,7 +239,7 @@
         margin: 2px 12px;
     }
 
-    .sub-menu .sub-menu-item > a {
+    .sub-menu .sub-menu-item>a {
         padding: 10px 16px;
         border-radius: 8px;
         background: transparent;
@@ -175,7 +250,7 @@
         align-items: center;
     }
 
-    .sub-menu .sub-menu-item > a::before {
+    .sub-menu .sub-menu-item>a::before {
         content: '';
         position: absolute;
         left: 0;
@@ -188,18 +263,18 @@
         border-radius: 0 2px 2px 0;
     }
 
-    .sub-menu .sub-menu-item > a:hover::before {
+    .sub-menu .sub-menu-item>a:hover::before {
         transform: scaleY(1);
         background: #64748b;
     }
 
-    .sub-menu .sub-menu-item > a:hover {
+    .sub-menu .sub-menu-item>a:hover {
         background: rgba(248, 250, 252, 0.8);
         border-color: #e2e8f0;
         transform: translateX(6px);
     }
 
-    .sub-menu .sub-menu-item > a .text {
+    .sub-menu .sub-menu-item>a .text {
         color: #6b7280;
         font-weight: 500;
         font-size: 13px;
@@ -207,28 +282,28 @@
         margin-left: 8px;
     }
 
-    .sub-menu .sub-menu-item > a:hover .text {
+    .sub-menu .sub-menu-item>a:hover .text {
         color: #374151;
         font-weight: 600;
     }
 
     /* Active States */
-    .menu-item.active > a,
-    .menu-item.active > .menu-item-button {
+    .menu-item.active>a,
+    .menu-item.active>.menu-item-button {
         background: #f8fafc;
         border-color: #cbd5e1;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .menu-item.active > a .icon,
-    .menu-item.active > .menu-item-button .icon {
+    .menu-item.active>a .icon,
+    .menu-item.active>.menu-item-button .icon {
         background: #e2e8f0;
         color: #475569;
         border-color: #cbd5e1;
     }
 
-    .menu-item.active > a .text,
-    .menu-item.active > .menu-item-button .text {
+    .menu-item.active>a .text,
+    .menu-item.active>.menu-item-button .text {
         color: #1f2937;
         font-weight: 600;
     }
@@ -291,6 +366,7 @@
             opacity: 0;
             transform: translateY(15px);
         }
+
         to {
             opacity: 1;
             transform: translateY(0);
@@ -302,6 +378,7 @@
             opacity: 0;
             transform: translateX(-15px);
         }
+
         to {
             opacity: 1;
             transform: translateX(0);
@@ -331,9 +408,9 @@
         right: 20px;
         height: 1px;
         background: linear-gradient(90deg,
-            transparent 0%,
-            #cbd5e1 50%,
-            transparent 100%);
+                transparent 0%,
+                #cbd5e1 50%,
+                transparent 100%);
     }
 
     /* Better Spacing */
@@ -352,8 +429,8 @@
             padding: 6px 14px;
         }
 
-        .menu-item > a,
-        .menu-item > .menu-item-button {
+        .menu-item>a,
+        .menu-item>.menu-item-button {
             margin: 0 12px;
             padding: 12px 14px;
         }
@@ -364,16 +441,16 @@
     }
 
     /* Focus States for Accessibility */
-    .menu-item > a:focus,
-    .menu-item > .menu-item-button:focus,
-    .sub-menu .sub-menu-item > a:focus {
+    .menu-item>a:focus,
+    .menu-item>.menu-item-button:focus,
+    .sub-menu .sub-menu-item>a:focus {
         outline: 2px solid #cbd5e1;
         outline-offset: 2px;
     }
 
     /* Subtle hover indicators */
-    .menu-item > a::after,
-    .menu-item > .menu-item-button::after {
+    .menu-item>a::after,
+    .menu-item>.menu-item-button::after {
         content: '';
         position: absolute;
         right: 16px;
@@ -387,13 +464,13 @@
         transition: opacity 0.3s ease;
     }
 
-    .menu-item > a:hover::after,
-    .menu-item > .menu-item-button:hover::after {
+    .menu-item>a:hover::after,
+    .menu-item>.menu-item-button:hover::after {
         opacity: 1;
     }
 
-    .menu-item.active > a::after,
-    .menu-item.active > .menu-item-button::after {
+    .menu-item.active>a::after,
+    .menu-item.active>.menu-item-button::after {
         opacity: 1;
         background: #64748b;
     }
@@ -685,9 +762,9 @@
 
                                 <form class="form-search flex-grow">
                                     <fieldset class="name">
-                                        <input type="text" placeholder="Cari produk, pesanan, atau menu..." class="show-search"
-                                            name="name" tabindex="2" value="" aria-required="true"
-                                            required="">
+                                        <input type="text" placeholder="Cari produk, pesanan, atau menu..."
+                                            class="show-search" name="name" tabindex="2" value=""
+                                            aria-required="true" required="">
                                     </fieldset>
                                     <div class="button-submit">
                                         <button class="" type="submit"><i class="icon-search"></i></button>
@@ -1032,6 +1109,48 @@
         });
     </script>
 
+<!-- Script inisialisasi yang ada -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        @if (session('success'))
+            Swal.fire({
+                title: 'Berhasil!',
+                text: '{{ session('success') }}',
+                icon: 'success',
+                iconColor: '#28a745',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#28a745'
+            });
+        @endif
+
+        @if (session('error'))
+            Swal.fire({
+                title: 'Gagal!',
+                text: '{{ session('error') }}',
+                icon: 'error',
+                iconColor: '#e74c3c',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#e74c3c'
+            });
+        @endif
+
+        @if ($errors->any())
+            let errorMessages = [];
+            @foreach ($errors->all() as $error)
+                errorMessages.push('{{ $error }}');
+            @endforeach
+
+            Swal.fire({
+                title: 'Validasi Gagal!',
+                html: errorMessages.join('<br>'),
+                icon: 'error',
+                iconColor: '#e74c3c',
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#e74c3c'
+            });
+        @endif
+    });
+</script>
     @stack('scripts')
 
 </body>

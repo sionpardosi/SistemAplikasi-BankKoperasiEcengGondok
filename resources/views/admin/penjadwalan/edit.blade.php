@@ -440,7 +440,7 @@
                                 <div class="info-value">{{ $jadwal->request->no_hp ?? '-' }}</div>
                             </div>
                             <div class="info-card">
-                                <div class="info-label">Tanggal Request</div>
+                                <div class="info-label">Tanggal Permintaan</div>
                                 <div class="info-value">{{ $jadwal->request->created_at->format('d M Y, H:i') }}</div>
                             </div>
                             <div class="info-card">

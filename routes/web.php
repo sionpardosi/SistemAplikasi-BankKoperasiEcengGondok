@@ -4,6 +4,7 @@ use App\Http\Middleware\AuthAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Models\PenjadwalanPenjemputan;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\ChatController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\RajaOngkirController;
 use App\Http\Controllers\StokBahanBakuController;
 use App\Http\Controllers\SupplierRequestController;
 use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\AdvancedPenjadwalanController;
 use App\Http\Controllers\PenjadwalanPenjemputanController;
 
 
@@ -524,19 +526,254 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Halaman Penjadwalan Penjemputan
     // =================================================================================================================
     Route::get('/admin/penjadwalan-penjemputan', [PenjadwalanPenjemputanController::class, 'index'])->name('admin.penjadwalan.index');
-    // Route untuk menambahkan penjadwalan penjemputan
+    // Route untuk menampilkan form penjadwalan penjemputan
     Route::get('/admin/penjadwalan-penjemputan/add', [PenjadwalanPenjemputanController::class, 'create'])->name('admin.penjadwalan.add');
     // Route untuk menyimpan penjadwalan penjemputan
     Route::post('/admin/penjadwalan-penjemputan', [PenjadwalanPenjemputanController::class, 'store'])->name('admin.penjadwalan.store');
-    // Route untuk mengekspor penjadwalan penjemputan
+    // Route untuk menampilkan detail penjadwalan penjemputan
     Route::get('/admin/penjadwalan-penjemputan/export', [PenjadwalanPenjemputanController::class, 'export'])->name('admin.penjadwalan.export');
     // Route untuk mengedit penjadwalan penjemputan
     Route::get('/admin/penjadwalan-penjemputan/{id}/edit', [PenjadwalanPenjemputanController::class, 'edit'])->name('admin.penjadwalan.edit');
-    // Route untuk mengupdate penjadwalan penjemputan
+    // Route untuk memperbarui penjadwalan penjemputan
     Route::put('/admin/penjadwalan-penjemputan/{id}', [PenjadwalanPenjemputanController::class, 'update'])->name('admin.penjadwalan.update');
     // Route untuk menghapus penjadwalan penjemputan
     Route::delete('/admin/penjadwalan-penjemputan/{id}', [PenjadwalanPenjemputanController::class, 'destroy'])->name('admin.penjadwalan.delete');
 
+    // ===============================================================
+    // Analytics Dashboard Penjadwalan Penjemputan
+    // ===============================================================
+    Route::get('/admin/penjadwalan-penjemputan/analytics', [AdvancedPenjadwalanController::class, 'analytics'])->name('admin.penjadwalan.analytics');
+    // Bulk Operations
+    Route::post('/admin/penjadwalan-penjemputan/bulk-actions', [AdvancedPenjadwalanController::class, 'bulkActions'])->name('admin.penjadwalan.bulk-actions');
+    // Smart Scheduling
+    Route::post('/admin/penjadwalan-penjemputan/smart-scheduling', [AdvancedPenjadwalanController::class, 'smartScheduling'])->name('admin.penjadwalan.smart-scheduling');
+    // Route Optimization
+    Route::get('/admin/penjadwalan-penjemputan/optimize-route', [AdvancedPenjadwalanController::class, 'optimizeRoute'])->name('admin.penjadwalan.optimize-route');
+    // Automated Reminders
+    Route::post('/admin/penjadwalan-penjemputan/send-reminders', [AdvancedPenjadwalanController::class, 'sendAutomatedReminders'])->name('admin.penjadwalan.send-reminders');
+    // Predictive Analytics
+    Route::get('/admin/penjadwalan-penjemputan/predictive-analytics', [AdvancedPenjadwalanController::class, 'predictiveAnalytics'])->name('admin.penjadwalan.predictive-analytics');
+    // Bulk Operations
+    Route::post('/admin/penjadwalan-penjemputan/bulk-actions', [PenjadwalanPenjemputanController::class, 'bulkActions'])->name('admin.penjadwalan.bulk-actions');
+    // Smart Scheduling
+    Route::post('/admin/penjadwalan-penjemputan/smart-scheduling', [PenjadwalanPenjemputanController::class, 'smartScheduling'])->name('admin.penjadwalan.smart-scheduling');
+    // Route Optimization
+    Route::get('/admin/penjadwalan-penjemputan/optimize-route', [PenjadwalanPenjemputanController::class, 'optimizeRoute'])->name('admin.penjadwalan.optimize-route');
+    // Tambahkan di bagian middleware admin group
+    Route::patch('/api/admin/schedule/{id}/status', [PenjadwalanPenjemputanController::class, 'updateStatus']);
+    Route::get('/api/admin/search-schedules', [PenjadwalanPenjemputanController::class, 'searchSchedules']);
+
+    // Get available requests for scheduling
+    Route::get('/api/admin/available-requests', function () {
+        try {
+            $requests = \App\Models\SupplierRequest::where('status', 'disetujui')
+                ->whereDoesntHave('penjadwalan')
+                ->with(['kupon'])
+                ->orderBy('created_at', 'desc')
+                ->get()
+                ->map(function ($req) {
+                    return [
+                        'id' => $req->id,
+                        'nama' => $req->nama,
+                        'email' => $req->email,
+                        'kecamatan' => $req->kecamatan ?? '',
+                        'desa' => $req->desa ?? '',
+                        'detail_lokasi' => $req->detail_lokasi ?? '',
+                        'estimasi_kg' => $req->estimasi_kg,
+                        'insentif' => $req->insentif,
+                        'created_at' => $req->created_at->format('d M Y, H:i'),
+                        'kupon' => $req->kupon ? $req->kupon->code : null,
+                    ];
+                });
+
+            return response()->json($requests);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    })->name('api.admin.available-requests');
+
+    // Get schedule statistics
+    Route::get('/api/admin/schedule-stats', function () {
+        try {
+            $today = now()->format('Y-m-d');
+            $thisWeek = now()->startOfWeek()->format('Y-m-d');
+            $thisMonth = now()->startOfMonth()->format('Y-m-d');
+
+            $stats = [
+                'total' => \App\Models\PenjadwalanPenjemputan::count(),
+                'terjadwal' => \App\Models\PenjadwalanPenjemputan::where('status_jemput', 'terjadwal')->count(),
+                'dijemput' => \App\Models\PenjadwalanPenjemputan::where('status_jemput', 'dijemput')->count(),
+                'dibatalkan' => \App\Models\PenjadwalanPenjemputan::where('status_jemput', 'dibatalkan')->count(),
+                'overdue' => \App\Models\PenjadwalanPenjemputan::where('status_jemput', 'terjadwal')
+                    ->where('tanggal_jemput', '<', $today)->count(),
+                'upcoming' => \App\Models\PenjadwalanPenjemputan::where('status_jemput', 'terjadwal')
+                    ->whereBetween('tanggal_jemput', [$today, now()->addWeek()->format('Y-m-d')])->count(),
+                'total_weight' => \App\Models\PenjadwalanPenjemputan::sum('estimasi_kg'),
+                'completed_weight' => \App\Models\PenjadwalanPenjemputan::where('status_jemput', 'dijemput')->sum('estimasi_kg'),
+            ];
+
+            return response()->json($stats);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    })->name('api.admin.schedule-stats');
+
+    // Get upcoming schedules
+    Route::get('/api/admin/upcoming-schedules', function () {
+        try {
+            $schedules = \App\Models\PenjadwalanPenjemputan::with('request')
+                ->where('status_jemput', 'terjadwal')
+                ->where('tanggal_jemput', '>=', now()->format('Y-m-d'))
+                ->orderBy('tanggal_jemput')
+                ->limit(10)
+                ->get()
+                ->map(function ($schedule) {
+                    return [
+                        'id' => $schedule->id,
+                        'tanggal_jemput' => $schedule->tanggal_jemput->format('d F Y'),
+                        'supplier_name' => $schedule->request->nama ?? '-',
+                        'location' => ($schedule->kecamatan ?? '') . ', ' . ($schedule->desa ?? ''),
+                        'estimasi_kg' => $schedule->estimasi_kg,
+                        'status' => ucfirst($schedule->status_jemput),
+                        'is_overdue' => $schedule->tanggal_jemput < now(),
+                        'is_upcoming' => $schedule->tanggal_jemput <= now()->addDays(3),
+                    ];
+                });
+
+            return response()->json($schedules);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    })->name('api.admin.upcoming-schedules');
+
+    // Ganti route yang error dengan ini (lebih sederhana)
+    Route::post('/admin/schedule-update-status', [PenjadwalanPenjemputanController::class, 'updateStatusSimple']);
+    Route::post('/admin/schedule-search', [PenjadwalanPenjemputanController::class, 'searchSchedulesSimple']);
+    Route::get('/admin/calendar-events', [PenjadwalanPenjemputanController::class, 'getCalendarEvents']);
+
+    // // Search schedules
+    // Route::get('/api/admin/search-schedules', function(Request $request) {
+    //     try {
+    //         $query = \App\Models\PenjadwalanPenjemputan::with('request');
+
+    //         if ($request->filled('search')) {
+    //             $searchTerm = $request->search;
+    //             $query->whereHas('request', function ($q) use ($searchTerm) {
+    //                 $q->where('nama', 'like', '%' . $searchTerm . '%')
+    //                   ->orWhere('email', 'like', '%' . $searchTerm . '%');
+    //             });
+    //         }
+
+    //         if ($request->filled('status')) {
+    //             $query->where('status_jemput', $request->status);
+    //         }
+
+    //         if ($request->filled('date_from') && $request->filled('date_to')) {
+    //             $query->whereBetween('tanggal_jemput', [$request->date_from, $request->date_to]);
+    //         }
+
+    //         $schedules = $query->latest('tanggal_jemput')
+    //                           ->limit(50)
+    //                           ->get()
+    //                           ->map(function($schedule) {
+    //                               return [
+    //                                   'id' => $schedule->id,
+    //                                   'tanggal_jemput' => $schedule->tanggal_jemput->format('d F Y'),
+    //                                   'supplier_name' => $schedule->request->nama ?? '-',
+    //                                   'supplier_email' => $schedule->request->email ?? '-',
+    //                                   'location' => ($schedule->kecamatan ?? '') . ', ' . ($schedule->desa ?? ''),
+    //                                   'estimasi_kg' => $schedule->estimasi_kg,
+    //                                   'status' => ucfirst($schedule->status_jemput),
+    //                                   'status_color' => $schedule->status_jemput == 'terjadwal' ? 'warning' :
+    //                                                    ($schedule->status_jemput == 'dijemput' ? 'success' : 'danger'),
+    //                                   'created_at' => $schedule->created_at->format('d M Y'),
+    //                               ];
+    //                           });
+
+    //         return response()->json($schedules);
+    //     } catch (\Exception $e) {
+    //         return response()->json(['error' => $e->getMessage()], 500);
+    //     }
+    // })->name('api.admin.search-schedules');
+
+    // Get calendar events for full calendar integration
+    Route::get('/api/admin/calendar-events', function (Request $request) {
+        try {
+            $start = $request->get('start', now()->startOfMonth()->format('Y-m-d'));
+            $end = $request->get('end', now()->endOfMonth()->format('Y-m-d'));
+
+            $schedules = \App\Models\PenjadwalanPenjemputan::with('request')
+                ->whereBetween('tanggal_jemput', [$start, $end])
+                ->get()
+                ->map(function ($schedule) {
+                    $color = match ($schedule->status_jemput) {
+                        'terjadwal' => '#ffc107',
+                        'dijemput' => '#28a745',
+                        'dibatalkan' => '#dc3545',
+                        default => '#6c757d'
+                    };
+
+                    return [
+                        'id' => $schedule->id,
+                        'title' => $schedule->request->nama ?? 'Unknown',
+                        'start' => $schedule->tanggal_jemput->format('Y-m-d'),
+                        'backgroundColor' => $color,
+                        'borderColor' => $color,
+                        'extendedProps' => [
+                            'supplier_name' => $schedule->request->nama ?? '-',
+                            'location' => ($schedule->kecamatan ?? '') . ', ' . ($schedule->desa ?? ''),
+                            'weight' => $schedule->estimasi_kg . ' kg',
+                            'status' => ucfirst($schedule->status_jemput),
+                            'phone' => $schedule->request->no_hp ?? '-',
+                            'email' => $schedule->request->email ?? '-',
+                        ]
+                    ];
+                });
+
+            return response()->json($schedules);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    })->name('api.admin.calendar-events');
+
+    // Quick stats for dashboard widgets
+    Route::get('/api/admin/dashboard-stats', function () {
+        try {
+            $today = now()->format('Y-m-d');
+            $thisWeek = now()->startOfWeek();
+            $thisMonth = now()->startOfMonth();
+
+            return response()->json([
+                'today' => [
+                    'total' => \App\Models\PenjadwalanPenjemputan::whereDate('tanggal_jemput', $today)->count(),
+                    'completed' => \App\Models\PenjadwalanPenjemputan::whereDate('tanggal_jemput', $today)->where('status_jemput', 'dijemput')->count(),
+                    'pending' => \App\Models\PenjadwalanPenjemputan::whereDate('tanggal_jemput', $today)->where('status_jemput', 'terjadwal')->count(),
+                ],
+                'this_week' => [
+                    'total' => \App\Models\PenjadwalanPenjemputan::where('tanggal_jemput', '>=', $thisWeek)->count(),
+                    'completed' => \App\Models\PenjadwalanPenjemputan::where('tanggal_jemput', '>=', $thisWeek)->where('status_jemput', 'dijemput')->count(),
+                    'weight' => \App\Models\PenjadwalanPenjemputan::where('tanggal_jemput', '>=', $thisWeek)->where('status_jemput', 'dijemput')->sum('estimasi_kg'),
+                ],
+                'this_month' => [
+                    'total' => \App\Models\PenjadwalanPenjemputan::where('tanggal_jemput', '>=', $thisMonth)->count(),
+                    'completed' => \App\Models\PenjadwalanPenjemputan::where('tanggal_jemput', '>=', $thisMonth)->where('status_jemput', 'dijemput')->count(),
+                    'weight' => \App\Models\PenjadwalanPenjemputan::where('tanggal_jemput', '>=', $thisMonth)->where('status_jemput', 'dijemput')->sum('estimasi_kg'),
+                    'revenue' => \App\Models\PenjadwalanPenjemputan::join('supplier_requests', 'penjadwalan_penjemputans.supplier_request_id', '=', 'supplier_requests.id')
+                        ->where('penjadwalan_penjemputans.tanggal_jemput', '>=', $thisMonth)
+                        ->where('penjadwalan_penjemputans.status_jemput', 'dijemput')
+                        ->where('supplier_requests.insentif', 'uang_tunai')
+                        ->sum(\Illuminate\Support\Facades\DB::raw('penjadwalan_penjemputans.estimasi_kg * 60000')),
+                ],
+                'overdue' => \App\Models\PenjadwalanPenjemputan::where('status_jemput', 'terjadwal')
+                    ->where('tanggal_jemput', '<', $today)->count(),
+                'upcoming_week' => \App\Models\PenjadwalanPenjemputan::where('status_jemput', 'terjadwal')
+                    ->whereBetween('tanggal_jemput', [now(), now()->addWeek()])
+                    ->count(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    })->name('api.admin.dashboard-stats');
 
     // ====================================================================================================
     // Halaman About

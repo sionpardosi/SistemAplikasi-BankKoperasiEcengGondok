@@ -72,8 +72,8 @@
             margin: 0;
         }
 
-        /* Action Bar */
-        .action-bar {
+        /* Quick Action Bar */
+        .quick-action-bar {
             background: #ffffff;
             border: 1px solid #e9ecef;
             border-radius: 10px;
@@ -82,13 +82,13 @@
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
         }
 
-        .action-bar .d-flex {
-            align-items: center;
-            justify-content: space-between;
+        .quick-action-btn {
+            margin-right: 10px;
+            margin-bottom: 0px;
         }
 
-        .btn-add-new {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        .btn-smart {
+            background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
             border: none;
             color: white;
             padding: 12px 25px;
@@ -96,34 +96,142 @@
             font-weight: 600;
             font-size: 15px;
             transition: all 0.3s ease;
-            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 2px 8px rgba(23, 162, 184, 0.3);
             text-decoration: none;
         }
 
-        .btn-add-new:hover {
+        .btn-smart:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            box-shadow: 0 4px 15px rgba(23, 162, 184, 0.4);
             color: white;
         }
 
-        .btn-export {
-            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        .btn-optimize {
+            background: linear-gradient(135deg, #fd7e14 0%, #e8590c 100%);
             border: none;
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             transition: all 0.3s ease;
-            white-space: nowrap;
-            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
-            text-decoration: none;
+            box-shadow: 0 2px 8px rgba(253, 126, 20, 0.3);
         }
 
-        .btn-export:hover {
+        .btn-optimize:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            box-shadow: 0 4px 15px rgba(253, 126, 20, 0.4);
             color: white;
+        }
+
+        /* Auto Refresh Toggle */
+        .auto-refresh-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-left: auto;
+        }
+
+        .auto-refresh-toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .auto-refresh-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background-color: #007bff;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        /* Bulk Action Panel */
+        .bulk-action-panel {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .bulk-action-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        /* Search Container */
+        .search-container-advanced {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .search-input-advanced {
+            padding: 12px 50px 12px 15px;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #6c757d;
+            font-size: 18px;
+        }
+
+        .search-results {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #dee2e6;
+            border-top: none;
+            border-radius: 0 0 8px 8px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
         }
 
         /* Filter Section */
@@ -171,10 +279,6 @@
         .form-select:focus {
             border-color: #007bff;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-        }
-
-        .search-container {
-            position: relative;
         }
 
         .search-icon {
@@ -233,6 +337,67 @@
             border-color: #545b62;
             color: white;
             transform: translateY(-1px);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            color: white;
+        }
+
+        .filter-info {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .filter-info-text {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        /* Calendar Section */
+        .calendar-section {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .calendar-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .calendar-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #495057;
+            margin: 0;
+        }
+
+        #scheduleCalendar {
+            min-height: 400px;
         }
 
         /* Timeline Section */
@@ -482,6 +647,56 @@
             transform: translateY(-1px);
         }
 
+        .quick-status-btn {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            border: 1px solid;
+            background: transparent;
+            transition: all 0.3s ease;
+            margin-right: 5px;
+        }
+
+        .quick-status-btn.status-dijemput {
+            color: #28a745;
+            border-color: #28a745;
+        }
+
+        .quick-status-btn.status-dijemput:hover {
+            background: #28a745;
+            color: white;
+        }
+
+        .quick-status-btn.status-dibatalkan {
+            color: #dc3545;
+            border-color: #dc3545;
+        }
+
+        .quick-status-btn.status-dibatalkan:hover {
+            background: #dc3545;
+            color: white;
+        }
+
+        /* Alerts */
+        .alert-overdue {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-upcoming {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            color: #856404;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
         /* Empty State */
         .empty-state {
             text-align: center;
@@ -532,21 +747,6 @@
             font-size: 14px;
         }
 
-        /* Filter Info */
-        .filter-info {
-            background: #f8f9fa;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-
-        .filter-info-text {
-            font-size: 14px;
-            color: #6c757d;
-            margin: 0;
-        }
-
         /* Responsive Design */
         @media (max-width: 992px) {
             .filter-buttons {
@@ -556,6 +756,16 @@
             }
 
             .filter-buttons .btn {
+                width: 100%;
+            }
+
+            .quick-action-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .quick-action-btn {
+                margin-right: 0;
                 width: 100%;
             }
         }
@@ -568,7 +778,9 @@
             .page-header,
             .filter-section,
             .table-section,
-            .timeline-section {
+            .timeline-section,
+            .calendar-section,
+            .quick-action-bar {
                 padding: 20px;
             }
 
@@ -590,6 +802,11 @@
             .table-responsive {
                 font-size: 14px;
             }
+
+            .bulk-action-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
         }
 
         @media (max-width: 576px) {
@@ -598,10 +815,44 @@
                 gap: 15px;
             }
 
-            .btn-add-new {
-                width: 100%;
-                text-align: center;
+            .auto-refresh-container {
+                margin-left: 0;
+                justify-content: center;
             }
+        }
+
+        /* Action Bar */
+        .action-bar {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .action-bar .d-flex {
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .btn-add-new {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+            text-decoration: none;
+        }
+
+        .btn-add-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            color: white;
         }
     </style>
 
@@ -624,7 +875,6 @@
                     </li>
                 </ul>
             </div>
-
             <!-- Action Bar -->
             <div class="action-bar">
                 <div class="d-flex justify-content-between align-items-center">
@@ -633,8 +883,21 @@
                         <p class="text-muted mb-0">Kelola dan pantau semua jadwal penjemputan eceng gondok</p>
                     </div>
                     <div class="d-flex gap-3">
+                        <div class="auto-refresh-container">
+                            <span class="text-muted">Auto Refresh:</span>
+                            <label class="auto-refresh-toggle">
+                                <input type="checkbox" id="autoRefreshToggle">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <button type="button" class="btn btn-smart quick-action-btn" id="smartScheduleBtn">
+                            <i class="icon-zap"></i> Smart Scheduling
+                        </button>
+                        <button type="button" class="btn btn-optimize quick-action-btn" id="optimizeRouteBtn">
+                            <i class="icon-map"></i> Optimasi Rute
+                        </button>
                         <a href="{{ route('admin.penjadwalan.export') }}" class="btn-export" title="Download Data Excel">
-                            <i class="icon-cloud-download"></i> Export Excel
+                            <i class="icon-download"></i>Export Excel
                         </a>
                         <a href="{{ route('admin.penjadwalan.add') }}" class="btn-add-new">
                             <i class="icon-plus"></i> Atur Jadwal Penjemputan
@@ -642,8 +905,68 @@
                     </div>
                 </div>
             </div>
+            <!-- Alerts -->
+            @php
+                $overdueCount = $jadwals
+                    ->filter(function ($jadwal) {
+                        return $jadwal->status_jemput == 'terjadwal' &&
+                            $jadwal->tanggal_jemput < now()->format('Y-m-d');
+                    })
+                    ->count();
+
+                $upcomingCount = $jadwals
+                    ->filter(function ($jadwal) {
+                        return $jadwal->status_jemput == 'terjadwal' &&
+                            $jadwal->tanggal_jemput >= now()->format('Y-m-d') &&
+                            $jadwal->tanggal_jemput <= now()->addWeek()->format('Y-m-d');
+                    })
+                    ->count();
+            @endphp
+
+            @if ($overdueCount > 0)
+                <div class="alert-overdue">
+                    <i class="icon-alert-triangle"></i>
+                    <strong>Perhatian!</strong> Ada <span id="overdueCount">{{ $overdueCount }}</span> jadwal yang sudah
+                    terlewat.
+                </div>
+            @endif
+
+            @if ($upcomingCount > 0)
+                <div class="alert-upcoming">
+                    <i class="icon-calendar"></i>
+                    <strong>Info!</strong> Ada <span id="upcomingCount">{{ $upcomingCount }}</span> jadwal dalam 7 hari ke
+                    depan.
+                </div>
+            @endif
 
             <!-- Summary Cards -->
+            @php
+                $todayTotal = $jadwals
+                    ->filter(function ($jadwal) {
+                        return $jadwal->tanggal_jemput == now()->format('Y-m-d');
+                    })
+                    ->count();
+
+                $weekTotal = $jadwals
+                    ->filter(function ($jadwal) {
+                        return $jadwal->tanggal_jemput >= now()->startOfWeek()->format('Y-m-d');
+                    })
+                    ->count();
+
+                $monthTotal = $jadwals
+                    ->filter(function ($jadwal) {
+                        return $jadwal->tanggal_jemput >= now()->startOfMonth()->format('Y-m-d');
+                    })
+                    ->count();
+
+                $weekWeight = $jadwals
+                    ->filter(function ($jadwal) {
+                        return $jadwal->status_jemput == 'dijemput' &&
+                            $jadwal->tanggal_jemput >= now()->startOfWeek()->format('Y-m-d');
+                    })
+                    ->sum('estimasi_kg');
+            @endphp
+
             <div class="summary-section">
                 <div class="row">
                     <div class="col-lg-3 col-md-6 mb-4">
@@ -651,8 +974,8 @@
                             <div class="summary-icon bg-info">
                                 <i class="icon-calendar"></i>
                             </div>
-                            <div class="summary-number">{{ $jadwals->total() }}</div>
-                            <div class="summary-label">Total Jadwal</div>
+                            <div class="summary-number" id="todayTotal">{{ $todayTotal }}</div>
+                            <div class="summary-label">Jadwal Hari Ini</div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6 mb-4">
@@ -660,8 +983,8 @@
                             <div class="summary-icon bg-warning">
                                 <i class="icon-clock"></i>
                             </div>
-                            <div class="summary-number">{{ $jadwals->where('status_jemput', 'terjadwal')->count() }}</div>
-                            <div class="summary-label">Terjadwal</div>
+                            <div class="summary-number" id="weekTotal">{{ $weekTotal }}</div>
+                            <div class="summary-label">Minggu Ini</div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6 mb-4">
@@ -669,20 +992,65 @@
                             <div class="summary-icon bg-success">
                                 <i class="icon-check"></i>
                             </div>
-                            <div class="summary-number">{{ $jadwals->where('status_jemput', 'dijemput')->count() }}</div>
-                            <div class="summary-label">Selesai Dijemput</div>
+                            <div class="summary-number" id="monthTotal">{{ $monthTotal }}</div>
+                            <div class="summary-label">Bulan Ini</div>
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="summary-card">
-                            <div class="summary-icon bg-danger">
-                                <i class="icon-close"></i>
+                            <div class="summary-icon bg-primary">
+                                <i class="icon-credit-card"></i>
                             </div>
-                            <div class="summary-number">{{ $jadwals->where('status_jemput', 'dibatalkan')->count() }}</div>
-                            <div class="summary-label">Dibatalkan</div>
+                            <div class="summary-number" id="weekWeight">{{ $weekWeight }} kg</div>
+                            <div class="summary-label">Berat Terkumpul</div>
                         </div>
                     </div>
                 </div>
+            </div>
+
+            <!-- Advanced Search -->
+            <div class="search-container-advanced">
+                <input type="text" class="search-input-advanced" id="scheduleSearch"
+                    placeholder="Cari jadwal berdasarkan nama pemasok, lokasi, atau tanggal...">
+                <button type="button" class="search-btn">
+                    <i class="icon-magnifier"></i>
+                </button>
+                <div class="search-results" id="searchResults"></div>
+            </div>
+
+            <!-- Bulk Action Panel -->
+            <div class="bulk-action-panel" id="bulkActionPanel">
+                <form id="bulkActionForm">
+                    <div class="bulk-action-controls">
+                        <span><strong><span id="selectedCount">0</span> jadwal dipilih</strong></span>
+
+                        <select name="action" class="form-select" style="width: auto;">
+                            <option value="">Pilih Aksi</option>
+                            <option value="update_status">Update Status</option>
+                            <option value="reschedule">Reschedule</option>
+                            <option value="delete">Hapus</option>
+                        </select>
+
+                        <select name="new_status" class="form-select" style="width: auto; display: none;"
+                            id="statusSelect">
+                            <option value="terjadwal">Terjadwal</option>
+                            <option value="dijemput">Dijemput</option>
+                            <option value="dibatalkan">Dibatalkan</option>
+                        </select>
+
+                        <input type="date" name="new_date" class="form-control" style="width: auto; display: none;"
+                            id="dateInput">
+
+                        <button type="submit" class="btn btn-warning">
+                            <i class="icon-zap"></i> Jalankan
+                        </button>
+
+                        <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('bulkActionPanel').style.display='none'">
+                            <i class="icon-x"></i> Batal
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <!-- Filter Section -->
@@ -698,7 +1066,7 @@
                         <!-- Search -->
                         <div class="col-lg-3 col-md-6">
                             <label class="form-label">Cari Pemasok</label>
-                            <div class="search-container">
+                            <div style="position: relative;">
                                 <i class="icon-magnifier search-icon"></i>
                                 <input type="text" name="search" class="form-control search-input"
                                     placeholder="Nama pemasok..." value="{{ request('search') }}">
@@ -750,7 +1118,8 @@
                                 <button type="submit" class="btn btn-filter" title="Terapkan Filter">
                                     <i class="icon-magnifier"></i>
                                 </button>
-                                <a href="{{ route('admin.penjadwalan.index') }}" class="btn btn-reset" title="Reset Filter">
+                                <a href="{{ route('admin.penjadwalan.index') }}" class="btn btn-reset"
+                                    title="Reset Filter">
                                     <i class="icon-refresh"></i>
                                 </a>
                             </div>
@@ -773,6 +1142,20 @@
                 </form>
             </div>
 
+            {{-- <!-- Calendar Section -->
+            <div class="calendar-section">
+                <div class="calendar-header">
+                    <h5 class="calendar-title">
+                        <i class="icon-calendar"></i> Kalender Penjemputan
+                        <div class="float-end">
+                            <input type="date" id="routeOptimizationDate" class="form-control d-inline-block"
+                                style="width: auto;" value="{{ now()->format('Y-m-d') }}">
+                        </div>
+                    </h5>
+                </div>
+                <div id="scheduleCalendar"></div>
+            </div> --}}
+
             <!-- Timeline Section -->
             <div class="timeline-section">
                 <div class="timeline-header">
@@ -781,16 +1164,28 @@
                     </h5>
                 </div>
 
-                @if ($jadwals->where('status_jemput', 'terjadwal')->where('tanggal_jemput', '>=', now()->format('Y-m-d'))->count() > 0)
+                @php
+                    $upcomingSchedules = $jadwals
+                        ->filter(function ($jadwal) {
+                            return $jadwal->status_jemput == 'terjadwal' &&
+                                $jadwal->tanggal_jemput >= now()->format('Y-m-d');
+                        })
+                        ->sortBy('tanggal_jemput')
+                        ->take(6);
+                @endphp
+
+                @if ($upcomingSchedules->count() > 0)
                     <div class="row">
-                        @foreach ($jadwals->where('status_jemput', 'terjadwal')->where('tanggal_jemput', '>=', now()->format('Y-m-d'))->sortBy('tanggal_jemput')->take(6) as $jadwal)
+                        @foreach ($upcomingSchedules as $jadwal)
                             <div class="col-lg-4 col-md-6 mb-3">
                                 <div class="timeline-item status-{{ $jadwal->status_jemput }}">
                                     <div class="timeline-date">
-                                        <i class="icon-calendar"></i> {{ \Carbon\Carbon::parse($jadwal->tanggal_jemput)->format('d M Y') }}
+                                        <i class="icon-calendar"></i>
+                                        {{ \Carbon\Carbon::parse($jadwal->tanggal_jemput)->format('d M Y') }}
                                     </div>
                                     <div class="timeline-location">
-                                        <i class="icon-location-pin"></i> {{ $jadwal->kecamatan ?? '-' }}, {{ $jadwal->desa ?? '-' }}
+                                        <i class="icon-location-pin"></i> {{ $jadwal->kecamatan ?? '-' }},
+                                        {{ $jadwal->desa ?? '-' }}
                                     </div>
                                     <div class="timeline-supplier">
                                         <i class="icon-user"></i> {{ $jadwal->request->nama ?? '-' }}
@@ -823,27 +1218,38 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
+                                    <th width="5%">
+                                        <input type="checkbox" id="selectAll" class="form-check-input">
+                                    </th>
                                     <th width="12%">Tanggal Jemput</th>
                                     <th width="22%">Pemasok</th>
                                     <th width="18%">Lokasi</th>
                                     <th width="12%">Jumlah (kg)</th>
                                     <th width="12%">Status</th>
-                                    <th width="14%">Aksi</th>
+                                    <th width="19%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($jadwals as $jadwal)
-                                    <tr>
+                                    <tr data-schedule-id="{{ $jadwal->id }}">
+                                        <!-- Checkbox -->
+                                        <td>
+                                            <input type="checkbox" class="form-check-input item-checkbox"
+                                                value="{{ $jadwal->id }}">
+                                        </td>
+
                                         <!-- Tanggal -->
                                         <td>
-                                            <div class="schedule-date">{{ \Carbon\Carbon::parse($jadwal->tanggal_jemput)->format('d M Y') }}</div>
-                                            <div class="schedule-time">{{ \Carbon\Carbon::parse($jadwal->tanggal_jemput)->diffForHumans() }}</div>
+                                            <div class="schedule-date">
+                                                {{ \Carbon\Carbon::parse($jadwal->tanggal_jemput)->format('d M Y') }}</div>
+                                            <div class="schedule-time">
+                                                {{ \Carbon\Carbon::parse($jadwal->tanggal_jemput)->diffForHumans() }}</div>
                                         </td>
 
                                         <!-- Pemasok Info -->
                                         <td>
                                             <div class="supplier-name">{{ $jadwal->request->nama ?? '-' }}</div>
-                                            @if($jadwal->request)
+                                            @if ($jadwal->request)
                                                 <div class="supplier-contact">
                                                     <i class="icon-envelope"></i> {{ $jadwal->request->email }}
                                                     @if ($jadwal->request->no_hp)
@@ -858,8 +1264,9 @@
                                             @if ($jadwal->kecamatan || $jadwal->desa)
                                                 <div class="location-main">{{ $jadwal->kecamatan ?? '-' }}</div>
                                                 <div class="location-detail">{{ $jadwal->desa ?? '-' }}</div>
-                                                @if($jadwal->detail_lokasi)
-                                                    <div class="location-detail"><i class="icon-location-pin"></i> {{ $jadwal->detail_lokasi }}</div>
+                                                @if ($jadwal->detail_lokasi)
+                                                    <div class="location-detail"><i class="icon-location-pin"></i>
+                                                        {{ $jadwal->detail_lokasi }}</div>
                                                 @endif
                                             @else
                                                 <div class="location-main">{{ $jadwal->lokasi ?? '-' }}</div>
@@ -872,7 +1279,7 @@
                                         </td>
 
                                         <!-- Status -->
-                                        <td>
+                                        <td class="status-cell">
                                             @switch($jadwal->status_jemput)
                                                 @case('terjadwal')
                                                     <span class="status-badge status-terjadwal">
@@ -897,6 +1304,21 @@
                                         <!-- Actions -->
                                         <td>
                                             <div class="action-group">
+                                                <!-- Quick Status Updates -->
+                                                @if ($jadwal->status_jemput == 'terjadwal')
+                                                    <button type="button" class="quick-status-btn status-dijemput"
+                                                        data-schedule-id="{{ $jadwal->id }}" data-status="dijemput"
+                                                        data-original-text="✓ Selesai"
+                                                        title="Tandai sebagai selesai dijemput">
+                                                        ✓ Selesai
+                                                    </button>
+                                                    <button type="button" class="quick-status-btn status-dibatalkan"
+                                                        data-schedule-id="{{ $jadwal->id }}" data-status="dibatalkan"
+                                                        data-original-text="✗ Batal" title="Batalkan jadwal">
+                                                        ✗ Batal
+                                                    </button>
+                                                @endif
+
                                                 <a href="{{ route('admin.penjadwalan.edit', $jadwal->id) }}"
                                                     class="btn-action btn-edit" title="Edit Jadwal">
                                                     <i class="icon-pencil"></i> Edit
@@ -956,59 +1378,30 @@
             </div>
         </div>
     </div>
-
-    <!-- SweetAlert2 -->
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // Bulk action form logic
         document.addEventListener('DOMContentLoaded', function() {
-            // Delete confirmation
-            const deleteButtons = document.querySelectorAll('.delete-button');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', function(e) {
-                    const form = this.closest('.delete-form');
+            const actionSelect = document.querySelector('select[name="action"]');
+            const statusSelect = document.getElementById('statusSelect');
+            const dateInput = document.getElementById('dateInput');
 
-                    Swal.fire({
-                        title: 'Konfirmasi Penghapusan',
-                        text: 'Apakah Anda yakin ingin menghapus jadwal penjemputan ini? Data yang dihapus tidak dapat dikembalikan.',
-                        icon: 'warning',
-                        iconColor: '#f39c12',
-                        showCancelButton: true,
-                        reverseButtons: true,
-                        focusCancel: true,
-                        cancelButtonText: 'Batal',
-                        cancelButtonColor: '#6c757d',
-                        confirmButtonText: 'Ya, Hapus!',
-                        confirmButtonColor: '#e74c3c'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            form.submit();
-                        }
-                    });
-                });
-            });
+            if (actionSelect) {
+                actionSelect.addEventListener('change', function() {
+                    // Hide all conditional inputs
+                    statusSelect.style.display = 'none';
+                    dateInput.style.display = 'none';
 
-            // Success/Error messages
-            @if (session('success'))
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: '{{ session('success') }}',
-                    icon: 'success',
-                    iconColor: '#28a745',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#28a745'
+                    // Show relevant input based on selected action
+                    switch (this.value) {
+                        case 'update_status':
+                            statusSelect.style.display = 'block';
+                            break;
+                        case 'reschedule':
+                            dateInput.style.display = 'block';
+                            break;
+                    }
                 });
-            @endif
-
-            @if (session('error'))
-                Swal.fire({
-                    title: 'Gagal!',
-                    text: '{{ session('error') }}',
-                    icon: 'error',
-                    iconColor: '#e74c3c',
-                    confirmButtonText: 'OK',
-                    confirmButtonColor: '#e74c3c'
-                });
-            @endif
+            }
         });
     </script>
 @endsection
