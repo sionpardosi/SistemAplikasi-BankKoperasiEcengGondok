@@ -782,6 +782,24 @@ class AdminController extends Controller
         ]);
     }
 
+      /**
+     * Get product statistics for dashboard
+     */
+    public function getProductStatistics()
+    {
+        $stats = [
+            'total_products' => Product::count(),
+            'active_products' => Product::where('stock_status', 'instock')->where('quantity', '>', 0)->count(),
+            'out_of_stock' => Product::where('stock_status', 'outofstock')->orWhere('quantity', 0)->count(),
+            'featured_products' => Product::where('featured', true)->count(),
+            'low_stock' => Product::where('quantity', '>', 0)->where('quantity', '<', 10)->count(),
+            'total_value' => Product::sum(\DB::raw('regular_price * quantity')),
+            'average_price' => Product::avg('regular_price'),
+        ];
+
+        return response()->json($stats);
+    }
+
     // Halaman menampilkan Edit Produk
     public function edit_product($id)
     {
