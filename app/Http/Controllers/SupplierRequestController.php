@@ -18,26 +18,47 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 class SupplierRequestController extends Controller
 {
     // Existing methods remain unchanged
+    // Perbaikan method index() di SupplierRequestController.php
     public function index(Request $request)
     {
-        $query = SupplierRequest::query();
+        $query = SupplierRequest::with(['kupon']);
+
+        // Filter berdasarkan status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
+        // Filter berdasarkan kecamatan
         if ($request->filled('kecamatan')) {
             $query->where('kecamatan', 'like', '%' . $request->kecamatan . '%');
         }
 
+        // Filter berdasarkan nama atau email
         if ($request->filled('nama')) {
-            $query->where('nama', 'like', '%' . $request->nama . '%');
+            $searchTerm = $request->nama;
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('nama', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('email', 'like', '%' . $searchTerm . '%');
+            });
         }
 
+        // Filter berdasarkan range tanggal
         if ($request->filled('tanggal_dari') && $request->filled('tanggal_sampai')) {
-            $query->whereBetween('created_at', [$request->tanggal_dari, $request->tanggal_sampai]);
+            $tanggalDari = $request->tanggal_dari . ' 00:00:00';
+            $tanggalSampai = $request->tanggal_sampai . ' 23:59:59';
+            $query->whereBetween('created_at', [$tanggalDari, $tanggalSampai]);
+        } elseif ($request->filled('tanggal_dari')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_dari);
+        } elseif ($request->filled('tanggal_sampai')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_sampai);
         }
 
-        $requests = $query->latest()->paginate(10);
+        // Get paginated results
+        $requests = $query->latest()->paginate(15);
+
+        // Append query parameters to pagination links
+        $requests->appends($request->query());
+
         return view('admin.adminsupplier.index', compact('requests'));
     }
 
