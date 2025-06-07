@@ -15,8 +15,8 @@
     <li><a href="{{ route('user.accountdetails.account-details') }}"
             class="menu-link menu-link_us-s {{ request()->routeIs('user.accountdetails.account-details') ? 'active' : '' }}">Detail Akun</a>
     </li>
-    <li><a href="account-wishlist.html"
-            class="menu-link menu-link_us-s {{ request()->is('account-wishlist.html') ? 'active' : '' }}">Favorit</a>
+    <li><a href="{{ route('wishlist.index') }}"
+            class="menu-link menu-link_us-s {{ request()->is('wishlist.index') ? 'active' : '' }}">Favorit</a>
     </li>
     <li>
         <form method="POST" action="{{ route('logout') }}" id="logout-form">
