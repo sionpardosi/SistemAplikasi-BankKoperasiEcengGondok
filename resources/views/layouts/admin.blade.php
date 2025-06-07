@@ -29,41 +29,373 @@
 </head>
 
 <style>
-    /* Menu Separator Styles - Tambahkan ini ke css/custom.css */
-    .menu-separator {
-        margin: 24px 0;
+    /* ===========================
+       CLEAN & SIMPLE MENU STYLES
+    =========================== */
+
+    /* Enhanced Menu Category Headers */
+    .menu-category-header {
+        margin: 28px 20px 16px 20px;
         position: relative;
-        text-align: center;
+        display: flex;
+        align-items: center;
+        opacity: 0;
+        animation: fadeInUp 0.6s ease forwards;
     }
 
-    .menu-separator::before {
+    .menu-category-header::before,
+    .menu-category-header::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(90deg,
+            transparent 0%,
+            #e5e7eb 20%,
+            #e5e7eb 80%,
+            transparent 100%);
+    }
+
+    .menu-category-header::before {
+        margin-right: 16px;
+    }
+
+    .menu-category-header::after {
+        margin-left: 16px;
+    }
+
+    .menu-category-label {
+        background: #ffffff;
+        padding: 8px 18px;
+        font-size: 11px;
+        color: #6b7280;
+        font-weight: 600;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        border-radius: 20px;
+        border: 1px solid #e5e7eb;
+        white-space: nowrap;
+        position: relative;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Clean Menu Items */
+    .menu-list .menu-item {
+        margin-bottom: 6px;
+        transform: translateX(-10px);
+        opacity: 0;
+        animation: slideInLeft 0.5s ease forwards;
+    }
+
+    .menu-list .menu-item:nth-child(1) { animation-delay: 0.1s; }
+    .menu-list .menu-item:nth-child(2) { animation-delay: 0.15s; }
+    .menu-list .menu-item:nth-child(3) { animation-delay: 0.2s; }
+    .menu-list .menu-item:nth-child(4) { animation-delay: 0.25s; }
+    .menu-list .menu-item:nth-child(5) { animation-delay: 0.3s; }
+
+    .menu-item > a,
+    .menu-item > .menu-item-button {
+        position: relative;
+        margin: 0 16px;
+        border-radius: 10px;
+        padding: 14px 16px;
+        background: transparent;
+        border: 1px solid transparent;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+    }
+
+    .menu-item > a:hover,
+    .menu-item > .menu-item-button:hover {
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        transform: translateX(4px);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .menu-item > a .icon,
+    .menu-item > .menu-item-button .icon {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        background: #f1f5f9;
+        color: #64748b;
+        font-size: 12px;
+        margin-right: 12px;
+        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+    }
+
+    .menu-item > a:hover .icon,
+    .menu-item > .menu-item-button:hover .icon {
+        background: #e2e8f0;
+        color: #475569;
+        transform: scale(1.05);
+    }
+
+    .menu-item > a .text,
+    .menu-item > .menu-item-button .text {
+        font-weight: 500;
+        color: #374151;
+        transition: color 0.3s ease;
+        font-size: 14px;
+    }
+
+    .menu-item > a:hover .text,
+    .menu-item > .menu-item-button:hover .text {
+        color: #1f2937;
+        font-weight: 600;
+    }
+
+    /* Clean Sub-menu Styles */
+    .sub-menu {
+        background: #fafbfc;
+        border-radius: 10px;
+        margin: 8px 16px 16px 16px;
+        padding: 8px 0;
+        border: 1px solid #e5e7eb;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .sub-menu .sub-menu-item {
+        margin: 2px 12px;
+    }
+
+    .sub-menu .sub-menu-item > a {
+        padding: 10px 16px;
+        border-radius: 8px;
+        background: transparent;
+        border: 1px solid transparent;
+        transition: all 0.3s ease;
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .sub-menu .sub-menu-item > a::before {
         content: '';
         position: absolute;
-        top: 50%;
         left: 0;
-        right: 0;
-        height: 1px;
-        background: linear-gradient(90deg, transparent, #e0e0e0 20%, #e0e0e0 80%, transparent);
-        transform: translateY(-50%);
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: #cbd5e1;
+        transform: scaleY(0);
+        transition: transform 0.3s ease;
+        border-radius: 0 2px 2px 0;
     }
 
-    .menu-separator-label {
-        background: #fff;
-        padding: 0 16px;
-        font-size: 11px;
-        color: #6c757d;
+    .sub-menu .sub-menu-item > a:hover::before {
+        transform: scaleY(1);
+        background: #64748b;
+    }
+
+    .sub-menu .sub-menu-item > a:hover {
+        background: rgba(248, 250, 252, 0.8);
+        border-color: #e2e8f0;
+        transform: translateX(6px);
+    }
+
+    .sub-menu .sub-menu-item > a .text {
+        color: #6b7280;
+        font-weight: 500;
+        font-size: 13px;
+        transition: all 0.3s ease;
+        margin-left: 8px;
+    }
+
+    .sub-menu .sub-menu-item > a:hover .text {
+        color: #374151;
         font-weight: 600;
-        letter-spacing: 0.8px;
-        text-transform: uppercase;
-        position: relative;
-        z-index: 1;
     }
 
-    /* Alternative simple line separator */
-    .separator-line {
-        margin: 20px 16px;
+    /* Active States */
+    .menu-item.active > a,
+    .menu-item.active > .menu-item-button {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .menu-item.active > a .icon,
+    .menu-item.active > .menu-item-button .icon {
+        background: #e2e8f0;
+        color: #475569;
+        border-color: #cbd5e1;
+    }
+
+    .menu-item.active > a .text,
+    .menu-item.active > .menu-item-button .text {
+        color: #1f2937;
+        font-weight: 600;
+    }
+
+    /* Enhanced Dashboard Header */
+    .center-heading {
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 24px 20px 20px 20px;
+        color: #6b7280;
+        position: relative;
+        text-align: center;
+        padding-bottom: 12px;
+    }
+
+    .center-heading::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 2px;
+        background: #cbd5e1;
+        border-radius: 1px;
+    }
+
+    /* Left Border Accent for Menu Items */
+    .menu-item {
+        position: relative;
+    }
+
+    .menu-item::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 0;
+        background: #cbd5e1;
+        border-radius: 0 2px 2px 0;
+        transition: height 0.3s ease;
+    }
+
+    .menu-item:hover::before {
+        height: 50%;
+    }
+
+    .menu-item.active::before {
+        height: 70%;
+        background: #64748b;
+    }
+
+    /* Smooth Animations */
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes slideInLeft {
+        from {
+            opacity: 0;
+            transform: translateX(-15px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Clean Sidebar Background */
+    .section-menu-left {
+        background: #ffffff;
+        border-right: 1px solid #e5e7eb;
+        box-shadow: 2px 0 12px rgba(0, 0, 0, 0.06);
+    }
+
+    /* Enhanced Logo Area */
+    .box-logo {
+        padding: 24px 20px;
+        border-bottom: 1px solid #e5e7eb;
+        background: #fafbfc;
+        position: relative;
+    }
+
+    .box-logo::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 20px;
+        right: 20px;
         height: 1px;
-        background: linear-gradient(90deg, transparent, #e9ecef 20%, #e9ecef 80%, transparent);
+        background: linear-gradient(90deg,
+            transparent 0%,
+            #cbd5e1 50%,
+            transparent 100%);
+    }
+
+    /* Better Spacing */
+    .center-item {
+        padding-bottom: 20px;
+    }
+
+    /* Responsive Improvements */
+    @media (max-width: 768px) {
+        .menu-category-header {
+            margin: 20px 16px 12px 16px;
+        }
+
+        .menu-category-label {
+            font-size: 10px;
+            padding: 6px 14px;
+        }
+
+        .menu-item > a,
+        .menu-item > .menu-item-button {
+            margin: 0 12px;
+            padding: 12px 14px;
+        }
+
+        .sub-menu {
+            margin: 6px 12px 12px 12px;
+        }
+    }
+
+    /* Focus States for Accessibility */
+    .menu-item > a:focus,
+    .menu-item > .menu-item-button:focus,
+    .sub-menu .sub-menu-item > a:focus {
+        outline: 2px solid #cbd5e1;
+        outline-offset: 2px;
+    }
+
+    /* Subtle hover indicators */
+    .menu-item > a::after,
+    .menu-item > .menu-item-button::after {
+        content: '';
+        position: absolute;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 4px;
+        height: 4px;
+        background: #cbd5e1;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .menu-item > a:hover::after,
+    .menu-item > .menu-item-button:hover::after {
+        opacity: 1;
+    }
+
+    .menu-item.active > a::after,
+    .menu-item.active > .menu-item-button::after {
+        opacity: 1;
+        background: #64748b;
     }
 </style>
 
@@ -92,9 +424,9 @@
                     </div>
                     <div class="center">
                         <div class="center-item">
-                            <div class="center-heading">Main Home</div>
+                            <div class="center-heading">Dashboard Utama</div>
                             <ul class="menu-list">
-                                <li class="menu-item">
+                                <li class="menu-item active">
                                     <a href="{{ route('admin.index') }}" class="">
                                         <div class="icon"><i class="icon-grid"></i></div>
                                         <div class="text">Dashboard</div>
@@ -102,61 +434,28 @@
                                 </li>
                             </ul>
                         </div>
+
                         <div class="center-item">
-                            {{-- ==========================================
-                            Menu Produk Admin
-                            ========================================== --}}
                             <ul class="menu-list">
-                                <li class="menu-item has-children">
-                                    <a href="javascript:void(0);" class="menu-item-button">
-                                        <div class="icon"><i class="icon-layers"></i></div>
-                                        <div class="text">Pesanan Pelanggan</div>
-                                    </a>
-                                    <ul class="sub-menu">
-                                        <li class="sub-menu-item">
-                                            <a href="{{ route('admin.orders') }}" class="">
-                                                <div class="text">Lihat Pesanan</div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
+                                <!-- ===== MANAJEMEN PRODUK ===== -->
+                                <div class="menu-category-header">
+                                    <span class="menu-category-label">Manajemen Produk</span>
+                                </div>
 
                                 <li class="menu-item has-children">
-                                    {{-- Tombol Menu Utama --}}
                                     <a href="javascript:void(0);" class="menu-item-button">
-                                        <div class="icon">
-                                            <i class="icon-shopping-cart"></i>
-                                        </div>
+                                        <div class="icon"><i class="icon-shopping-cart"></i></div>
                                         <div class="text">Produk</div>
                                     </a>
-                                    {{-- Sub Menu --}}
                                     <ul class="sub-menu">
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.products') }}" class="">
-                                                <div class="text">Produk</div>
+                                            <a href="{{ route('admin.products') }}">
+                                                <div class="text">Daftar Produk</div>
                                             </a>
                                         </li>
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.product.add') }}" class="">
+                                            <a href="{{ route('admin.product.add') }}">
                                                 <div class="text">Tambah Produk</div>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </li>
-                                <li class="menu-item has-children">
-                                    <a href="javascript:void(0);" class="menu-item-button">
-                                        <div class="icon"><i class="icon-layers"></i></div>
-                                        <div class="text">Brand</div>
-                                    </a>
-                                    <ul class="sub-menu">
-                                        <li class="sub-menu-item">
-                                            <a href="{{ route('admin.brands') }}" class="">
-                                                <div class="text">Merek</div>
-                                            </a>
-                                        </li>
-                                        <li class="sub-menu-item">
-                                            <a href="{{ route('admin.brand.add') }}" class="">
-                                                <div class="text">Tambah Merek</div>
                                             </a>
                                         </li>
                                     </ul>
@@ -169,25 +468,67 @@
                                     </a>
                                     <ul class="sub-menu">
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.categories') }}" class="">
-                                                <div class="text">Kategori</div>
+                                            <a href="{{ route('admin.categories') }}">
+                                                <div class="text">Daftar Kategori</div>
                                             </a>
                                         </li>
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.category.add') }}" class="">
+                                            <a href="{{ route('admin.category.add') }}">
                                                 <div class="text">Tambah Kategori</div>
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
 
+                                <li class="menu-item has-children">
+                                    <a href="javascript:void(0);" class="menu-item-button">
+                                        <div class="icon"><i class="icon-layers"></i></div>
+                                        <div class="text">Brand</div>
+                                    </a>
+                                    <ul class="sub-menu">
+                                        <li class="sub-menu-item">
+                                            <a href="{{ route('admin.brands') }}">
+                                                <div class="text">Daftar Merek</div>
+                                            </a>
+                                        </li>
+                                        <li class="sub-menu-item">
+                                            <a href="{{ route('admin.brand.add') }}">
+                                                <div class="text">Tambah Merek</div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
+                                <!-- ===== TRANSAKSI ===== -->
+                                <div class="menu-category-header">
+                                    <span class="menu-category-label">Transaksi & Laporan</span>
+                                </div>
+
+                                <li class="menu-item has-children">
+                                    <a href="javascript:void(0);" class="menu-item-button">
+                                        <div class="icon"><i class="icon-layers"></i></div>
+                                        <div class="text">Pesanan Pelanggan</div>
+                                    </a>
+                                    <ul class="sub-menu">
+                                        <li class="sub-menu-item">
+                                            <a href="{{ route('admin.orders') }}">
+                                                <div class="text">Kelola Pesanan</div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
 
                                 <li class="menu-item">
-                                    <a href="{{ url('admin/laporanpenjualan') }}" class="">
+                                    <a href="{{ url('admin/laporanpenjualan') }}">
                                         <div class="icon"><i class="icon-user"></i></div>
                                         <div class="text">Laporan Penjualan</div>
                                     </a>
                                 </li>
+
+                                <!-- ===== SUMBER DAYA ===== -->
+                                <div class="menu-category-header">
+                                    <span class="menu-category-label">Sumber Daya</span>
+                                </div>
 
                                 <li class="menu-item has-children">
                                     <a href="#" class="menu-item-button">
@@ -196,20 +537,28 @@
                                     </a>
                                     <ul class="sub-menu">
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.jobs') }}" class="">
-                                                <div class="text">Lowongan Kerja</div>
+                                            <a href="{{ route('admin.jobs') }}">
+                                                <div class="text">Daftar Lowongan</div>
                                             </a>
                                         </li>
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.jobs.add') }}" class="">
-                                                <div class="text">Tambah Lowongan Kerja</div>
+                                            <a href="{{ route('admin.jobs.add') }}">
+                                                <div class="text">Buat Lowongan</div>
                                             </a>
                                         </li>
                                     </ul>
                                 </li>
 
-                                <div class="menu-separator">
-                                    <span class="menu-separator-label">Manajemen Pemasok</span>
+                                <li class="menu-item">
+                                    <a href="{{ route('admin.data-pengguna.index') }}">
+                                        <div class="icon"><i class="icon-user"></i></div>
+                                        <div class="text">Manajemen Pengguna</div>
+                                    </a>
+                                </li>
+
+                                <!-- ===== SUPPLY CHAIN ===== -->
+                                <div class="menu-category-header">
+                                    <span class="menu-category-label">Manajemen Pemasok</span>
                                 </div>
 
                                 <li class="menu-item has-children">
@@ -233,8 +582,6 @@
                                                 <div class="text">Penjadwalan Penjemputan</div>
                                             </a>
                                         </li>
-                                    </ul>
-                                    <ul class="sub-menu">
                                         <li class="sub-menu-item">
                                             <a href="{{ route('admin.adminsupplier.informasi_supplier.index') }}">
                                                 <div class="text">Daftar Informasi Pemasok</div>
@@ -248,9 +595,11 @@
                                     </ul>
                                 </li>
 
-                                <div class="menu-separator">
-                                    <span class="menu-separator-label">Manajemen Stok</span>
+                                <!-- ===== MANAJEMEN STOK ===== -->
+                                <div class="menu-category-header">
+                                    <span class="menu-category-label">Manajemen Stok</span>
                                 </div>
+
                                 <li class="menu-item">
                                     <a href="{{ route('admin.stok.index') }}" class="">
                                         <div class="icon"><i class="icon-image"></i></div>
@@ -258,18 +607,25 @@
                                     </a>
                                 </li>
 
+                                <!-- ===== KONTEN & MARKETING ===== -->
+                                <div class="menu-category-header">
+                                    <span class="menu-category-label">Konten & Promosi</span>
+                                </div>
+
                                 <li class="menu-item">
                                     <a href="{{ route('admin.slides') }}" class="">
                                         <div class="icon"><i class="icon-image"></i></div>
                                         <div class="text">Slides</div>
                                     </a>
                                 </li>
+
                                 <li class="menu-item">
                                     <a href="{{ route('admin.about.index') }}" class="">
                                         <div class="icon"><i class="icon-image"></i></div>
                                         <div class="text">Tentang</div>
                                     </a>
                                 </li>
+
                                 <li class="menu-item">
                                     <a href="{{ route('admin.coupons') }}" class="">
                                         <div class="icon"><i class="icon-grid"></i></div>
@@ -284,12 +640,10 @@
                                     </a>
                                 </li>
 
-                                <li class="menu-item">
-                                    <a href="{{ route('admin.data-pengguna.index') }}">
-                                        <div class="icon"><i class="icon-user"></i></div>
-                                        <div class="text">Pengguna</div>
-                                    </a>
-                                </li>
+                                <!-- ===== SISTEM ===== -->
+                                <div class="menu-category-header">
+                                    <span class="menu-category-label">Sistem</span>
+                                </div>
 
                                 <li class="menu-item">
                                     <a href="settings.html" class="">
@@ -313,8 +667,8 @@
                         </div>
                     </div>
                 </div>
-                <div class="section-content-right">
 
+                <div class="section-content-right">
                     <div class="header-dashboard">
                         <div class="wrap">
                             <div class="header-left">
@@ -329,10 +683,9 @@
                                     <i class="icon-menu-left"></i>
                                 </div>
 
-
                                 <form class="form-search flex-grow">
                                     <fieldset class="name">
-                                        <input type="text" placeholder="Search here..." class="show-search"
+                                        <input type="text" placeholder="Cari produk, pesanan, atau menu..." class="show-search"
                                             name="name" tabindex="2" value="" aria-required="true"
                                             required="">
                                     </fieldset>
@@ -379,9 +732,6 @@
                                                     </li>
                                                     <li class="product-item gap14">
                                                         <div class="image no-bg">
-                                                            <img src="images/products/19.png" alt="">
-                                                        </div>
-                                                        <div class="flex items-center justify-between gap20 flex-grow">
                                                             <div class="name">
                                                                 <a href="product-list.html" class="body-text">Freshpet
                                                                     Healthy Dog Food and Cat</a>
@@ -581,13 +931,43 @@
     </div>
 
     <script src="{{ asset('js/jquery.min.js') }}"></script>
-    <script src="{{ asset('js/bootstrap.min.js') }}"></script>+
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap-select.min.js') }}"></script>
     <script src="{{ asset('js/sweetalert.min.js') }}"></script>
     <script src="{{ asset('js/apexcharts/apexcharts.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
 
     <script>
+        // Enhanced Menu Interactions - Simple & Clean
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth menu animations
+            const menuItems = document.querySelectorAll('.menu-item');
+
+            menuItems.forEach((item, index) => {
+                item.style.animationDelay = `${index * 0.05}s`;
+            });
+
+            // Category headers scroll animation
+            const categoryHeaders = document.querySelectorAll('.menu-category-header');
+            const observerOptions = {
+                threshold: 0.3,
+                rootMargin: '0px 0px -30px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.animationPlayState = 'running';
+                    }
+                });
+            }, observerOptions);
+
+            categoryHeaders.forEach(header => {
+                observer.observe(header);
+            });
+        });
+
+        // Kecamatan-Desa data (existing functionality)
         const kecamatanDesaData = {
             "Harian": ["Dolok Raja", "Hariara Pintu", "Hariara Pohan", "Huta Galung", "Janji Martahan",
                 "Partungko Naginjang", "Sampur Toba", "Siparmahan", "Sosor Dolok", "Turpuk Limbong", "Turpuk Malau",
@@ -625,29 +1005,30 @@
                 "Tamba Dolok"
             ],
         };
-    </script>
 
-    <script>
+        // Kecamatan-Desa functionality
         document.addEventListener('DOMContentLoaded', function() {
             const kecamatanSelect = document.getElementById('kecamatan');
             const desaSelect = document.getElementById('desa');
 
-            kecamatanSelect.addEventListener('change', function() {
-                const selectedKecamatan = this.value;
-                desaSelect.innerHTML = '<option value="">-- Pilih Desa --</option>';
+            if (kecamatanSelect && desaSelect) {
+                kecamatanSelect.addEventListener('change', function() {
+                    const selectedKecamatan = this.value;
+                    desaSelect.innerHTML = '<option value="">-- Pilih Desa --</option>';
 
-                if (kecamatanDesaData[selectedKecamatan]) {
-                    kecamatanDesaData[selectedKecamatan].forEach(function(desa) {
-                        const option = document.createElement('option');
-                        option.value = desa;
-                        option.textContent = desa;
-                        desaSelect.appendChild(option);
-                    });
-                    desaSelect.disabled = false;
-                } else {
-                    desaSelect.disabled = true;
-                }
-            });
+                    if (kecamatanDesaData[selectedKecamatan]) {
+                        kecamatanDesaData[selectedKecamatan].forEach(function(desa) {
+                            const option = document.createElement('option');
+                            option.value = desa;
+                            option.textContent = desa;
+                            desaSelect.appendChild(option);
+                        });
+                        desaSelect.disabled = false;
+                    } else {
+                        desaSelect.disabled = true;
+                    }
+                });
+            }
         });
     </script>
 
