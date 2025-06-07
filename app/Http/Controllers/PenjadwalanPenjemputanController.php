@@ -142,21 +142,67 @@ class PenjadwalanPenjemputanController extends Controller
         return view('admin.penjadwalan.edit', compact('jadwal', 'requests'));
     }
 
+    /**
+     * Update the specified pickup schedule
+     */
     public function update(Request $request, $id)
     {
-        $jadwal = PenjadwalanPenjemputan::findOrFail($id);
+        try {
+            $jadwal = PenjadwalanPenjemputan::with('request')->findOrFail($id);
+            $oldStatus = $jadwal->status_jemput;
 
-        $request->validate([
-            'supplier_request_id' => 'required|exists:supplier_requests,id',
-            'tanggal_jemput' => 'required|date',
-            'lokasi' => 'required',
-            'estimasi_kg' => 'required|numeric|min:1',
-            'status_jemput' => 'required|in:terjadwal,dijemput,dibatalkan',
-        ]);
+            $validatedData = $request->validate([
+                'supplier_request_id' => 'required|exists:supplier_requests,id',
+                'tanggal_jemput' => 'required|date',
+                'kecamatan' => 'required|string|max:255',
+                'desa' => 'required|string|max:255',
+                'detail_lokasi' => 'required|string|max:500',
+                'estimasi_kg' => 'required|numeric|min:1',
+                'status_jemput' => 'required|in:terjadwal,dijemput,dibatalkan',
+            ]);
 
-        $jadwal->update($request->all());
+            // Prevent changing the supplier request
+            if ($validatedData['supplier_request_id'] != $jadwal->supplier_request_id) {
+                return back()->withErrors(['supplier_request_id' => 'Permintaan pemasok tidak dapat diubah.'])
+                    ->withInput();
+            }
 
-        return redirect()->route('admin.penjadwalan.index')->with('success', 'Jadwal berhasil diperbarui.');
+            DB::beginTransaction();
+
+            // Update the schedule
+            $jadwal->update([
+                'tanggal_jemput' => $validatedData['tanggal_jemput'],
+                'kecamatan' => $validatedData['kecamatan'],
+                'desa' => $validatedData['desa'],
+                'detail_lokasi' => $validatedData['detail_lokasi'],
+                'estimasi_kg' => $validatedData['estimasi_kg'],
+                'status_jemput' => $validatedData['status_jemput'],
+            ]);
+
+            // Send notification if status changed
+            if ($oldStatus != $validatedData['status_jemput']) {
+                $this->sendScheduleNotification($jadwal->request, $jadwal, 'status_updated', $oldStatus);
+            }
+
+            // Log the activity
+            Log::info("Pickup schedule {$jadwal->id} updated by admin", [
+                'old_status' => $oldStatus,
+                'new_status' => $validatedData['status_jemput'],
+                'pickup_date' => $validatedData['tanggal_jemput'],
+                'supplier_name' => $jadwal->request->nama ?? 'Unknown',
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.penjadwalan.index')
+                ->with('success', 'Jadwal penjemputan berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error updating pickup schedule: ' . $e->getMessage());
+
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui jadwal: ' . $e->getMessage()])
+                ->withInput();
+        }
     }
 
     public function destroy($id)
