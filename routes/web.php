@@ -481,11 +481,13 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Route untuk delete supplier request
     Route::delete('/admin/supplier-request/{id}/delete', [SupplierRequestController::class, 'destroy'])->name('admin.supplier.request.delete');
 
+
     // =================================================================================================================
     // Halaman dashboard supplier
     // =================================================================================================================
     Route::get('/admin/dashboard/supplier', [SupplierRequestController::class, 'supplierDashboard'])->name('admin.supplier.dashboard');
 
+    
     // ====================================================================================================
     // Halaman Informasi Supplier
     // ====================================================================================================

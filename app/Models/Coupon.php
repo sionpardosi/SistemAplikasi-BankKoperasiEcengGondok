@@ -26,7 +26,7 @@ class Coupon extends Model
     public function scopeActive($query)
     {
         return $query->where('is_active', true)
-                    ->where('expiry_date', '>=', Carbon::today());
+            ->where('expiry_date', '>=', Carbon::today());
     }
 
     // Check apakah kupon masih valid
@@ -39,5 +39,28 @@ class Coupon extends Model
     public function isEligibleForOrder($orderAmount)
     {
         return $orderAmount >= $this->minimum_order;
+    }
+
+    public function getStatusBadgeAttribute()
+    {
+        if (!$this->is_active) {
+            return '<span class="badge bg-secondary">Tidak Aktif</span>';
+        }
+
+        if ($this->expiry_date < now()) {
+            return '<span class="badge bg-danger">Expired</span>';
+        }
+
+        return '<span class="badge bg-success">Aktif</span>';
+    }
+
+    public function getFormattedDiscountAttribute()
+    {
+        return 'Rp ' . number_format($this->discount_amount, 0, ',', '.');
+    }
+
+    public function getFormattedMinimumOrderAttribute()
+    {
+        return 'Rp ' . number_format($this->minimum_order, 0, ',', '.');
     }
 }

@@ -49,55 +49,98 @@ class SupplierRequestController extends Controller
 
     public function edit($id)
     {
-        $request = SupplierRequest::findOrFail($id);
-        $kupons = Coupon::all(); // sesuaikan jika nama model berbeda
+        $request = SupplierRequest::with(['user', 'kupon', 'penjadwalan'])->findOrFail($id);
+
+        // Ambil semua kupon yang masih aktif dan belum expired
+        $kupons = Coupon::where('is_active', true)
+            ->where('expiry_date', '>=', now())
+            ->orderBy('code')
+            ->get();
+
         return view('admin.adminsupplier.edit', compact('request', 'kupons'));
     }
 
+    // Perbaikan untuk method update() di SupplierRequestController.php
     public function update(Request $request, $id)
     {
         $data = $request->validate([
             'status' => 'required|in:pending,disetujui,ditolak',
-            'catatan_admin' => 'nullable',
-            'kupon_id' => 'nullable',
+            'catatan_admin' => 'nullable|string',
+            'kupon_id' => 'nullable|exists:coupons,id',
         ]);
-        $sr = SupplierRequest::findOrFail($id);
 
-        // Cek perubahan status
-        $oldStatus = $sr->status;
+        $supplierRequest = SupplierRequest::findOrFail($id);
+
+        // Cek perubahan status untuk update stok bahan baku
+        $oldStatus = $supplierRequest->status;
         $newStatus = $data['status'];
 
-        // Update stok bahan baku sesuai perubahan status
-        if ($oldStatus == 'disetujui' && $newStatus != 'disetujui') {
-            // Jika sebelumnya disetujui lalu diubah, hapus stok bahan baku terkait
-            StokBahanBaku::where('request_id', $sr->id)->delete();
-        } elseif ($oldStatus != 'disetujui' && $newStatus == 'disetujui') {
-            // Jika sebelumnya bukan disetujui, sekarang disetujui, tambahkan stok baru
-            StokBahanBaku::create([
-                'tanggal' => now(),
-                'jumlah_kg' => $sr->estimasi_kg,
-                'sumber' => 'Request Pemasok',
-                'request_id' => $sr->id,
-                'keterangan' => 'Otomatis dari permintaan disetujui'
-            ]);
+        // Logging untuk debugging
+        \Illuminate\Support\Facades\Log::info("Status change from {$oldStatus} to {$newStatus} for request {$id}");
+
+        try {
+            \Illuminate\Support\Facades\DB::beginTransaction();
+
+            // Update stok bahan baku sesuai perubahan status
+            if ($oldStatus == 'disetujui' && $newStatus != 'disetujui') {
+                // Jika sebelumnya disetujui lalu diubah, hapus stok bahan baku terkait
+                $deletedStok = StokBahanBaku::where('request_id', $supplierRequest->id)->delete();
+                \Illuminate\Support\Facades\Log::info("Deleted {$deletedStok} stok entries for request {$id}");
+            } elseif ($oldStatus != 'disetujui' && $newStatus == 'disetujui') {
+                // Jika sebelumnya bukan disetujui, sekarang disetujui, tambahkan stok baru
+                $stokData = [
+                    'tanggal' => now(),
+                    'jumlah_kg' => $supplierRequest->estimasi_kg,
+                    'sumber' => 'Request Pemasok',
+                    'request_id' => $supplierRequest->id,
+                    'keterangan' => "Otomatis dari permintaan disetujui - {$supplierRequest->nama} ({$supplierRequest->kecamatan})"
+                ];
+
+                StokBahanBaku::create($stokData);
+                \Illuminate\Support\Facades\Log::info("Created new stok entry for request {$id}: " . json_encode($stokData));
+            }
+
+            // Update data supplier request
+            $supplierRequest->status = $newStatus;
+            $supplierRequest->catatan_admin = $data['catatan_admin'];
+
+            // Handle kupon untuk insentif diskon
+            if ($supplierRequest->insentif === 'diskon') {
+                if ($newStatus === 'disetujui' && !empty($data['kupon_id'])) {
+                    $kupon = Coupon::find($data['kupon_id']);
+                    if ($kupon && $kupon->isValid()) {
+                        $supplierRequest->kupon_id = $data['kupon_id'];
+
+                        // Update catatan admin dengan info kupon
+                        $kuponInfo = "Kupon {$kupon->code} (Diskon: Rp " . number_format($kupon->discount_amount, 0, ',', '.') . ") telah diberikan kepada pemasok.";
+                        $supplierRequest->catatan_admin = $kuponInfo . "\n\n" . ($data['catatan_admin'] ?? '');
+                    } else {
+                        \Illuminate\Support\Facades\Log::warning("Invalid kupon selected: {$data['kupon_id']}");
+                        return back()->withErrors(['kupon_id' => 'Kupon yang dipilih tidak valid atau sudah expired.'])->withInput();
+                    }
+                } elseif ($newStatus !== 'disetujui') {
+                    // Jika status bukan disetujui, hapus kupon
+                    $supplierRequest->kupon_id = null;
+                }
+            }
+
+            $supplierRequest->save();
+
+            // Kirim notifikasi email kepada user
+            $this->sendStatusNotification($supplierRequest, $oldStatus, $newStatus);
+
+            \Illuminate\Support\Facades\DB::commit();
+
+            $statusText = $this->getStatusText($newStatus);
+            return redirect()->route('admin.supplier.index')
+                ->with('success', "Status permintaan berhasil diubah menjadi \"{$statusText}\". Email notifikasi telah dikirim kepada pemasok.");
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\DB::rollback();
+            \Illuminate\Support\Facades\Log::error("Error updating supplier request {$id}: " . $e->getMessage());
+
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage()])
+                ->withInput();
         }
-
-        if ($sr->insentif === 'diskon' && $data['status'] === 'disetujui') {
-            $sr->coupon_id = $data['kupon_id'];
-            $sr->catatan_admin = "Diskon ditetapkan sebesar per kg. " . $data['catatan_admin'];
-        } else {
-            $sr->catatan_admin = $data['catatan_admin'];
-        }
-
-        $sr->status = $data['status'];
-        $sr->save();
-
-        // Notifikasi email ke user
-        Mail::raw("Permintaan Anda telah " . strtoupper($sr->status) . ". Catatan: " . $sr->catatan_admin, function ($msg) use ($sr) {
-            $msg->to($sr->email)->subject('Status Permintaan Anda');
-        });
-
-        return redirect()->route('admin.supplier.index')->with('success', 'Status berhasil diperbarui.');
     }
 
     public function store(Request $request)
@@ -667,5 +710,116 @@ class SupplierRequestController extends Controller
             'supplierInfo',
             'relatedVideos'
         ));
+    }
+
+    // Method helper untuk mengirim notifikasi email
+    private function sendStatusNotification($supplierRequest, $oldStatus, $newStatus)
+    {
+        try {
+            $statusText = $this->getStatusText($newStatus);
+            $subject = "Update Status Permintaan Pasokan Eceng Gondok";
+
+            // Buat konten email yang lebih informatif
+            $emailContent = $this->buildEmailContent($supplierRequest, $oldStatus, $newStatus, $statusText);
+
+            // Kirim email
+            Mail::raw($emailContent, function ($message) use ($supplierRequest, $subject) {
+                $message->to($supplierRequest->email, $supplierRequest->nama)
+                    ->subject($subject)
+                    ->from(
+                        config('mail.from.address', 'noreply@bankecenggondok.com'),
+                        config('mail.from.name', 'Bank Koperasi Eceng Gondok')
+                    );
+            });
+
+            \Illuminate\Support\Facades\Log::info("Status notification email sent to {$supplierRequest->email} for request {$supplierRequest->id}");
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to send notification email: " . $e->getMessage());
+            // Jangan throw error karena ini bukan critical failure
+        }
+    }
+
+    // Method helper untuk membangun konten email
+    private function buildEmailContent($supplierRequest, $oldStatus, $newStatus, $statusText)
+    {
+        $greeting = "Yth. {$supplierRequest->nama},\n\n";
+
+        $content = "Kami informasikan bahwa status permintaan pasokan eceng gondok Anda telah diperbarui.\n\n";
+
+        $content .= "DETAIL PERMINTAAN:\n";
+        $content .= "- Nama: {$supplierRequest->nama}\n";
+        $content .= "- Email: {$supplierRequest->email}\n";
+        $content .= "- Lokasi: {$supplierRequest->kecamatan}, {$supplierRequest->desa}\n";
+        $content .= "- Estimasi Jumlah: {$supplierRequest->estimasi_kg} kg\n";
+        $content .= "- Jenis Insentif: " . ($supplierRequest->insentif == 'diskon' ? 'Diskon Produk' : 'Uang Tunai') . "\n";
+        $content .= "- Tanggal Pengajuan: {$supplierRequest->created_at->format('d F Y, H:i')} WIB\n\n";
+
+        $content .= "STATUS TERBARU: {$statusText}\n\n";
+
+        // Tambahkan informasi spesifik berdasarkan status
+        switch ($newStatus) {
+            case 'disetujui':
+                $content .= "🎉 SELAMAT! Permintaan Anda telah DISETUJUI.\n\n";
+
+                if ($supplierRequest->insentif == 'diskon' && $supplierRequest->kupon_id) {
+                    $kupon = $supplierRequest->kupon;
+                    $content .= "🎟️ KUPON DISKON:\n";
+                    $content .= "- Kode Kupon: {$kupon->code}\n";
+                    $content .= "- Nilai Diskon: Rp " . number_format($kupon->discount_amount, 0, ',', '.') . "\n";
+                    $content .= "- Minimum Order: Rp " . number_format($kupon->minimum_order, 0, ',', '.') . "\n";
+                    $content .= "- Berlaku sampai: {$kupon->expiry_date->format('d F Y')}\n\n";
+                } elseif ($supplierRequest->insentif == 'uang_tunai') {
+                    $totalInsentif = $supplierRequest->estimasi_kg * 60000;
+                    $content .= "💰 INSENTIF UANG TUNAI:\n";
+                    $content .= "- Perkiraan Total: Rp " . number_format($totalInsentif, 0, ',', '.') . "\n";
+                    $content .= "- Akan dibayarkan setelah proses penjemputan selesai\n\n";
+                }
+
+                $content .= "LANGKAH SELANJUTNYA:\n";
+                $content .= "1. Tim kami akan menghubungi Anda untuk mengatur jadwal penjemputan\n";
+                $content .= "2. Pastikan eceng gondok dalam kondisi baik saat dijemput\n";
+                $content .= "3. Siapkan dokumen identitas saat penjemputan\n\n";
+                break;
+
+            case 'ditolak':
+                $content .= "😔 Mohon maaf, permintaan Anda DITOLAK.\n\n";
+                $content .= "Anda masih dapat mengajukan permintaan baru dengan perbaikan yang diperlukan.\n\n";
+                break;
+
+            case 'pending':
+                $content .= "⏳ Permintaan Anda sedang dalam PROSES REVIEW.\n\n";
+                $content .= "Tim kami sedang mengevaluasi permintaan Anda. Mohon menunggu konfirmasi lebih lanjut.\n\n";
+                break;
+        }
+
+        if (!empty($supplierRequest->catatan_admin)) {
+            $content .= "CATATAN DARI ADMIN:\n";
+            $content .= $supplierRequest->catatan_admin . "\n\n";
+        }
+
+        $content .= "Jika ada pertanyaan, silakan hubungi kami melalui:\n";
+        $content .= "- Email: admin@bankecenggondok.com\n";
+        $content .= "- WhatsApp: +62 812-3456-7890\n\n";
+
+        $content .= "Terima kasih atas partisipasi Anda dalam program ramah lingkungan ini!\n\n";
+        $content .= "Salam hormat,\n";
+        $content .= "Tim Bank Koperasi Eceng Gondok";
+
+        return $greeting . $content;
+    }
+
+    // Method helper untuk mendapatkan teks status yang user-friendly
+    private function getStatusText($status)
+    {
+        switch ($status) {
+            case 'pending':
+                return 'Menunggu Persetujuan';
+            case 'disetujui':
+                return 'Disetujui';
+            case 'ditolak':
+                return 'Ditolak';
+            default:
+                return ucfirst($status);
+        }
     }
 }
