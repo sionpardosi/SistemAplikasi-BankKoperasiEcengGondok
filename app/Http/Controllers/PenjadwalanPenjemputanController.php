@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\PenjadwalanPenjemputan;
 use App\Models\SupplierRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -66,40 +68,77 @@ class PenjadwalanPenjemputanController extends Controller
         return view('admin.penjadwalan.create', compact('requests'));
     }
 
+    /**
+     * Store a newly created pickup schedule
+     */
     public function store(Request $request)
     {
-        $request->validate([
-            'supplier_request_id' => 'required|exists:supplier_requests,id',
-            'tanggal_jemput' => 'required|date',
-            'lokasi' => 'nullable',
-            'estimasi_kg' => 'required|numeric|min:1',
-            'kecamatan' => 'required|string',
-            'desa' => 'required|string',
-            'detail_lokasi' => 'required|string',
-        ]);
+        try {
+            $validatedData = $request->validate([
+                'supplier_request_id' => 'required|exists:supplier_requests,id',
+                'tanggal_jemput' => 'required|date|after_or_equal:today',
+                'kecamatan' => 'required|string|max:255',
+                'desa' => 'required|string|max:255',
+                'detail_lokasi' => 'required|string|max:500',
+                'estimasi_kg' => 'required|numeric|min:1',
+            ]);
 
-        PenjadwalanPenjemputan::create($request->all());
+            // Check if this request already has a schedule
+            $existingSchedule = PenjadwalanPenjemputan::where('supplier_request_id', $validatedData['supplier_request_id'])->first();
+            if ($existingSchedule) {
+                return back()->withErrors(['supplier_request_id' => 'Permintaan pemasok ini sudah memiliki jadwal penjemputan.'])
+                    ->withInput();
+            }
 
-        // Kirim email ke pemasok
-        $supplierRequest = SupplierRequest::find($request->supplier_request_id);
+            DB::beginTransaction();
 
-        if ($supplierRequest && $supplierRequest->email) {
-            Mail::raw(
-                "Halo {$supplierRequest->nama},\n\nPermintaan Anda telah dijadwalkan untuk penjemputan pada tanggal {$request->tanggal_jemput}.\nLokasi: {$request->lokasi}\nEstimasi Berat: {$request->estimasi_kg} kg.\n\nTerima kasih.",
-                function ($message) use ($supplierRequest) {
-                    $message->to($supplierRequest->email)
-                        ->subject('Penjadwalan Penjemputan Eceng Gondok');
-                }
-            );
+            // Get supplier request data
+            $supplierRequest = SupplierRequest::findOrFail($validatedData['supplier_request_id']);
+
+            // Create the schedule
+            $jadwal = PenjadwalanPenjemputan::create([
+                'supplier_request_id' => $validatedData['supplier_request_id'],
+                'tanggal_jemput' => $validatedData['tanggal_jemput'],
+                'kecamatan' => $validatedData['kecamatan'],
+                'desa' => $validatedData['desa'],
+                'detail_lokasi' => $validatedData['detail_lokasi'],
+                'estimasi_kg' => $validatedData['estimasi_kg'],
+                'status_jemput' => 'terjadwal',
+            ]);
+
+            // Send notification email to supplier
+            $this->sendScheduleNotification($supplierRequest, $jadwal, 'created');
+
+            // Log the activity
+            Log::info("Pickup schedule created for supplier request {$supplierRequest->id} by admin", [
+                'schedule_id' => $jadwal->id,
+                'pickup_date' => $validatedData['tanggal_jemput'],
+                'supplier_name' => $supplierRequest->nama,
+            ]);
+
+            DB::commit();
+
+            return redirect()->route('admin.penjadwalan.index')
+                ->with('success', 'Jadwal penjemputan berhasil dibuat dan notifikasi telah dikirim ke pemasok.');
+        } catch (\Exception $e) {
+            DB::rollback();
+            Log::error('Error creating pickup schedule: ' . $e->getMessage());
+
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat membuat jadwal: ' . $e->getMessage()])
+                ->withInput();
         }
-
-        return redirect()->route('admin.penjadwalan.index')->with('success', 'Jadwal berhasil dibuat.');
     }
 
+    /**
+     * Show the form for editing the specified pickup schedule
+     */
     public function edit($id)
     {
-        $jadwal = PenjadwalanPenjemputan::findOrFail($id);
+        $jadwal = PenjadwalanPenjemputan::with('request')->findOrFail($id);
+
+        // Get all approved requests (for reference, though we won't allow changing the request)
         $requests = SupplierRequest::where('status', 'disetujui')->get();
+
         return view('admin.penjadwalan.edit', compact('jadwal', 'requests'));
     }
 
