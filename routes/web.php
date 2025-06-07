@@ -143,8 +143,8 @@ Route::get('/account-orders', [CartController::class, 'accountOrders'])->name('a
 Route::post('/upload-payment-proof', [CartController::class, 'uploadPaymentProof'])->name('upload.payment.proof');
 // Route untuk memeriksa status pembayaran
 Route::get('/check-payment-status/{transaction_id}', [UserController::class, 'checkPaymentStatus'])->name('check.payment.status');
- // Route untuk manual refresh status (debugging)
- Route::post('/manual-refresh-status', [UserController::class, 'manualRefreshStatus'])->name('manual.refresh.status');
+// Route untuk manual refresh status (debugging)
+Route::post('/manual-refresh-status', [UserController::class, 'manualRefreshStatus'])->name('manual.refresh.status');
 //  Route untuk auto check payment status
 Route::post('/auto-check-payment-status', [UserController::class, 'autoCheckPaymentStatus'])->name('auto.check.payment.status');
 
@@ -487,7 +487,7 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // =================================================================================================================
     Route::get('/admin/dashboard/supplier', [SupplierRequestController::class, 'supplierDashboard'])->name('admin.supplier.dashboard');
 
-    
+
     // ====================================================================================================
     // Halaman Informasi Supplier
     // ====================================================================================================
@@ -514,6 +514,8 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::put('/admin/stok-bahan-baku/{id}', [StokBahanBakuController::class, 'update'])->name('admin.stok.update');
     // Route untuk menghapus stok bahan baku
     Route::delete('/admin/stok-bahan-baku/{id}', [StokBahanBakuController::class, 'destroy'])->name('admin.stok.delete');
+    // Tambahkan route untuk konsumsi stok
+    Route::post('/admin/stok-bahan-baku/konsumsi', [StokBahanBakuController::class, 'konsumsi'])->name('admin.stok.konsumsi');
 
 
     // =================================================================================================================
