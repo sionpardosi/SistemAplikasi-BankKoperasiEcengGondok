@@ -110,6 +110,22 @@ class AdminController extends Controller
             'dashboard_data' => $dashboardDatas->toArray()
         ]);
 
+        // Cek stok rendah
+        $totalStok = \App\Models\StokBahanBaku::sum('jumlah_kg');
+        $alertStok = null;
+
+        if ($totalStok <= 5) {
+            $alertStok = [
+                'type' => 'danger',
+                'message' => 'PERHATIAN: Stok bahan baku sangat rendah (' . number_format($totalStok, 1) . ' kg). Segera cari pemasok!'
+            ];
+        } elseif ($totalStok <= 20) {
+            $alertStok = [
+                'type' => 'warning',
+                'message' => 'Stok bahan baku mulai menipis (' . number_format($totalStok, 1) . ' kg). Persiapkan pengisian stok.'
+            ];
+        }
+
         return view('admin.index', compact(
             'orders',
             'dashboardDatas',
@@ -121,7 +137,8 @@ class AdminController extends Controller
             'TotalOrderedAmount',
             'TotalDeliveredAmount',
             'TotalCanceledAmount',
-            'additionalStats'
+            'additionalStats',
+            'alertStok'
         ));
     }
 

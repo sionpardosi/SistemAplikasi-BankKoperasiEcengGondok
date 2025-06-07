@@ -40,6 +40,59 @@ class StokBahanBakuController extends Controller
         }
     }
 
+    public function export(Request $request)
+    {
+        $query = StokBahanBaku::query();
+
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('tanggal', '>=', $request->tanggal_dari);
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('tanggal', '<=', $request->tanggal_sampai);
+        }
+
+        $stok = $query->latest()->get();
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Laporan Stok Bahan Baku');
+
+        // Header
+        $sheet->fromArray([
+            'No',
+            'Tanggal',
+            'Jenis',
+            'Jumlah (kg)',
+            'Sumber',
+            'Keterangan'
+        ], NULL, 'A1');
+
+        // Data
+        $row = 2;
+        foreach ($stok as $i => $s) {
+            $sheet->fromArray([
+                $i + 1,
+                $s->tanggal,
+                $s->jumlah_kg > 0 ? 'Masuk' : 'Keluar',
+                $s->jumlah_kg,
+                $s->sumber,
+                $s->keterangan
+            ], NULL, "A{$row}");
+            $row++;
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $filename = 'laporan_stok_' . now()->format('Ymd_His') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header("Content-Disposition: attachment;filename=\"$filename\"");
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
+    }
+
     public function store(Request $request)
     {
         $request->validate([
