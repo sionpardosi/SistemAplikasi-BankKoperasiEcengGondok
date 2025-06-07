@@ -672,6 +672,26 @@ class AdminController extends Controller
         }
     }
 
+        /**
+     * AJAX endpoint to check product name uniqueness
+     */
+    public function checkProductNameUniqueness(Request $request)
+    {
+        $name = $request->get('name');
+        $id = $request->get('id', null);
+
+        $query = Product::where('name', $name);
+        if ($id) {
+            $query->where('id', '!=', $id);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'exists' => $exists,
+            'message' => $exists ? 'Nama produk sudah digunakan' : 'Nama produk tersedia'
+        ]);
+    }
 
 
     // Halaman menampilkan Edit Produk
