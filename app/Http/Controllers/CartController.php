@@ -312,13 +312,13 @@ class CartController extends Controller
     {
         $cartItem = Cart::instance('cart')->get($rowId);
         if (!$cartItem) {
-            return redirect()->back()->with('error', 'Item tidak ditemukan di keranjang');
+            return redirect()->back()->with('Produk Gagal Ditambahkan', 'Item tidak ditemukan di keranjang');
         }
 
         // Ambil data produk untuk cek stok
         $product = Product::find($cartItem->id);
         if (!$product) {
-            return redirect()->back()->with('error', 'Produk tidak ditemukan');
+            return redirect()->back()->with('Produk Gagal Ditambahkan', 'Produk tidak ditemukan');
         }
 
         // Hitung stok yang tersedia
@@ -334,7 +334,7 @@ class CartController extends Controller
             if ($sizeStock) {
                 $availableStock = $sizeStock->stock;
             } else {
-                return redirect()->back()->with('error', 'Data ukuran produk tidak ditemukan');
+                return redirect()->back()->with('Produk Gagal Ditambahkan', 'Data ukuran produk tidak ditemukan');
             }
         }
 
@@ -347,7 +347,7 @@ class CartController extends Controller
                 $sizeName = ' untuk ukuran ' . $cartItem->options['size_name'];
             }
 
-            return redirect()->back()->with('error', "Stok yang tersedia{$sizeName} hanya {$availableStock} unit");
+            return redirect()->back()->with('Produk Gagal Ditambahkan', "Stok yang tersedia{$sizeName} hanya {$availableStock} unit");
         }
 
         Cart::instance('cart')->update($rowId, $newQty);
@@ -404,13 +404,13 @@ class CartController extends Controller
         $coupon_code = strtoupper(trim($request->coupon_code));
 
         if (empty($coupon_code)) {
-            return redirect()->back()->with('error', 'Silakan masukkan kode kupon!');
+            return redirect()->back()->with('Gagal Ditambahkan', 'Silakan masukkan kode kupon!');
         }
 
         $coupon = Coupon::where('code', $coupon_code)->active()->first();
 
         if (!$coupon) {
-            return redirect()->back()->with('error', 'Kode kupon tidak valid atau sudah kadaluarsa!');
+            return redirect()->back()->with('Gagal Ditambahkan', 'Kode kupon tidak valid atau sudah kadaluarsa!');
         }
 
         $cartSubtotal = floatval(Cart::instance('cart')->subtotal(0, '', ''));
@@ -418,7 +418,7 @@ class CartController extends Controller
         // Validasi minimum order
         if (!$coupon->isEligibleForOrder($cartSubtotal)) {
             return redirect()->back()->with(
-                'error',
+                'Gagal Ditambahkan',
                 'Minimum order untuk kupon ini adalah ' . formatRupiah($coupon->minimum_order)
             );
         }

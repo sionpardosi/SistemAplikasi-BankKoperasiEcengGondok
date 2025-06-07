@@ -1115,7 +1115,7 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="catatan">Catatan Tambahan</label>
+                                <label for="catatan">Catatan Tambahan (Opsional)</label>
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-pencil"></i></span>
                                     <textarea id="catatan" name="catatan" rows="3" class="form-control"

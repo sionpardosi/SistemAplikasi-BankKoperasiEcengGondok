@@ -68,7 +68,20 @@
                             Menu Produk Admin
                             ========================================== --}}
                             <ul class="menu-list">
-x
+                                <li class="menu-item has-children">
+                                    <a href="javascript:void(0);" class="menu-item-button">
+                                        <div class="icon"><i class="icon-layers"></i></div>
+                                        <div class="text">Pesanan Pelanggan</div>
+                                    </a>
+                                    <ul class="sub-menu">
+                                        <li class="sub-menu-item">
+                                            <a href="{{ route('admin.orders') }}" class="">
+                                                <div class="text">Lihat Pesanan</div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
                                 <li class="menu-item has-children">
                                     {{-- Tombol Menu Utama --}}
                                     <a href="javascript:void(0);" class="menu-item-button">
