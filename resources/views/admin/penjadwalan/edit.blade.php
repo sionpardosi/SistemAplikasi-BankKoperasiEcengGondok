@@ -154,7 +154,6 @@
         }
 
         .readonly-label::before {
-            content: '🔒 ';
             margin-right: 4px;
         }
 
@@ -500,7 +499,7 @@
                                     <input type="text" name="kecamatan" class="form-control readonly-field"
                                            value="{{ $jadwal->kecamatan }}" readonly>
                                     <div class="help-text">
-                                        <i class="icon-lock"></i> Data lokasi dari permintaan pemasok
+                                         Data lokasi dari permintaan pemasok
                                     </div>
                                 </div>
                             </div>
@@ -510,7 +509,7 @@
                                     <input type="text" name="desa" class="form-control readonly-field"
                                            value="{{ $jadwal->desa }}" readonly>
                                     <div class="help-text">
-                                        <i class="icon-lock"></i> Data lokasi dari permintaan pemasok
+                                         Data lokasi dari permintaan pemasok
                                     </div>
                                 </div>
                             </div>
@@ -521,7 +520,7 @@
                             <input type="text" name="detail_lokasi" class="form-control readonly-field"
                                    value="{{ $jadwal->detail_lokasi }}" readonly>
                             <div class="help-text">
-                                <i class="icon-lock"></i> Detail lokasi dari permintaan pemasok
+                                 Detail lokasi dari permintaan pemasok
                             </div>
                         </div>
 
@@ -530,7 +529,7 @@
                             <input type="number" name="estimasi_kg" class="form-control readonly-field"
                                    value="{{ $jadwal->estimasi_kg }}" readonly>
                             <div class="help-text">
-                                <i class="icon-lock"></i> Estimasi berat dari permintaan pemasok
+                                 Estimasi berat dari permintaan pemasok
                             </div>
                         </div>
 

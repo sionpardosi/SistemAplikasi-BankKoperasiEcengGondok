@@ -11,9 +11,44 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class PenjadwalanPenjemputanController extends Controller
 {
-    public function index()
+    /**
+     * Display a listing of the pickup schedules with filtering
+     */
+    public function index(Request $request)
     {
-        $jadwals = PenjadwalanPenjemputan::with('request')->latest()->paginate(10);
+        $query = PenjadwalanPenjemputan::with(['request']);
+
+        // Apply filters
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            $query->whereHas('request', function ($q) use ($searchTerm) {
+                $q->where('nama', 'like', '%' . $searchTerm . '%')
+                    ->orWhere('email', 'like', '%' . $searchTerm . '%');
+            });
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status_jemput', $request->status);
+        }
+
+        if ($request->filled('kecamatan')) {
+            $query->where('kecamatan', 'like', '%' . $request->kecamatan . '%');
+        }
+
+        if ($request->filled('tanggal_dari') && $request->filled('tanggal_sampai')) {
+            $query->whereBetween('tanggal_jemput', [$request->tanggal_dari, $request->tanggal_sampai]);
+        } elseif ($request->filled('tanggal_dari')) {
+            $query->whereDate('tanggal_jemput', '>=', $request->tanggal_dari);
+        } elseif ($request->filled('tanggal_sampai')) {
+            $query->whereDate('tanggal_jemput', '<=', $request->tanggal_sampai);
+        }
+
+        // Get paginated results
+        $jadwals = $query->latest('tanggal_jemput')->paginate(15);
+
+        // Append query parameters to pagination links
+        $jadwals->appends($request->query());
+
         return view('admin.penjadwalan.index', compact('jadwals'));
     }
 
