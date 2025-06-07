@@ -136,7 +136,8 @@
             display: block;
         }
 
-        .form-control, .form-select {
+        .form-control,
+        .form-select {
             border: 1px solid #dee2e6;
             border-radius: 8px;
             padding: 12px 15px;
@@ -145,7 +146,8 @@
             background: #ffffff;
         }
 
-        .form-control:focus, .form-select:focus {
+        .form-control:focus,
+        .form-select:focus {
             border-color: #007bff;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
@@ -553,8 +555,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .loading-text {
@@ -581,7 +588,9 @@
                 padding: 1rem;
             }
 
-            .page-header, .filter-section, .table-section {
+            .page-header,
+            .filter-section,
+            .table-section {
                 padding: 20px;
             }
 
@@ -710,8 +719,7 @@
                             <div class="search-container">
                                 <i class="icon-magnifier search-icon"></i>
                                 <input type="text" name="nama" class="form-control search-input"
-                                       placeholder="Ketik nama atau email..."
-                                       value="{{ request('nama') }}">
+                                    placeholder="Ketik nama atau email..." value="{{ request('nama') }}">
                             </div>
                         </div>
 
@@ -735,23 +743,22 @@
                         <!-- Location Filter -->
                         <div class="col-lg-2 col-md-6">
                             <label class="form-label">Kecamatan</label>
-                            <input type="text" name="kecamatan" class="form-control"
-                                   placeholder="Nama kecamatan..."
-                                   value="{{ request('kecamatan') }}">
+                            <input type="text" name="kecamatan" class="form-control" placeholder="Nama kecamatan..."
+                                value="{{ request('kecamatan') }}">
                         </div>
 
                         <!-- Date From -->
                         <div class="col-lg-2 col-md-6">
                             <label class="form-label">Dari Tanggal</label>
                             <input type="date" name="tanggal_dari" class="form-control"
-                                   value="{{ request('tanggal_dari') }}">
+                                value="{{ request('tanggal_dari') }}">
                         </div>
 
                         <!-- Date To -->
                         <div class="col-lg-2 col-md-6">
                             <label class="form-label">Sampai Tanggal</label>
                             <input type="date" name="tanggal_sampai" class="form-control"
-                                   value="{{ request('tanggal_sampai') }}">
+                                value="{{ request('tanggal_sampai') }}">
                         </div>
 
                         <!-- Action Buttons -->
@@ -759,7 +766,7 @@
                             <label class="form-label">&nbsp;</label>
                             <div class="filter-buttons">
                                 <button type="submit" class="btn btn-filter" title="Terapkan Filter">
-                                    <i class="icon-magnifier"></i> Filter
+                                    <i class="bx bx-search"></i>
                                 </button>
                                 <a href="{{ route('admin.supplier.index') }}" class="btn btn-reset" title="Reset Filter">
                                     <i class="icon-refresh"></i> Reset
@@ -773,13 +780,14 @@
                         <div class="d-flex justify-content-between align-items-center">
                             <p class="filter-info-text">
                                 <i class="icon-info"></i>
-                                Menampilkan <strong>{{ $requests->count() }}</strong> dari <strong>{{ $requests->total() }}</strong> request
-                                @if(request()->hasAny(['nama', 'status', 'kecamatan', 'tanggal_dari', 'tanggal_sampai']))
+                                Menampilkan <strong>{{ $requests->count() }}</strong> dari
+                                <strong>{{ $requests->total() }}</strong> request
+                                @if (request()->hasAny(['nama', 'status', 'kecamatan', 'tanggal_dari', 'tanggal_sampai']))
                                     dengan filter yang diterapkan
                                 @endif
                             </p>
                             <a href="{{ route('admin.supplier.request.export', request()->query()) }}"
-                               class="btn btn-export" title="Download Data Excel">
+                                class="btn btn-export" title="Download Data Excel">
                                 <i class="icon-cloud-download"></i> Export Excel
                             </a>
                         </div>
@@ -796,7 +804,7 @@
                 </div>
 
                 <div class="table-responsive">
-                    @if($requests->count() > 0)
+                    @if ($requests->count() > 0)
                         <table class="table table-hover">
                             <thead>
                                 <tr>
@@ -823,7 +831,7 @@
                                             <div class="supplier-name">{{ $req->nama }}</div>
                                             <div class="supplier-contact">
                                                 <i class="icon-envelope"></i> {{ $req->email }}
-                                                @if($req->no_hp || $req->no_wa)
+                                                @if ($req->no_hp || $req->no_wa)
                                                     <br><i class="icon-phone"></i> {{ $req->no_hp ?? $req->no_wa }}
                                                 @endif
                                             </div>
@@ -831,7 +839,7 @@
 
                                         <!-- Lokasi -->
                                         <td>
-                                            @if($req->kecamatan || $req->desa)
+                                            @if ($req->kecamatan || $req->desa)
                                                 <div class="location-main">{{ $req->kecamatan ?? '-' }}</div>
                                                 <div class="location-detail">{{ $req->desa ?? '-' }}</div>
                                             @else
@@ -842,7 +850,7 @@
                                         <!-- Jumlah -->
                                         <td>
                                             <div class="quantity-value">{{ $req->estimasi_kg }} kg</div>
-                                            @if($req->insentif == 'uang_tunai')
+                                            @if ($req->insentif == 'uang_tunai')
                                                 <div class="quantity-estimate">
                                                     ~Rp {{ number_format($req->estimasi_kg * 60000, 0, ',', '.') }}
                                                 </div>
@@ -851,11 +859,11 @@
 
                                         <!-- Insentif -->
                                         <td>
-                                            @if($req->insentif == 'diskon')
+                                            @if ($req->insentif == 'diskon')
                                                 <span class="incentive-badge incentive-discount">
                                                     <i class="icon-credit-card"></i> Diskon
                                                 </span>
-                                                @if($req->kupon_id && $req->kupon)
+                                                @if ($req->kupon_id && $req->kupon)
                                                     <div class="coupon-info">{{ $req->kupon->code }}</div>
                                                 @endif
                                             @else
@@ -872,17 +880,19 @@
                                                     <span class="status-badge status-pending">
                                                         <i class="icon-clock"></i> Pending
                                                     </span>
-                                                    @break
+                                                @break
+
                                                 @case('disetujui')
                                                     <span class="status-badge status-disetujui">
                                                         <i class="icon-check"></i> Disetujui
                                                     </span>
-                                                    @break
+                                                @break
+
                                                 @case('ditolak')
                                                     <span class="status-badge status-ditolak">
                                                         <i class="icon-close"></i> Ditolak
                                                     </span>
-                                                    @break
+                                                @break
                                             @endswitch
                                         </td>
 
@@ -890,28 +900,25 @@
                                         <td>
                                             <div class="action-group">
                                                 <a href="{{ route('admin.supplier.request.edit', $req->id) }}"
-                                                   class="btn-action btn-manage"
-                                                   title="Kelola Request">
+                                                    class="btn-action btn-manage" title="Kelola Request">
                                                     <i class="icon-pencil"></i> Kelola
                                                 </a>
 
-                                                @if($req->foto)
-                                                <button type="button"
-                                                        class="btn-action btn-photo"
+                                                @if ($req->foto)
+                                                    <button type="button" class="btn-action btn-photo"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#photoModal{{ $req->id }}"
                                                         title="Lihat Foto Bukti">
-                                                    <i class="icon-picture"></i>
-                                                </button>
+                                                        <i class="bx bx-image"></i>
+                                                    </button>
                                                 @endif
 
                                                 <form method="POST"
-                                                      action="{{ route('admin.supplier.request.delete', $req->id) }}"
-                                                      class="d-inline delete-form">
+                                                    action="{{ route('admin.supplier.request.delete', $req->id) }}"
+                                                    class="d-inline delete-form">
                                                     @csrf @method('DELETE')
-                                                    <button type="button"
-                                                            class="btn-action btn-delete delete-button"
-                                                            title="Hapus Request">
+                                                    <button type="button" class="btn-action btn-delete delete-button"
+                                                        title="Hapus Request">
                                                         <i class="icon-trash"></i>
                                                     </button>
                                                 </form>
@@ -928,7 +935,7 @@
                             </div>
                             <h4 class="empty-title">Tidak Ada Request Ditemukan</h4>
                             <p class="empty-text">
-                                @if(request()->hasAny(['nama', 'status', 'kecamatan', 'tanggal_dari', 'tanggal_sampai']))
+                                @if (request()->hasAny(['nama', 'status', 'kecamatan', 'tanggal_dari', 'tanggal_sampai']))
                                     Tidak ada request yang sesuai dengan filter yang diterapkan.<br>
                                     Coba ubah atau reset filter untuk melihat data lainnya.
                                 @else
@@ -936,26 +943,26 @@
                                     Tambahkan request pertama untuk memulai.
                                 @endif
                             </p>
-                            @if(!request()->hasAny(['nama', 'status', 'kecamatan', 'tanggal_dari', 'tanggal_sampai']))
-                            <a href="{{ route('admin.supplier.request.add') }}" class="btn btn-filter">
-                                <i class="icon-plus"></i> Tambah Request Pertama
-                            </a>
+                            @if (!request()->hasAny(['nama', 'status', 'kecamatan', 'tanggal_dari', 'tanggal_sampai']))
+                                <a href="{{ route('admin.supplier.request.add') }}" class="btn btn-filter">
+                                    <i class="icon-plus"></i> Tambah Request Pertama
+                                </a>
                             @endif
                         </div>
                     @endif
                 </div>
 
                 <!-- Pagination -->
-                @if($requests->hasPages())
-                <div class="pagination-container">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="pagination-info">
-                            Menampilkan {{ $requests->firstItem() }} - {{ $requests->lastItem() }}
-                            dari {{ $requests->total() }} request
+                @if ($requests->hasPages())
+                    <div class="pagination-container">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="pagination-info">
+                                Menampilkan {{ $requests->firstItem() }} - {{ $requests->lastItem() }}
+                                dari {{ $requests->total() }} request
+                            </div>
+                            {{ $requests->appends(request()->query())->links() }}
                         </div>
-                        {{ $requests->appends(request()->query())->links() }}
                     </div>
-                </div>
                 @endif
             </div>
         </div>
@@ -963,28 +970,29 @@
 
     <!-- Photo Modals -->
     @foreach ($requests as $req)
-        @if($req->foto)
-        <div class="modal fade" id="photoModal{{ $req->id }}" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">
-                            <i class="icon-picture"></i> Foto Bukti Eceng Gondok - {{ $req->nama }}
-                        </h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body text-center">
-                        <img src="{{ asset($req->foto) }}" class="img-fluid" alt="Foto Bukti" style="border-radius: 8px; max-height: 500px;">
-                        <div class="mt-3">
-                            <p class="text-muted">
-                                <strong>Estimasi:</strong> {{ $req->estimasi_kg }} kg |
-                                <strong>Upload:</strong> {{ $req->created_at->format('d M Y, H:i') }} WIB
-                            </p>
+        @if ($req->foto)
+            <div class="modal fade" id="photoModal{{ $req->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">
+                                <i class="icon-picture"></i> Foto Bukti Eceng Gondok - {{ $req->nama }}
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img src="{{ asset($req->foto) }}" class="img-fluid" alt="Foto Bukti"
+                                style="border-radius: 8px; max-height: 500px;">
+                            <div class="mt-3">
+                                <p class="text-muted">
+                                    <strong>Estimasi:</strong> {{ $req->estimasi_kg }} kg |
+                                    <strong>Upload:</strong> {{ $req->created_at->format('d M Y, H:i') }} WIB
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         @endif
     @endforeach
 
@@ -1021,7 +1029,8 @@
                     }).then((result) => {
                         if (result.isConfirmed) {
                             // Show loading
-                            document.getElementById('loadingOverlay').style.display = 'flex';
+                            document.getElementById('loadingOverlay').style.display =
+                            'flex';
                             form.submit();
                         }
                     });

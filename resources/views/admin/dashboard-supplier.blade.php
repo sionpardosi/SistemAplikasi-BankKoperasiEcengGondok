@@ -31,7 +31,7 @@
                                     </div>
                                     <div>
                                         <div class="body-text mb-2">Total Stok Tersedia (kg)</div>
-                                        <h4>{{ $dashboardSupplier['total_stok'] }}</h4>
+                                        <h4>{{ number_format(\App\Models\StokBahanBaku::sum('jumlah_kg'), 1) }}</h4>
                                     </div>
                                 </div>
                             </div>
