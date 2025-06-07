@@ -29,6 +29,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/main.min.js"></script>
     <!-- Admin Penjadwalan JavaScript -->
     <script src="{{ asset('assets/js/admin-penjadwalan.js') }}"></script>
+    <script src="{{ asset('assets/js/category-management.js') }}"></script>
     @stack('styles')
 
 </head>

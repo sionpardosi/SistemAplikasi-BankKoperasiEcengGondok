@@ -347,17 +347,68 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // ====================================================================================================
     // Halaman Categories
     // ====================================================================================================
+    // Halaman Categories - dengan filter, search, sorting
     Route::get('/admin/categories', [AdminController::class, 'categories'])->name('admin.categories');
+    // Export Categories - download data dalam format Excel/CSV
+    Route::get('/admin/categories/export', [AdminController::class, 'export_categories'])->name('admin.categories.export');
+    // Bulk Actions untuk Categories (fitur tambahan)
+    Route::post('/admin/categories/bulk-action', [AdminController::class, 'bulk_action_categories'])->name('admin.categories.bulk');
+    // Toggle Featured Status untuk Categories
+    Route::patch('/admin/category/{id}/toggle-featured', [AdminController::class, 'toggle_featured_category'])->name('admin.category.toggle-featured');
+    // Reorder Categories (drag & drop sorting)
+    Route::post('/admin/categories/reorder', [AdminController::class, 'reorder_categories'])->name('admin.categories.reorder');
     // Halaman Menambahkan Category
     Route::get('/admin/category/add', [AdminController::class, 'add_category'])->name('admin.category.add');
+    // API endpoint untuk validasi slug secara real-time
+    Route::get('/admin/category/check-slug', [AdminController::class, 'check_slug'])->name('admin.category.check-slug');
     // Halaman Menyimpan Category
     Route::post('/admin/category/store', [AdminController::class, 'add_category_store'])->name('admin.category.store');
     // Halaman Edit Category
     Route::get('/admin/category/{id}/edit', [AdminController::class, 'edit_category'])->name('admin.category.edit');
+    // Preview Category - untuk melihat tampilan kategori di frontend
+    Route::get('/admin/category/{id}/preview', [AdminController::class, 'preview_category'])->name('admin.category.preview');
+    // Duplicate Category - untuk menduplikasi kategori yang sudah ada
+    Route::post('/admin/category/{id}/duplicate', [AdminController::class, 'duplicate_category'])->name('admin.category.duplicate');
     // Halaman Update Category
     Route::put('/admin/category/update', [AdminController::class, 'update_category'])->name('admin.category.update');
-    // Halaman Delete Category
-    Route::delete('/admin/category/{id}/delete', [AdminController::class, 'delete_category'])->name('admin.category.delete');
+    // Halaman Delete Category - dengan validasi keamanan
+    Route::patch('/admin/category/{id}/toggle-active', [AdminController::class, 'toggle_active_category'])->name('admin.category.toggle-active');
+    // Soft Delete/Restore Categories (fitur tambahan)
+    Route::patch('/admin/category/{id}/soft-delete', [AdminController::class, 'soft_delete_category'])->name('admin.category.soft-delete');
+    Route::patch('/admin/category/{id}/restore', [AdminController::class, 'restore_category'])->name('admin.category.restore');
+    // ====================================================================================================
+    // API endpoints untuk AJAX requests
+    // ====================================================================================================
+    Route::prefix('api/admin/categories')->group(function () {
+        // Get category details for modal/popup
+        Route::get('/{id}', [AdminController::class, 'get_category_details'])->name('api.admin.category.details');
+
+        // Get products by category
+        Route::get('/{id}/products', [AdminController::class, 'get_category_products'])->name('api.admin.category.products');
+
+        // Search categories for autocomplete
+        Route::get('/search/{term}', [AdminController::class, 'search_categories'])->name('api.admin.categories.search');
+
+        // Get category statistics
+        Route::get('/{id}/stats', [AdminController::class, 'get_category_stats'])->name('api.admin.category.stats');
+    });
+
+    // ====================================================================================================
+    // Routes untuk mengelola Produk dalam Kategori
+    // ====================================================================================================
+    Route::prefix('admin/category/{categoryId}')->group(function () {
+        // Lihat semua produk dalam kategori
+        Route::get('/products', [AdminController::class, 'category_products'])->name('admin.category.products');
+
+        // Tambah produk ke kategori
+        Route::get('/products/add', [AdminController::class, 'add_product_to_category'])->name('admin.category.products.add');
+
+        // Pindah produk ke kategori lain
+        Route::post('/products/move', [AdminController::class, 'move_products_category'])->name('admin.category.products.move');
+
+        // Export produk dalam kategori
+        Route::get('/products/export', [AdminController::class, 'export_category_products'])->name('admin.category.products.export');
+    });
 
 
     // ====================================================================================================

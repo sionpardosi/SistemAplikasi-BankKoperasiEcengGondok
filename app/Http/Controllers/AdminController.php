@@ -279,13 +279,104 @@ class AdminController extends Controller
 
 
     // ====================================================================================================
-    // Halaman Categories
+    // Halaman Categories dengan Filter dan Sorting
     // ====================================================================================================
-    public function categories()
+    public function categories(Request $request)
     {
-        $categories = Category::orderBy('id', 'DESC')->paginate(10);
-        return view("admin.categories", compact('categories'));
+        // JANGAN gunakan ->active() di query utama, biarkan semua kategori bisa diakses
+        $query = Category::with('products'); // HAPUS ->active()
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('slug', 'LIKE', "%{$search}%");
+            });
+        }
+
+        // Status filter - UPDATE dengan logic yang benar
+        if ($request->filled('status')) {
+            switch ($request->status) {
+                case 'active':
+                    $query->where('is_active', true)->whereHas('products');
+                    break;
+                case 'empty':
+                    $query->where('is_active', true)->whereDoesntHave('products');
+                    break;
+                case 'inactive':
+                    $query->where('is_active', false);
+                    break;
+                case 'all':
+                    // Tampilkan semua (aktif dan nonaktif)
+                    break;
+                default:
+                    // Default: hanya tampilkan kategori aktif
+                    $query->where('is_active', true);
+                    break;
+            }
+        } else {
+            // Jika tidak ada filter, default tampilkan hanya kategori aktif
+            $query->where('is_active', true);
+        }
+
+        // Sorting
+        $sort = $request->get('sort', 'newest');
+        switch ($sort) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'most_products':
+                $query->withCount('products')->orderBy('products_count', 'desc');
+                break;
+            default: // newest
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $perPage = $request->get('per_page', 10);
+        $categories = $query->paginate($perPage);
+
+        // Data untuk summary cards
+        $summaryData = [
+            'totalActive' => Category::where('is_active', true)->count(),
+            'totalInactive' => Category::where('is_active', false)->count(),
+            'totalWithProducts' => Category::where('is_active', true)->whereHas('products')->count(),
+            'totalProducts' => Category::where('is_active', true)->withCount('products')->get()->sum('products_count')
+        ];
+
+        return view("admin.categories", compact('categories', 'summaryData'));
     }
+
+    public function toggle_active_category($id)
+    {
+        try {
+            // JANGAN gunakan scope apapun, langsung cari berdasarkan ID
+            $category = Category::findOrFail($id);
+
+            // Toggle status is_active
+            $category->is_active = !$category->is_active;
+            $category->save();
+
+            $message = $category->is_active ?
+                'Kategori "' . $category->name . '" berhasil diaktifkan!' :
+                'Kategori "' . $category->name . '" berhasil dinonaktifkan!';
+
+            return redirect()->route('admin.categories')->with('status', $message);
+        } catch (\Exception $e) {
+            return redirect()->route('admin.categories')->with(
+                'error',
+                'Gagal mengubah status kategori: ' . $e->getMessage()
+            );
+        }
+    }
+
     // Halaman Menambahkan Category
     public function add_category()
     {
@@ -370,9 +461,405 @@ class AdminController extends Controller
     }
 
     // ====================================================================================================
+    // Method untuk Check Slug secara Real-time (AJAX)
+    // ====================================================================================================
+    public function check_slug(Request $request)
+    {
+        $slug = $request->get('slug');
+        $id = $request->get('id'); // untuk edit mode
+
+        if (!$slug) {
+            return response()->json(['available' => false, 'message' => 'Slug tidak boleh kosong']);
+        }
+
+        $query = Category::where('slug', $slug);
+        if ($id) {
+            $query->where('id', '!=', $id);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'Slug sudah digunakan' : 'Slug tersedia',
+            'suggested' => $exists ? Category::generateUniqueSlug($slug, $id) : null
+        ]);
+    }
+
+    // ====================================================================================================
+    // Method untuk Toggle Featured Status
+    // ====================================================================================================
+    public function toggle_featured_category($id)
+    {
+        try {
+            $category = Category::findOrFail($id);
+            $newStatus = $category->toggleFeatured();
+
+            return response()->json([
+                'success' => true,
+                'featured' => $newStatus,
+                'message' => $newStatus ? 'Kategori ditandai sebagai unggulan' : 'Kategori dihapus dari unggulan'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ====================================================================================================
+    // Method untuk Bulk Actions
+    // ====================================================================================================
+    public function bulk_action_categories(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:deactivate,activate,feature,unfeature,export',
+            'categories' => 'required|array|min:1',
+            'categories.*' => 'exists:categories,id'
+        ]);
+
+        try {
+            // JANGAN gunakan scope, langsung whereIn
+            $categories = Category::whereIn('id', $request->categories);
+            $count = $categories->count();
+
+            switch ($request->action) {
+                case 'deactivate':
+                    $categories->update(['is_active' => false]);
+                    return redirect()->back()->with('status', "Berhasil menonaktifkan {$count} kategori");
+
+                case 'activate':
+                    $categories->update(['is_active' => true]);
+                    return redirect()->back()->with('status', "Berhasil mengaktifkan {$count} kategori");
+
+                case 'feature':
+                    $categories->update(['is_featured' => true]);
+                    return redirect()->back()->with('status', "Berhasil menandai {$count} kategori sebagai unggulan");
+
+                case 'unfeature':
+                    $categories->update(['is_featured' => false]);
+                    return redirect()->back()->with('status', "Berhasil menghapus {$count} kategori dari unggulan");
+
+                case 'export':
+                    return $this->export_categories($request);
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal melakukan aksi: ' . $e->getMessage());
+        }
+    }
+
+    // ====================================================================================================
+    // Method untuk Reorder Categories (Drag & Drop)
+    // ====================================================================================================
+    public function reorder_categories(Request $request)
+    {
+        $request->validate([
+            'categories' => 'required|array',
+            'categories.*.id' => 'required|exists:categories,id',
+            'categories.*.sort_order' => 'required|integer|min:0'
+        ]);
+
+        try {
+            foreach ($request->categories as $categoryData) {
+                Category::where('id', $categoryData['id'])
+                    ->update(['sort_order' => $categoryData['sort_order']]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Urutan kategori berhasil diperbarui'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah urutan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    // ====================================================================================================
+    // Method untuk Duplicate Category
+    // ====================================================================================================
+    public function duplicate_category($id)
+    {
+        try {
+            $originalCategory = Category::findOrFail($id);
+
+            $newCategory = $originalCategory->replicate();
+            $newCategory->name = $originalCategory->name . ' (Copy)';
+            $newCategory->slug = Category::generateUniqueSlug($newCategory->name);
+            $newCategory->is_featured = false; // Reset featured status
+            $newCategory->sort_order = 0; // Reset sort order
+
+            // Duplicate image if exists
+            if ($originalCategory->image) {
+                $originalImagePath = public_path('uploads/categories/' . $originalCategory->image);
+                if (File::exists($originalImagePath)) {
+                    $newImageName = 'copy-' . Carbon::now()->timestamp . '-' . $originalCategory->image;
+                    $newImagePath = public_path('uploads/categories/' . $newImageName);
+                    File::copy($originalImagePath, $newImagePath);
+                    $newCategory->image = $newImageName;
+                }
+            }
+
+            $newCategory->save();
+
+            return redirect()->route('admin.category.edit', $newCategory->id)
+                ->with('status', 'Kategori berhasil diduplikasi. Silakan edit sesuai kebutuhan.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal menduplikasi kategori: ' . $e->getMessage());
+        }
+    }
+
+    // ====================================================================================================
+    // Method untuk Preview Category
+    // ====================================================================================================
+    public function preview_category($id)
+    {
+        $category = Category::with('products')->findOrFail($id);
+
+        // Return view untuk preview (bisa dibuat modal atau halaman terpisah)
+        return view('admin.category-preview', compact('category'));
+    }
+
+    // ====================================================================================================
+    // API Methods untuk AJAX Requests
+    // ====================================================================================================
+
+    /**
+     * Get category details for AJAX
+     */
+    public function get_category_details($id)
+    {
+        try {
+            $category = Category::with('products')->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'description' => $category->description,
+                    'meta_title' => $category->meta_title,
+                    'image_url' => $category->image_url,
+                    'is_featured' => $category->is_featured,
+                    'sort_order' => $category->sort_order,
+                    'products_count' => $category->products->count(),
+                    'active_products_count' => $category->active_products_count,
+                    'created_at' => $category->formatted_created_at,
+                    'updated_at' => $category->formatted_updated_at
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori tidak ditemukan'
+            ], 404);
+        }
+    }
+
+    /**
+     * Get products by category for AJAX
+     */
+    public function get_category_products($id, Request $request)
+    {
+        try {
+            $category = Category::findOrFail($id);
+            $perPage = $request->get('per_page', 10);
+
+            $products = $category->products()
+                ->when($request->search, function ($query, $search) {
+                    $query->where('name', 'LIKE', "%{$search}%")
+                        ->orWhere('SKU', 'LIKE', "%{$search}%");
+                })
+                ->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'data' => $products
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat produk'
+            ], 500);
+        }
+    }
+
+    /**
+     * Search categories for autocomplete
+     */
+    public function search_categories($term)
+    {
+        $categories = Category::search($term)
+            ->limit(10)
+            ->get(['id', 'name', 'slug', 'image'])
+            ->map(function ($category) {
+                return [
+                    'id' => $category->id,
+                    'name' => $category->name,
+                    'slug' => $category->slug,
+                    'image_url' => $category->image_url,
+                    'products_count' => $category->products()->count()
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $categories
+        ]);
+    }
+    /**
+     * Get category statistics
+     */
+    public function get_category_stats($id)
+    {
+        try {
+            $category = Category::with('products')->findOrFail($id);
+
+            $stats = [
+                'total_products' => $category->products->count(),
+                'active_products' => $category->products->where('stock_status', 'instock')->count(),
+                'out_of_stock' => $category->products->where('stock_status', 'outofstock')->count(),
+                'featured_products' => $category->products->where('featured', true)->count(),
+                'total_value' => $category->products->sum('regular_price'),
+                'average_price' => $category->products->avg('regular_price'),
+                'newest_product' => $category->products->latest()->first()?->name,
+                'oldest_product' => $category->products->oldest()->first()?->name
+            ];
+
+            return response()->json([
+                'success' => true,
+                'data' => $stats
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memuat statistik'
+            ], 500);
+        }
+    }
+    // ====================================================================================================
+    // Methods untuk Mengelola Produk dalam Kategori
+    // ====================================================================================================
+    /**
+     * Lihat semua produk dalam kategori
+     */
+    public function category_products($categoryId, Request $request)
+    {
+        $category = Category::findOrFail($categoryId);
+
+        $products = $category->products()
+            ->when($request->search, function ($query, $search) {
+                $query->where('name', 'LIKE', "%{$search}%")
+                    ->orWhere('SKU', 'LIKE', "%{$search}%");
+            })
+            ->when($request->status, function ($query, $status) {
+                $query->where('stock_status', $status);
+            })
+            ->paginate(20);
+
+        return view('admin.category-products', compact('category', 'products'));
+    }
+
+    /**
+     * Pindah produk ke kategori lain
+     */
+    public function move_products_category(Request $request, $categoryId)
+    {
+        $request->validate([
+            'products' => 'required|array|min:1',
+            'products.*' => 'exists:products,id',
+            'target_category_id' => 'required|exists:categories,id'
+        ]);
+
+        try {
+            $sourceCategory = Category::findOrFail($categoryId);
+            $targetCategory = Category::findOrFail($request->target_category_id);
+
+            Product::whereIn('id', $request->products)
+                ->where('category_id', $categoryId)
+                ->update(['category_id' => $request->target_category_id]);
+
+            $count = count($request->products);
+
+            return redirect()->back()->with(
+                'status',
+                "Berhasil memindahkan {$count} produk dari kategori '{$sourceCategory->name}' ke '{$targetCategory->name}'"
+            );
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal memindahkan produk: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export produk dalam kategori
+     */
+    public function export_category_products($categoryId, Request $request)
+    {
+        try {
+            $category = Category::findOrFail($categoryId);
+            $products = $category->products;
+
+            $filename = 'produk-kategori-' . Str::slug($category->name) . '-' . Carbon::now()->format('Y-m-d') . '.csv';
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+
+            $callback = function () use ($products, $category) {
+                $file = fopen('php://output', 'w');
+
+                // Add BOM for UTF-8
+                fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+                // CSV Headers
+                fputcsv($file, [
+                    'Kategori',
+                    'ID Produk',
+                    'Nama Produk',
+                    'SKU',
+                    'Harga Regular',
+                    'Harga Sale',
+                    'Stok',
+                    'Status Stok',
+                    'Featured',
+                    'Dibuat',
+                    'Diperbarui'
+                ]);
+
+                foreach ($products as $product) {
+                    fputcsv($file, [
+                        $category->name,
+                        $product->id,
+                        $product->name,
+                        $product->SKU,
+                        $product->regular_price,
+                        $product->sale_price ?: 0,
+                        $product->quantity,
+                        $product->stock_status,
+                        $product->featured ? 'Ya' : 'Tidak',
+                        $product->created_at->format('d/m/Y H:i'),
+                        $product->updated_at->format('d/m/Y H:i')
+                    ]);
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data: ' . $e->getMessage());
+        }
+    }
+
+
+    // ====================================================================================================
     // Halaman Produk
     // // ====================================================================================================
-
     /**
      * Update method products untuk mendukung pencarian dan filter
      */
