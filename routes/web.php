@@ -516,6 +516,8 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::delete('/admin/stok-bahan-baku/{id}', [StokBahanBakuController::class, 'destroy'])->name('admin.stok.delete');
     // Tambahkan route untuk konsumsi stok
     Route::post('/admin/stok-bahan-baku/konsumsi', [StokBahanBakuController::class, 'konsumsi'])->name('admin.stok.konsumsi');
+    // Route untuk ekspor stok bahan baku
+    Route::get('/admin/stok-bahan-baku/export', [StokBahanBakuController::class, 'export'])->name('admin.stok.export');
 
 
     // =================================================================================================================
