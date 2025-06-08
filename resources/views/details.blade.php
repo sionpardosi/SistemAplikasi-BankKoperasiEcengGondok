@@ -1141,7 +1141,7 @@
 
                         {{-- Display total reviews count --}}
                         <span class="reviews-note text-lowercase text-secondary ms-1">
-                            {{ $totalReviews > 1000 ? round($totalReviews / 1000, 1) . 'k+' : $totalReviews }} Ulasan
+                            ( {{ $totalReviews > 1000 ? round($totalReviews / 1000, 1) . 'k+' : $totalReviews }} Ulasan)
                         </span>
                     </div>
 
@@ -1469,14 +1469,13 @@
                                         <div class="review-media mt-2">
                                             @foreach ($review->reviewMedia as $media)
                                                 @if ($media->file_type === 'image')
-                                                    <img src="{{ asset('storage/' . $media->file_path) }}"
-                                                        alt="Review Media"
-                                                        style="max-width: 100px; max-height: 100px; margin-right: 10px; border-radius: 5px;">
+                                                    <img src="{{ asset($media->file_path) }}" alt="Review Media"
+                                                        style="max-width: 100px; max-height: 100px; margin-right: 10px; border-radius: 5px; cursor: pointer;"
+                                                        onclick="openImageModal('{{ asset($media->file_path) }}')">
                                                 @elseif ($media->file_type === 'video')
                                                     <video controls
                                                         style="max-width: 200px; max-height: 150px; margin-right: 10px;">
-                                                        <source src="{{ asset('storage/' . $media->file_path) }}"
-                                                            type="video/mp4">
+                                                        <source src="{{ asset($media->file_path) }}" type="video/mp4">
                                                         Video tidak didukung.
                                                     </video>
                                                 @endif
@@ -1542,7 +1541,6 @@
                         </div>
                     </div>
 
-                    <!-- Reviews Tab -->
                     <div class="tab-pane fade" id="tab-reviews" role="tabpanel" aria-labelledby="tab-reviews-tab">
                         <div class="product-reviews mt-4">
                             <h4 class="mb-4">Ulasan Produk</h4>
@@ -1569,23 +1567,23 @@
                                         </div>
                                         <p class="review-comment">{{ $review->comment }}</p>
                                         @if ($review->reviewMedia->count() > 0)
-                                            <div class="review-media mt-2">
-                                                @foreach ($review->reviewMedia as $media)
-                                                    @if ($media->file_type === 'image')
-                                                        <img src="{{ asset('storage/' . $media->file_path) }}"
-                                                            alt="Review Media"
-                                                            style="max-width: 100px; max-height: 100px; margin-right: 10px; border-radius: 5px;">
-                                                    @elseif ($media->file_type === 'video')
-                                                        <video controls
-                                                            style="max-width: 200px; max-height: 150px; margin-right: 10px;">
-                                                            <source src="{{ asset('storage/' . $media->file_path) }}"
-                                                                type="video/mp4">
-                                                            Video tidak didukung.
-                                                        </video>
-                                                    @endif
-                                                @endforeach
-                                            </div>
-                                        @endif
+                                        <div class="review-media mt-3">
+                                            @foreach ($review->reviewMedia as $media)
+                                                @if ($media->file_type === 'image')
+                                                    <img src="{{ asset($media->file_path) }}"
+                                                        alt="Review Media"
+                                                        style="max-width: 100px; max-height: 100px; margin-right: 10px; border-radius: 5px; cursor: pointer;"
+                                                        onclick="openImageModal('{{ asset($media->file_path) }}')">
+                                                @elseif ($media->file_type === 'video')
+                                                    <video controls
+                                                        style="max-width: 200px; max-height: 150px; margin-right: 10px; border-radius: 5px;">
+                                                        <source src="{{ asset($media->file_path) }}" type="video/mp4">
+                                                        Video tidak didukung.
+                                                    </video>
+                                                @endif
+                                            @endforeach
+                                        </div>
+                                    @endif
                                     </div>
                                 @endforeach
                             @else
@@ -1825,11 +1823,34 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
+
+        <!-- Modal untuk menampilkan gambar review -->
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">Gambar Review</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img src="" id="modalImage" class="img-fluid" alt="Review Image">
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
 @endsection
 
 @push('scripts')
+    <script>
+        function openImageModal(imageSrc) {
+            document.getElementById('modalImage').src = imageSrc;
+            var imageModal = new bootstrap.Modal(document.getElementById('imageModal'));
+            imageModal.show();
+        }
+    </script>
+
     <!-- Function to show cart notification -->
     <script>
         // Function to show cart notification

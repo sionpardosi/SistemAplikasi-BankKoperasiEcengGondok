@@ -21,6 +21,7 @@ use App\Http\Controllers\RajaOngkirController;
 use App\Http\Controllers\StokBahanBakuController;
 use App\Http\Controllers\SupplierRequestController;
 use App\Http\Controllers\MidtransCallbackController;
+use App\Http\Controllers\API\JobApplicationController;
 use App\Http\Controllers\AdvancedPenjadwalanController;
 use App\Http\Controllers\PenjadwalanPenjemputanController;
 
@@ -118,6 +119,14 @@ Route::middleware(['auth'])->group(function () {
 });
 Route::post('/cart/validate-stock', [CartController::class, 'validate_stock'])->name('cart.validate.stock');
 Route::put('/cart/update-qty/{rowId}', [CartController::class, 'update_item_quantity'])->name('cart.update.qty');
+
+
+// Route untuk melamar pekerjaan
+Route::post('/jobs/{id}/apply', [JobApplicationController::class, 'apply'])->name('job.apply');
+// Route::post('/lamar', [LamaranController::class, 'store']);
+Route::post('/jobs/{job}/apply', [UserController::class, 'apply'])->name('jobs.apply');
+// Route untuk halaman lowongan pekerjaan pengguna
+Route::get('/user/job-vacancy', [UserController::class, 'index'])->name('user.job_vacancy.index');
 
 
 // ====================================================================================================
@@ -244,6 +253,51 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/account-order/confirm-delivery', [UserController::class, 'account_confirm_delivery'])->name('user.account.confirm.delivery');
     // Route untuk mengonfirmasi pembayaran
     Route::get('/account-pending-order-details/{pending_order_id}', [UserController::class, 'account_pending_order_details'])->name('user.pending.order.details');
+    // ====================================================================================================
+    // Routes Baru untuk Fitur Payment dan Order Management
+    // ====================================================================================================
+    // Auto check payment status (untuk AJAX)
+    Route::post('/auto-check-payment-status', [UserController::class, 'autoCheckPaymentStatus'])->name('auto.check.payment.status');
+    // Manual refresh payment status
+    Route::post('/manual-refresh-payment-status', [UserController::class, 'manualRefreshStatus'])->name('manual.refresh.payment.status');
+    // Check payment status (untuk polling)
+    Route::get('/check-payment-status/{transaction_id}', [UserController::class, 'checkPaymentStatus'])->name('check.payment.status');
+    // Upload payment proof
+    Route::post('/upload-payment-proof', [UserController::class, 'uploadPaymentProof'])->name('upload.payment.proof');
+    // ====================================================================================================
+    // Routes untuk Review System (jika belum ada)
+    // ====================================================================================================
+    // Store new review
+    Route::post('/reviews', [ReviewController::class, 'store'])->name('user.reviews.store');
+    // Update existing review
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('user.reviews.update');
+    // Delete review media
+    Route::delete('/reviews/media/{media}', [ReviewController::class, 'deleteMedia'])->name('user.reviews.delete-media');
+    // ====================================================================================================
+    // Routes untuk Cart Management (untuk fitur "Beli Lagi")
+    // ====================================================================================================
+    // Add product to cart again
+    Route::post('/cart/add-again', [CartController::class, 'addAgain'])->name('cart.add.again');
+    // Quick add to cart
+    Route::post('/cart/quick-add', [CartController::class, 'quickAdd'])->name('cart.quick.add');
+    // ====================================================================================================
+    // Routes untuk Order Actions (tambahan)
+    // ====================================================================================================
+    // Download/Print order invoice
+    Route::get('/order/{order_id}/invoice', [UserController::class, 'downloadInvoice'])->name('user.order.invoice');
+    // Share order details
+    Route::get('/order/{order_id}/share', [UserController::class, 'shareOrder'])->name('user.order.share');
+    // Request order cancellation with reason
+    Route::post('/order/{order_id}/request-cancel', [UserController::class, 'requestCancellation'])->name('user.order.request.cancel');
+    // Dispute/Complaint for order
+    Route::post('/order/{order_id}/dispute', [UserController::class, 'createDispute'])->name('user.order.dispute');
+    // ====================================================================================================
+    // Routes untuk Order Tracking (opsional)
+    // ====================================================================================================
+    // Get order tracking info
+    Route::get('/order/{order_id}/tracking', [UserController::class, 'getOrderTracking'])->name('user.order.tracking');
+    // Update delivery address (before shipped)
+    Route::put('/order/{order_id}/address', [UserController::class, 'updateDeliveryAddress'])->name('user.order.update.address');
 
 
     // ====================================================================================================
@@ -329,19 +383,39 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
 
 
     // ====================================================================================================
-    // Halaman Brands
+    // Brand Management Routes
     // ====================================================================================================
+    // Main brands listing with filters and search
     Route::get('/admin/brands', [AdminController::class, 'brands'])->name('admin.brands');
-    // Halaman Menambahkan Brand
+    // Add new brand
     Route::get('/admin/brand/add', [AdminController::class, 'add_brand'])->name('admin.brand.add');
-    // Halaman Menyimpan Brand
     Route::post('/admin/brand/store', [AdminController::class, 'add_brand_store'])->name('admin.brand.store');
-    // Halaman Edit Brand
+    // Edit existing brand
     Route::get('/admin/brand/edit/{id}', [AdminController::class, 'brand_edit'])->name('admin.brand.edit');
-    // Halaman Update Brand
     Route::put('/admin/brand/update', [AdminController::class, 'update_brand'])->name('admin.brand.update');
-    // Halaman Delete Brand
+    // Toggle brand status (activate/deactivate) - NEW
+    Route::patch('/admin/brand/{id}/toggle-status', [AdminController::class, 'toggle_brand_status'])->name('admin.brand.toggle.status');
+    // Soft delete (deactivate) brand - UPDATED
     Route::delete('/admin/brand/{id}/delete', [AdminController::class, 'delete_brand'])->name('admin.brand.delete');
+    // Force delete brand (permanent deletion) - NEW
+    Route::delete('/admin/brand/{id}/force-delete', [AdminController::class, 'force_delete_brand'])->name('admin.brand.force.delete');
+    // Bulk actions for brands - NEW
+    Route::post('/admin/brands/bulk-action', [AdminController::class, 'bulk_brand_action'])->name('admin.brands.bulk.action');
+    // Export brands to Excel/CSV - NEW
+    Route::get('/admin/brands/export', [AdminController::class, 'export_brands'])->name('admin.brands.export');
+    // API routes for AJAX operations - NEW
+    Route::prefix('admin/api/brands')->name('admin.api.brands.')->group(function () {
+        // Get brand details
+        Route::get('/{id}', [AdminController::class, 'api_get_brand'])->name('get');
+        // Quick toggle status
+        Route::patch('/{id}/toggle', [AdminController::class, 'api_toggle_brand_status'])->name('toggle');
+        // Quick toggle featured
+        Route::patch('/{id}/toggle-featured', [AdminController::class, 'api_toggle_brand_featured'])->name('toggle.featured');
+        // Check slug availability
+        Route::post('/check-slug', [AdminController::class, 'api_check_slug'])->name('check.slug');
+        // Get brand statistics
+        Route::get('/{id}/stats', [AdminController::class, 'api_get_brand_stats'])->name('stats');
+    });
 
 
     // ====================================================================================================
@@ -392,20 +466,14 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
         // Get category statistics
         Route::get('/{id}/stats', [AdminController::class, 'get_category_stats'])->name('api.admin.category.stats');
     });
-
-    // ====================================================================================================
     // Routes untuk mengelola Produk dalam Kategori
-    // ====================================================================================================
     Route::prefix('admin/category/{categoryId}')->group(function () {
         // Lihat semua produk dalam kategori
         Route::get('/products', [AdminController::class, 'category_products'])->name('admin.category.products');
-
         // Tambah produk ke kategori
         Route::get('/products/add', [AdminController::class, 'add_product_to_category'])->name('admin.category.products.add');
-
         // Pindah produk ke kategori lain
         Route::post('/products/move', [AdminController::class, 'move_products_category'])->name('admin.category.products.move');
-
         // Export produk dalam kategori
         Route::get('/products/export', [AdminController::class, 'export_category_products'])->name('admin.category.products.export');
     });
@@ -452,28 +520,74 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // ====================================================================================================
     // Halaman Coupons
     // ====================================================================================================
+    // Main Coupon Routes
     Route::get('/admin/coupons', [AdminController::class, 'coupons'])->name('admin.coupons');
-    // Add Coupon
+    // Add Coupon Routes
     Route::get('/admin/coupon/add', [AdminController::class, 'add_coupon'])->name('admin.coupon.add');
-    // Store Coupon
     Route::post('/admin/coupon/store', [AdminController::class, 'add_coupon_store'])->name('admin.coupon.store');
-    // Edit Coupon
+    // Edit Coupon Routes
     Route::get('/admin/coupon/{id}/edit', [AdminController::class, 'edit_coupon'])->name('admin.coupon.edit');
-    // Update Coupon
     Route::put('/admin/coupon/update', [AdminController::class, 'update_coupon'])->name('admin.coupon.update');
-    // Delete Coupon
+    // Delete Coupon Route
     Route::delete('/admin/coupon/{id}/delete', [AdminController::class, 'delete_coupon'])->name('admin.coupon.delete');
+    // ====================================================================================================
+    // New Enhanced Coupon Features
+    // ====================================================================================================
+    // Toggle Status Kupon
+    Route::put('/admin/coupon/{id}/toggle', [AdminController::class, 'toggle_coupon_status'])->name('admin.coupon.toggle');
+    // Bulk Actions untuk Multiple Kupon
+    Route::post('/admin/coupons/bulk-actions', [AdminController::class, 'bulk_coupon_actions'])->name('admin.coupons.bulk.actions');
+    // Export Kupon ke Excel/CSV
+    Route::get('/admin/coupons/export', [AdminController::class, 'export_coupons'])->name('admin.coupons.export');
+    // Statistik Dashboard Kupon
+    Route::get('/admin/coupons/statistics', [AdminController::class, 'coupon_statistics'])->name('admin.coupons.statistics');
+    // ====================================================================================================
+    // AJAX Routes untuk Fitur Real-time
+    // ====================================================================================================
+    // Validasi Kode Kupon (Real-time)
+    Route::post('/admin/coupon/validate-code', [AdminController::class, 'validate_coupon_code'])->name('admin.coupon.validate.code');
+    // Generator Kode Kupon Otomatis
+    Route::post('/admin/coupon/generate-code', [AdminController::class, 'generate_coupon_code'])->name('admin.coupon.generate.code');
+    // ====================================================================================================
+    // API Routes untuk Dashboard Widgets (Optional)
+    // ====================================================================================================
+    // Mendapatkan data kupon untuk chart/grafik
+    Route::get('/admin/api/coupons/chart-data', [AdminController::class, 'getCouponChartData'])->name('admin.api.coupons.chart');
+    // Mendapatkan kupon yang akan segera berakhir
+    Route::get('/admin/api/coupons/expiring-soon', [AdminController::class, 'getExpiringSoonCoupons'])->name('admin.api.coupons.expiring');
+    // Mendapatkan top performing coupons
+    Route::get('/admin/api/coupons/top-performing', [AdminController::class, 'getTopPerformingCoupons'])->name('admin.api.coupons.top');
 
 
     // ====================================================================================================
     // Halaman Orders
     // ====================================================================================================
     Route::get('/admin/orders', [AdminController::class, 'orders'])->name('admin.orders');
+    // Route untuk export orders
+    Route::get('/admin/orders/export', [AdminController::class, 'exportOrders'])->name('admin.orders.export');
+    // Route untuk bulk actions (fitur baru)
+    Route::post('/admin/orders/bulk-update', [AdminController::class, 'bulkUpdateOrders'])->name('admin.orders.bulk_update');
+    // Route untuk order statistics (untuk API/AJAX)
+    Route::get('/admin/orders/statistics', [AdminController::class, 'getOrderStatistics'])->name('admin.orders.statistics');
+    // Routes yang sudah ada dengan perbaikan...
     Route::get('/admin/readall', [AdminController::class, 'readall']);
-    // Halaman Order Details
+    // Route untuk menampilkan detail order
     Route::get('/admin/order/items/{order_id}', [AdminController::class, 'order_items'])->name('admin.order.items');
-    // Update Order Update Status
+    // Route untuk menampilkan detail order
     Route::put('/admin/order/update-status', [AdminController::class, 'update_order_status'])->name('admin.order.status.update');
+    // Route untuk print order
+    Route::get('/admin/order/{order_id}/print', [AdminController::class, 'printOrder'])->name('admin.order.print');
+    // Route untuk send email notification
+    Route::post('/admin/order/{order_id}/send-email', [AdminController::class, 'sendOrderEmail'])->name('admin.order.send_email');
+    // Route untuk order notes/comments
+    Route::post('/admin/order/{order_id}/add-note', [AdminController::class, 'addOrderNote'])->name('admin.order.add_note');
+    Route::get('/admin/order/{order_id}/notes', [AdminController::class, 'getOrderNotes'])->name('admin.order.notes');
+    // Route untuk order tracking
+    Route::get('/admin/order/{order_id}/tracking', [AdminController::class, 'orderTracking'])->name('admin.order.tracking');
+    Route::post('/admin/order/{order_id}/update-tracking', [AdminController::class, 'updateOrderTracking'])->name('admin.order.update_tracking');
+    // Route untuk order analytics
+    Route::get('/admin/orders/analytics', [AdminController::class, 'orderAnalytics'])->name('admin.orders.analytics');
+    Route::get('/admin/orders/reports', [AdminController::class, 'orderReports'])->name('admin.orders.reports');
 
 
     // ====================================================================================================
@@ -510,17 +624,12 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Halaman Jobs
     // ====================================================================================================
     Route::get('/admin/jobs', [AdminController::class, 'jobs'])->name('admin.jobs');
-    // Route untuk menambahkan job
+    // Route untuk menampilkan form tambah pekerjaan
     Route::get('/admin/jobs/add', [AdminController::class, 'job_add'])->name('admin.jobs.add');
-    // Route untuk menyimpan job
-    // Route::post('/admin/job/store', [AdminController::class, 'job_store'])->name('admin.job.store');
-    // Route untuk edit job
+    // Route untuk menyimpan pekerjaan
     Route::get('/admin/jobs/edit/{id}', [AdminController::class, 'job_edit'])->name('admin.jobs.edit');
-    Route::get('/admin/jobs/{id}/applications', [AdminController::class, 'viewApplications'])->name('admin.job.applications');
-    // Route untuk update job
-    // Route::put('/admin/job/update', [AdminController::class, 'job_update'])->name('admin.job.update');
-    // Route untuk delete job
-    // Route::delete('/admin/job/{id}/delete', [AdminController::class, 'job_delete'])->name('admin.job.delete');
+    // Route untuk menyimpan pekerjaan
+    Route::get('/admin/jobs/{id}/applications', [JobApplicationController::class, 'index']);
 
 
     // ====================================================================================================
@@ -905,4 +1014,96 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
         Route::get('/registrations', [AdminController::class, 'registrations_report'])->name('registrations');
         Route::post('/generate', [AdminController::class, 'generate_report'])->name('generate');
     });
+});
+
+
+// ====================================================================================================
+// API Routes untuk AJAX calls (Opsional)
+// ====================================================================================================
+Route::prefix('api/admin')->middleware(['auth', AuthAdmin::class])->group(function () {
+    // Get order summary for dashboard
+    Route::get('/orders/summary', [AdminController::class, 'getOrderSummary']);
+
+    // Quick status update
+    Route::patch('/order/{order_id}/quick-status', [AdminController::class, 'quickStatusUpdate']);
+
+    // Get order timeline
+    Route::get('/order/{order_id}/timeline', [AdminController::class, 'getOrderTimeline']);
+
+    // Search orders
+    Route::get('/orders/search', [AdminController::class, 'searchOrders']);
+});
+
+
+// ====================================================================================================
+// API Routes untuk AJAX calls
+// ====================================================================================================
+Route::prefix('api/user')->middleware(['auth'])->group(function () {
+
+    // Get order status
+    Route::get('/order/{order_id}/status', [UserController::class, 'getOrderStatus']);
+
+    // Get payment status
+    Route::get('/payment/{transaction_id}/status', [UserController::class, 'getPaymentStatus']);
+
+    // Refresh order data
+    Route::get('/order/{order_id}/refresh', [UserController::class, 'refreshOrderData']);
+
+    // Get shipping tracking
+    Route::get('/order/{order_id}/shipping-tracking', [UserController::class, 'getShippingTracking']);
+
+    // Submit quick feedback
+    Route::post('/order/{order_id}/quick-feedback', [UserController::class, 'submitQuickFeedback']);
+});
+
+
+// Route untuk testing format rupiah (development only)
+if (app()->environment('local')) {
+    Route::get('/test/format-rupiah/{amount}', function($amount) {
+        return response()->json([
+            'original' => $amount,
+            'formatted' => formatRupiah($amount),
+            'clean' => preg_replace('/[^0-9]/', '', formatRupiah($amount))
+        ]);
+    });
+}
+
+// ====================================================================================================
+// Public API Routes untuk Frontend (jika diperlukan)
+// ====================================================================================================
+
+Route::prefix('api/public')->group(function() {
+    // Validasi kupon untuk customer (tanpa auth)
+    Route::post('/validate-coupon', [AdminController::class, 'validateCouponForCustomer'])->name('api.public.validate.coupon');
+
+    // Informasi kupon publik (untuk halaman promo)
+    Route::get('/active-coupons', [AdminController::class, 'getActiveCouponsForPublic'])->name('api.public.active.coupons');
+});
+
+// ====================================================================================================
+// Webhook Routes untuk Integrasi External (jika diperlukan)
+// ====================================================================================================
+
+Route::prefix('webhooks')->group(function() {
+    // Webhook untuk sistem pembayaran
+    Route::post('/payment/coupon-used', [AdminController::class, 'handleCouponUsageWebhook'])->name('webhook.coupon.used');
+
+    // Webhook untuk laporan penggunaan kupon
+    Route::post('/analytics/coupon-performance', [AdminController::class, 'handleCouponAnalyticsWebhook'])->name('webhook.coupon.analytics');
+});
+
+// ====================================================================================================
+// Scheduled Tasks Routes (untuk cron job)
+// ====================================================================================================
+
+Route::prefix('cron')->middleware(['throttle:5,1'])->group(function() {
+    // Cleanup expired coupons
+    Route::get('/cleanup-expired-coupons', [AdminController::class, 'cleanupExpiredCoupons'])->name('cron.cleanup.expired.coupons');
+
+    // Send expiry notifications
+    Route::get('/send-expiry-notifications', [AdminController::class, 'sendExpiryNotifications'])->name('cron.send.expiry.notifications');
+
+    // Generate coupon usage reports
+    Route::get('/generate-usage-reports', [AdminController::class, 'generateUsageReports'])->name('cron.generate.usage.reports');
+
 });

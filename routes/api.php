@@ -340,14 +340,13 @@ Route::middleware('auth.user')->group(function () {
 // =====================================================================================================================================================================================================
 // --------------------------------------------------------------------------------------------ADMIN JOBs ---------------------------------------------------------------------------------------------------
 // =====================================================================================================================================================================================================
+// ========================== ADMIN JOBs ==========================
 Route::prefix('admin')->group(function () {
     Route::post('/jobs', [JobController::class, 'store']);
     Route::get('/jobs/{id}', [JobController::class, 'show']);
     Route::put('/jobs/{id}', [JobController::class, 'update']);
-    Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
     Route::post('/jobs/applications/{id}/update',  [JobApplicationController::class, 'updateStatus']);
-    Route::get('/jobs/{id}/applications',  [JobApplicationController::class, 'getJobApplications']);
+    Route::get('/jobs/{id}/applications', [JobApplicationController::class, 'getJobApplications']);
+    Route::put('/admin/applications/{id}/update', [JobApplicationController::class, 'update']);
 });
-
-
 

@@ -12,6 +12,7 @@ class JobController extends BaseController
     // Menampilkan daftar lowongan kerja
     public function index(Request $request)
     {
+
         try {
             $query = JobList::query();
 

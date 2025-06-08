@@ -30,6 +30,7 @@
     <!-- Admin Penjadwalan JavaScript -->
     <script src="{{ asset('assets/js/admin-penjadwalan.js') }}"></script>
     <script src="{{ asset('assets/js/category-management.js') }}"></script>
+    <script src="{{ asset('assets/js/brands-admin.js') }}"></script>
     @stack('styles')
 
 </head>
@@ -514,6 +515,18 @@
                         </div>
 
                         <div class="center-item">
+                            <div class="center-heading">Dashboard Pemasok</div>
+                            <ul class="menu-list">
+                                <li class="menu-item active">
+                                    <a href="{{ route('admin.supplier.dashboard') }}" class="">
+                                        <div class="icon"><i class="icon-grid"></i></div>
+                                        <div class="text">Dashboard Pemasok</div>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <div class="center-item">
                             <ul class="menu-list">
                                 <!-- ===== MANAJEMEN PRODUK ===== -->
                                 <div class="menu-category-header">
@@ -575,6 +588,13 @@
                                             </a>
                                         </li>
                                     </ul>
+                                </li>
+
+                                <li class="menu-item">
+                                    <a href="{{ route('admin.coupons') }}" class="">
+                                        <div class="icon"><i class="icon-grid"></i></div>
+                                        <div class="text">Kupon</div>
+                                    </a>
                                 </li>
 
                                 <!-- ===== TRANSAKSI ===== -->
@@ -646,11 +666,6 @@
                                     </a>
                                     <ul class="sub-menu">
                                         <li class="sub-menu-item">
-                                            <a href="{{ route('admin.supplier.dashboard') }}">
-                                                <div class="text">Dashboard Pemasok</div>
-                                            </a>
-                                        </li>
-                                        <li class="sub-menu-item">
                                             <a href="{{ route('admin.supplier.index') }}">
                                                 <div class="text">Permintaan Pemasok</div>
                                             </a>
@@ -701,13 +716,6 @@
                                     <a href="{{ route('admin.about.index') }}" class="">
                                         <div class="icon"><i class="icon-image"></i></div>
                                         <div class="text">Tentang</div>
-                                    </a>
-                                </li>
-
-                                <li class="menu-item">
-                                    <a href="{{ route('admin.coupons') }}" class="">
-                                        <div class="icon"><i class="icon-grid"></i></div>
-                                        <div class="text">Kupon</div>
                                     </a>
                                 </li>
 

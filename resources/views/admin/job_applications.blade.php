@@ -59,9 +59,29 @@
                                 </tr>
                             </thead>
                             <tbody id="applications-table">
-                                <tr>
-                                    <td colspan="7" class="text-center">Memuat data...</td>
-                                </tr>
+                                @foreach($applications as $index => $app)
+                                    <tr>
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $app->user->name ?? '-' }}</td>
+                                        <td>{{ $app->user->email ?? '-' }}</td>
+                                        <td>
+                                            @if($app->cv)
+                                                <a href="{{ asset('storage/' . $app->cv) }}" target="_blank" class="btn btn-sm btn-info mb-1">Lihat CV</a>
+                                            @endif
+                                            @if($app->image)
+                                                <br>
+                                                <a href="{{ asset('storage/' . $app->image) }}" target="_blank" class="btn btn-sm btn-warning mb-1">Lihat Gambar</a>
+                                                <br>
+                                                <img src="{{ asset('storage/' . $app->image) }}" alt="Image" style="max-width:80px;max-height:80px;border-radius:6px;margin-top:5px;">
+                                            @endif
+                                            @if(!$app->cv && !$app->image)
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>{{ $app->cover_letter ?? '-' }}</td>
+                                        <td>{{ $app->status ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
                             </tbody>
                         </table>
                     </div>
@@ -78,33 +98,52 @@
 @push('scripts')
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            const jobId = "{{ request()->route('id') }}";
+            // const jobId = "{{ request()->route('id') }}";
+            const jobId = "{{ $jobId }}";
             const apiUrl = `http://127.0.0.1:8000/api/admin/jobs/${jobId}/applications`;
             const tableBody = document.getElementById("applications-table");
             const jobTitle = document.getElementById("job-title");
+            console.log("Debug Job ID:", jobId); // Pastikan ini cetak 3 atau 4
 
             function fetchApplications() {
                 fetch(apiUrl, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",
-                            "Authorization": "Bearer {{ auth()->user()->createToken('auth_token')->plainTextToken }}"
+                            "Authorization": "Bearer {{ $token }}"
+                            // "Authorization": "Bearer {{ auth()->user()->createToken('auth_token')->plainTextToken }}"
                         }
                     })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
                             tableBody.innerHTML = "";
-                            jobTitle.innerText = data.data.data[0]?.job?.title ?? "Nama Pekerjaan";
+                            jobTitle.innerText = data.data.[0]?.job?.title ?? "Nama Pekerjaan";
 
-                            data.data.data.forEach((app, index) => {
+                            data.data.forEach((app, index) => {
                                 const row = `
                                 <tr>
                                     <td>${index + 1}</td>
                                     <td>${app.user.name}</td>
                                     <td>${app.user.email}</td>
                                     <td>
-                                        <a href="/storage/${app.cv}" target="_blank" class="btn btn-sm btn-info">Lihat CV</a>
+                                        ${
+                                            app.cv
+                                                ? `<a href="/storage/${app.cv}" target="_blank" class="btn btn-sm btn-info mb-1">Lihat CV</a><br>`
+                                                : ''
+                                        }
+                                        ${
+                                            app.image
+                                                ? `<a href="/storage/${app.image}" target="_blank" class="btn btn-sm btn-warning mb-1">Lihat Gambar</a>
+                                                   <br>
+                                                   <img src="/storage/${app.image}" alt="Image" style="max-width:80px;max-height:80px;border-radius:6px;margin-top:5px;">`
+                                                : ''
+                                        }
+                                        ${
+                                            !app.cv && !app.image
+                                                ? '-'
+                                                : ''
+                                        }
                                     </td>
                                     <td>${app.cover_letter}</td>
                                     <td>

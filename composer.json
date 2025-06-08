@@ -20,6 +20,7 @@
         "laravel/socialite": "^5.18",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.6",
+        "maatwebsite/excel": "^1.1",
         "midtrans/midtrans-php": "^2.6",
         "openai-php/laravel": "^0.11.0",
         "phpoffice/phpspreadsheet": "^4.2",

@@ -7,17 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 
 class Coupon extends Model
 {
+    // Tambahkan di app/Models/Coupon.php
     protected $fillable = [
         'code',
         'discount_amount',
         'minimum_order',
         'expiry_date',
-        'is_active'
+        'is_active',
+        'usage_count',
+        'usage_limit',
+        'per_customer_limit'  // Tambahan
     ];
 
     protected $casts = [
         'expiry_date' => 'date',
-        'is_active' => 'boolean'
+        'is_active' => 'boolean',
+        'usage_log' => 'array'  // Tambahan
     ];
 
     protected $hidden = ['created_at', 'updated_at'];

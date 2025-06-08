@@ -730,9 +730,9 @@
                         </div>
                         <div style="display: flex; gap: 15px;">
                             @if($category->products()->count() == 0)
-                                <button type="button" class="btn-danger" id="deleteBtn">
+                                {{-- <button type="button" class="btn-danger" id="deleteBtn">
                                     <i class="icon-trash"></i> Hapus Kategori
-                                </button>
+                                </button> --}}
                             @endif
                             <button type="submit" class="btn-primary" id="submitBtn">
                                 <i class="icon-check"></i> Update Kategori
@@ -836,7 +836,7 @@
             const removeImageBtn = document.getElementById('removeImage');
             const form = document.getElementById('categoryForm');
             const submitBtn = document.getElementById('submitBtn');
-            const deleteBtn = document.getElementById('deleteBtn');
+            // const deleteBtn = document.getElementById('deleteBtn');
 
             // Character counters
             const nameCounter = document.getElementById('nameCounter');
@@ -902,42 +902,7 @@
                 previewContainer.style.display = 'none';
             });
 
-            // Delete category
-            if (deleteBtn) {
-                deleteBtn.addEventListener('click', function() {
-                    Swal.fire({
-                        title: 'Hapus Kategori?',
-                        text: 'Kategori "{{ $category->name }}" akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.',
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Ya, Hapus!',
-                        cancelButtonText: 'Batal',
-                        confirmButtonColor: '#dc3545'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            // Create delete form and submit
-                            const deleteForm = document.createElement('form');
-                            deleteForm.method = 'POST';
-                            deleteForm.action = '{{ route("admin.category.delete", ["id" => $category->id]) }}';
 
-                            const csrfToken = document.createElement('input');
-                            csrfToken.type = 'hidden';
-                            csrfToken.name = '_token';
-                            csrfToken.value = '{{ csrf_token() }}';
-
-                            const methodInput = document.createElement('input');
-                            methodInput.type = 'hidden';
-                            methodInput.name = '_method';
-                            methodInput.value = 'DELETE';
-
-                            deleteForm.appendChild(csrfToken);
-                            deleteForm.appendChild(methodInput);
-                            document.body.appendChild(deleteForm);
-                            deleteForm.submit();
-                        }
-                    });
-                });
-            }
 
             // Form submission
             form.addEventListener('submit', function(e) {

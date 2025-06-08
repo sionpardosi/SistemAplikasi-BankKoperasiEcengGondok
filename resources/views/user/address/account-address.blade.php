@@ -36,7 +36,8 @@
                                 <div class="address-grid">
                                     @foreach ($addresses as $address)
                                         <div class="address-card-wrapper">
-                                            <div class="my-account__address-item card h-100 {{ $address->isdefault ? 'is-default' : '' }}">
+                                            <div
+                                                class="my-account__address-item card h-100 {{ $address->isdefault ? 'is-default' : '' }}">
                                                 @if ($address->isdefault)
                                                     <div class="default-badge">
                                                         <i class="fas fa-check-circle"></i> Alamat Utama
@@ -108,7 +109,8 @@
                                                 <div class="card-footer bg-transparent">
                                                     <div class="d-flex justify-content-between">
                                                         <a href="{{ route('user.address.edit-address', $address->id) }}"
-                                                            class="btn btn-sm btn-outline-primary" data-tooltip="Edit Alamat">
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            data-tooltip="Edit Alamat">
                                                             <i class="fas fa-edit"></i> Edit
                                                         </a>
                                                         @if (!$address->isdefault)
@@ -117,7 +119,8 @@
                                                                 method="POST">
                                                                 @csrf
                                                                 <button type="submit"
-                                                                    class="btn btn-sm btn-outline-success" data-tooltip="Jadikan Alamat Utama">
+                                                                    class="btn btn-sm btn-outline-success"
+                                                                    data-tooltip="Jadikan Alamat Utama">
                                                                     <i class="fas fa-check-circle"></i> Jadikan Default
                                                                 </button>
                                                             </form>
@@ -144,7 +147,8 @@
                                         </div>
                                         <h4>Tambahkan Alamat Pengiriman Anda</h4>
                                         <p>Tambahkan alamat pengiriman untuk mempercepat proses checkout Anda berikutnya</p>
-                                        <a href="{{ route('user.address.add-address') }}" class="btn btn-primary add-address-btn-lg">
+                                        <a href="{{ route('user.address.add-address') }}"
+                                            class="btn btn-primary add-address-btn-lg">
                                             <i class="fas fa-plus-circle mr-1"></i> Tambah Alamat Baru
                                         </a>
                                     </div>
@@ -593,6 +597,70 @@
 
         .btn:hover {
             transform: translateY(-2px);
+        }
+
+        /* Styling untuk tombol "Jadikan Default" yang belum diklik */
+        .btn-outline-success {
+            color: #28a745;
+            border-color: #28a745;
+            background-color: transparent;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        /* Styling ketika tombol "Jadikan Default" di-hover */
+        .btn-outline-success:hover {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        /* Styling untuk tombol "Jadikan Default" ketika aktif/diklik */
+        .btn-outline-success:active,
+        .btn-outline-success:focus {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+        }
+
+        /* Styling khusus untuk card footer buttons agar lebih terlihat */
+        .card-footer .btn-outline-success {
+            border-width: 1.5px;
+            font-weight: 600;
+            padding: 6px 12px;
+            font-size: 12px;
+            min-width: 120px;
+        }
+
+        /* Tambahkan styling untuk membuat tombol lebih menonjol */
+        .card-footer .btn {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        .card-footer .btn:hover {
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Styling alternatif jika ingin tombol selalu terlihat dengan warna latar belakang ringan */
+        .btn-outline-success-visible {
+            color: #28a745;
+            border-color: #28a745;
+            background-color: rgba(40, 167, 69, 0.1);
+            /* Background hijau transparan */
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-outline-success-visible:hover {
+            background-color: #28a745;
+            border-color: #28a745;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
         }
     </style>
 

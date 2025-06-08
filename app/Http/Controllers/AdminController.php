@@ -186,97 +186,910 @@ class AdminController extends Controller
         DB::table('notifications')->update(['status' => 'read']);
         return back();
     }
+
+
     // ====================================================================================================
-    // Halaman Brands
+    // Halaman Brands - Updated Methods in AdminController
     // ====================================================================================================
-    public function brands()
+
+    /**
+     * Display a listing of brands with filtering and sorting
+     */
+    public function brands(Request $request)
     {
-        $brands = Brand::orderBy('id', 'DESC')->paginate(10);
-        return view("admin.brands", compact('brands'));
+        $query = Brand::withCount('products');
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'LIKE', '%' . $search . '%')
+                    ->orWhere('slug', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('is_active', $request->status);
+        }
+
+        // Sorting
+        switch ($request->get('sort', 'newest')) {
+            case 'name_asc':
+                $query->orderBy('name', 'asc');
+                break;
+            case 'name_desc':
+                $query->orderBy('name', 'desc');
+                break;
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'most_products':
+                $query->orderBy('products_count', 'desc');
+                break;
+            default: // newest
+                $query->orderBy('created_at', 'desc');
+                break;
+        }
+
+        $brands = $query->paginate(10)->withQueryString();
+
+        // Calculate totals for summary cards
+        $totalProducts = Brand::withCount('products')->get()->sum('products_count');
+
+        return view("admin.brands", compact('brands', 'totalProducts'));
     }
-    // Halaman Menambahkan Brand
+
+    /**
+     * Show the form for creating a new brand
+     */
     public function add_brand()
     {
         return view("admin.brand-add");
     }
-    // Halaman Menyimpan Brand
+
+    /**
+     * Store a newly created brand in storage
+     */
     public function add_brand_store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
-            'slug' => 'required|unique:brands,slug',
+            'name' => 'required|string|max:100|unique:brands,name',
+            'slug' => 'required|string|max:100|unique:brands,slug',
+            'description' => 'nullable|string|max:500',
             'image' => [
                 'required',
-                'file',                        // memastikan input adalah file
-                'mimetypes:image/*',           // menerima semua image MIME :contentReference[oaicite:1]{index=1}
-                'max:2048',                    // ukuran maksimal 2 MB
+                'file',
+                'mimetypes:image/jpeg,image/jpg,image/png',
+                'max:2048', // 2MB
             ],
+            'is_active' => 'boolean',
+            'is_featured' => 'boolean',
+        ], [
+            'name.required' => 'Nama merek wajib diisi.',
+            'name.unique' => 'Nama merek sudah ada, gunakan nama lain.',
+            'name.max' => 'Nama merek maksimal 100 karakter.',
+            'slug.required' => 'Slug merek wajib diisi.',
+            'slug.unique' => 'Slug merek sudah ada, gunakan slug lain.',
+            'slug.max' => 'Slug merek maksimal 100 karakter.',
+            'description.max' => 'Deskripsi maksimal 500 karakter.',
+            'image.required' => 'Gambar merek wajib diupload.',
+            'image.mimetypes' => 'Format gambar harus PNG, JPG, atau JPEG.',
+            'image.max' => 'Ukuran gambar maksimal 2MB.',
         ]);
 
-        $brand = new Brand();
-        $brand->name = $request->name;
-        $brand->slug = Str::slug($request->name);
-        $image = $request->file('image');
-        $file_extention = $request->file('image')->extension();
-        $file_name = Carbon::now()->timestamp . '.' . $file_extention;
-        $this->GenerateBrandThumbailImage($image, $file_name);
-        $brand->image = $file_name;
-        $brand->save();
-        return redirect()->route('admin.brands')->with('status', 'Record has been added successfully !');
+        try {
+            $brand = new Brand();
+            $brand->name = $request->name;
+            $brand->slug = $request->slug;
+            $brand->description = $request->description;
+            $brand->is_active = $request->boolean('is_active', true);
+            $brand->is_featured = $request->boolean('is_featured', false);
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $file_extension = $image->getClientOriginalExtension();
+                $file_name = Carbon::now()->timestamp . '.' . $file_extension;
+
+                $this->GenerateBrandThumbailImage($image, $file_name);
+                $brand->image = $file_name;
+            }
+
+            $brand->save();
+
+            return redirect()->route('admin.brands')->with('success', 'Merek berhasil ditambahkan!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error creating brand: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat menyimpan merek. Silakan coba lagi.');
+        }
     }
-    // Halaman Edit Brand
+
+    /**
+     * Show the form for editing the specified brand
+     */
     public function brand_edit($id)
     {
-        $brand = Brand::find($id);
+        $brand = Brand::withCount('products')->findOrFail($id);
         return view('admin.brand-edit', compact('brand'));
     }
-    // Halaman Update Brand
+
+    /**
+     * Update the specified brand in storage
+     */
     public function update_brand(Request $request)
     {
+        $brand = Brand::findOrFail($request->id);
+
         $request->validate([
-            'name' => 'required',
-            'slug' => 'required|unique:brands,slug,' . $request->id,
-            'image' => 'mimes:png,jpg,jpeg|max:2048'
+            'name' => 'required|string|max:100|unique:brands,name,' . $brand->id,
+            'slug' => 'required|string|max:100|unique:brands,slug,' . $brand->id,
+            'description' => 'nullable|string|max:500',
+            'image' => [
+                'nullable',
+                'file',
+                'mimetypes:image/jpeg,image/jpg,image/png',
+                'max:2048',
+            ],
+            'is_active' => 'boolean',
+            'is_featured' => 'boolean',
+        ], [
+            'name.required' => 'Nama merek wajib diisi.',
+            'name.unique' => 'Nama merek sudah ada, gunakan nama lain.',
+            'name.max' => 'Nama merek maksimal 100 karakter.',
+            'slug.required' => 'Slug merek wajib diisi.',
+            'slug.unique' => 'Slug merek sudah ada, gunakan slug lain.',
+            'slug.max' => 'Slug merek maksimal 100 karakter.',
+            'description.max' => 'Deskripsi maksimal 500 karakter.',
+            'image.mimetypes' => 'Format gambar harus PNG, JPG, atau JPEG.',
+            'image.max' => 'Ukuran gambar maksimal 2MB.',
         ]);
-        $brand = Brand::find($request->id);
-        $brand->name = $request->name;
-        $brand->slug = $request->slug;
-        if ($request->hasFile('image')) {
-            if (File::exists(public_path('uploads/brands') . '/' . $brand->image)) {
-                File::delete(public_path('uploads/brands') . '/' . $brand->image);
+
+        try {
+            $brand->name = $request->name;
+            $brand->slug = $request->slug;
+            $brand->description = $request->description;
+            $brand->is_active = $request->boolean('is_active', true);
+            $brand->is_featured = $request->boolean('is_featured', false);
+
+            // Handle image upload
+            if ($request->hasFile('image')) {
+                // Delete old image
+                if ($brand->image && File::exists(public_path('uploads/brands/' . $brand->image))) {
+                    File::delete(public_path('uploads/brands/' . $brand->image));
+                }
+
+                $image = $request->file('image');
+                $file_extension = $image->getClientOriginalExtension();
+                $file_name = Carbon::now()->timestamp . '.' . $file_extension;
+
+                $this->GenerateBrandThumbailImage($image, $file_name);
+                $brand->image = $file_name;
             }
-            $image = $request->file('image');
-            $file_extention = $request->file('image')->extension();
-            $file_name = Carbon::now()->timestamp . '.' . $file_extention;
 
+            $brand->save();
 
-            $this->GenerateBrandThumbailImage($image, $file_name);
-            $brand->image = $file_name;
+            return redirect()->route('admin.brands')->with('success', 'Merek berhasil diperbarui!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error updating brand: ' . $e->getMessage());
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Terjadi kesalahan saat memperbarui merek. Silakan coba lagi.');
         }
-        $brand->save();
-        return redirect()->route('admin.brands')->with('status', 'Record has been updated successfully !');
     }
-    // Halaman Generate Brand Thumbnail Image
-    public function GenerateBrandThumbailImage($image, $imageName)
+
+    /**
+     * Toggle brand status (active/inactive)
+     */
+    public function toggle_brand_status($id)
+    {
+        try {
+            $brand = Brand::findOrFail($id);
+            $brand->is_active = !$brand->is_active;
+            $brand->save();
+
+            $status = $brand->is_active ? 'diaktifkan' : 'dinonaktifkan';
+            return redirect()->route('admin.brands')->with('success', "Merek berhasil {$status}!");
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error toggling brand status: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengubah status merek.');
+        }
+    }
+
+    /**
+     * Generate brand thumbnail image
+     */
+    private function GenerateBrandThumbailImage($image, $imageName)
     {
         $destinationPath = public_path('uploads/brands');
-        $img = Image::read($image->path());
-        $img->cover(124, 124, "top");
-        $img->resize(124, 124, function ($constraint) {
-            $constraint->aspectRatio();
-        })->save($destinationPath . '/' . $imageName);
-    }
-    // Halaman Delete Brand
-    public function delete_brand($id)
-    {
-        $brand = Brand::find($id);
-        if (File::exists(public_path('uploads/brands') . '/' . $brand->image)) {
-            File::delete(public_path('uploads/brands') . '/' . $brand->image);
+
+        // Ensure directory exists
+        if (!File::exists($destinationPath)) {
+            File::makeDirectory($destinationPath, 0755, true);
         }
-        $brand->delete();
-        return redirect()->route('admin.brands')->with('status', 'Record has been deleted successfully !');
+
+        try {
+            $img = Image::read($image->path());
+
+            // Resize image to 300x300 while maintaining aspect ratio
+            $img->resize(300, 300, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
+
+            // Save the image
+            $img->save($destinationPath . '/' . $imageName, 90); // 90% quality
+
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error generating brand thumbnail: ' . $e->getMessage());
+            throw new \Exception('Gagal memproses gambar. Silakan coba dengan gambar lain.');
+        }
     }
 
+    /**
+     * Soft delete brand (set as inactive instead of actual deletion)
+     */
+    public function delete_brand($id)
+    {
+        try {
+            $brand = Brand::findOrFail($id);
+
+            // Check if brand has products
+            $productCount = $brand->products()->count();
+            if ($productCount > 0) {
+                return redirect()->route('admin.brands')
+                    ->with('error', "Tidak dapat menghapus merek karena masih memiliki {$productCount} produk. Silakan hapus atau pindahkan produk terlebih dahulu.");
+            }
+
+            // Soft delete: just deactivate
+            $brand->is_active = false;
+            $brand->save();
+
+            return redirect()->route('admin.brands')->with('success', 'Merek berhasil dinonaktifkan!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error deleting brand: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus merek.');
+        }
+    }
+
+    /**
+     * Permanently delete brand (admin only)
+     */
+    public function force_delete_brand($id)
+    {
+        try {
+            $brand = Brand::findOrFail($id);
+
+            // Check if brand has products
+            $productCount = $brand->products()->count();
+            if ($productCount > 0) {
+                return redirect()->route('admin.brands')
+                    ->with('error', "Tidak dapat menghapus merek karena masih memiliki {$productCount} produk.");
+            }
+
+            // Delete image file
+            if ($brand->image && File::exists(public_path('uploads/brands/' . $brand->image))) {
+                File::delete(public_path('uploads/brands/' . $brand->image));
+            }
+
+            // Delete brand
+            $brand->delete();
+
+            return redirect()->route('admin.brands')->with('success', 'Merek berhasil dihapus permanen!');
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error force deleting brand: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menghapus merek.');
+        }
+    }
+
+    /**
+     * Bulk actions for brands
+     */
+    public function bulk_brand_action(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:activate,deactivate,delete',
+            'brand_ids' => 'required|array|min:1',
+            'brand_ids.*' => 'exists:brands,id'
+        ]);
+
+        try {
+            $brandIds = $request->brand_ids;
+            $action = $request->action;
+            $count = 0;
+
+            switch ($action) {
+                case 'activate':
+                    Brand::whereIn('id', $brandIds)->update(['is_active' => true]);
+                    $count = count($brandIds);
+                    $message = "{$count} merek berhasil diaktifkan!";
+                    break;
+
+                case 'deactivate':
+                    Brand::whereIn('id', $brandIds)->update(['is_active' => false]);
+                    $count = count($brandIds);
+                    $message = "{$count} merek berhasil dinonaktifkan!";
+                    break;
+
+                case 'delete':
+                    // Check for products before deletion
+                    $brandsWithProducts = Brand::whereIn('id', $brandIds)
+                        ->withCount('products')
+                        ->having('products_count', '>', 0)
+                        ->count();
+
+                    if ($brandsWithProducts > 0) {
+                        return redirect()->back()
+                            ->with('error', "Tidak dapat menghapus {$brandsWithProducts} merek karena masih memiliki produk.");
+                    }
+
+                    // Delete images
+                    $brands = Brand::whereIn('id', $brandIds)->get();
+                    foreach ($brands as $brand) {
+                        if ($brand->image && File::exists(public_path('uploads/brands/' . $brand->image))) {
+                            File::delete(public_path('uploads/brands/' . $brand->image));
+                        }
+                    }
+
+                    // Delete brands
+                    Brand::whereIn('id', $brandIds)->delete();
+                    $count = count($brandIds);
+                    $message = "{$count} merek berhasil dihapus!";
+                    break;
+            }
+
+            return redirect()->route('admin.brands')->with('success', $message);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error in bulk brand action: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memproses aksi massal.');
+        }
+    }
+
+    /**
+     * Export brands to Excel
+     */
+    public function export_brands(Request $request)
+    {
+        try {
+            $query = Brand::withCount('products');
+
+            // Apply same filters as index
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', '%' . $search . '%')
+                        ->orWhere('slug', 'LIKE', '%' . $search . '%');
+                });
+            }
+
+            if ($request->filled('status')) {
+                $query->where('is_active', $request->status);
+            }
+
+            $brands = $query->orderBy('name')->get();
+
+            // Here you would implement Excel export
+            // For now, return a simple CSV response
+            $filename = 'brands_export_' . date('Y-m-d_H-i-s') . '.csv';
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+
+            $callback = function () use ($brands) {
+                $file = fopen('php://output', 'w');
+
+                // Headers
+                fputcsv($file, [
+                    'ID',
+                    'Nama Merek',
+                    'Slug',
+                    'Deskripsi',
+                    'Jumlah Produk',
+                    'Status',
+                    'Unggulan',
+                    'Dibuat',
+                    'Diperbarui'
+                ]);
+
+                // Data
+                foreach ($brands as $brand) {
+                    fputcsv($file, [
+                        $brand->id,
+                        $brand->name,
+                        $brand->slug,
+                        $brand->description ?? '',
+                        $brand->products_count,
+                        $brand->is_active ? 'Aktif' : 'Nonaktif',
+                        $brand->is_featured ? 'Ya' : 'Tidak',
+                        $brand->created_at->format('d/m/Y H:i'),
+                        $brand->updated_at->format('d/m/Y H:i')
+                    ]);
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error exporting brands: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat mengekspor data.');
+        }
+    }
+
+    // ====================================================================================================
+    // API Methods for AJAX Operations
+    // ====================================================================================================
+
+    /**
+     * Get brand details via API
+     */
+    public function api_get_brand($id)
+    {
+        try {
+            $brand = Brand::withCount(['products', 'activeProducts', 'featuredProducts'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'id' => $brand->id,
+                    'name' => $brand->name,
+                    'slug' => $brand->slug,
+                    'description' => $brand->description,
+                    'image_url' => $brand->image_url,
+                    'is_active' => $brand->is_active,
+                    'is_featured' => $brand->is_featured,
+                    'products_count' => $brand->products_count,
+                    'active_products_count' => $brand->active_products_count,
+                    'featured_products_count' => $brand->featured_products_count,
+                    'created_at' => $brand->formatted_created_date,
+                    'updated_at' => $brand->formatted_updated_date,
+                    'statistics' => $brand->getStatistics()
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Brand not found'
+            ], 404);
+        }
+    }
+
+    /**
+     * Toggle brand status via API
+     */
+    public function api_toggle_brand_status($id)
+    {
+        try {
+            $brand = Brand::findOrFail($id);
+            $brand->toggleStatus();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diubah',
+                'data' => [
+                    'is_active' => $brand->is_active,
+                    'status_text' => $brand->status_text,
+                    'status_badge_class' => $brand->status_badge_class
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status'
+            ], 500);
+        }
+    }
+
+    /**
+     * Toggle brand featured status via API
+     */
+    public function api_toggle_brand_featured($id)
+    {
+        try {
+            $brand = Brand::findOrFail($id);
+            $brand->toggleFeatured();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status unggulan berhasil diubah',
+                'data' => [
+                    'is_featured' => $brand->is_featured,
+                    'featured_text' => $brand->featured_text
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengubah status unggulan'
+            ], 500);
+        }
+    }
+
+    /**
+     * Check slug availability
+     */
+    public function api_check_slug(Request $request)
+    {
+        $slug = $request->input('slug');
+        $excludeId = $request->input('exclude_id');
+
+        $query = Brand::where('slug', $slug);
+
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'Slug sudah digunakan' : 'Slug tersedia'
+        ]);
+    }
+
+    /**
+     * Get brand statistics
+     */
+    public function api_get_brand_stats($id)
+    {
+        try {
+            $brand = Brand::withCount(['products', 'activeProducts', 'featuredProducts'])
+                ->findOrFail($id);
+
+            $stats = $brand->getStatistics();
+
+            // Add more detailed statistics
+            $recentProducts = $brand->products()
+                ->latest()
+                ->limit(5)
+                ->select('id', 'name', 'created_at')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'basic_stats' => $stats,
+                    'recent_products' => $recentProducts,
+                    'charts_data' => [
+                        'products_by_month' => $this->getBrandProductsByMonth($brand),
+                        'status_distribution' => [
+                            'active' => $brand->active_products_count,
+                            'inactive' => $brand->products_count - $brand->active_products_count
+                        ]
+                    ]
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Brand not found'
+            ], 404);
+        }
+    }
+
+    /**
+     * Get brand products by month (for charts)
+     */
+    private function getBrandProductsByMonth($brand)
+    {
+        $months = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $count = $brand->products()
+                ->whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+
+            $months[] = [
+                'month' => $date->format('M Y'),
+                'count' => $count
+            ];
+        }
+
+        return $months;
+    }
+
+    // ====================================================================================================
+    // Public API Methods (for frontend)
+    // ====================================================================================================
+
+    /**
+     * Get public brands listing
+     */
+    public function api_public_brands(Request $request)
+    {
+        $perPage = $request->input('per_page', 12);
+        $search = $request->input('search');
+
+        $query = Brand::active()->withCount('activeProducts');
+
+        if ($search) {
+            $query->search($search);
+        }
+
+        $brands = $query->orderBy('name')
+            ->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'data' => $brands->items(),
+            'pagination' => [
+                'current_page' => $brands->currentPage(),
+                'last_page' => $brands->lastPage(),
+                'per_page' => $brands->perPage(),
+                'total' => $brands->total()
+            ]
+        ]);
+    }
+
+    /**
+     * Get active brands
+     */
+    public function api_active_brands()
+    {
+        $brands = Brand::active()
+            ->withCount('activeProducts')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($brand) {
+                return [
+                    'id' => $brand->id,
+                    'name' => $brand->name,
+                    'slug' => $brand->slug,
+                    'image_url' => $brand->image_url,
+                    'products_count' => $brand->active_products_count
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $brands
+        ]);
+    }
+
+    /**
+     * Get featured brands
+     */
+    public function api_featured_brands()
+    {
+        $brands = Brand::featured()
+            ->active()
+            ->withCount('activeProducts')
+            ->orderBy('name')
+            ->get()
+            ->map(function ($brand) {
+                return [
+                    'id' => $brand->id,
+                    'name' => $brand->name,
+                    'slug' => $brand->slug,
+                    'description' => $brand->description_excerpt,
+                    'image_url' => $brand->image_url,
+                    'products_count' => $brand->active_products_count
+                ];
+            });
+
+        return response()->json([
+            'success' => true,
+            'data' => $brands
+        ]);
+    }
+
+    /**
+     * Get brand by slug
+     */
+    public function api_brand_by_slug($slug)
+    {
+        try {
+            $brand = Brand::where('slug', $slug)
+                ->active()
+                ->withCount(['activeProducts', 'featuredProducts'])
+                ->firstOrFail();
+
+            // Get some products from this brand
+            $products = $brand->activeProducts()
+                ->limit(8)
+                ->get()
+                ->map(function ($product) {
+                    return [
+                        'id' => $product->id,
+                        'name' => $product->name,
+                        'slug' => $product->slug,
+                        'image_url' => $product->image_url,
+                        'regular_price' => $product->regular_price,
+                        'sale_price' => $product->sale_price,
+                        'has_discount' => $product->has_discount
+                    ];
+                });
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'brand' => [
+                        'id' => $brand->id,
+                        'name' => $brand->name,
+                        'slug' => $brand->slug,
+                        'description' => $brand->description,
+                        'image_url' => $brand->image_url,
+                        'products_count' => $brand->active_products_count,
+                        'featured_products_count' => $brand->featured_products_count
+                    ],
+                    'products' => $products
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Brand not found'
+            ], 404);
+        }
+    }
+
+    // ====================================================================================================
+    // Dashboard Statistics Methods
+    // ====================================================================================================
+
+    /**
+     * Get brands statistics for dashboard
+     */
+    public function getBrandsStatistics()
+    {
+        $stats = [
+            'total_brands' => Brand::count(),
+            'active_brands' => Brand::active()->count(),
+            'featured_brands' => Brand::featured()->count(),
+            'brands_with_products' => Brand::withProducts()->count(),
+            'brands_without_products' => Brand::withoutProducts()->count(),
+            'recent_brands' => Brand::latest()->limit(5)->get(),
+            'popular_brands' => Brand::getPopularBrands(5),
+            'brands_by_month' => $this->getBrandsByMonth()
+        ];
+
+        return $stats;
+    }
+
+    /**
+     * Get brands created by month (for dashboard charts)
+     */
+    private function getBrandsByMonth()
+    {
+        $months = [];
+
+        for ($i = 11; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $count = Brand::whereYear('created_at', $date->year)
+                ->whereMonth('created_at', $date->month)
+                ->count();
+
+            $months[] = [
+                'month' => $date->format('M Y'),
+                'count' => $count
+            ];
+        }
+
+        return $months;
+    }
+
+    // ====================================================================================================
+    // Utility Methods
+    // ====================================================================================================
+
+    /**
+     * Generate unique slug for brand
+     */
+    public function generateUniqueSlug($name, $excludeId = null)
+    {
+        $slug = Str::slug($name);
+        $originalSlug = $slug;
+        $counter = 1;
+
+        while (true) {
+            $query = Brand::where('slug', $slug);
+
+            if ($excludeId) {
+                $query->where('id', '!=', $excludeId);
+            }
+
+            if (!$query->exists()) {
+                break;
+            }
+
+            $slug = $originalSlug . '-' . $counter;
+            $counter++;
+        }
+
+        return $slug;
+    }
+
+    /**
+     * Validate brand image
+     */
+    private function validateBrandImage($image)
+    {
+        $maxSize = 2 * 1024 * 1024; // 2MB
+        $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+
+        if ($image->getSize() > $maxSize) {
+            throw new \Exception('Ukuran file terlalu besar. Maksimal 2MB.');
+        }
+
+        if (!in_array($image->getMimeType(), $allowedTypes)) {
+            throw new \Exception('Format file tidak didukung. Gunakan PNG, JPG, atau JPEG.');
+        }
+
+        // Check image dimensions
+        $imageInfo = getimagesize($image->getPathname());
+        if ($imageInfo[0] < 200 || $imageInfo[1] < 200) {
+            throw new \Exception('Ukuran gambar terlalu kecil. Minimal 200x200 pixel.');
+        }
+
+        return true;
+    }
+
+    /**
+     * Clean up old brand images
+     */
+    public function cleanupOldBrandImages()
+    {
+        $brandImagesPath = public_path('uploads/brands');
+        $existingImages = Brand::pluck('image')->filter()->toArray();
+
+        if (!is_dir($brandImagesPath)) {
+            return;
+        }
+
+        $files = glob($brandImagesPath . '/*');
+
+        foreach ($files as $file) {
+            $filename = basename($file);
+
+            if (!in_array($filename, $existingImages)) {
+                unlink($file);
+            }
+        }
+    }
+
+    /**
+     * Get brand import template
+     */
+    public function getBrandImportTemplate()
+    {
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="brand_import_template.csv"',
+        ];
+
+        $callback = function () {
+            $file = fopen('php://output', 'w');
+
+            // Headers
+            fputcsv($file, [
+                'name',
+                'slug',
+                'description',
+                'is_active',
+                'is_featured'
+            ]);
+
+            // Sample data
+            fputcsv($file, [
+                'Contoh Merek',
+                'contoh-merek',
+                'Deskripsi contoh merek',
+                '1',
+                '0'
+            ]);
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 
     // ====================================================================================================
     // Halaman Categories dengan Filter dan Sorting
@@ -1719,21 +2532,73 @@ class AdminController extends Controller
 
 
     // ====================================================================================================
-    // Halaman Coupons
+    // Halaman Coupons dengan Filter dan Pencarian
     // ====================================================================================================
-    public function coupons()
+    public function coupons(Request $request)
     {
-        $coupons = Coupon::orderBy('expiry_date', 'DESC')->paginate(12);
+        $query = Coupon::query();
+
+        // Filter berdasarkan pencarian kode kupon
+        if ($request->filled('search')) {
+            $query->where('code', 'LIKE', '%' . $request->search . '%');
+        }
+
+        // Filter berdasarkan status
+        if ($request->filled('status')) {
+            switch ($request->status) {
+                case 'active':
+                    $query->where('is_active', true)
+                        ->where('expiry_date', '>=', Carbon::today());
+                    break;
+                case 'expired':
+                    $query->where('expiry_date', '<', Carbon::today());
+                    break;
+                case 'soon_expire':
+                    $query->where('expiry_date', '<=', Carbon::today()->addDays(7))
+                        ->where('expiry_date', '>=', Carbon::today());
+                    break;
+            }
+        }
+
+        // Filter berdasarkan rentang nilai diskon
+        if ($request->filled('amount_range')) {
+            switch ($request->amount_range) {
+                case 'small':
+                    $query->where('discount_amount', '<', 50000);
+                    break;
+                case 'medium':
+                    $query->whereBetween('discount_amount', [50000, 200000]);
+                    break;
+                case 'large':
+                    $query->where('discount_amount', '>', 200000);
+                    break;
+            }
+        }
+
+        // Filter berdasarkan tanggal berakhir
+        if ($request->filled('date_from')) {
+            $query->where('expiry_date', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->where('expiry_date', '<=', $request->date_to);
+        }
+
+        // Urutkan berdasarkan tanggal berakhir terbaru
+        $coupons = $query->orderBy('expiry_date', 'DESC')
+            ->orderBy('created_at', 'DESC')
+            ->paginate(12);
+
         return view("admin.coupons", compact('coupons'));
     }
 
-    // Menambahkan Coupon
+    // Menambahkan Kupon
     public function add_coupon()
     {
         return view("admin.coupon-add");
     }
 
-    // Menyimpan Coupon
+    // Menyimpan Kupon dengan Validasi yang Ditingkatkan
     public function add_coupon_store(Request $request)
     {
         // Bersihkan input format rupiah - hapus semua karakter kecuali angka
@@ -1747,41 +2612,61 @@ class AdminController extends Controller
         ]);
 
         $request->validate([
-            'code' => 'required|unique:coupons,code|max:50',
-            'discount_amount' => 'required|numeric|min:1000', // Minimal Rp 1.000
-            'minimum_order' => 'required|numeric|min:0',
-            'expiry_date' => 'required|date|after:today'
+            'code' => 'required|unique:coupons,code|max:50|regex:/^[A-Z0-9]+$/',
+            'discount_amount' => 'required|numeric|min:1000|max:10000000', // Max 10 juta
+            'minimum_order' => 'required|numeric|min:0|max:100000000', // Max 100 juta
+            'expiry_date' => 'required|date|after:today|before:' . Carbon::now()->addYear()->format('Y-m-d'), // Max 1 tahun
         ], [
             'code.required' => 'Kode kupon wajib diisi',
             'code.unique' => 'Kode kupon sudah digunakan, silakan gunakan kode lain',
+            'code.regex' => 'Kode kupon hanya boleh menggunakan huruf besar dan angka',
             'discount_amount.required' => 'Nilai diskon wajib diisi',
             'discount_amount.numeric' => 'Nilai diskon harus berupa angka',
             'discount_amount.min' => 'Nilai diskon minimal Rp 1.000',
+            'discount_amount.max' => 'Nilai diskon maksimal Rp 10.000.000',
             'minimum_order.required' => 'Minimum order wajib diisi',
             'minimum_order.numeric' => 'Minimum order harus berupa angka',
+            'minimum_order.max' => 'Minimum order maksimal Rp 100.000.000',
             'expiry_date.required' => 'Tanggal kadaluarsa wajib diisi',
-            'expiry_date.after' => 'Tanggal kadaluarsa harus setelah hari ini'
+            'expiry_date.after' => 'Tanggal kadaluarsa harus setelah hari ini',
+            'expiry_date.before' => 'Tanggal kadaluarsa maksimal 1 tahun dari sekarang'
         ]);
 
-        Coupon::create([
-            'code' => strtoupper($request->code),
-            'discount_amount' => (int)$discountAmount,
-            'minimum_order' => (int)$minimumOrder,
-            'expiry_date' => $request->expiry_date,
-            'is_active' => true
-        ]);
+        // Validasi logika bisnis
+        if ((int)$discountAmount > (int)$minimumOrder && (int)$minimumOrder > 0) {
+            return back()->withErrors([
+                'discount_amount' => 'Nilai diskon tidak boleh lebih besar dari minimum pembelian'
+            ])->withInput();
+        }
 
-        return redirect()->route("admin.coupons")->with('status', 'Kupon berhasil ditambahkan!');
+        try {
+            DB::beginTransaction();
+
+            Coupon::create([
+                'code' => strtoupper($request->code),
+                'discount_amount' => (int)$discountAmount,
+                'minimum_order' => (int)$minimumOrder,
+                'expiry_date' => $request->expiry_date,
+                'is_active' => true
+            ]);
+
+            DB::commit();
+
+            return redirect()->route("admin.coupons")->with('status', 'Kupon berhasil ditambahkan! Kupon ' . strtoupper($request->code) . ' siap digunakan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat menyimpan kupon: ' . $e->getMessage()])->withInput();
+        }
     }
 
-    // Halaman Edit Coupon
+    // Halaman Edit Kupon
     public function edit_coupon($id)
     {
-        $coupon = Coupon::find($id);
+        $coupon = Coupon::findOrFail($id);
         return view('admin.coupon-edit', compact('coupon'));
     }
 
-    // Halaman Update Coupon
+    // Halaman Update Kupon dengan Validasi yang Ditingkatkan
     public function update_coupon(Request $request)
     {
         // Bersihkan input format rupiah - hapus semua karakter kecuali angka
@@ -1795,52 +2680,321 @@ class AdminController extends Controller
         ]);
 
         $request->validate([
-            'code' => 'required|unique:coupons,code,' . $request->id . '|max:50',
-            'discount_amount' => 'required|numeric|min:1000',
-            'minimum_order' => 'required|numeric|min:0',
-            'expiry_date' => 'required|date|after:today'
+            'code' => 'required|unique:coupons,code,' . $request->id . '|max:50|regex:/^[A-Z0-9]+$/',
+            'discount_amount' => 'required|numeric|min:1000|max:10000000',
+            'minimum_order' => 'required|numeric|min:0|max:100000000',
+            'expiry_date' => 'required|date|after:today|before:' . Carbon::now()->addYear()->format('Y-m-d'),
         ], [
             'code.unique' => 'Kode kupon sudah digunakan, silakan gunakan kode lain',
+            'code.regex' => 'Kode kupon hanya boleh menggunakan huruf besar dan angka',
             'discount_amount.required' => 'Nilai diskon wajib diisi',
             'discount_amount.numeric' => 'Nilai diskon harus berupa angka',
             'discount_amount.min' => 'Nilai diskon minimal Rp 1.000',
+            'discount_amount.max' => 'Nilai diskon maksimal Rp 10.000.000',
             'minimum_order.required' => 'Minimum order wajib diisi',
             'minimum_order.numeric' => 'Minimum order harus berupa angka',
-            'expiry_date.after' => 'Tanggal kadaluarsa harus setelah hari ini'
+            'minimum_order.max' => 'Minimum order maksimal Rp 100.000.000',
+            'expiry_date.after' => 'Tanggal kadaluarsa harus setelah hari ini',
+            'expiry_date.before' => 'Tanggal kadaluarsa maksimal 1 tahun dari sekarang'
         ]);
 
-        $coupon = Coupon::findOrFail($request->id);
-        $coupon->update([
-            'code' => strtoupper($request->code),
-            'discount_amount' => (int)$discountAmount,
-            'minimum_order' => (int)$minimumOrder,
-            'expiry_date' => $request->expiry_date,
-        ]);
+        // Validasi logika bisnis
+        if ((int)$discountAmount > (int)$minimumOrder && (int)$minimumOrder > 0) {
+            return back()->withErrors([
+                'discount_amount' => 'Nilai diskon tidak boleh lebih besar dari minimum pembelian'
+            ])->withInput();
+        }
 
-        return redirect()->route('admin.coupons')->with('status', 'Kupon berhasil diperbarui!');
+        try {
+            DB::beginTransaction();
+
+            $coupon = Coupon::findOrFail($request->id);
+            $oldCode = $coupon->code;
+
+            $coupon->update([
+                'code' => strtoupper($request->code),
+                'discount_amount' => (int)$discountAmount,
+                'minimum_order' => (int)$minimumOrder,
+                'expiry_date' => $request->expiry_date,
+            ]);
+
+            DB::commit();
+
+            $message = 'Kupon berhasil diperbarui!';
+            if ($oldCode !== strtoupper($request->code)) {
+                $message .= ' Kode kupon berubah dari ' . $oldCode . ' menjadi ' . strtoupper($request->code) . '.';
+            }
+
+            return redirect()->route('admin.coupons')->with('status', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui kupon: ' . $e->getMessage()])->withInput();
+        }
     }
 
-    // Halaman Delete Coupon
+    // Toggle Status Kupon (Fitur Baru)
+    public function toggle_coupon_status($id)
+    {
+        try {
+            $coupon = Coupon::findOrFail($id);
+            $coupon->update([
+                'is_active' => !$coupon->is_active
+            ]);
+
+            $status = $coupon->is_active ? 'diaktifkan' : 'dinonaktifkan';
+            return redirect()->route('admin.coupons')->with('status', 'Kupon ' . $coupon->code . ' berhasil ' . $status . '!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.coupons')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    // Bulk Actions (Fitur Baru)
+    public function bulk_coupon_actions(Request $request)
+    {
+        $request->validate([
+            'action' => 'required|in:toggle_status,delete',
+            'coupon_ids' => 'required|array',
+            'coupon_ids.*' => 'exists:coupons,id'
+        ]);
+
+        try {
+            DB::beginTransaction();
+
+            $coupons = Coupon::whereIn('id', $request->coupon_ids)->get();
+            $count = $coupons->count();
+
+            switch ($request->action) {
+                case 'toggle_status':
+                    foreach ($coupons as $coupon) {
+                        $coupon->update(['is_active' => !$coupon->is_active]);
+                    }
+                    $message = $count . ' kupon berhasil diubah statusnya!';
+                    break;
+
+                case 'delete':
+                    Coupon::whereIn('id', $request->coupon_ids)->delete();
+                    $message = $count . ' kupon berhasil dihapus!';
+                    break;
+            }
+
+            DB::commit();
+            return redirect()->route('admin.coupons')->with('status', $message);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->route('admin.coupons')->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    // Halaman Delete Kupon dengan Pengecekan Penggunaan
     public function delete_coupon($id)
     {
-        $coupon = Coupon::find($id);
-        $coupon->delete();
-        return redirect()->route('admin.coupons')->with('status', 'Record has been deleted successfully !');
+        try {
+            $coupon = Coupon::findOrFail($id);
+
+            // TODO: Tambahkan pengecekan apakah kupon sedang digunakan di pesanan aktif
+            // Contoh: if ($coupon->orders()->where('status', 'pending')->exists()) {
+            //     return redirect()->route('admin.coupons')->with('error', 'Kupon tidak dapat dihapus karena sedang digunakan dalam pesanan aktif.');
+            // }
+
+            $couponCode = $coupon->code;
+            $coupon->delete();
+
+            return redirect()->route('admin.coupons')->with('status', 'Kupon ' . $couponCode . ' berhasil dihapus!');
+        } catch (\Exception $e) {
+            return redirect()->route('admin.coupons')->with('error', 'Terjadi kesalahan saat menghapus kupon: ' . $e->getMessage());
+        }
+    }
+
+    // Export Kupon ke Excel (Fitur Baru)
+    public function export_coupons(Request $request)
+    {
+        try {
+            $query = Coupon::query();
+
+            // Apply same filters as index
+            if ($request->filled('search')) {
+                $query->where('code', 'LIKE', '%' . $request->search . '%');
+            }
+
+            if ($request->filled('status')) {
+                switch ($request->status) {
+                    case 'active':
+                        $query->where('is_active', true)->where('expiry_date', '>=', Carbon::today());
+                        break;
+                    case 'expired':
+                        $query->where('expiry_date', '<', Carbon::today());
+                        break;
+                    case 'soon_expire':
+                        $query->where('expiry_date', '<=', Carbon::today()->addDays(7))
+                            ->where('expiry_date', '>=', Carbon::today());
+                        break;
+                }
+            }
+
+            if ($request->filled('amount_range')) {
+                switch ($request->amount_range) {
+                    case 'small':
+                        $query->where('discount_amount', '<', 50000);
+                        break;
+                    case 'medium':
+                        $query->whereBetween('discount_amount', [50000, 200000]);
+                        break;
+                    case 'large':
+                        $query->where('discount_amount', '>', 200000);
+                        break;
+                }
+            }
+
+            if ($request->filled('date_from')) {
+                $query->where('expiry_date', '>=', $request->date_from);
+            }
+
+            if ($request->filled('date_to')) {
+                $query->where('expiry_date', '<=', $request->date_to);
+            }
+
+            $coupons = $query->orderBy('expiry_date', 'DESC')->get();
+
+            // Simple CSV export
+            $filename = 'kupon_diskon_' . date('Y-m-d_H-i-s') . '.csv';
+            $handle = fopen('php://output', 'w');
+
+            header('Content-Type: text/csv');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+
+            // CSV Headers
+            fputcsv($handle, [
+                'ID',
+                'Kode Kupon',
+                'Nilai Diskon',
+                'Minimum Pembelian',
+                'Tanggal Berakhir',
+                'Status',
+                'Dibuat Pada'
+            ]);
+
+            // CSV Data
+            foreach ($coupons as $coupon) {
+                fputcsv($handle, [
+                    $coupon->id,
+                    $coupon->code,
+                    formatRupiah($coupon->discount_amount),
+                    formatRupiah($coupon->minimum_order),
+                    $coupon->expiry_date->format('d/m/Y'),
+                    $coupon->isValid() ? 'Aktif' : 'Tidak Aktif',
+                    $coupon->created_at->format('d/m/Y H:i:s')
+                ]);
+            }
+
+            fclose($handle);
+            exit;
+        } catch (\Exception $e) {
+            return redirect()->route('admin.coupons')->with('error', 'Terjadi kesalahan saat export: ' . $e->getMessage());
+        }
+    }
+
+    // Statistik Dashboard Kupon (Fitur Baru)
+    public function coupon_statistics()
+    {
+        try {
+            $stats = [
+                'total_coupons' => Coupon::count(),
+                'active_coupons' => Coupon::where('is_active', true)
+                    ->where('expiry_date', '>=', Carbon::today())
+                    ->count(),
+                'expired_coupons' => Coupon::where('expiry_date', '<', Carbon::today())->count(),
+                'soon_expire_coupons' => Coupon::where('expiry_date', '<=', Carbon::today()->addDays(7))
+                    ->where('expiry_date', '>=', Carbon::today())
+                    ->count(),
+                'total_discount_value' => Coupon::where('is_active', true)
+                    ->where('expiry_date', '>=', Carbon::today())
+                    ->sum('discount_amount'),
+                'average_discount' => Coupon::where('is_active', true)
+                    ->where('expiry_date', '>=', Carbon::today())
+                    ->avg('discount_amount'),
+                'highest_discount' => Coupon::where('is_active', true)
+                    ->where('expiry_date', '>=', Carbon::today())
+                    ->max('discount_amount'),
+                'lowest_minimum_order' => Coupon::where('is_active', true)
+                    ->where('expiry_date', '>=', Carbon::today())
+                    ->where('minimum_order', '>', 0)
+                    ->min('minimum_order')
+            ];
+
+            return response()->json($stats);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    // Validasi Kode Kupon untuk AJAX (Fitur Baru)
+    public function validate_coupon_code(Request $request)
+    {
+        $code = strtoupper($request->code);
+        $excludeId = $request->exclude_id;
+
+        $query = Coupon::where('code', $code);
+        if ($excludeId) {
+            $query->where('id', '!=', $excludeId);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json([
+            'available' => !$exists,
+            'message' => $exists ? 'Kode kupon sudah digunakan' : 'Kode kupon tersedia'
+        ]);
+    }
+
+    // Generate Kode Kupon Otomatis (Fitur Baru)
+    public function generate_coupon_code(Request $request)
+    {
+        $type = $request->type ?? 'random';
+        $maxAttempts = 10;
+        $attempt = 0;
+
+        do {
+            switch ($type) {
+                case 'discount':
+                    $code = 'DISKON' . rand(10, 99) . 'K';
+                    break;
+                case 'save':
+                    $code = 'HEMAT' . rand(10, 99) . 'K';
+                    break;
+                case 'special':
+                    $code = 'SPESIAL' . strtoupper(substr(md5(time()), 0, 4));
+                    break;
+                case 'welcome':
+                    $code = 'WELCOME' . rand(10, 99);
+                    break;
+                default:
+                    $code = 'KUPON' . strtoupper(substr(md5(time() . rand()), 0, 6));
+            }
+
+            $attempt++;
+        } while (Coupon::where('code', $code)->exists() && $attempt < $maxAttempts);
+
+        if ($attempt >= $maxAttempts) {
+            return response()->json(['error' => 'Gagal generate kode unik'], 500);
+        }
+
+        return response()->json(['code' => $code]);
     }
 
     // ====================================================================================================
-    // Halaman Orders
+    // Halaman Orders - Perbaikan dengan fitur filter dan export
     // ====================================================================================================
     public function orders(Request $request)
     {
-        $query = Order::select('orders.*', 'transactions.status as transaction_status')
+        $query = Order::with(['orderItems', 'transaction'])
+            ->select('orders.*')
             ->leftJoin('transactions', 'orders.id', '=', 'transactions.order_id');
 
         // Filter search by name or phone
         if ($request->filled('search')) {
             $query->where(function ($q) use ($request) {
-                $q->where('name', 'like', '%' . $request->search . '%')
-                    ->orWhere('phone', 'like', '%' . $request->search . '%');
+                $q->where('orders.name', 'like', '%' . $request->search . '%')
+                    ->orWhere('orders.phone', 'like', '%' . $request->search . '%');
             });
         }
 
@@ -1849,81 +3003,276 @@ class AdminController extends Controller
             $query->where('orders.status', $request->status);
         }
 
+        // Filter by payment status
+        if ($request->filled('payment_status')) {
+            $paymentStatus = $request->payment_status;
+
+            if ($paymentStatus === 'paid') {
+                $query->whereIn('transactions.status', ['approved', 'paid']);
+            } elseif ($paymentStatus === 'pending') {
+                $query->where(function ($q) {
+                    $q->where('transactions.status', 'pending')
+                        ->orWhereNull('transactions.status');
+                });
+            } elseif ($paymentStatus === 'declined') {
+                $query->where('transactions.status', 'declined');
+            }
+        }
+
+        // Filter by date range
+        if ($request->filled('date_from')) {
+            $query->whereDate('orders.created_at', '>=', $request->date_from);
+        }
+
+        if ($request->filled('date_to')) {
+            $query->whereDate('orders.created_at', '<=', $request->date_to);
+        }
+
+        // Handle export
+        if ($request->has('export') && $request->export === 'excel') {
+            return $this->exportOrders($query);
+        }
+
         $orders = $query->orderBy('orders.created_at', 'DESC')->paginate(12);
 
         return view("admin.orders", compact('orders'));
     }
 
+    // ====================================================================================================
+    // Export Orders to Excel
+    // ====================================================================================================
+    public function exportOrders($query = null)
+    {
+        if (!$query) {
+            $query = Order::with(['orderItems', 'transaction']);
+        }
+
+        $orders = $query->get();
+
+        $filename = 'orders-export-' . date('Y-m-d-H-i-s') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function () use ($orders) {
+            $file = fopen('php://output', 'w');
+
+            // Add UTF-8 BOM for proper Excel encoding
+            fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+            // CSV Headers
+            fputcsv($file, [
+                'No Pesanan',
+                'Nama Pelanggan',
+                'No Telepon',
+                'Alamat',
+                'Kota',
+                'Kode Pos',
+                'Subtotal',
+                'Diskon',
+                'Ongkir',
+                'Total',
+                'Jumlah Item',
+                'Status Pesanan',
+                'Status Pembayaran',
+                'Metode Pembayaran',
+                'Kurir',
+                'Tanggal Pesan',
+                'Tanggal Konfirmasi',
+                'Tanggal Kirim',
+                'Tanggal Sampai'
+            ]);
+
+            foreach ($orders as $order) {
+                $paymentStatus = 'Belum Bayar';
+                $paymentMethod = '-';
+
+                if ($order->transaction) {
+                    if (in_array($order->transaction->status, ['approved', 'paid'])) {
+                        $paymentStatus = 'Sudah Bayar';
+                    } elseif ($order->transaction->status === 'declined') {
+                        $paymentStatus = 'Ditolak';
+                    } else {
+                        $paymentStatus = 'Belum Bayar';
+                    }
+
+                    $paymentMethod = $order->transaction->mode;
+                    if ($paymentMethod === 'midtrans') {
+                        $paymentMethod = 'E-Wallet/Online';
+                    } elseif ($paymentMethod === 'manual_atm') {
+                        $paymentMethod = 'Transfer Bank';
+                    }
+                }
+
+                $orderStatus = $order->status;
+                switch ($order->status) {
+                    case 'awaiting_payment':
+                        $orderStatus = 'Menunggu Pembayaran';
+                        break;
+                    case 'pending':
+                        $orderStatus = 'Pending';
+                        break;
+                    case 'confirmed':
+                        $orderStatus = 'Dikonfirmasi';
+                        break;
+                    case 'processing':
+                        $orderStatus = 'Diproses';
+                        break;
+                    case 'shipped':
+                        $orderStatus = 'Dikirim';
+                        break;
+                    case 'delivered':
+                        $orderStatus = 'Sampai';
+                        break;
+                    case 'completed':
+                        $orderStatus = 'Selesai';
+                        break;
+                    case 'canceled':
+                        $orderStatus = 'Dibatalkan';
+                        break;
+                }
+
+                fputcsv($file, [
+                    '1' . str_pad($order->id, 4, '0', STR_PAD_LEFT),
+                    $order->name,
+                    $order->phone,
+                    $order->address,
+                    $order->city,
+                    $order->zip,
+                    $order->subtotal,
+                    $order->discount ?? 0,
+                    $order->ongkir ?? 0,
+                    $order->total,
+                    $order->orderItems->count(),
+                    $orderStatus,
+                    $paymentStatus,
+                    $paymentMethod,
+                    strtoupper($order->kurir ?? '-'),
+                    $order->created_at->format('d/m/Y H:i'),
+                    $order->confirmed_date ? \Carbon\Carbon::parse($order->confirmed_date)->format('d/m/Y H:i') : '-',
+                    $order->shipped_date ? \Carbon\Carbon::parse($order->shipped_date)->format('d/m/Y H:i') : '-',
+                    $order->delivered_date ? \Carbon\Carbon::parse($order->delivered_date)->format('d/m/Y H:i') : '-'
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    // ====================================================================================================
     // Halaman Order detail Items
+    // ====================================================================================================
     public function order_items($order_id)
     {
-        $order = Order::find($order_id);
-        $orderitems = OrderItem::where('order_id', $order_id)->orderBy('id')->paginate(12);
+        $order = Order::with(['orderItems.product.category', 'orderItems.product.brand', 'user'])->find($order_id);
+
+        if (!$order) {
+            return redirect()->route('admin.orders')->with('error', 'Pesanan tidak ditemukan.');
+        }
+
+        $orderitems = OrderItem::with(['product.category', 'product.brand'])
+            ->where('order_id', $order_id)
+            ->orderBy('id')
+            ->paginate(12);
+
         $transaction = Transaction::where('order_id', $order_id)->first();
+
         return view("admin.order-details", compact('order', 'orderitems', 'transaction'));
     }
 
-    // Halaman Update Order Status
+    // ====================================================================================================
+    // Halaman Update Order Status - VERSI YANG DIPERBAIKI
+    // ====================================================================================================
     public function update_order_status(Request $request)
     {
-        $order = Order::find($request->order_id);
-        $oldStatus = $order->status;
-        $newStatus = $request->order_status;
+        try {
+            // Validasi input
+            $request->validate([
+                'order_id' => 'required|numeric',
+                'order_status' => 'required|string'
+            ]);
 
-        // Update order status
-        $order->status = $newStatus;
+            $order = Order::find($request->order_id);
 
-        // Set appropriate date based on status
-        switch ($newStatus) {
-            case 'confirmed':
-                $order->confirmed_date = Carbon::now();
-                break;
-            case 'processing':
-                $order->processing_date = Carbon::now();
-                break;
-            case 'shipped':
-                $order->shipped_date = Carbon::now();
-                break;
-            case 'delivered':
-                $order->delivered_date = Carbon::now();
-                break;
-            case 'canceled':
-                $order->canceled_date = Carbon::now();
-                break;
-        }
-
-        $order->save();
-
-        // Update transaction status when delivered
-        if ($newStatus == 'delivered') {
-            $transaction = Transaction::where('order_id', $request->order_id)->first();
-            if ($transaction) {
-                $transaction->status = "approved";
-                $transaction->save();
+            if (!$order) {
+                return back()->with("error", "Pesanan tidak ditemukan.");
             }
+
+            $oldStatus = $order->status;
+            $newStatus = $request->order_status;
+
+            // Update order status
+            $order->status = $newStatus;
+
+            // Set appropriate date based on status
+            switch ($newStatus) {
+                case 'confirmed':
+                    $order->confirmed_date = Carbon::now();
+                    break;
+                case 'processing':
+                    $order->processing_date = Carbon::now();
+                    break;
+                case 'shipped':
+                    $order->shipped_date = Carbon::now();
+                    break;
+                case 'delivered':
+                    $order->delivered_date = Carbon::now();
+                    break;
+                case 'canceled':
+                    $order->canceled_date = Carbon::now();
+                    break;
+            }
+
+            $order->save();
+
+            // Update transaction status when delivered
+            if ($newStatus == 'delivered') {
+                $transaction = Transaction::where('order_id', $request->order_id)->first();
+                if ($transaction) {
+                    $transaction->status = "approved";
+                    $transaction->save();
+                }
+            }
+
+            // Add notification based on status change
+            $statusMessages = [
+                'awaiting_payment' => 'Pesanan menunggu pembayaran',
+                'pending' => 'Pesanan menunggu konfirmasi',
+                'confirmed' => 'Pesanan telah dikonfirmasi',
+                'processing' => 'Pesanan sedang diproses',
+                'shipped' => 'Pesanan telah dikirim',
+                'delivered' => 'Pesanan telah sampai',
+                'completed' => 'Pesanan telah selesai',
+                'canceled' => 'Pesanan telah dibatalkan'
+            ];
+
+            $message = $statusMessages[$newStatus] ?? "Status pesanan diperbarui";
+            $invoice = 'ORDER-' . $order->id;
+
+            // Add to notifications table
+            try {
+                DB::table('notifications')->insert([
+                    'pesan' => $message . ' untuk Invoice ' . $invoice,
+                    'waktu' => now(),
+                    'status' => 'unread',
+                    'created_at' => now(),
+                    'updated_at' => now()
+                ]);
+            } catch (\Exception $e) {
+                // Jika gagal insert notification, tidak masalah, lanjutkan saja
+                Log::warning('Failed to insert notification: ' . $e->getMessage());
+            }
+
+            return back()->with("status", "Status pesanan berhasil diperbarui!");
+        } catch (\Exception $e) {
+            Log::error('Error updating order status: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            return back()->with("error", "Terjadi kesalahan saat memperbarui status pesanan. Detail: " . $e->getMessage());
         }
-
-        // Add notification based on status change
-        $statusMessages = [
-            'pending' => 'Pesanan menunggu konfirmasi',
-            'confirmed' => 'Pesanan telah dikonfirmasi',
-            'processing' => 'Pesanan sedang diproses',
-            'shipped' => 'Pesanan telah dikirim',
-            'delivered' => 'Pesanan telah diterima oleh admin',
-            'canceled' => 'Pesanan telah dibatalkan'
-        ];
-
-        $message = $statusMessages[$newStatus] ?? "Status pesanan diperbarui";
-        $invoice = 'ORDER-' . $order->id;
-
-        // Add to notifications table
-        DB::table('notifications')->insert([
-            'pesan' => $message . ' untuk Invoice ' . $invoice,
-            'waktu' => now(),
-            'status' => 'unread',
-        ]);
-
-        return back()->with("status", "Status pesanan berhasil diperbarui!");
     }
 
     // ====================================================================================================

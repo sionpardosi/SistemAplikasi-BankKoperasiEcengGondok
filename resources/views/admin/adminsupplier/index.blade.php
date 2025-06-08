@@ -766,11 +766,11 @@
                             <label class="form-label">&nbsp;</label>
                             <div class="filter-buttons">
                                 <button type="submit" class="btn btn-filter" title="Terapkan Filter">
-                                    <i class="bx bx-search"></i>
+                                    <i class="icon-search"></i>
                                 </button>
-                                <a href="{{ route('admin.supplier.index') }}" class="btn btn-reset" title="Reset Filter">
+                                {{-- <a href="{{ route('admin.supplier.index') }}" class="btn btn-reset" title="Reset Filter">
                                     <i class="icon-refresh"></i> Reset
-                                </a>
+                                </a> --}}
                             </div>
                         </div>
                     </div>

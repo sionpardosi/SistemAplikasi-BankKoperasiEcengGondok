@@ -22,6 +22,10 @@
             color: red;
         }
 
+        .text-danger {
+            color: #e53935 !important;
+        }
+
         .custom-page-size-select {
             appearance: none;
             -webkit-appearance: none;
@@ -488,6 +492,10 @@
         /* Enhanced Rating Filter Styles */
         .rating-filters {
             padding: 10px 0;
+        }
+
+        .text-warning {
+            color: #ff9966 !important;
         }
 
         .rating-filter-item {

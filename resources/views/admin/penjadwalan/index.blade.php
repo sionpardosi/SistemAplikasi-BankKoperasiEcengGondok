@@ -1116,12 +1116,12 @@
                             <label class="form-label">&nbsp;</label>
                             <div class="filter-buttons">
                                 <button type="submit" class="btn btn-filter" title="Terapkan Filter">
-                                    <i class="icon-magnifier"></i>
+                                    <i class="icon-search"></i>
                                 </button>
-                                <a href="{{ route('admin.penjadwalan.index') }}" class="btn btn-reset"
+                                {{-- <a href="{{ route('admin.penjadwalan.index') }}" class="btn btn-reset"
                                     title="Reset Filter">
                                     <i class="icon-refresh"></i>
-                                </a>
+                                </a> --}}
                             </div>
                         </div>
                     </div>

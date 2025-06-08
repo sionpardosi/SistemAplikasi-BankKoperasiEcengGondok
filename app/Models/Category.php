@@ -412,7 +412,7 @@ class Category extends Model
         // Auto generate slug if not provided
         static::creating(function ($category) {
             if (empty($category->slug)) {
-                $category->slug = \Str::slug($category->name);
+                $category->slug = \Illuminate\Support\Str::slug($category->name);
             }
 
             // Set default is_active = true untuk kategori baru

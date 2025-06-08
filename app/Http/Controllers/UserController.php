@@ -2,28 +2,52 @@
 
 namespace App\Http\Controllers;
 
+use PDF;
 use Carbon\Carbon;
 use App\Models\Order;
 use App\Models\Address;
+use App\Models\Product;
 use App\Models\OrderItem;
+use App\Models\BankAccount;
 use App\Models\Transaction;
+use Illuminate\Support\Str;
+use App\Models\PendingOrder;
 use Illuminate\Http\Request;
+use App\Models\JobApplication;
 use App\Models\SupplierRequest;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Models\PendingOrder;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use App\Models\BankAccount;
 
 class UserController extends Controller
 {
-    public function index()
-    {
-        return view("user.index");
+    // public function index()
+    // {
+    //     return view("user.index");
+    // }
+
+    public function index() {
+        $applications = JobApplication::with('job')
+            ->where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
+        return view('user.job_vacancy.index', compact('applications'));
     }
+
+    // public function job() {
+    //     $applications = JobApplication::with('job')
+    //         ->where('user_id', auth()->id())
+    //         ->latest()
+    //         ->get();
+
+    //     return view('user.job_vacancy.index', compact('applications'));
+    // }
 
     public function account_orders()
     {
@@ -101,22 +125,22 @@ class UserController extends Controller
         }
 
         // ✅ PERBAIKAN: Cek dulu apakah sudah dibayar di database
-if (in_array($transaction->status, ['approved', 'paid'])) {
-    return response()->json([
-        'status' => 'approved',
-        'message' => 'Payment already confirmed',
-        'already_paid' => true
-    ]);
-}
+        if (in_array($transaction->status, ['approved', 'paid'])) {
+            return response()->json([
+                'status' => 'approved',
+                'message' => 'Payment already confirmed',
+                'already_paid' => true
+            ]);
+        }
 
-// Cek apakah snap token masih valid
-if (!$transaction->snap_token || $transaction->isSnapTokenExpired()) {
-    return response()->json([
-        'status' => $transaction->status,
-        'error' => 'Snap token expired or invalid',
-        'token_expired' => true
-    ]);
-}
+        // Cek apakah snap token masih valid
+        if (!$transaction->snap_token || $transaction->isSnapTokenExpired()) {
+            return response()->json([
+                'status' => $transaction->status,
+                'error' => 'Snap token expired or invalid',
+                'token_expired' => true
+            ]);
+        }
 
         try {
             // Cek status di Midtrans API langsung
@@ -573,6 +597,389 @@ if (!$transaction->snap_token || $transaction->isSnapTokenExpired()) {
             return redirect()->back()
                 ->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])
                 ->withInput();
+        }
+    }
+
+    // ====================================================================================================
+    // Upload Payment Proof
+    // ====================================================================================================
+    public function uploadPaymentProof(Request $request)
+    {
+        $request->validate([
+            'order_id' => 'required|exists:orders,id',
+            'payment_proof' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048' // 2MB max
+        ], [
+            'payment_proof.required' => 'Bukti pembayaran harus diupload',
+            'payment_proof.mimes' => 'Format file harus JPG, PNG, atau PDF',
+            'payment_proof.max' => 'Ukuran file maksimal 2MB'
+        ]);
+
+        try {
+            // Find the order and transaction
+            $order = Order::where('id', $request->order_id)
+                ->where('user_id', Auth::id())
+                ->firstOrFail();
+
+            $transaction = Transaction::where('order_id', $order->id)->firstOrFail();
+
+            // Check if transaction is still pending
+            if ($transaction->status !== 'pending') {
+                return back()->with('error', 'Tidak dapat mengupload bukti untuk transaksi yang sudah diproses.');
+            }
+
+            // Handle file upload
+            if ($request->hasFile('payment_proof')) {
+                $file = $request->file('payment_proof');
+
+                // Generate unique filename
+                $fileName = 'payment_proof_' . $transaction->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+                // Store file in storage/app/public/payment_proofs
+                $filePath = $file->storeAs('payment_proofs', $fileName, 'public');
+
+                // Delete old proof if exists
+                if ($transaction->payment_proof) {
+                    Storage::disk('public')->delete($transaction->payment_proof);
+                }
+
+                // Update transaction with proof
+                $transaction->payment_proof = $filePath;
+                $transaction->save();
+
+                return back()->with('status', 'Bukti pembayaran berhasil diupload! Admin akan memverifikasi dalam 1x24 jam.');
+            }
+
+            return back()->with('error', 'Gagal mengupload file. Silakan coba lagi.');
+        } catch (\Exception $e) {
+            Log::error('Error uploading payment proof: ' . $e->getMessage());
+            return back()->with('error', 'Terjadi kesalahan saat mengupload bukti pembayaran.');
+        }
+    }
+
+    // ====================================================================================================
+    // Download Order Invoice
+    // ====================================================================================================
+    public function downloadInvoice($order_id)
+    {
+        $order = Order::with(['orderItems.product', 'transaction'])
+            ->where('user_id', Auth::id())
+            ->findOrFail($order_id);
+
+        $transaction = $order->transaction;
+
+        // Generate PDF invoice (you'll need to install dompdf or similar)
+        $pdf = PDF::loadView('user.invoice', compact('order', 'transaction'));
+
+        $filename = 'Invoice_' . str_pad($order->id, 6, '0', STR_PAD_LEFT) . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    // ====================================================================================================
+    // Share Order Details
+    // ====================================================================================================
+    public function shareOrder($order_id)
+    {
+        $order = Order::where('user_id', Auth::id())->findOrFail($order_id);
+
+        // Generate shareable link or return JSON for social sharing
+        $shareData = [
+            'title' => 'Detail Pesanan #' . str_pad($order->id, 6, '0', STR_PAD_LEFT),
+            'description' => 'Pesanan saya di ' . config('app.name'),
+            'url' => route('user.account.order.details', $order_id),
+            'image' => asset('assets/images/logo.png') // Your app logo
+        ];
+
+        return response()->json($shareData);
+    }
+
+    // ====================================================================================================
+    // Request Order Cancellation with Reason
+    // ====================================================================================================
+    public function requestCancellation(Request $request, $order_id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:500',
+            'details' => 'nullable|string|max:1000'
+        ]);
+
+        $order = Order::where('user_id', Auth::id())->findOrFail($order_id);
+
+        // Check if order can be cancelled
+        if (!in_array($order->status, ['pending', 'awaiting_payment', 'confirmed'])) {
+            return back()->with('error', 'Pesanan tidak dapat dibatalkan pada status ini.');
+        }
+
+        try {
+            DB::beginTransaction();
+
+            // Update order status
+            $order->status = 'canceled';
+            $order->canceled_date = now();
+            $order->cancellation_reason = $request->reason;
+            $order->cancellation_details = $request->details;
+            $order->save();
+
+            // Return stock if needed
+            foreach ($order->orderItems as $item) {
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->quantity += $item->quantity;
+                    if ($product->reserved_quantity >= $item->quantity) {
+                        $product->reserved_quantity -= $item->quantity;
+                    }
+                    $product->save();
+                }
+            }
+
+            // Add notification
+            DB::table('notifications')->insert([
+                'pesan' => 'Pesanan #' . str_pad($order->id, 6, '0', STR_PAD_LEFT) . ' dibatalkan oleh pelanggan',
+                'waktu' => now(),
+                'status' => 'unread',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            DB::commit();
+
+            return back()->with('status', 'Pesanan berhasil dibatalkan. Jika sudah ada pembayaran, refund akan diproses dalam 3-7 hari kerja.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error cancelling order: ' . $e->getMessage());
+            return back()->with('error', 'Gagal membatalkan pesanan. Silakan coba lagi.');
+        }
+    }
+
+    // ====================================================================================================
+    // Create Dispute/Complaint
+    // ====================================================================================================
+    public function createDispute(Request $request, $order_id)
+    {
+        $request->validate([
+            'type' => 'required|in:damaged,wrong_item,not_received,quality_issue,other',
+            'description' => 'required|string|max:1000',
+            'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048'
+        ]);
+
+        $order = Order::where('user_id', Auth::id())->findOrFail($order_id);
+
+        try {
+            // Create dispute record (you'll need to create this table)
+            $dispute = DB::table('order_disputes')->insertGetId([
+                'order_id' => $order->id,
+                'user_id' => Auth::id(),
+                'type' => $request->type,
+                'description' => $request->description,
+                'status' => 'open',
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+
+            // Handle image uploads if any
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $fileName = 'dispute_' . $dispute . '_' . time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
+                    $filePath = $image->storeAs('dispute_images', $fileName, 'public');
+
+                    DB::table('dispute_images')->insert([
+                        'dispute_id' => $dispute,
+                        'image_path' => $filePath,
+                        'created_at' => now()
+                    ]);
+                }
+            }
+
+            return back()->with('status', 'Keluhan berhasil disubmit. Tim customer service akan menghubungi Anda dalam 1x24 jam.');
+        } catch (\Exception $e) {
+            Log::error('Error creating dispute: ' . $e->getMessage());
+            return back()->with('error', 'Gagal mengajukan keluhan. Silakan coba lagi.');
+        }
+    }
+
+    // ====================================================================================================
+    // Get Order Status (API)
+    // ====================================================================================================
+    public function getOrderStatus($order_id)
+    {
+        $order = Order::with('transaction')
+            ->where('user_id', Auth::id())
+            ->findOrFail($order_id);
+
+        return response()->json([
+            'order_status' => $order->status,
+            'payment_status' => $order->transaction ? $order->transaction->status : null,
+            'last_updated' => $order->updated_at->toISOString()
+        ]);
+    }
+
+    // ====================================================================================================
+    // Get Payment Status (API)
+    // ====================================================================================================
+    public function getPaymentStatus($transaction_id)
+    {
+        $transaction = Transaction::where('user_id', Auth::id())
+            ->findOrFail($transaction_id);
+
+        return response()->json([
+            'status' => $transaction->status,
+            'last_updated' => $transaction->updated_at->toISOString(),
+            'payment_proof' => $transaction->payment_proof ? asset('storage/' . $transaction->payment_proof) : null
+        ]);
+    }
+
+    // ====================================================================================================
+    // Refresh Order Data (API)
+    // ====================================================================================================
+    public function refreshOrderData($order_id)
+    {
+        $order = Order::with(['orderItems.product', 'transaction'])
+            ->where('user_id', Auth::id())
+            ->findOrFail($order_id);
+
+        return response()->json([
+            'order' => $order,
+            'status_timeline' => $this->getOrderTimeline($order),
+            'can_cancel' => in_array($order->status, ['pending', 'awaiting_payment', 'confirmed']),
+            'can_confirm' => $order->status === 'delivered'
+        ]);
+    }
+
+    // ====================================================================================================
+    // Get Order Timeline (Helper)
+    // ====================================================================================================
+    private function getOrderTimeline($order)
+    {
+        $timeline = [];
+
+        $statuses = [
+            'awaiting_payment' => 'Menunggu Pembayaran',
+            'pending' => 'Menunggu Konfirmasi',
+            'confirmed' => 'Dikonfirmasi',
+            'processing' => 'Diproses',
+            'shipped' => 'Dikirim',
+            'delivered' => 'Sampai Tujuan',
+            'completed' => 'Selesai'
+        ];
+
+        foreach ($statuses as $status => $label) {
+            $dateField = $status . '_date';
+            $date = $order->$dateField ?? ($status === 'awaiting_payment' ? $order->created_at : null);
+
+            $timeline[] = [
+                'status' => $status,
+                'label' => $label,
+                'date' => $date ? $date->format('Y-m-d H:i:s') : null,
+                'is_completed' => $this->isStatusCompleted($order->status, $status),
+                'is_active' => $order->status === $status
+            ];
+        }
+
+        return $timeline;
+    }
+
+    // ====================================================================================================
+    // Check if Status is Completed (Helper)
+    // ====================================================================================================
+    private function isStatusCompleted($currentStatus, $checkStatus)
+    {
+        $statusOrder = ['awaiting_payment', 'pending', 'confirmed', 'processing', 'shipped', 'delivered', 'completed'];
+
+        $currentIndex = array_search($currentStatus, $statusOrder);
+        $checkIndex = array_search($checkStatus, $statusOrder);
+
+        if ($currentStatus === 'canceled') {
+            return false;
+        }
+
+        return $currentIndex !== false && $checkIndex !== false && $currentIndex >= $checkIndex;
+    }
+
+    // ====================================================================================================
+    // Get Shipping Tracking (API) - Optional integration with shipping providers
+    // ====================================================================================================
+    public function getShippingTracking($order_id)
+    {
+        $order = Order::where('user_id', Auth::id())->findOrFail($order_id);
+
+        // This would integrate with shipping provider APIs (JNE, TIKI, POS, etc.)
+        // For now, return mock data
+
+        $trackingData = [
+            'tracking_number' => $order->tracking_number ?? 'N/A',
+            'courier' => $order->kurir ?? 'N/A',
+            'status' => $order->status,
+            'estimated_delivery' => null,
+            'tracking_history' => []
+        ];
+
+        // If you have tracking integration, implement here
+        // Example: JNE API, TIKI API, etc.
+
+        return response()->json($trackingData);
+    }
+
+    // ====================================================================================================
+    // Submit Quick Feedback (API)
+    // ====================================================================================================
+    public function submitQuickFeedback(Request $request, $order_id)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'comment' => 'nullable|string|max:500'
+        ]);
+
+        $order = Order::where('user_id', Auth::id())->findOrFail($order_id);
+
+        // Save quick feedback (you'll need to create this table)
+        DB::table('order_feedback')->updateOrInsert(
+            ['order_id' => $order->id, 'user_id' => Auth::id()],
+            [
+                'rating' => $request->rating,
+                'comment' => $request->comment,
+                'updated_at' => now()
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Terima kasih atas feedback Anda!'
+        ]);
+    }
+
+    // ====================================================================================================
+    // Update Delivery Address (before shipped)
+    // ====================================================================================================
+    public function updateDeliveryAddress(Request $request, $order_id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:100',
+            'phone' => 'required|string|max:20',
+            'address' => 'required|string|max:500',
+            'city' => 'required|string|max:100',
+            'zip' => 'required|string|max:10'
+        ]);
+
+        $order = Order::where('user_id', Auth::id())->findOrFail($order_id);
+
+        // Check if order can still be updated
+        if (!in_array($order->status, ['pending', 'confirmed', 'processing'])) {
+            return back()->with('error', 'Alamat tidak dapat diubah setelah pesanan dikirim.');
+        }
+
+        try {
+            $order->update([
+                'name' => $request->name,
+                'phone' => $request->phone,
+                'address' => $request->address,
+                'city' => $request->city,
+                'zip' => $request->zip
+            ]);
+
+            return back()->with('status', 'Alamat pengiriman berhasil diperbarui.');
+        } catch (\Exception $e) {
+            Log::error('Error updating delivery address: ' . $e->getMessage());
+            return back()->with('error', 'Gagal memperbarui alamat pengiriman.');
         }
     }
 }

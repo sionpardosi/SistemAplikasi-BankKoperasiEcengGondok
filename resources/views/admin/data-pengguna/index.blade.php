@@ -1,424 +1,968 @@
 @extends('layouts.admin')
 
 @section('content')
-    <div class="main-content">
-        <div class="main-content-inner">
-            <div class="main-content-wrap">
-                <!-- Header Section -->
-                <div class="flex items-center flex-wrap justify-between gap20 mb-27">
-                    <h3>Manajemen Data Pengguna</h3>
-                    <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
-                        <li>
-                            <a href="{{ route('admin.index') }}">
-                                <div class="text-tiny">Dashboard</div>
-                            </a>
-                        </li>
-                        <li><i class="icon-chevron-right"></i></li>
-                        <li>
-                            <div class="text-tiny">Data Pengguna</div>
-                        </li>
-                    </ul>
+    <style>
+        /* Base Styling */
+        .main-content-inner {
+            padding: 1.5rem;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #495057;
+            margin: 0;
+        }
+
+        /* Summary Cards */
+        .summary-section {
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            height: 100%;
+            text-align: center;
+        }
+
+        .summary-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            margin: 0 auto 15px;
+        }
+
+        .summary-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 8px;
+            line-height: 1;
+        }
+
+        .summary-label {
+            font-size: 15px;
+            color: #6c757d;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .btn-add-new {
+            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+        }
+
+        .btn-add-new:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
+            color: white;
+        }
+
+        /* Filter Section */
+        .filter-section {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .filter-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .filter-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #495057;
+            margin: 0;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-control,
+        .form-select {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 12px 15px;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            background: #ffffff;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .search-container {
+            position: relative;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .search-input {
+            padding-left: 45px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .btn-filter {
+            background: #007bff;
+            border: 1px solid #007bff;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-filter:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-reset {
+            background: #6c757d;
+            border: 1px solid #6c757d;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-reset:hover {
+            background: #545b62;
+            border-color: #545b62;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+            color: white;
+        }
+
+        .filter-info {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .filter-info-text {
+            font-size: 14px;
+            color: #6c757d;
+            margin: 0;
+        }
+
+        /* Table Section */
+        .table-section {
+            background: #ffffff;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        .table-header {
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .table-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #495057;
+            margin: 0;
+        }
+
+        .table {
+            margin-bottom: 0;
+            font-size: 15px;
+        }
+
+        .table thead th {
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
+            font-weight: 700;
+            color: #495057;
+            padding: 18px 15px;
+            font-size: 15px;
+            white-space: nowrap;
+            border-top: none;
+        }
+
+        .table tbody td {
+            padding: 18px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f1f3f4;
+            font-size: 15px;
+            line-height: 1.4;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9ff;
+        }
+
+        /* User Table Styling */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 16px;
+        }
+
+        .user-info h6 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #495057;
+        }
+
+        .user-info .text-muted {
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .contact-info {
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .contact-info .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 3px;
+        }
+
+        .contact-info .contact-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .contact-info i {
+            width: 16px;
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        /* Status Badges */
+        .status-badge {
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-admin {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-customer {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .status-verified {
+            background: #d1f2eb;
+            color: #0c5460;
+            border: 1px solid #7dd3fc;
+        }
+
+        .status-unverified {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        /* Date Display */
+        .date-display {
+            font-size: 14px;
+        }
+
+        .date-main {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 2px;
+        }
+
+        .date-relative {
+            font-size: 12px;
+            color: #6c757d;
+        }
+
+        /* Action Buttons */
+        .action-group {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+
+        .btn-action {
+            padding: 8px 15px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: 1px solid;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            white-space: nowrap;
+        }
+
+        .btn-view {
+            background: #17a2b8;
+            border-color: #17a2b8;
+            color: white;
+        }
+
+        .btn-view:hover {
+            background: #138496;
+            border-color: #138496;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-edit {
+            background: #007bff;
+            border-color: #007bff;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #0056b3;
+            border-color: #0056b3;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: transparent;
+            border-color: #dc3545;
+            color: #dc3545;
+        }
+
+        .btn-delete:hover {
+            background: #dc3545;
+            border-color: #dc3545;
+            color: white;
+            transform: translateY(-1px);
+        }
+
+        /* Bulk Actions */
+        .bulk-actions-bar {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .bulk-actions-bar.active {
+            display: block;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: #6c757d;
+        }
+
+        .empty-icon {
+            font-size: 80px;
+            margin-bottom: 25px;
+            opacity: 0.3;
+        }
+
+        .empty-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #495057;
+            margin-bottom: 10px;
+        }
+
+        .empty-text {
+            font-size: 16px;
+            color: #6c757d;
+            margin-bottom: 30px;
+        }
+
+        /* Pagination */
+        .pagination-container {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .pagination-info {
+            font-size: 14px;
+            color: #6c757d;
+        }
+
+        .pagination {
+            margin-bottom: 0;
+        }
+
+        .page-link {
+            border-radius: 6px;
+            margin: 0 2px;
+            border: 1px solid #dee2e6;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .filter-buttons {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .filter-buttons .btn {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-content-inner {
+                padding: 1rem;
+            }
+
+            .page-header,
+            .filter-section,
+            .table-section {
+                padding: 20px;
+            }
+
+            .summary-card {
+                padding: 20px;
+                margin-bottom: 15px;
+            }
+
+            .action-group {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .btn-action {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .table-responsive {
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .d-flex.justify-content-between {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .btn-add-new {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+
+    <div class="main-content-inner">
+        <div class="main-content-wrap">
+            <!-- Page Header -->
+            <div class="flex items-center flex-wrap justify-between gap20 mb-27">
+                <h3>Manajemen Data Pengguna</h3>
+                <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
+                    <li>
+                        <a href="{{ route('admin.index') }}">
+                            <div class="text-tiny">Dashboard</div>
+                        </a>
+                    </li>
+                    <li><i class="icon-chevron-right"></i></li>
+                    <li>
+                        <div class="text-tiny">Data Pengguna</div>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Action Bar -->
+            <div class="action-bar">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="page-title">Kelola Data Pengguna</h4>
+                        <p class="text-muted mb-0">Manajemen lengkap data pengguna sistem</p>
+                    </div>
+                    <a href="{{ route('admin.data-pengguna.create') }}" class="btn-add-new">
+                        <i class="icon-plus"></i> Tambah Pengguna
+                    </a>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-section">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="summary-card">
+                            <div class="summary-icon bg-primary">
+                                <i class="icon-users"></i>
+                            </div>
+                            <div class="summary-number">{{ number_format($stats['total_users']) }}</div>
+                            <div class="summary-label">Total Pengguna</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="summary-card">
+                            <div class="summary-icon bg-info">
+                                <i class="icon-user"></i>
+                            </div>
+                            <div class="summary-number">{{ number_format($stats['total_customers']) }}</div>
+                            <div class="summary-label">Customer</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="summary-card">
+                            <div class="summary-icon bg-success">
+                                <i class="icon-check-circle"></i>
+                            </div>
+                            <div class="summary-number">{{ number_format($stats['verified_users']) }}</div>
+                            <div class="summary-label">Terverifikasi</div>
+                        </div>
+                    </div>
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="summary-card">
+                            <div class="summary-icon bg-warning">
+                                <i class="icon-activity"></i>
+                            </div>
+                            <div class="summary-number">{{ number_format($stats['active_today']) }}</div>
+                            <div class="summary-label">Aktif Hari Ini</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alert Messages -->
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="icon-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="icon-alert-circle me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-header">
+                    <h5 class="filter-title">
+                        <i class="icon-filter"></i> Filter & Pencarian Data
+                    </h5>
                 </div>
 
-                <!-- Statistics Cards -->
-                <div class="row mb-4">
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <div class="wg-box bg-primary text-white">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h4 class="text-white mb-0">{{ number_format($stats['total_users']) }}</h4>
-                                    <p class="text-white-50 mb-0">Total Pengguna</p>
-                                </div>
-                                <div class="icon-box">
+                <form method="GET" action="{{ route('admin.data-pengguna.index') }}" id="filterForm">
+                    <div class="row g-3">
+                        <!-- Search -->
+                        <div class="col-lg-3 col-md-6">
+                            <label class="form-label">Cari Pengguna</label>
+                            <div class="search-container">
+                                <i class="icon-search search-icon"></i>
+                                <input type="text" name="search" class="form-control search-input"
+                                    placeholder="Nama, email, atau HP..." value="{{ request('search') }}">
+                            </div>
+                        </div>
+
+                        <!-- User Type Filter -->
+                        <div class="col-lg-2 col-md-6">
+                            <label class="form-label">Tipe User</label>
+                            <select name="utype" class="form-select">
+                                <option value="">Semua Tipe</option>
+                                <option value="USR" {{ request('utype') === 'USR' ? 'selected' : '' }}>Customer</option>
+                                <option value="ADM" {{ request('utype') === 'ADM' ? 'selected' : '' }}>Admin</option>
+                            </select>
+                        </div>
+
+                        <!-- Verification Status -->
+                        <div class="col-lg-2 col-md-6">
+                            <label class="form-label">Status Verifikasi</label>
+                            <select name="verification_status" class="form-select">
+                                <option value="">Semua Status</option>
+                                <option value="verified" {{ request('verification_status') === 'verified' ? 'selected' : '' }}>
+                                    Terverifikasi</option>
+                                <option value="unverified" {{ request('verification_status') === 'unverified' ? 'selected' : '' }}>
+                                    Belum Verifikasi</option>
+                            </select>
+                        </div>
+
+                        <!-- Date From -->
+                        <div class="col-lg-2 col-md-6">
+                            <label class="form-label">Dari Tanggal</label>
+                            <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
+                        </div>
+
+                        <!-- Date To -->
+                        <div class="col-lg-2 col-md-6">
+                            <label class="form-label">Sampai Tanggal</label>
+                            <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="col-lg-1 col-md-6">
+                            <label class="form-label">&nbsp;</label>
+                            <div class="filter-buttons">
+                                <button type="submit" class="btn btn-filter" title="Terapkan Filter">
+                                    <i class="icon-search"></i>
+                                </button>
+                                <a href="{{ route('admin.data-pengguna.index') }}" class="btn btn-reset" title="Reset Filter">
+                                    <i class="icon-refresh-cw"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Info & Export -->
+                    <div class="filter-info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <p class="filter-info-text">
+                                <i class="icon-info"></i>
+                                Menampilkan <strong>{{ $users->count() }}</strong> dari
+                                <strong>{{ $users->total() }}</strong> pengguna
+                                @if (request()->hasAny(['search', 'utype', 'verification_status', 'date_from', 'date_to']))
+                                    dengan filter yang diterapkan
+                                @endif
+                            </p>
+                            <a href="{{ route('admin.data-pengguna.export', request()->query()) }}"
+                                class="btn btn-export" title="Download Data CSV">
+                                <i class="icon-download"></i> Export CSV
+                            </a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Bulk Actions -->
+            <form id="bulkActionForm" method="POST" action="{{ route('admin.data-pengguna.bulk-action') }}">
+                @csrf
+                <div class="bulk-actions-bar" id="bulkActionsBar">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="fw-bold">Aksi Bulk:</span>
+                            <select name="action" class="form-select form-select-sm" style="width: auto;">
+                                <option value="">Pilih Aksi...</option>
+                                <option value="verify">Verifikasi Email</option>
+                                <option value="unverify">Cabut Verifikasi</option>
+                                <option value="delete">Hapus Pengguna</option>
+                            </select>
+                            <button type="submit" class="btn btn-warning btn-sm">
+                                Jalankan
+                            </button>
+                        </div>
+                        <span class="selected-count text-muted"></span>
+                    </div>
+                </div>
+
+                <!-- Table Section -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <h5 class="table-title">
+                            <i class="icon-list"></i> Daftar Pengguna
+                        </h5>
+                    </div>
+
+                    <div class="table-responsive">
+                        @if ($users->count() > 0)
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th width="5%">
+                                            <input type="checkbox" id="selectAll" class="form-check-input">
+                                        </th>
+                                        <th width="5%">#</th>
+                                        <th width="25%">Pengguna</th>
+                                        <th width="20%">Kontak</th>
+                                        <th width="10%">Tipe</th>
+                                        <th width="12%">Status</th>
+                                        <th width="8%">Alamat</th>
+                                        <th width="15%">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($users as $user)
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="user_ids[]" value="{{ $user->id }}"
+                                                    class="form-check-input user-checkbox">
+                                            </td>
+                                            <td>{{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}</td>
+
+                                            <!-- User Info -->
+                                            <td>
+                                                <div class="user-profile">
+                                                    @if ($user->profile_picture)
+                                                        <img src="{{ asset($user->profile_picture) }}" alt="{{ $user->name }}"
+                                                            class="user-avatar" style="background: #007bff;">
+                                                    @else
+                                                        <div class="user-avatar" style="background: #007bff;">
+                                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                                        </div>
+                                                    @endif
+                                                    <div class="user-info">
+                                                        <h6>{{ $user->name }}</h6>
+                                                        @if ($user->bio)
+                                                            <div class="text-muted">{{ Str::limit($user->bio, 30) }}</div>
+                                                        @endif
+                                                    </div>
+                                                </div>
+                                            </td>
+
+                                            <!-- Contact Info -->
+                                            <td>
+                                                <div class="contact-info">
+                                                    <div class="contact-item">
+                                                        <i class="icon-mail"></i>
+                                                        <span>{{ $user->email }}</span>
+                                                    </div>
+                                                    @if ($user->mobile)
+                                                        <div class="contact-item">
+                                                            <i class="icon-phone"></i>
+                                                            <span>{{ $user->mobile }}</span>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </td>
+
+                                            <!-- User Type -->
+                                            <td>
+                                                @if ($user->utype === 'ADM')
+                                                    <span class="status-badge status-admin">
+                                                        <i class="icon-shield"></i> Admin
+                                                    </span>
+                                                @else
+                                                    <span class="status-badge status-customer">
+                                                        <i class="icon-user"></i> Customer
+                                                    </span>
+                                                @endif
+                                            </td>
+
+                                            <!-- Verification Status -->
+                                            <td>
+                                                @if ($user->email_verified_at)
+                                                    <span class="status-badge status-verified">
+                                                        <i class="icon-check"></i> Terverifikasi
+                                                    </span>
+                                                @else
+                                                    <span class="status-badge status-unverified">
+                                                        <i class="icon-clock"></i> Belum Verifikasi
+                                                    </span>
+                                                @endif
+                                            </td>
+
+                                            <!-- Address Count -->
+                                            <td class="text-center">
+                                                <span class="badge bg-info fs-6">{{ $user->addresses_count }}</span>
+                                            </td>
+
+                                            <!-- Actions -->
+                                            <td>
+                                                <div class="action-group">
+                                                    <a href="{{ route('admin.data-pengguna.show', $user->id) }}"
+                                                        class="btn-action btn-view" title="Lihat Detail">
+                                                        <i class="icon-eye"></i> Detail
+                                                    </a>
+                                                    <a href="{{ route('admin.data-pengguna.edit', $user->id) }}"
+                                                        class="btn-action btn-edit" title="Edit Pengguna">
+                                                        <i class="icon-edit"></i> Edit
+                                                    </a>
+                                                    @if ($user->id !== auth()->id())
+                                                        <button type="button" class="btn-action btn-delete"
+                                                            onclick="deleteUser({{ $user->id }})" title="Hapus Pengguna">
+                                                            <i class="icon-trash"></i> Hapus
+                                                        </button>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="8" class="text-center py-4">
+                                                <div class="empty-state">
+                                                    <div class="empty-icon">
+                                                        <i class="icon-users"></i>
+                                                    </div>
+                                                    <h4 class="empty-title">Tidak Ada Pengguna Ditemukan</h4>
+                                                    <p class="empty-text">
+                                                        @if (request()->hasAny(['search', 'utype', 'verification_status']))
+                                                            Tidak ada pengguna yang sesuai dengan filter yang diterapkan.<br>
+                                                            Coba ubah atau reset filter untuk melihat data lainnya.
+                                                        @else
+                                                            Belum ada pengguna yang terdaftar.<br>
+                                                            Tambahkan pengguna pertama untuk memulai.
+                                                        @endif
+                                                    </p>
+                                                    @if (!request()->hasAny(['search', 'utype', 'verification_status']))
+                                                        <a href="{{ route('admin.data-pengguna.create') }}" class="btn btn-filter">
+                                                            <i class="icon-plus"></i> Tambah Pengguna Pertama
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        @else
+                            <div class="empty-state">
+                                <div class="empty-icon">
                                     <i class="icon-users"></i>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <div class="wg-box bg-success text-white">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h4 class="text-white mb-0">{{ number_format($stats['total_customers']) }}</h4>
-                                    <p class="text-white-50 mb-0">Customer</p>
-                                </div>
-                                <div class="icon-box">
-                                    <i class="icon-user"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <div class="wg-box bg-warning text-white">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h4 class="text-white mb-0">{{ number_format($stats['verified_users']) }}</h4>
-                                    <p class="text-white-50 mb-0">Terverifikasi</p>
-                                </div>
-                                <div class="icon-box">
-                                    <i class="icon-check-circle"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
-                        <div class="wg-box bg-info text-white">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <h4 class="text-white mb-0">{{ number_format($stats['active_today']) }}</h4>
-                                    <p class="text-white-50 mb-0">Aktif Hari Ini</p>
-                                </div>
-                                <div class="icon-box">
-                                    <i class="icon-activity"></i>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Alert Messages -->
-                @if (session('success'))
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                @if (session('error'))
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ session('error') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                @endif
-
-                <!-- Main Content Box -->
-                <div class="wg-box">
-                    <!-- Filters and Actions -->
-                    <div class="row mb-4">
-                        <div class="col-md-8">
-                            <form method="GET" action="{{ route('admin.data-pengguna.index') }}" class="form-filter">
-                                <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <input type="text" name="search" class="form-control"
-                                            placeholder="Cari nama, email, atau nomor HP..."
-                                            value="{{ request('search') }}">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <select name="utype" class="form-select">
-                                            <option value="">Semua Tipe User</option>
-                                            <option value="USR" {{ request('utype') === 'USR' ? 'selected' : '' }}>
-                                                Customer</option>
-                                            <option value="ADM" {{ request('utype') === 'ADM' ? 'selected' : '' }}>Admin
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-3">
-                                        <select name="verification_status" class="form-select">
-                                            <option value="">Status Verifikasi</option>
-                                            <option value="verified"
-                                                {{ request('verification_status') === 'verified' ? 'selected' : '' }}>
-                                                Terverifikasi</option>
-                                            <option value="unverified"
-                                                {{ request('verification_status') === 'unverified' ? 'selected' : '' }}>
-                                                Belum Verifikasi</option>
-                                        </select>
-                                    </div>
-                                    <div class="col-md-2">
-                                        <button type="submit" class="btn btn-primary w-100">
-                                            <i class="icon-search"></i> Filter
-                                        </button>
-                                    </div>
-                                </div>
-
-                                <!-- Advanced Filters (Collapsible) -->
-                                <div class="collapse mt-3" id="advancedFilters">
-                                    <div class="row g-3">
-                                        <div class="col-md-3">
-                                            <label class="form-label">Tanggal Daftar Dari:</label>
-                                            <input type="date" name="date_from" class="form-control"
-                                                value="{{ request('date_from') }}">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Tanggal Daftar Sampai:</label>
-                                            <input type="date" name="date_to" class="form-control"
-                                                value="{{ request('date_to') }}">
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Urutkan Berdasarkan:</label>
-                                            <select name="sort_by" class="form-select">
-                                                <option value="created_at"
-                                                    {{ request('sort_by') === 'created_at' ? 'selected' : '' }}>Tanggal
-                                                    Daftar</option>
-                                                <option value="name"
-                                                    {{ request('sort_by') === 'name' ? 'selected' : '' }}>Nama</option>
-                                                <option value="email"
-                                                    {{ request('sort_by') === 'email' ? 'selected' : '' }}>Email</option>
-                                                <option value="last_login_at"
-                                                    {{ request('sort_by') === 'last_login_at' ? 'selected' : '' }}>Login
-                                                    Terakhir</option>
-                                            </select>
-                                        </div>
-                                        <div class="col-md-3">
-                                            <label class="form-label">Urutan:</label>
-                                            <select name="sort_order" class="form-select">
-                                                <option value="desc"
-                                                    {{ request('sort_order') === 'desc' ? 'selected' : '' }}>Terbaru
-                                                </option>
-                                                <option value="asc"
-                                                    {{ request('sort_order') === 'asc' ? 'selected' : '' }}>Terlama
-                                                </option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mt-2">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm"
-                                        data-bs-toggle="collapse" data-bs-target="#advancedFilters">
-                                        <i class="icon-filter"></i> Filter Lanjutan
-                                    </button>
-                                    @if (request()->hasAny(['search', 'utype', 'verification_status', 'date_from', 'date_to', 'sort_by']))
-                                        <a href="{{ route('admin.data-pengguna.index') }}"
-                                            class="btn btn-outline-danger btn-sm">
-                                            <i class="icon-x"></i> Reset Filter
-                                        </a>
+                                <h4 class="empty-title">Tidak Ada Pengguna Ditemukan</h4>
+                                <p class="empty-text">
+                                    @if (request()->hasAny(['search', 'utype', 'verification_status']))
+                                        Tidak ada pengguna yang sesuai dengan filter yang diterapkan.<br>
+                                        Coba ubah atau reset filter untuk melihat data lainnya.
+                                    @else
+                                        Belum ada pengguna yang terdaftar.<br>
+                                        Tambahkan pengguna pertama untuk memulai.
                                     @endif
-                                </div>
-                            </form>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <div class="btn-group" role="group">
-                                <a href="{{ route('admin.data-pengguna.create') }}" class="btn btn-success">
-                                    <i class="icon-plus"></i> Tambah User
-                                </a>
-                                <button type="button" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown">
-                                    <i class="icon-download"></i> Export
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li>
-                                        <a class="dropdown-item"
-                                            href="{{ route('admin.data-pengguna.export', request()->query()) }}">
-                                            <i class="icon-file-text"></i> Export CSV
-                                        </a>
-                                    </li>
-                                </ul>
+                                </p>
+                                @if (!request()->hasAny(['search', 'utype', 'verification_status']))
+                                    <a href="{{ route('admin.data-pengguna.create') }}" class="btn btn-filter">
+                                        <i class="icon-plus"></i> Tambah Pengguna Pertama
+                                    </a>
+                                @endif
                             </div>
-                        </div>
+                        @endif
                     </div>
-
-                    <!-- Bulk Actions -->
-                    <form id="bulkActionForm" method="POST" action="{{ route('admin.data-pengguna.bulk-action') }}">
-                        @csrf
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="bulk-actions" style="display: none;">
-                                    <select name="action" class="form-select form-select-sm"
-                                        style="width: auto; display: inline-block;">
-                                        <option value="">Pilih Aksi...</option>
-                                        <option value="verify">Verifikasi Email</option>
-                                        <option value="unverify">Cabut Verifikasi</option>
-                                        <option value="delete">Hapus User</option>
-                                    </select>
-                                    <button type="submit" class="btn btn-sm btn-warning"
-                                        onclick="return confirm('Yakin ingin melanjutkan aksi ini?')">
-                                        Jalankan
-                                    </button>
-                                    <span class="selected-count ms-2 text-muted"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Data Table -->
-                        <div class="wg-table table-all-user">
-                            <div class="table-responsive">
-                                <table class="table table-striped table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th width="40">
-                                                <input type="checkbox" id="selectAll" class="form-check-input">
-                                            </th>
-                                            <th>#</th>
-                                            <th>User</th>
-                                            <th>Kontak</th>
-                                            <th>Tipe</th>
-                                            <th>Status</th>
-                                            <th>Alamat</th>
-                                            <th>Bergabung</th>
-                                            <th>Login Terakhir</th>
-                                            <th width="120">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($users as $user)
-                                            <tr>
-                                                <td>
-                                                    <input type="checkbox" name="user_ids[]" value="{{ $user->id }}"
-                                                        class="form-check-input user-checkbox">
-                                                </td>
-                                                <td>{{ $loop->iteration + ($users->currentPage() - 1) * $users->perPage() }}
-                                                </td>
-                                                <td class="pname">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="image me-3">
-                                                            @if ($user->profile_picture)
-                                                                <img src="{{ asset($user->profile_picture) }}"
-                                                                    alt="{{ $user->name }}" class="rounded-circle"
-                                                                    width="40" height="40">
-                                                            @else
-                                                                <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                                                                    style="width: 40px; height: 40px;">
-                                                                    <span
-                                                                        class="text-white fw-bold">{{ strtoupper(substr($user->name, 0, 1)) }}</span>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                        <div>
-                                                            <a href="{{ route('admin.data-pengguna.show', $user->id) }}"
-                                                                class="body-title-2 text-decoration-none">
-                                                                {{ $user->name }}
-                                                            </a>
-                                                            @if ($user->bio)
-                                                                <div class="text-tiny text-muted mt-1">
-                                                                    {{ Str::limit($user->bio, 30) }}</div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    <div class="text-sm">
-                                                        <div><i class="icon-mail me-1"></i>{{ $user->email }}</div>
-                                                        @if ($user->mobile)
-                                                            <div class="text-muted mt-1"><i
-                                                                    class="icon-phone me-1"></i>{{ $user->mobile }}</div>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    @if ($user->utype === 'ADM')
-                                                        <span class="badge bg-danger">Admin</span>
-                                                    @else
-                                                        <span class="badge bg-primary">Customer</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    @if ($user->email_verified_at)
-                                                        <span class="badge bg-success">
-                                                            <i class="icon-check me-1"></i>Terverifikasi
-                                                        </span>
-                                                    @else
-                                                        <span class="badge bg-warning">
-                                                            <i class="icon-clock me-1"></i>Belum Verifikasi
-                                                        </span>
-                                                    @endif
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="badge bg-info">{{ $user->addresses_count }}</span>
-                                                </td>
-                                                <td>
-                                                    <div class="text-sm">
-                                                        {{ $user->created_at->format('d/m/Y') }}
-                                                        <div class="text-muted">{{ $user->created_at->diffForHumans() }}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td>
-                                                    @if ($user->last_login_at)
-                                                        <div class="text-sm">
-                                                            {{ $user->last_login_at->format('d/m/Y H:i') }}
-                                                            <div class="text-muted">
-                                                                {{ $user->last_login_at->diffForHumans() }}</div>
-                                                        </div>
-                                                    @else
-                                                        <span class="text-muted">Belum pernah</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <div class="list-icon-function">
-                                                        <div class="dropdown">
-                                                            <button
-                                                                class="btn btn-sm btn-outline-secondary dropdown-toggle"
-                                                                type="button" data-bs-toggle="dropdown">
-                                                                <i class="icon-more-vertical"></i>
-                                                            </button>
-                                                            <ul class="dropdown-menu">
-                                                                <li>
-                                                                    <a class="dropdown-item"
-                                                                        href="{{ route('admin.data-pengguna.show', $user->id) }}">
-                                                                        <i class="icon-eye me-2"></i>Lihat Detail
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a class="dropdown-item"
-                                                                        href="{{ route('admin.data-pengguna.edit', $user->id) }}">
-                                                                        <i class="icon-edit me-2"></i>Edit
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <button type="button" class="dropdown-item"
-                                                                        onclick="toggleVerification({{ $user->id }})">
-                                                                        @if ($user->email_verified_at)
-                                                                            <i class="icon-x-circle me-2"></i>Cabut
-                                                                            Verifikasi
-                                                                        @else
-                                                                            <i
-                                                                                class="icon-check-circle me-2"></i>Verifikasi
-                                                                            Email
-                                                                        @endif
-                                                                    </button>
-                                                                </li>
-                                                                <li>
-                                                                    <hr class="dropdown-divider">
-                                                                </li>
-                                                                @if ($user->id !== auth()->id())
-                                                                    <li>
-                                                                        <button type="button"
-                                                                            class="dropdown-item text-danger"
-                                                                            onclick="deleteUser({{ $user->id }})">
-                                                                            <i class="icon-trash me-2"></i>Hapus
-                                                                        </button>
-                                                                    </li>
-                                                                @endif
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="10" class="text-center py-4">
-                                                    <div class="empty-state">
-                                                        <i class="icon-users display-4 text-muted"></i>
-                                                        <p class="text-muted mt-2">Tidak ada data pengguna yang ditemukan.
-                                                        </p>
-                                                        @if (request()->hasAny(['search', 'utype', 'verification_status']))
-                                                            <a href="{{ route('admin.data-pengguna.index') }}"
-                                                                class="btn btn-outline-primary btn-sm">
-                                                                Reset Filter
-                                                            </a>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </form>
 
                     <!-- Pagination -->
                     @if ($users->hasPages())
-                        <div class="divider"></div>
-                        <div class="flex items-center justify-between flex-wrap gap10 wgp-pagination">
-                            <div class="pagination-info">
-                                Menampilkan {{ $users->firstItem() }} - {{ $users->lastItem() }} dari
-                                {{ $users->total() }} pengguna
+                        <div class="pagination-container">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="pagination-info">
+                                    Menampilkan {{ $users->firstItem() }} - {{ $users->lastItem() }}
+                                    dari {{ $users->total() }} pengguna
+                                </div>
+                                {{ $users->appends(request()->query())->links() }}
                             </div>
-                            {{ $users->links('pagination::bootstrap-4') }}
                         </div>
                     @endif
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -434,59 +978,72 @@
         @method('PATCH')
     </form>
 
-    @push('scripts')
-        <script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
             // Bulk Actions
-            document.getElementById('selectAll').addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('.user-checkbox');
-                const bulkActions = document.querySelector('.bulk-actions');
-                const selectedCount = document.querySelector('.selected-count');
-
-                checkboxes.forEach(checkbox => {
-                    checkbox.checked = this.checked;
-                });
-
-                updateBulkActions();
-            });
-
-            document.querySelectorAll('.user-checkbox').forEach(checkbox => {
-                checkbox.addEventListener('change', updateBulkActions);
-            });
+            const selectAllCheckbox = document.getElementById('selectAll');
+            const userCheckboxes = document.querySelectorAll('.user-checkbox');
+            const bulkActionsBar = document.getElementById('bulkActionsBar');
+            const selectedCount = document.querySelector('.selected-count');
 
             function updateBulkActions() {
                 const checkedBoxes = document.querySelectorAll('.user-checkbox:checked');
-                const bulkActions = document.querySelector('.bulk-actions');
-                const selectedCount = document.querySelector('.selected-count');
-                const selectAll = document.getElementById('selectAll');
 
                 if (checkedBoxes.length > 0) {
-                    bulkActions.style.display = 'block';
+                    bulkActionsBar.classList.add('active');
                     selectedCount.textContent = `${checkedBoxes.length} item dipilih`;
                 } else {
-                    bulkActions.style.display = 'none';
+                    bulkActionsBar.classList.remove('active');
                 }
 
                 // Update select all checkbox state
-                const totalCheckboxes = document.querySelectorAll('.user-checkbox').length;
-                selectAll.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < totalCheckboxes;
-                selectAll.checked = checkedBoxes.length === totalCheckboxes;
+                const totalCheckboxes = userCheckboxes.length;
+                selectAllCheckbox.indeterminate = checkedBoxes.length > 0 && checkedBoxes.length < totalCheckboxes;
+                selectAllCheckbox.checked = checkedBoxes.length === totalCheckboxes;
             }
+
+            selectAllCheckbox.addEventListener('change', function() {
+                userCheckboxes.forEach(checkbox => {
+                    checkbox.checked = this.checked;
+                });
+                updateBulkActions();
+            });
+
+            userCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', updateBulkActions);
+            });
 
             // Delete User
-            function deleteUser(userId) {
-                if (confirm('Yakin ingin menghapus user ini? Data yang terkait juga akan dihapus.')) {
-                    const form = document.getElementById('deleteForm');
-                    form.action = `/admin/data-pengguna/${userId}`;
-                    form.submit();
-                }
-            }
+            window.deleteUser = function(userId) {
+                Swal.fire({
+                    title: 'Konfirmasi Penghapusan',
+                    text: 'Apakah Anda yakin ingin menghapus pengguna ini? Data yang dihapus tidak dapat dikembalikan.',
+                    icon: 'warning',
+                    iconColor: '#f39c12',
+                    showCancelButton: true,
+                    reverseButtons: true,
+                    focusCancel: true,
+                    cancelButtonText: 'Batal',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: 'Ya, Hapus!',
+                    confirmButtonColor: '#e74c3c'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        const form = document.getElementById('deleteForm');
+                        form.action = `/admin/data-pengguna/${userId}`;
+                        form.submit();
+                    }
+                });
+            };
 
             // Toggle Verification
-            function toggleVerification(userId) {
+            window.toggleVerification = function(userId) {
                 const form = document.getElementById('verificationForm');
                 form.action = `/admin/data-pengguna/${userId}/toggle-verification`;
                 form.submit();
-            }
+            };
 
             // Bulk Action Form Validation
             document.getElementById('bulkActionForm').addEventListener('submit', function(e) {
@@ -495,26 +1052,71 @@
 
                 if (checkedBoxes.length === 0) {
                     e.preventDefault();
-                    alert('Pilih minimal satu user untuk melakukan aksi bulk.');
+                    Swal.fire({
+                        title: 'Peringatan',
+                        text: 'Pilih minimal satu pengguna untuk melakukan aksi bulk.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
                     return;
                 }
 
                 if (!actionSelect.value) {
                     e.preventDefault();
-                    alert('Pilih aksi yang ingin dilakukan.');
+                    Swal.fire({
+                        title: 'Peringatan',
+                        text: 'Pilih aksi yang ingin dilakukan.',
+                        icon: 'warning',
+                        confirmButtonText: 'OK'
+                    });
                     return;
                 }
 
                 // Additional confirmation for delete action
                 if (actionSelect.value === 'delete') {
-                    if (!confirm(
-                            `Yakin ingin menghapus ${checkedBoxes.length} user yang dipilih? Aksi ini tidak dapat dibatalkan.`
-                            )) {
-                        e.preventDefault();
-                        return;
-                    }
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Konfirmasi Penghapusan Massal',
+                        text: `Yakin ingin menghapus ${checkedBoxes.length} pengguna yang dipilih? Aksi ini tidak dapat dibatalkan.`,
+                        icon: 'warning',
+                        iconColor: '#f39c12',
+                        showCancelButton: true,
+                        reverseButtons: true,
+                        focusCancel: true,
+                        cancelButtonText: 'Batal',
+                        cancelButtonColor: '#6c757d',
+                        confirmButtonText: 'Ya, Hapus Semua!',
+                        confirmButtonColor: '#e74c3c'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            this.submit();
+                        }
+                    });
                 }
             });
-        </script>
-    @endpush
+
+            // Success/Error messages
+            @if (session('success'))
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: '{{ session('success') }}',
+                    icon: 'success',
+                    iconColor: '#28a745',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#28a745'
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: '{{ session('error') }}',
+                    icon: 'error',
+                    iconColor: '#e74c3c',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#e74c3c'
+                });
+            @endif
+        });
+    </script>
 @endsection
