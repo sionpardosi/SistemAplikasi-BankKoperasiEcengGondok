@@ -26,28 +26,25 @@ use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
 {
-    // public function index()
-    // {
-    //     return view("user.index");
-    // }
-
-    public function index() {
-        $applications = JobApplication::with('job')
-            ->where('user_id', auth()->id())
-            ->latest()
-            ->get();
-
-        return view('user.job_vacancy.index', compact('applications'));
+    public function index()
+    {
+        return view("user.index");
     }
 
-    // public function job() {
-    //     $applications = JobApplication::with('job')
-    //         ->where('user_id', auth()->id())
-    //         ->latest()
-    //         ->get();
+    public function job() {
+        try {
+            $applications = JobApplication::with('job')
+                ->where('user_id', auth()->id())
+                ->latest()
+                ->get();
 
-    //     return view('user.job_vacancy.index', compact('applications'));
-    // }
+            return view('user.job_vacancy.index', compact('applications'));
+        } catch (\Exception $e) {
+            // Jika terjadi error, kirim array kosong untuk applications
+            $applications = collect();
+            return view('user.job_vacancy.index', compact('applications'));
+        }
+    }
 
     public function account_orders()
     {

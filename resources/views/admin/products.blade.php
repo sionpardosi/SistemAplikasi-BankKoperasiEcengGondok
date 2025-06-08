@@ -689,7 +689,7 @@
         <div class="main-content-wrap">
             <!-- Page Header -->
             <div class="flex items-center flex-wrap justify-between gap20 mb-27">
-                <h3>Manajemen Produk E-Commerce</h3>
+                <h3>Manajemen Produk Eceng Gondok</h3>
                 <ul class="breadcrumbs flex items-center flex-wrap justify-start gap10">
                     <li>
                         <a href="{{ route('admin.index') }}">

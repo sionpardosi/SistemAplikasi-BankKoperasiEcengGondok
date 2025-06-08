@@ -45,6 +45,7 @@ Route::post('saveshippingcost', [RajaOngkirController::class, 'saveShippingCost'
 // Route untuk verifikasi origin city (opsional - untuk testing)
 Route::get('rajaongkir/origin-info', [RajaOngkirController::class, 'getOriginCityInfo']);
 
+
 // =====================================================================================================================================================================================================
 // -------------------------------------------------------------------------------------------- CHATBOT AI --------------------------------------------------------------------------------------------
 // =====================================================================================================================================================================================================
@@ -134,15 +135,13 @@ Route::get('/check-stock/{product}', function (App\Models\Product $product) {
 
 
 // ====================================================================================================
-// Halaman API Jobs
+// Public API Jobs (untuk user/visitor)
 // ====================================================================================================
 Route::get('/jobs', [JobController::class, 'index']);
-// Detail lowongan kerja
 Route::get('/jobs/{id}', [JobController::class, 'show']);
 
-
 // ====================================================================================================
-// API Job Application
+// API Job Application (untuk user yang apply)
 // ====================================================================================================
 Route::controller(JobApplicationController::class)->group(function () {
     Route::post('/jobs/{job_id}/apply', 'apply');
@@ -340,13 +339,41 @@ Route::middleware('auth.user')->group(function () {
 // =====================================================================================================================================================================================================
 // --------------------------------------------------------------------------------------------ADMIN JOBs ---------------------------------------------------------------------------------------------------
 // =====================================================================================================================================================================================================
-// ========================== ADMIN JOBs ==========================
+
+// ====================================================================================================
+// ADMIN Jobs API (diperlukan authentication)
+// ====================================================================================================
+Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
+    // Job Management
+    Route::controller(JobController::class)->group(function () {
+        Route::post('/jobs', 'store');
+        Route::get('/jobs/{id}', 'show');
+        Route::put('/jobs/{id}', 'update');
+        Route::delete('/jobs/{id}', 'destroy');
+        Route::get('/jobs/export', 'export');
+    });
+
+    // Job Applications Management
+    Route::controller(JobApplicationController::class)->group(function () {
+        Route::get('/jobs/{id}/applications', 'getJobApplications');
+        Route::post('/jobs/applications/{id}/update', 'updateStatus');
+        Route::put('/applications/{id}/update', 'update');
+        Route::delete('/applications/{id}', 'destroy');
+        Route::get('/jobs/{id}/applications/export', 'exportApplications');
+    });
+});
+
+// ====================================================================================================
+// Alternative Admin Routes (tanpa middleware untuk compatibility)
+// ====================================================================================================
 Route::prefix('admin')->group(function () {
     Route::post('/jobs', [JobController::class, 'store']);
     Route::get('/jobs/{id}', [JobController::class, 'show']);
     Route::put('/jobs/{id}', [JobController::class, 'update']);
-    Route::post('/jobs/applications/{id}/update',  [JobApplicationController::class, 'updateStatus']);
-    Route::get('/jobs/{id}/applications', [JobApplicationController::class, 'getJobApplications']);
-    Route::put('/admin/applications/{id}/update', [JobApplicationController::class, 'update']);
-});
+    Route::delete('/jobs/{id}', [JobController::class, 'destroy']);
 
+    Route::post('/jobs/applications/{id}/update', [JobApplicationController::class, 'updateStatus']);
+    Route::get('/jobs/{id}/applications', [JobApplicationController::class, 'getJobApplications']);
+    Route::put('/applications/{id}/update', [JobApplicationController::class, 'update']);
+    Route::delete('/applications/{id}', [JobApplicationController::class, 'destroy']);
+});

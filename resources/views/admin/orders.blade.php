@@ -309,7 +309,7 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
-            align-items: flex-start;
+            text-align: center;
         }
 
         .status-badge {
@@ -323,6 +323,7 @@
             align-items: center;
             gap: 4px;
             margin-bottom: 2px;
+            text-align: center;
         }
 
         /* Payment Status Badges */
@@ -586,7 +587,7 @@
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="summary-card">
                             <div class="summary-icon bg-info">
-                                <i class="icon-basket"></i>
+                                <i class="icon-tag"></i>
                             </div>
                             <div class="summary-number">{{ $orders->total() }}</div>
                             <div class="summary-label">Total Pesanan</div>
@@ -653,7 +654,8 @@
                             <label class="form-label">Status Pesanan</label>
                             <select name="status" class="form-select">
                                 <option value="">Semua Status</option>
-                                <option value="awaiting_payment" {{ request('status') == 'awaiting_payment' ? 'selected' : '' }}>
+                                <option value="awaiting_payment"
+                                    {{ request('status') == 'awaiting_payment' ? 'selected' : '' }}>
                                     Menunggu Pembayaran
                                 </option>
                                 <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>
@@ -700,15 +702,13 @@
                         <!-- Date From -->
                         <div class="col-lg-2 col-md-6">
                             <label class="form-label">Dari Tanggal</label>
-                            <input type="date" name="date_from" class="form-control"
-                                value="{{ request('date_from') }}">
+                            <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
                         </div>
 
                         <!-- Date To -->
                         <div class="col-lg-2 col-md-6">
                             <label class="form-label">Sampai Tanggal</label>
-                            <input type="date" name="date_to" class="form-control"
-                                value="{{ request('date_to') }}">
+                            <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
                         </div>
 
                         <!-- Action Buttons -->
@@ -757,26 +757,27 @@
                         <table class="table table-hover">
                             <thead>
                                 <tr>
-                                    <th width="12%">No. Pesanan</th>
-                                    <th width="18%">Pelanggan</th>
-                                    <th width="15%">Total & Ongkir</th>
-                                    <th width="12%">Items</th>
-                                    <th width="18%">Status</th>
-                                    <th width="12%">Tanggal</th>
-                                    <th width="13%">Aksi</th>
+                                    <th style="text-align: center" width="12%">No. Pesanan</th>
+                                    <th style="text-align: center" width="18%">Pelanggan</th>
+                                    <th style="text-align: center" width="15%">Total & Ongkir</th>
+                                    <th style="text-align: center" width="12%">Items</th>
+                                    <th style="text-align: center" width="18%">Status</th>
+                                    <th style="text-align: center" width="12%">Tanggal</th>
+                                    <th style="text-align: center" width="13%">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach ($orders as $order)
                                     <tr>
                                         <!-- Order Number -->
-                                        <td>
-                                            <div class="order-number">#{{ '1' . str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</div>
+                                        <td style="text-align: center">
+                                            <div class="order-number">
+                                                #{{ '1' . str_pad($order->id, 4, '0', STR_PAD_LEFT) }}</div>
                                             <div class="order-date">{{ $order->created_at->format('d M Y, H:i') }}</div>
                                         </td>
 
                                         <!-- Customer Info -->
-                                        <td>
+                                        <td style="text-align: center">
                                             <div class="customer-name">{{ $order->name }}</div>
                                             <div class="customer-phone">
                                                 <i class="icon-phone"></i> {{ $order->phone }}
@@ -784,44 +785,48 @@
                                         </td>
 
                                         <!-- Price & Shipping -->
-                                        <td>
+                                        <td style="text-align: center">
                                             <div class="price-main">Rp {{ number_format($order->total) }}</div>
                                             <div class="price-detail">
                                                 Subtotal: Rp {{ number_format($order->subtotal) }}
-                                                @if($order->ongkir)
+                                                @if ($order->ongkir)
                                                     <br>Ongkir: Rp {{ number_format($order->ongkir) }}
                                                 @endif
                                             </div>
                                         </td>
 
                                         <!-- Items -->
-                                        <td>
+                                        <td style="text-align: center">
                                             <div class="items-count">{{ $order->orderItems->count() }}</div>
-                                            <div class="items-label">{{ $order->orderItems->count() > 1 ? 'items' : 'item' }}</div>
+                                            <div class="items-label">
+                                                {{ $order->orderItems->count() > 1 ? 'items' : 'item' }}</div>
                                         </td>
 
                                         <!-- Status -->
                                         <td>
                                             <div class="status-container">
                                                 <!-- Payment Status -->
-                                                @if($order->transaction)
+                                                @if ($order->transaction)
                                                     @switch($order->transaction->status)
                                                         @case('approved')
                                                         @case('paid')
                                                             <span class="status-badge payment-paid">
                                                                 <i class="icon-check"></i> Sudah Bayar
                                                             </span>
-                                                            @break
+                                                        @break
+
                                                         @case('pending')
                                                             <span class="status-badge payment-pending">
                                                                 <i class="icon-clock"></i> Belum Bayar
                                                             </span>
-                                                            @break
+                                                        @break
+
                                                         @case('declined')
                                                             <span class="status-badge payment-declined">
                                                                 <i class="icon-close"></i> Ditolak
                                                             </span>
-                                                            @break
+                                                        @break
+
                                                         @default
                                                             <span class="status-badge payment-pending">
                                                                 <i class="icon-clock"></i> Belum Bayar
@@ -839,58 +844,65 @@
                                                         <span class="status-badge order-awaiting">
                                                             <i class="icon-credit-card"></i> Menunggu Bayar
                                                         </span>
-                                                        @break
+                                                    @break
+
                                                     @case('pending')
                                                         <span class="status-badge order-pending">
                                                             <i class="icon-clock"></i> Pending
                                                         </span>
-                                                        @break
+                                                    @break
+
                                                     @case('confirmed')
                                                         <span class="status-badge order-confirmed">
                                                             <i class="icon-check"></i> Dikonfirmasi
                                                         </span>
-                                                        @break
+                                                    @break
+
                                                     @case('processing')
                                                         <span class="status-badge order-processing">
                                                             <i class="icon-settings"></i> Diproses
                                                         </span>
-                                                        @break
+                                                    @break
+
                                                     @case('shipped')
                                                         <span class="status-badge order-shipped">
                                                             <i class="icon-plane"></i> Dikirim
                                                         </span>
-                                                        @break
+                                                    @break
+
                                                     @case('delivered')
                                                         <span class="status-badge order-delivered">
                                                             <i class="icon-location-pin"></i> Sampai
                                                         </span>
-                                                        @break
+                                                    @break
+
                                                     @case('completed')
                                                         <span class="status-badge order-completed">
                                                             <i class="icon-trophy"></i> Selesai
                                                         </span>
-                                                        @break
+                                                    @break
+
                                                     @case('canceled')
                                                         <span class="status-badge order-canceled">
                                                             <i class="icon-close"></i> Dibatalkan
                                                         </span>
-                                                        @break
+                                                    @break
                                                 @endswitch
                                             </div>
                                         </td>
 
                                         <!-- Date -->
-                                        <td>
+                                        <td style="text-align: center">
                                             <div class="customer-name">{{ $order->created_at->format('d M Y') }}</div>
                                             <div class="customer-phone">{{ $order->created_at->format('H:i') }} WIB</div>
                                         </td>
 
                                         <!-- Actions -->
-                                        <td>
-                                            <div class="action-group">
+                                        <td style="text-align: center">
+                                            <div class="action-group" style="text-align: center">
                                                 <a href="{{ route('admin.order.items', ['order_id' => $order->id]) }}"
                                                     class="btn-action btn-view" title="Lihat Detail">
-                                                    <i class="icon-eye"></i> Detail
+                                                    <i class="icon-eye"></i> Kelola Pesanan
                                                 </a>
                                             </div>
                                         </td>
@@ -946,7 +958,7 @@
             // Export function
             window.exportOrders = function() {
                 const params = new URLSearchParams(window.location.search);
-                const exportUrl = '{{ route("admin.orders") }}?' + params.toString() + '&export=excel';
+                const exportUrl = '{{ route('admin.orders') }}?' + params.toString() + '&export=excel';
 
                 Swal.fire({
                     title: 'Mengunduh File Excel...',

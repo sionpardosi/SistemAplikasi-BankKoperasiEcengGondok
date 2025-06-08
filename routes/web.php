@@ -121,14 +121,6 @@ Route::post('/cart/validate-stock', [CartController::class, 'validate_stock'])->
 Route::put('/cart/update-qty/{rowId}', [CartController::class, 'update_item_quantity'])->name('cart.update.qty');
 
 
-// Route untuk melamar pekerjaan
-Route::post('/jobs/{id}/apply', [JobApplicationController::class, 'apply'])->name('job.apply');
-// Route::post('/lamar', [LamaranController::class, 'store']);
-Route::post('/jobs/{job}/apply', [UserController::class, 'apply'])->name('jobs.apply');
-// Route untuk halaman lowongan pekerjaan pengguna
-Route::get('/user/job-vacancy', [UserController::class, 'index'])->name('user.job_vacancy.index');
-
-
 // ====================================================================================================
 // Route untuk Wishlist
 // ====================================================================================================
@@ -169,9 +161,13 @@ Route::get('/contact-us', [HomeController::class, 'contact'])->name('home.contac
 // ====================================================================================================
 // Halaman Lowongan Pekerjaan
 // ====================================================================================================
-Route::get('/job-vacancy', function () {
-    return view('user.job_vacancy.index');
-})->name('job-vacancy');
+Route::get('/job-vacancy', [UserController::class, 'job'])->name('job-vacancy');
+// Route untuk melamar pekerjaan
+Route::post('/jobs/{id}/apply', [JobApplicationController::class, 'apply'])->name('job.apply');
+// Route::post('/lamar', [LamaranController::class, 'store']);
+Route::post('/jobs/{job}/apply', [UserController::class, 'apply'])->name('jobs.apply');
+// Route untuk halaman lowongan pekerjaan pengguna
+Route::get('/user/job-vacancy', [UserController::class, 'job'])->name('user.job_vacancy.index');
 
 
 // ====================================================================================================
@@ -626,10 +622,14 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::get('/admin/jobs', [AdminController::class, 'jobs'])->name('admin.jobs');
     // Route untuk menampilkan form tambah pekerjaan
     Route::get('/admin/jobs/add', [AdminController::class, 'job_add'])->name('admin.jobs.add');
-    // Route untuk menyimpan pekerjaan
+    // Route untuk menampilkan form edit pekerjaan
     Route::get('/admin/jobs/edit/{id}', [AdminController::class, 'job_edit'])->name('admin.jobs.edit');
-    // Route untuk menyimpan pekerjaan
-    Route::get('/admin/jobs/{id}/applications', [JobApplicationController::class, 'index']);
+    // Route untuk menampilkan daftar pelamar per lowongan
+    Route::get('/admin/jobs/{id}/applications', [JobApplicationController::class, 'index'])->name('admin.jobs.applications');
+    // Route untuk export data lowongan
+    Route::get('/admin/jobs/export', [AdminController::class, 'exportJobs'])->name('admin.jobs.export');
+    // Route untuk export data pelamar per lowongan
+    Route::get('/admin/jobs/{id}/applications/export', [JobApplicationController::class, 'exportApplications'])->name('admin.jobs.applications.export');
 
 
     // ====================================================================================================

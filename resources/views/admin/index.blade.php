@@ -648,7 +648,7 @@
     <div class="main-content-inner">
         <div class="main-content-wrap">
             <!-- Page Header -->
-            <div class="page-header">
+            {{-- <div class="page-header">
                 <div class="d-flex justify-content-between align-items-start">
                     <div>
                         <h1 class="page-title">
@@ -662,7 +662,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Alert Stok (jika ada) -->
             @if (isset($alertStok) && $alertStok)
@@ -956,7 +956,7 @@
                                         <td>
                                             <a href="{{ route('admin.order.items', ['order_id' => $order->id]) }}"
                                                 class="btn-view">
-                                                <i class="icon-eye"></i> Detail
+                                                <i class="icon-eye"></i> Kelola Pesanan
                                             </a>
                                         </td>
                                     </tr>

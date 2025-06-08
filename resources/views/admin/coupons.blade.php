@@ -695,7 +695,7 @@
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="summary-card">
                             <div class="summary-icon bg-danger">
-                                <i class="icon-close"></i>
+                                <i class="icon-calendar"></i>
                             </div>
                             <div class="summary-number">{{ $coupons->where('expiry_date', '<', now())->count() }}</div>
                             <div class="summary-label">Kadaluarsa</div>

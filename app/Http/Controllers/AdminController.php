@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Address;
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 use \PDF;
 use Carbon\Carbon;
 use App\Models\Size;
+use App\Models\User;
 use App\Models\About;
 use App\Models\Brand;
 use App\Models\Order;
 use App\Models\Slide;
 use App\Models\Coupon;
+use App\Models\Address;
 use App\Models\Contact;
+use App\Models\JobList;
 use App\Models\Product;
 use App\Models\Tentang;
 use App\Models\Category;
@@ -23,11 +21,15 @@ use App\Models\OrderItem;
 use App\Models\Transaction;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Models\JobApplication;
 use App\Models\SupplierRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Intervention\Image\Laravel\Facades\Image;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -3441,33 +3443,251 @@ class AdminController extends Controller
     }
 
     // ====================================================================================================
-    // Halaman Jobs
+    // Halaman Jobs - Updated Methods
     // ====================================================================================================
-    // Menampilkan halaman daftar lowongan kerja
+    /**
+     * Menampilkan halaman daftar lowongan kerja
+     */
     public function jobs()
     {
         return view('admin.jobs.index');
     }
-
-    // Menampilkan halaman tambah lowongan kerja
+    /**
+     * Menampilkan halaman tambah lowongan kerja
+     */
     public function job_add()
     {
         return view('admin.jobs.create');
     }
-
-    // Menampilkan halaman edit lowongan kerja
+    /**
+     * Menampilkan halaman edit lowongan kerja
+     */
     public function job_edit($id)
     {
+        // Validasi job exists
+        $job = JobList::find($id);
+        if (!$job) {
+            return redirect()->route('admin.jobs')->with('error', 'Lowongan tidak ditemukan');
+        }
+
         return view('admin.jobs.edit', compact('id'));
     }
-
-    public function viewApplications($id)
+    /**
+     * Export data lowongan kerja ke Excel
+     */
+    public function exportJobs(Request $request)
     {
-        return view('admin.jobs.job-applications')->with('job_id', $id);
+        try {
+            $query = JobList::query();
+
+            // Apply filters if provided
+            if ($request->has('status') && $request->status) {
+                $query->where('status', $request->status);
+            }
+
+            if ($request->has('category') && $request->category) {
+                $query->where('category', $request->category);
+            }
+
+            if ($request->has('location') && $request->location) {
+                $query->where('location', 'like', '%' . $request->location . '%');
+            }
+
+            if ($request->has('search') && $request->search) {
+                $searchTerm = $request->search;
+                $query->where(function($q) use ($searchTerm) {
+                    $q->where('title', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                      ->orWhere('location', 'like', '%' . $searchTerm . '%');
+                });
+            }
+
+            $jobs = $query->with('applications')->orderBy('created_at', 'DESC')->get();
+
+            $filename = 'lowongan_kerja_' . date('Y-m-d_H-i-s') . '.csv';
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+
+            $callback = function() use ($jobs) {
+                $file = fopen('php://output', 'w');
+
+                // Add BOM for UTF-8
+                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+                // CSV Headers
+                fputcsv($file, [
+                    'ID',
+                    'Judul',
+                    'Kategori',
+                    'Gaji',
+                    'Tipe Gaji',
+                    'Lokasi',
+                    'Durasi',
+                    'Target',
+                    'Status',
+                    'Total Pelamar',
+                    'Pelamar Diterima',
+                    'Pelamar Ditolak',
+                    'Tanggal Dibuat',
+                    'Tanggal Diupdate'
+                ]);
+
+                // Data rows
+                foreach ($jobs as $job) {
+                    $applicationsCount = $job->applications->count();
+                    $acceptedCount = $job->applications->where('status', 'Diterima')->count();
+                    $rejectedCount = $job->applications->where('status', 'Ditolak')->count();
+
+                    fputcsv($file, [
+                        $job->id,
+                        $job->title,
+                        $job->category,
+                        'Rp ' . number_format($job->salary, 0, ',', '.'),
+                        $job->salary_type,
+                        $job->location,
+                        $job->duration,
+                        $job->target ?: '-',
+                        $job->status,
+                        $applicationsCount,
+                        $acceptedCount,
+                        $rejectedCount,
+                        $job->created_at->format('d/m/Y H:i'),
+                        $job->updated_at->format('d/m/Y H:i')
+                    ]);
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengexport data: ' . $e->getMessage());
+        }
+    }
+    /**
+     * Get job statistics for dashboard
+     */
+    public function getJobStatistics()
+    {
+        try {
+            $totalJobs = JobList::count();
+            $activeJobs = JobList::where('status', 'Dibuka')->count();
+            $closedJobs = JobList::where('status', 'Ditutup')->count();
+            $completedJobs = JobList::where('status', 'Selesai')->count();
+
+            $totalApplications = JobApplication::count();
+            $pendingApplications = JobApplication::where('status', 'Diproses')->count();
+            $acceptedApplications = JobApplication::where('status', 'Diterima')->count();
+            $rejectedApplications = JobApplication::where('status', 'Ditolak')->count();
+
+            // Recent jobs (last 30 days)
+            $recentJobsCount = JobList::where('created_at', '>=', now()->subDays(30))->count();
+
+            // Response rate
+            $responseRate = $totalApplications > 0 ?
+                round((($acceptedApplications + $rejectedApplications) / $totalApplications) * 100, 2) : 0;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'jobs' => [
+                        'total' => $totalJobs,
+                        'active' => $activeJobs,
+                        'closed' => $closedJobs,
+                        'completed' => $completedJobs,
+                        'recent' => $recentJobsCount
+                    ],
+                    'applications' => [
+                        'total' => $totalApplications,
+                        'pending' => $pendingApplications,
+                        'accepted' => $acceptedApplications,
+                        'rejected' => $rejectedApplications,
+                        'response_rate' => $responseRate
+                    ]
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil statistik: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    /**
+     * Get popular job categories
+     */
+    public function getPopularCategories()
+    {
+        try {
+            $categories = JobList::select('category', \DB::raw('count(*) as total'))
+                ->groupBy('category')
+                ->orderBy('total', 'desc')
+                ->get();
+
+            return response()->json([
+                'success' => true,
+                'data' => $categories
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil kategori populer: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+    /**
+     * Get job applications trend (monthly)
+     */
+    public function getApplicationsTrend()
+    {
+        try {
+            $trend = JobApplication::select(
+                DB::raw('MONTH(created_at) as month'),
+                DB::raw('YEAR(created_at) as year'),
+                DB::raw('count(*) as total')
+            )
+            ->where('created_at', '>=', now()->subMonths(12))
+            ->groupBy('year', 'month')
+            ->orderBy('year', 'asc')
+            ->orderBy('month', 'asc')
+            ->get();
+
+            // Format data for chart
+            $formattedTrend = $trend->map(function($item) {
+                $monthNames = [
+                    1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
+                    5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
+                    9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+                ];
+
+                return [
+                    'period' => $monthNames[$item->month] . ' ' . $item->year,
+                    'total' => $item->total
+                ];
+            });
+
+            return response()->json([
+                'success' => true,
+                'data' => $formattedTrend
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil trend aplikasi: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
+    // ====================================================================================================
     // laporanpenjualan
-
+    // ====================================================================================================
     public function laporanpenjualan(Request $request)
     {
         $startDate = $request->input('start_date');

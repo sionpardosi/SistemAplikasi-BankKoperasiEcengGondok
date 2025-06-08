@@ -7,10 +7,42 @@ use App\Models\JobApplication;
 use App\Models\JobList;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class JobApplicationController extends BaseController
 {
-    // Melamar pekerjaan
+    /**
+     * Menampilkan halaman daftar pelamar untuk job tertentu (View)
+     */
+    public function index($id)
+    {
+        try {
+            // Validasi job exists
+            $job = JobList::find($id);
+            if (!$job) {
+                return redirect()->route('admin.jobs')->with('error', 'Lowongan tidak ditemukan');
+            }
+
+            // Get applications with user data
+            $applications = JobApplication::with('user')
+                ->where('job_id', $id)
+                ->orderBy('created_at', 'DESC')
+                ->get();
+
+            return view('admin.jobs.job_applications', [
+                'applications' => $applications,
+                'jobId' => $id,
+                'job' => $job
+            ]);
+
+        } catch (\Exception $e) {
+            return redirect()->route('admin.jobs')->with('error', 'Gagal memuat data pelamar: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Melamar pekerjaan
+     */
     public function apply(Request $request, $jobId)
     {
         try {
@@ -74,18 +106,18 @@ class JobApplicationController extends BaseController
         }
     }
 
-    // Menampilkan daftar lamaran user
+    /**
+     * Menampilkan daftar lamaran user
+     */
     public function userApplications()
     {
         try {
             $user = Auth::guard('sanctum')->user();
 
-            // If no authenticated user found, use alternative authentication
             if (!$user && Auth::check()) {
                 $user = Auth::user();
             }
 
-            // If still no user found, return error
             if (!$user) {
                 return $this->sendError('Silakan login terlebih dahulu', [], 401);
             }
@@ -101,7 +133,9 @@ class JobApplicationController extends BaseController
         }
     }
 
-    // Update status lamaran
+    /**
+     * Update status lamaran (Admin)
+     */
     public function updateStatus(Request $request, $id)
     {
         try {
@@ -115,17 +149,22 @@ class JobApplicationController extends BaseController
             ]);
 
             $application->update(['status' => $request->status]);
+
             return $this->sendResponse($application, 'Status lamaran berhasil diperbarui');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return $this->sendError('Validasi gagal', $e->errors(), 422);
         } catch (\Exception $e) {
             return $this->sendError('Gagal memperbarui status lamaran', ['error' => $e->getMessage()], 500);
         }
     }
 
-    // Menampilkan daftar lamaran untuk job tertentu (ADMIN)
+    /**
+     * Menampilkan daftar lamaran untuk job tertentu (API)
+     */
     public function getJobApplications($job_id)
     {
         try {
-            $applications = \App\Models\JobApplication::with('user')
+            $applications = JobApplication::with('user')
                 ->where('job_id', $job_id)
                 ->orderBy('created_at', 'DESC')
                 ->get();
@@ -136,53 +175,211 @@ class JobApplicationController extends BaseController
         }
     }
 
+    /**
+     * Show applications for specific job (alternative method)
+     */
     public function showApplications($id)
     {
-        $applications = JobApplication::with(['user', 'job'])
-            ->where('job_id', $id)
-            ->latest()
-            ->paginate(10);
+        try {
+            $applications = JobApplication::with(['user', 'job'])
+                ->where('job_id', $id)
+                ->latest()
+                ->paginate(10);
 
-        return response()->json([
-            'success' => true,
-            'data' => $applications
-        ]);
+            return response()->json([
+                'success' => true,
+                'data' => $applications
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil data pelamar'
+            ], 500);
+        }
     }
 
-    public function index($id)
-    {
-          $applications = JobApplication::with('user')->where('job_id', $id)->get();
-
-    $token = auth()->user()->createToken('auth_token')->plainTextToken;
-
-    return view('admin.job_applications', [
-        'applications' => $applications,
-        'jobId' => $id,
-        'token' => $token,
-    ]);
-    }
-
+    /**
+     * Delete application
+     */
     public function destroy($id)
     {
         try {
-            $application = \App\Models\JobApplication::find($id);
+            $application = JobApplication::find($id);
             if (!$application) {
                 return response()->json(['success' => false, 'message' => 'Data tidak ditemukan'], 404);
             }
+
+            // Delete CV file if exists
+            if ($application->cv && Storage::disk('public')->exists($application->cv)) {
+                Storage::disk('public')->delete($application->cv);
+            }
+
             $application->delete();
-            return response()->json(['success' => true, 'message' => 'Data pelamar dihapus']);
+            return response()->json(['success' => true, 'message' => 'Data pelamar berhasil dihapus']);
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error($e->getMessage());
+            \Illuminate\Support\Facades\Log::error('Error deleting application: ' . $e->getMessage());
             return response()->json(['success' => false, 'message' => 'Gagal menghapus data pelamar'], 500);
         }
     }
 
+    /**
+     * Update application data
+     */
     public function update(Request $request, $id)
     {
-        $app = \App\Models\JobApplication::findOrFail($id);
-        $app->update($request->only([
-            'phone_number', 'education_level', 'experience', 'expected_salary', 'skills', 'additional_info'
-        ]));
-        return response()->json(['success' => true, 'message' => 'Data pelamar diperbarui']);
+        try {
+            $application = JobApplication::findOrFail($id);
+
+            $validatedData = $request->validate([
+                'phone_number' => 'nullable|string',
+                'education_level' => 'nullable|string',
+                'experience' => 'nullable|string',
+                'expected_salary' => 'nullable|string',
+                'skills' => 'nullable|string',
+                'additional_info' => 'nullable|string',
+                'status' => 'nullable|in:Diproses,Diterima,Ditolak'
+            ]);
+
+            $application->update($validatedData);
+
+            return response()->json(['success' => true, 'message' => 'Data pelamar berhasil diperbarui']);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => 'Validasi gagal', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error updating application: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => 'Gagal memperbarui data pelamar'], 500);
+        }
+    }
+
+    /**
+     * Export applications to Excel/CSV
+     */
+    public function exportApplications($jobId)
+    {
+        try {
+            $job = JobList::find($jobId);
+            if (!$job) {
+                return redirect()->back()->with('error', 'Lowongan tidak ditemukan');
+            }
+
+            $applications = JobApplication::with('user')
+                ->where('job_id', $jobId)
+                ->orderBy('created_at', 'DESC')
+                ->get();
+
+            $filename = 'pelamar_' . str_replace(' ', '_', strtolower($job->title)) . '_' . date('Y-m-d_H-i-s') . '.csv';
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+
+            $callback = function() use ($applications, $job) {
+                $file = fopen('php://output', 'w');
+
+                // Add BOM for UTF-8
+                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+                // CSV Headers
+                fputcsv($file, [
+                    'ID',
+                    'Nama Pelamar',
+                    'Email',
+                    'No. HP',
+                    'Pendidikan',
+                    'Pengalaman',
+                    'Gaji Diharapkan',
+                    'Skills',
+                    'Status',
+                    'Tanggal Melamar',
+                    'Cover Letter',
+                    'Info Tambahan'
+                ]);
+
+                // Data rows
+                foreach ($applications as $app) {
+                    fputcsv($file, [
+                        $app->id,
+                        $app->user->name,
+                        $app->user->email,
+                        $app->phone_number ?: '-',
+                        $app->education_level,
+                        $app->experience ?: '-',
+                        $app->expected_salary ?: '-',
+                        $app->skills ?: '-',
+                        $app->status,
+                        $app->created_at->format('d/m/Y H:i'),
+                        $app->cover_letter,
+                        $app->additional_info ?: '-'
+                    ]);
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengexport data: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Get application statistics for a job
+     */
+    public function getApplicationStatistics($jobId)
+    {
+        try {
+            $total = JobApplication::where('job_id', $jobId)->count();
+            $pending = JobApplication::where('job_id', $jobId)->where('status', 'Diproses')->count();
+            $accepted = JobApplication::where('job_id', $jobId)->where('status', 'Diterima')->count();
+            $rejected = JobApplication::where('job_id', $jobId)->where('status', 'Ditolak')->count();
+
+            $responseRate = $total > 0 ? round((($accepted + $rejected) / $total) * 100, 2) : 0;
+
+            return response()->json([
+                'success' => true,
+                'data' => [
+                    'total' => $total,
+                    'pending' => $pending,
+                    'accepted' => $accepted,
+                    'rejected' => $rejected,
+                    'response_rate' => $responseRate
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal mengambil statistik: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Bulk update application status
+     */
+    public function bulkUpdateStatus(Request $request)
+    {
+        try {
+            $request->validate([
+                'application_ids' => 'required|array',
+                'application_ids.*' => 'exists:job_applications,id',
+                'status' => 'required|in:Diproses,Diterima,Ditolak'
+            ]);
+
+            $updated = JobApplication::whereIn('id', $request->application_ids)
+                ->update(['status' => $request->status]);
+
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil memperbarui status {$updated} pelamar"
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json(['success' => false, 'message' => 'Validasi gagal', 'errors' => $e->errors()], 422);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Gagal memperbarui status'], 500);
+        }
     }
 }
