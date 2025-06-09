@@ -620,7 +620,7 @@
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="summary-card">
                             <div class="summary-icon bg-warning">
-                                <i class="icon-close"></i>
+                                <i class="fas fa-times-circle"></i>
                             </div>
                             <div class="summary-number">{{ $brands->where('is_active', false)->count() }}</div>
                             <div class="summary-label">Merek Nonaktif</div>
@@ -629,7 +629,7 @@
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="summary-card">
                             <div class="summary-icon bg-primary">
-                                <i class="icon-bag"></i>
+                                <i class="bx bx-shopping-bag"></i>
                             </div>
                             <div class="summary-number">{{ $totalProducts ?? 0 }}</div>
                             <div class="summary-label">Total Produk</div>
@@ -637,6 +637,8 @@
                     </div>
                 </div>
             </div>
+            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+            <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
 
             <!-- Filter Section -->
             <div class="filter-section">

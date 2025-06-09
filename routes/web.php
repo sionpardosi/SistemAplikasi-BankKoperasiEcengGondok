@@ -295,7 +295,7 @@ Route::middleware(['auth'])->group(function () {
     // Update delivery address (before shipped)
     Route::put('/order/{order_id}/address', [UserController::class, 'updateDeliveryAddress'])->name('user.order.update.address');
 
-    
+
     // ====================================================================================================
     // Admin Approval for Manual Payment
     // ====================================================================================================
@@ -612,6 +612,14 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     Route::put('/admin/slide/update', [AdminController::class, 'slide_update'])->name('admin.slide.update');
     // Route untuk delete slide
     Route::delete('/admin/slide/{id}/delete', [AdminController::class, 'slide_delete'])->name('admin.slide.delete');
+    // Export slides ke CSV/Excel
+    Route::get('/admin/slides/export', [AdminController::class, 'exportSlides'])->name('admin.slides.export');
+    // Bulk update status slides
+    Route::post('/admin/slides/bulk-status', [AdminController::class, 'bulkUpdateSlideStatus'])->name('admin.slides.bulk-status');
+    // API route untuk statistik slide (jika diperlukan untuk dashboard)
+    Route::get('/admin/slides/statistics', [AdminController::class, 'getSlideStatistics'])->name('admin.slides.statistics');
+    // Route untuk preview slide (opsional)
+    Route::get('/admin/slide/{id}/preview', [AdminController::class, 'slide_preview'])->name('admin.slide.preview');
 
 
     // ====================================================================================================

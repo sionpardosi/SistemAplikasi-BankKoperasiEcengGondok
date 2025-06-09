@@ -1364,6 +1364,95 @@ class AdminController extends Controller
         }
     }
 
+    /**
+     * Export categories to Excel/CSV
+     */
+    public function export_categories(Request $request)
+    {
+        try {
+            // Build query dengan filter yang sama seperti halaman categories
+            $query = Category::with('products');
+
+            // Apply same filters as categories page
+            if ($request->filled('search')) {
+                $search = $request->search;
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'LIKE', "%{$search}%")
+                        ->orWhere('slug', 'LIKE', "%{$search}%");
+                });
+            }
+
+            if ($request->filled('status')) {
+                switch ($request->status) {
+                    case 'active':
+                        $query->where('is_active', true)->whereHas('products');
+                        break;
+                    case 'empty':
+                        $query->where('is_active', true)->whereDoesntHave('products');
+                        break;
+                    case 'inactive':
+                        $query->where('is_active', false);
+                        break;
+                    case 'all':
+                        // Show all
+                        break;
+                    default:
+                        $query->where('is_active', true);
+                        break;
+                }
+            } else {
+                $query->where('is_active', true);
+            }
+
+            $categories = $query->get();
+
+            $filename = 'categories-export-' . now()->format('Y-m-d-H-i-s') . '.csv';
+
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+            ];
+
+            $callback = function () use ($categories) {
+                $file = fopen('php://output', 'w');
+
+                // Add BOM for UTF-8
+                fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
+
+                // CSV Headers
+                fputcsv($file, [
+                    'ID',
+                    'Nama Kategori',
+                    'Slug',
+                    'Status',
+                    'Featured',
+                    'Jumlah Produk',
+                    'Dibuat',
+                    'Diperbarui'
+                ]);
+
+                foreach ($categories as $category) {
+                    fputcsv($file, [
+                        $category->id,
+                        $category->name,
+                        $category->slug,
+                        $category->is_active ? 'Aktif' : 'Nonaktif',
+                        $category->is_featured ? 'Ya' : 'Tidak',
+                        $category->products->count(),
+                        $category->created_at->format('d/m/Y H:i'),
+                        $category->updated_at->format('d/m/Y H:i')
+                    ]);
+                }
+
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengekspor data: ' . $e->getMessage());
+        }
+    }
+
     // ====================================================================================================
     // Method untuk Reorder Categories (Drag & Drop)
     // ====================================================================================================
@@ -1787,7 +1876,7 @@ class AdminController extends Controller
                 'required',
                 'string',
                 function ($attribute, $value, $fail) {
-                    $price = (float) str_replace(['Rp ', '.'], '', $value);
+                    $price = (float) str_replace(['Rp ', '.', ','], '', $value);
                     if ($price <= 0) {
                         $fail('Harga normal harus lebih besar dari 0.');
                     }
@@ -1798,8 +1887,8 @@ class AdminController extends Controller
                 'string',
                 function ($attribute, $value, $fail) use ($request) {
                     if (!empty($value)) {
-                        $regularPrice = (float) str_replace(['Rp ', '.'], '', $request->regular_price);
-                        $salePrice = (float) str_replace(['Rp ', '.'], '', $value);
+                        $regularPrice = (float) str_replace(['Rp ', '.', ','], '', $request->regular_price);
+                        $salePrice = (float) str_replace(['Rp ', '.', ','], '', $value);
 
                         if ($salePrice <= 0) {
                             $fail('Harga diskon harus lebih besar dari 0.');
@@ -1820,18 +1909,20 @@ class AdminController extends Controller
             'stock_status' => 'required|in:instock,outofstock',
             'featured' => 'required|in:0,1',
             'quantity' => $request->has('has_sizes') ? 'nullable|integer|min:0' : 'required|integer|min:0',
+
             'image' => [
                 'required',
                 'file',
-                'mimetypes:image/jpeg,image/png,image/jpg',
-                'max:2048', // Maksimal 2MB
+                'mimes:jpeg,jpg,png,gif,bmp,webp,svg,tiff,ico,jfif,pjpeg,pjp,avif,apng', // Tambah format lain
+                'max:10240', // Naikkan ke 10MB
             ],
             'images.*' => [
                 'nullable',
                 'file',
-                'mimetypes:image/jpeg,image/png,image/jpg',
-                'max:2048', // Maksimal 2MB per file
+                'mimes:jpeg,jpg,png,gif,bmp,webp,svg,tiff,ico,jfif,pjpeg,pjp,avif,apng', // Tambah format lain
+                'max:10240', // Naikkan ke 10MB
             ],
+
             // Validasi ukuran yang diperbaiki
             'sizes' => $request->has('has_sizes') ? 'nullable|array' : 'nullable',
             'sizes.*' => 'exists:sizes,id',
@@ -1849,8 +1940,10 @@ class AdminController extends Controller
             'SKU.unique' => 'SKU sudah digunakan. Silakan gunakan SKU yang berbeda.',
             'regular_price.required' => 'Harga normal wajib diisi.',
             'image.required' => 'Gambar utama produk wajib diupload.',
-            'image.max' => 'Ukuran gambar maksimal 2MB.',
-            'images.*.max' => 'Ukuran setiap gambar galeri maksimal 2MB.',
+            'image.max' => 'Ukuran gambar maksimal 10MB.',
+            'image.mimes' => 'Format gambar harus berupa: JPEG, JPG, PNG, GIF, BMP, WebP, SVG, TIFF, atau ICO.',
+            'images.*.max' => 'Ukuran setiap gambar galeri maksimal 10MB.',
+            'images.*.mimes' => 'Format gambar galeri harus berupa: JPEG, JPG, PNG, GIF, BMP, WebP, SVG, TIFF, atau ICO.',
             'new_sizes.*.distinct' => 'Ukuran baru tidak boleh sama dalam satu produk.',
             'sizes.*.exists' => 'Ukuran yang dipilih tidak valid.',
             'stocks.*.min' => 'Stok tidak boleh negatif.',
@@ -1866,13 +1959,13 @@ class AdminController extends Controller
             $product->short_description = $request->short_description;
             $product->description = $request->description;
 
-            // Proses harga dengan pembersihan format
-            $regular_price = str_replace(['Rp ', '.', ','], '', $request->regular_price);
+            // Proses harga dengan pembersihan format yang lebih baik
+            $regular_price = str_replace(['Rp ', '.', ',', ' '], '', $request->regular_price);
             $product->regular_price = (float) $regular_price;
 
             // Proses harga diskon (bisa kosong)
             if (!empty($request->sale_price)) {
-                $sale_price = str_replace(['Rp ', '.', ','], '', $request->sale_price);
+                $sale_price = str_replace(['Rp ', '.', ',', ' '], '', $request->sale_price);
                 $product->sale_price = (float) $sale_price;
             } else {
                 // Jika tidak ada diskon, set sale_price sama dengan regular_price
@@ -1900,9 +1993,10 @@ class AdminController extends Controller
                 $image = $request->file('image');
                 $imageName = $current_timestamp . '.' . $image->extension();
 
-                // Validasi tambahan untuk gambar
-                if (!in_array($image->extension(), ['jpg', 'jpeg', 'png'])) {
-                    throw new \Exception('Format gambar tidak didukung. Gunakan JPG, JPEG, atau PNG.');
+                // PERBAIKAN: Validasi extension yang lebih fleksibel
+                $allowedExtensions = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'svg', 'tiff', 'ico'];
+                if (!in_array(strtolower($image->extension()), $allowedExtensions)) {
+                    throw new \Exception('Format gambar tidak didukung. Gunakan: ' . implode(', ', $allowedExtensions));
                 }
 
                 $this->GenerateProductThumbailImage($image, $imageName);
@@ -1915,7 +2009,6 @@ class AdminController extends Controller
             $counter = 1;
 
             if ($request->hasFile('images')) {
-                $allowedfileExtension = ['jpg', 'png', 'jpeg'];
                 $files = $request->file('images');
 
                 // Batasi maksimal 10 gambar galeri
@@ -1925,13 +2018,10 @@ class AdminController extends Controller
 
                 foreach ($files as $file) {
                     $gextension = $file->getClientOriginalExtension();
-                    $check = in_array(strtolower($gextension), $allowedfileExtension);
-                    if ($check) {
-                        $gfilename = $current_timestamp . "-" . $counter . "." . $gextension;
-                        $this->GenerateProductThumbailImage($file, $gfilename);
-                        array_push($gallery_arr, $gfilename);
-                        $counter = $counter + 1;
-                    }
+                    $gfilename = $current_timestamp . "-" . $counter . "." . $gextension;
+                    $this->GenerateProductThumbailImage($file, $gfilename);
+                    array_push($gallery_arr, $gfilename);
+                    $counter = $counter + 1;
                 }
                 $gallery_images = implode(',', $gallery_arr);
             }
@@ -2275,7 +2365,7 @@ class AdminController extends Controller
                     File::delete(public_path('uploads/products/thumbnails') . '/' . $ofile);
                 }
             }
-            $allowedfileExtension = ['jpg', 'png', 'jpeg'];
+            $allowedfileExtension = ['jpeg', 'jpg', 'png', 'gif', 'bmp', 'webp', 'svg', 'tiff', 'ico'];
             $files = $request->file('images');
             foreach ($files as $file) {
                 $gextension = $file->getClientOriginalExtension();
@@ -3324,107 +3414,327 @@ class AdminController extends Controller
 
 
     // ====================================================================================================
-    // Halaman Slides
+    // Halaman Slides dengan Fitur Search & Filter yang Diperbaiki
     // ====================================================================================================
-    public function slides()
+
+    /**
+     * Menampilkan halaman manajemen slides dengan fitur pencarian dan filter
+     */
+    public function slides(Request $request)
     {
-        $slides = Slide::orderBy('id', 'DESC')->paginate(12);
+        $query = Slide::query();
+
+        // Filter berdasarkan pencarian (judul atau tagline)
+        if ($request->filled('search')) {
+            $search = $request->get('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'LIKE', '%' . $search . '%')
+                    ->orWhere('tagline', 'LIKE', '%' . $search . '%')
+                    ->orWhere('subtitle', 'LIKE', '%' . $search . '%');
+            });
+        }
+
+        // Filter berdasarkan status
+        if ($request->filled('status')) {
+            $query->where('status', $request->get('status'));
+        }
+
+        // Urutkan berdasarkan ID terbaru dan paginate
+        $slides = $query->orderBy('id', 'DESC')->paginate(12);
+
+        // Append query parameters untuk pagination
+        $slides->appends($request->query());
+
         return view("admin.slides", compact('slides'));
     }
-    // Halaman Menambahkan Slide
+
+    /**
+     * Halaman Menambahkan Slide
+     */
     public function slide_add()
     {
         return view("admin.slide-add");
     }
-    // Halaman Menyimpan Slide
+
+    /**
+     * Halaman Menyimpan Slide dengan Validasi yang Diperbaiki
+     */
     public function slide_store(Request $request)
     {
+        // Validasi input dengan pesan error yang lebih user-friendly
         $request->validate([
-            'tagline' => 'required',
-            'title' => 'required',
-            'subtitle' => 'required',
-            'link' => 'required',
-            'status' => 'required',
+            'tagline' => 'required|max:100',
+            'title' => 'required|max:200',
+            'subtitle' => 'required|max:300',
+            'link' => 'required|url|max:500',
+            'status' => 'required|in:0,1',
             'image' => 'required|mimes:png,jpg,jpeg|max:2048'
+        ], [
+            'tagline.required' => 'Tagline slide wajib diisi',
+            'tagline.max' => 'Tagline maksimal 100 karakter',
+            'title.required' => 'Judul slide wajib diisi',
+            'title.max' => 'Judul maksimal 200 karakter',
+            'subtitle.required' => 'Subtitle slide wajib diisi',
+            'subtitle.max' => 'Subtitle maksimal 300 karakter',
+            'link.required' => 'Link tujuan wajib diisi',
+            'link.url' => 'Link harus berupa URL yang valid',
+            'link.max' => 'Link maksimal 500 karakter',
+            'status.required' => 'Status slide wajib dipilih',
+            'status.in' => 'Status harus Aktif atau Nonaktif',
+            'image.required' => 'Gambar slide wajib diunggah',
+            'image.mimes' => 'Gambar harus berformat PNG, JPG, atau JPEG',
+            'image.max' => 'Ukuran gambar maksimal 2MB'
         ]);
 
-        $slide = new Slide();
-        $slide->tagline = $request->tagline;
-        $slide->title = $request->title;
-        $slide->subtitle = $request->subtitle;
-        $slide->link = $request->link;
-        $slide->status = $request->status;
+        try {
+            $slide = new Slide();
+            $slide->tagline = trim($request->tagline);
+            $slide->title = trim($request->title);
+            $slide->subtitle = trim($request->subtitle);
+            $slide->link = trim($request->link);
+            $slide->status = $request->status;
 
-        $image = $request->file('image');
-        $file_extension = $request->file('image')->extension();
-        $file_name = Carbon::now()->timestamp . '.' . $file_extension;
+            // Handle upload gambar
+            if ($request->hasFile('image')) {
+                $image = $request->file('image');
+                $file_extension = $image->extension();
+                $file_name = 'slide_' . Carbon::now()->timestamp . '_' . uniqid() . '.' . $file_extension;
 
-        $this->GenerateSlideThumbnailsImage($image, $file_name);
-        $slide->image = $file_name;
-        $slide->save();
+                $this->GenerateSlideThumbnailsImage($image, $file_name);
+                $slide->image = $file_name;
+            }
 
-        return redirect()->route('admin.slides')->with("status", "Slide added successfully!");
+            $slide->save();
+
+            return redirect()->route('admin.slides')->with("status", "Slide berhasil ditambahkan! Slide baru telah tersimpan dan siap ditampilkan.");
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with("error", "Gagal menyimpan slide. Silakan coba lagi atau hubungi administrator jika masalah berlanjut.");
+        }
     }
-    // Halaman Generate Slide Thumbnail Image
+
+    /**
+     * Generate Slide Thumbnail Image dengan Error Handling
+     */
     public function GenerateSlideThumbnailsImage($image, $imageName)
     {
-        $destinationPath = public_path('uploads/slides');
-        $img = Image::read($image->path());
-        $img->cover(400, 690, "top");
-        $img->resize(400, 690, function ($constraint) {
-            $constraint->aspectRatio();
-        })->save($destinationPath . '/' . $imageName);
+        try {
+            $destinationPath = public_path('uploads/slides');
+
+            // Pastikan direktori ada
+            if (!file_exists($destinationPath)) {
+                mkdir($destinationPath, 0755, true);
+            }
+
+            $img = Image::read($image->path());
+
+            // Resize dengan mempertahankan proporsi
+            $img->cover(400, 690, "top");
+            $img->resize(400, 690, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            })->save($destinationPath . '/' . $imageName);
+        } catch (\Exception $e) {
+            throw new \Exception("Gagal memproses gambar: " . $e->getMessage());
+        }
     }
-    // Halaman Edit Slide
+
+    /**
+     * Halaman Edit Slide
+     */
     public function slide_edit($id)
     {
         $slide = Slide::find($id);
+
+        if (!$slide) {
+            return redirect()->route('admin.slides')->with("error", "Slide tidak ditemukan!");
+        }
+
         return view('admin.slide-edit', compact('slide'));
     }
-    // Halaman Update Slide
+
+    /**
+     * Halaman Update Slide dengan Validasi yang Diperbaiki
+     */
     public function slide_update(Request $request)
     {
+        // Validasi input
         $request->validate([
-            'tagline' => 'required',
-            'title' => 'required',
-            'subtitle' => 'required',
-            'link' => 'required',
-            'status' => 'required',
-            'image' => 'mimes:png,jpg,jpeg|max:2048'
+            'id' => 'required|exists:slides,id',
+            'tagline' => 'required|max:100',
+            'title' => 'required|max:200',
+            'subtitle' => 'required|max:300',
+            'link' => 'required|url|max:500',
+            'status' => 'required|in:0,1',
+            'image' => 'nullable|mimes:png,jpg,jpeg|max:2048'
+        ], [
+            'id.required' => 'ID slide tidak valid',
+            'id.exists' => 'Slide tidak ditemukan',
+            'tagline.required' => 'Tagline slide wajib diisi',
+            'tagline.max' => 'Tagline maksimal 100 karakter',
+            'title.required' => 'Judul slide wajib diisi',
+            'title.max' => 'Judul maksimal 200 karakter',
+            'subtitle.required' => 'Subtitle slide wajib diisi',
+            'subtitle.max' => 'Subtitle maksimal 300 karakter',
+            'link.required' => 'Link tujuan wajib diisi',
+            'link.url' => 'Link harus berupa URL yang valid',
+            'link.max' => 'Link maksimal 500 karakter',
+            'status.required' => 'Status slide wajib dipilih',
+            'status.in' => 'Status harus Aktif atau Nonaktif',
+            'image.mimes' => 'Gambar harus berformat PNG, JPG, atau JPEG',
+            'image.max' => 'Ukuran gambar maksimal 2MB'
         ]);
 
-        $slide = Slide::find($request->id);
-        $slide->tagline = $request->tagline;
-        $slide->title = $request->title;
-        $slide->subtitle = $request->subtitle;
-        $slide->link = $request->link;
-        $slide->status = $request->status;
+        try {
+            $slide = Slide::find($request->id);
 
-        if ($request->hasFile('image')) {
-            if (File::exists(public_path('uploads/slides') . '/' . $slide->image)) {
-                File::delete(public_path('uploads/slides') . '/' . $slide->image);
+            if (!$slide) {
+                return redirect()->route('admin.slides')->with("error", "Slide tidak ditemukan!");
             }
-            $image = $request->file('image');
-            $file_extension = $request->file('image')->extension();
-            $file_name = Carbon::now()->timestamp . '.' . $file_extension;
-            $this->GenerateSlideThumbnailsImage($image, $file_name);
-            $slide->image = $file_name;
-        }
 
-        $slide->save();
-        return redirect()->route('admin.slides')->with("status", "Slide updated successfully!");
+            // Update data slide
+            $slide->tagline = trim($request->tagline);
+            $slide->title = trim($request->title);
+            $slide->subtitle = trim($request->subtitle);
+            $slide->link = trim($request->link);
+            $slide->status = $request->status;
+
+            // Handle upload gambar baru jika ada
+            if ($request->hasFile('image')) {
+                // Hapus gambar lama
+                $oldImagePath = public_path('uploads/slides') . '/' . $slide->image;
+                if (File::exists($oldImagePath)) {
+                    File::delete($oldImagePath);
+                }
+
+                // Upload gambar baru
+                $image = $request->file('image');
+                $file_extension = $image->extension();
+                $file_name = 'slide_' . Carbon::now()->timestamp . '_' . uniqid() . '.' . $file_extension;
+
+                $this->GenerateSlideThumbnailsImage($image, $file_name);
+                $slide->image = $file_name;
+            }
+
+            $slide->save();
+
+            return redirect()->route('admin.slides')->with("status", "Slide berhasil diperbarui! Perubahan telah tersimpan dan akan segera terlihat di website.");
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with("error", "Gagal memperbarui slide. Silakan coba lagi atau hubungi administrator jika masalah berlanjut.");
+        }
     }
-    // Halaman Delete Slide
+
+    /**
+     * Halaman Delete Slide dengan Konfirmasi
+     */
     public function slide_delete($id)
     {
-        $slide = Slide::find($id);
-        if (File::exists(public_path('uploads/slides') . '/' . $slide->image)) {
-            File::delete(public_path('uploads/slides') . '/' . $slide->image);
+        try {
+            $slide = Slide::find($id);
+
+            if (!$slide) {
+                return redirect()->route('admin.slides')->with("error", "Slide tidak ditemukan!");
+            }
+
+            // Hapus file gambar
+            $imagePath = public_path('uploads/slides') . '/' . $slide->image;
+            if (File::exists($imagePath)) {
+                File::delete($imagePath);
+            }
+
+            // Hapus record dari database
+            $slide->delete();
+
+            return redirect()->route('admin.slides')->with("status", "Slide berhasil dihapus! Data slide dan gambar terkait telah dihapus dari sistem.");
+        } catch (\Exception $e) {
+            return redirect()->route('admin.slides')->with("error", "Gagal menghapus slide. Silakan coba lagi atau hubungi administrator jika masalah berlanjut.");
         }
-        $slide->delete();
-        return redirect()->route('admin.slides')->with("status", "Slide deleted successfully!");
     }
 
+    /**
+     * Fungsi tambahan untuk mendapatkan statistik slide
+     */
+    public function getSlideStatistics()
+    {
+        return [
+            'total' => Slide::count(),
+            'active' => Slide::where('status', 1)->count(),
+            'inactive' => Slide::where('status', 0)->count(),
+            'recent' => Slide::where('created_at', '>=', Carbon::now()->subDays(7))->count()
+        ];
+    }
+
+    /**
+     * Fungsi untuk bulk update status slide
+     */
+    public function bulkUpdateSlideStatus(Request $request)
+    {
+        $request->validate([
+            'slide_ids' => 'required|array',
+            'slide_ids.*' => 'exists:slides,id',
+            'status' => 'required|in:0,1'
+        ]);
+
+        try {
+            $updated = Slide::whereIn('id', $request->slide_ids)
+                ->update(['status' => $request->status]);
+
+            $statusText = $request->status == 1 ? 'diaktifkan' : 'dinonaktifkan';
+            return response()->json([
+                'success' => true,
+                'message' => "{$updated} slide berhasil {$statusText}!"
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui status slide.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Fungsi untuk export data slide ke Excel
+     */
+    public function exportSlides(Request $request)
+    {
+        try {
+            $query = Slide::query();
+
+            // Terapkan filter yang sama dengan halaman index
+            if ($request->filled('search')) {
+                $search = $request->get('search');
+                $query->where(function ($q) use ($search) {
+                    $q->where('title', 'LIKE', '%' . $search . '%')
+                        ->orWhere('tagline', 'LIKE', '%' . $search . '%')
+                        ->orWhere('subtitle', 'LIKE', '%' . $search . '%');
+                });
+            }
+
+            if ($request->filled('status')) {
+                $query->where('status', $request->get('status'));
+            }
+
+            $slides = $query->orderBy('id', 'DESC')->get();
+
+            // Generate CSV content
+            $csvContent = "ID,Tagline,Judul,Subtitle,Link,Status,Tanggal Dibuat\n";
+            foreach ($slides as $slide) {
+                $status = $slide->status == 1 ? 'Aktif' : 'Nonaktif';
+                $csvContent .= "{$slide->id},\"{$slide->tagline}\",\"{$slide->title}\",\"{$slide->subtitle}\",\"{$slide->link}\",{$status},{$slide->created_at->format('d/m/Y H:i')}\n";
+            }
+
+            $fileName = 'slides_export_' . Carbon::now()->format('Y-m-d_H-i-s') . '.csv';
+
+            return response($csvContent)
+                ->header('Content-Type', 'text/csv')
+                ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"');
+        } catch (\Exception $e) {
+            return redirect()->back()->with("error", "Gagal mengexport data slide.");
+        }
+    }
 
     // ====================================================================================================
     // Halaman Contacts
@@ -3495,10 +3805,10 @@ class AdminController extends Controller
 
             if ($request->has('search') && $request->search) {
                 $searchTerm = $request->search;
-                $query->where(function($q) use ($searchTerm) {
+                $query->where(function ($q) use ($searchTerm) {
                     $q->where('title', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('location', 'like', '%' . $searchTerm . '%');
+                        ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('location', 'like', '%' . $searchTerm . '%');
                 });
             }
 
@@ -3511,11 +3821,11 @@ class AdminController extends Controller
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             ];
 
-            $callback = function() use ($jobs) {
+            $callback = function () use ($jobs) {
                 $file = fopen('php://output', 'w');
 
                 // Add BOM for UTF-8
-                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+                fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
                 // CSV Headers
                 fputcsv($file, [
@@ -3563,7 +3873,6 @@ class AdminController extends Controller
             };
 
             return response()->stream($callback, 200, $headers);
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal mengexport data: ' . $e->getMessage());
         }
@@ -3610,7 +3919,6 @@ class AdminController extends Controller
                     ]
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -3633,7 +3941,6 @@ class AdminController extends Controller
                 'success' => true,
                 'data' => $categories
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -3652,18 +3959,27 @@ class AdminController extends Controller
                 DB::raw('YEAR(created_at) as year'),
                 DB::raw('count(*) as total')
             )
-            ->where('created_at', '>=', now()->subMonths(12))
-            ->groupBy('year', 'month')
-            ->orderBy('year', 'asc')
-            ->orderBy('month', 'asc')
-            ->get();
+                ->where('created_at', '>=', now()->subMonths(12))
+                ->groupBy('year', 'month')
+                ->orderBy('year', 'asc')
+                ->orderBy('month', 'asc')
+                ->get();
 
             // Format data for chart
-            $formattedTrend = $trend->map(function($item) {
+            $formattedTrend = $trend->map(function ($item) {
                 $monthNames = [
-                    1 => 'Jan', 2 => 'Feb', 3 => 'Mar', 4 => 'Apr',
-                    5 => 'Mei', 6 => 'Jun', 7 => 'Jul', 8 => 'Agu',
-                    9 => 'Sep', 10 => 'Okt', 11 => 'Nov', 12 => 'Des'
+                    1 => 'Jan',
+                    2 => 'Feb',
+                    3 => 'Mar',
+                    4 => 'Apr',
+                    5 => 'Mei',
+                    6 => 'Jun',
+                    7 => 'Jul',
+                    8 => 'Agu',
+                    9 => 'Sep',
+                    10 => 'Okt',
+                    11 => 'Nov',
+                    12 => 'Des'
                 ];
 
                 return [
@@ -3676,7 +3992,6 @@ class AdminController extends Controller
                 'success' => true,
                 'data' => $formattedTrend
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

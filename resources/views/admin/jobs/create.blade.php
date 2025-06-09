@@ -468,7 +468,7 @@
                             <div class="col-lg-8">
                                 <div class="form-group">
                                     <label class="form-label" for="title">Judul Pekerjaan <span class="required">*</span></label>
-                                    <input type="text" id="title" class="form-control" placeholder="Contoh: Front-end Developer, Marketing Manager, dll" required>
+                                    <input type="text" id="title" class="form-control" placeholder="Contoh: Perakit Sendal Anyaman Eceng Gondok" required>
                                     <div class="char-counter" id="title-counter">0/100 karakter</div>
                                 </div>
                             </div>
@@ -495,7 +495,7 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="form-label" for="location">Lokasi <span class="required">*</span></label>
-                                    <input type="text" id="location" class="form-control" placeholder="Contoh: Jakarta Selatan, Surabaya, Remote, dll" required>
+                                    <input type="text" id="location" class="form-control" placeholder="Contoh: Samosir" required>
                                 </div>
                             </div>
                             <div class="col-lg-6">
@@ -552,7 +552,7 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label class="form-label" for="requirements">Persyaratan</label>
-                                    <textarea id="requirements" class="form-control" rows="4" placeholder="Contoh: Lulusan S1, pengalaman 2 tahun, menguasai JavaScript, dll"></textarea>
+                                    <textarea id="requirements" class="form-control" rows="4" placeholder="Contoh: Bebas dari golongan apapun"></textarea>
                                     <div class="char-counter" id="requirements-counter">0/1000 karakter</div>
                                 </div>
                             </div>

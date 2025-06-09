@@ -732,7 +732,7 @@
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="summary-card">
                             <div class="summary-icon bg-warning">
-                                <i class="bx bx-category"></i>
+                                <i class="icon-grid"></i>
                             </div>
                             <div class="summary-number">{{ $summaryData['totalWithProducts'] ?? 0 }}</div>
                             <div class="summary-label">Kategori Ber-Produk</div>
