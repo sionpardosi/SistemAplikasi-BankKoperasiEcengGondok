@@ -94,7 +94,16 @@ class LoginController extends Controller
                 ->with('success_message', 'You have successfully logged in and the product has been added to your wishlist.');
         }
 
-        // Jika tidak ada flag, pakai intended URL atau fallback $redirectTo
-        return redirect()->intended($this->redirectPath());
+        // ✅ TAMBAHAN BARU: Cek utype user untuk redirect yang tepat
+        if ($user->utype === 'ADM') {
+            // Jika user adalah Admin, langsung ke dashboard admin
+            return redirect()->route('admin.index')->with('success', 'Selamat datang di Dashboard Admin!');
+        } else {
+            // Jika user biasa, ke halaman user
+            return redirect()->route('user.index')->with('success', 'Selamat datang kembali!');
+        }
+
+        // Fallback jika tidak ada kondisi yang terpenuhi (tidak akan pernah dieksekusi)
+        // return redirect()->intended($this->redirectPath());
     }
 }

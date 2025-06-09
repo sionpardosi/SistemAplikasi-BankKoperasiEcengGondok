@@ -16,6 +16,10 @@
             margin-top: 60px !important;
         }
 
+        .text-danger {
+            color: #dc3545 !important;
+        }
+
         /* Checkout Steps - Modern Design */
         :root {
             --primary: #956a3b;
