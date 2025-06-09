@@ -295,6 +295,12 @@ Route::middleware(['auth'])->group(function () {
     // Update delivery address (before shipped)
     Route::put('/order/{order_id}/address', [UserController::class, 'updateDeliveryAddress'])->name('user.order.update.address');
 
+    
+    // ====================================================================================================
+    // Admin Approval for Manual Payment
+    // ====================================================================================================
+    Route::post('/admin/approve-payment/{orderId}', [CartController::class, 'approveManualPayment'])->name('admin.approve.payment');
+
 
     // ====================================================================================================
     // Reviews

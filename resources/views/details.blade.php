@@ -1170,10 +1170,10 @@
                         <span class="badge fw-bold rounded-pill px-3" id="main-stock-display"
                             style="background-color: #D2B48C; color: #fff; font-size: 0.9rem;">
                             @if ($product->sizes->count() > 0)
-                                {{ $product->sizes->sum('pivot.stock') }}
-                            @else
-                                {{ $product->quantity - ($product->reserved_quantity ?? 0) }}
-                            @endif
+                            {{ $product->sizes->sum('pivot.stock') }} <!-- Total stok semua ukuran -->
+                        @else
+                            {{ $product->quantity - ($product->reserved_quantity ?? 0) }} <!-- Stok tersedia -->
+                        @endif
                         </span>
                     </div>
 
@@ -1205,10 +1205,10 @@
                                             {{ $size->name }}
                                             <small class="d-block text-muted mt-1" style="font-size: 0.75rem;">
                                                 @if ($size->pivot->stock > 0)
-                                                    Stok: {{ $size->pivot->stock }}
-                                                @else
-                                                    <span class="text-danger">Habis</span>
-                                                @endif
+                                                Stok: {{ $size->pivot->stock }} <!-- Akan berkurang setelah pembelian -->
+                                            @else
+                                                <span class="text-danger">Habis</span>
+                                            @endif
                                             </small>
                                         </button>
                                     @endforeach
@@ -3995,5 +3995,112 @@
                 }
             }
         });
+    </script>
+
+<script>
+    $(document).ready(function() {
+        const productId = {{ $product->id }};
+
+        // Fungsi untuk refresh data stok
+        function refreshStockData() {
+            $.ajax({
+                url: `/api/product/${productId}/stock`,
+                type: 'GET',
+                success: function(response) {
+                    console.log('Stock updated:', response);
+
+                    // Update stok utama
+                    $('#main-stock-display').text(response.available_stock);
+
+                    // Update stok per ukuran jika ada
+                    if (response.sizes && response.sizes.length > 0) {
+                        response.sizes.forEach(function(size) {
+                            const sizeBtn = $(`.size-btn[data-size-id="${size.id}"]`);
+                            if (sizeBtn.length) {
+                                // Update data stok
+                                sizeBtn.attr('data-stock', size.stock);
+
+                                // Update tampilan stok
+                                const stockText = sizeBtn.find('small');
+                                if (size.stock > 0) {
+                                    stockText.html(`Stok: ${size.stock}`);
+                                    sizeBtn.prop('disabled', false).css('opacity', '1');
+                                } else {
+                                    stockText.html('<span class="text-danger">Habis</span>');
+                                    sizeBtn.prop('disabled', true).css('opacity', '0.5');
+                                }
+                            }
+                        });
+                    }
+
+                    // Update modal stok jika ukuran sudah dipilih
+                    const selectedSizeId = $('#selected-size-id').val();
+                    if (selectedSizeId && response.sizes) {
+                        const selectedSize = response.sizes.find(s => s.id == selectedSizeId);
+                        if (selectedSize) {
+                            $('#modal-available-stock').text(selectedSize.stock);
+                            $('.modal-qty-input').attr('max', selectedSize.stock);
+                        }
+                    }
+
+                    // Update tampilan tombol berdasarkan stok
+                    updateButtonsBasedOnStock(response.available_stock);
+                },
+                error: function(xhr) {
+                    console.error('Failed to refresh stock data:', xhr);
+                }
+            });
+        }
+
+        // Fungsi untuk update tombol berdasarkan stok
+        function updateButtonsBasedOnStock(availableStock) {
+            if (availableStock <= 0) {
+                $('#open-quantity-modal, #buy-now').prop('disabled', true)
+                    .css({
+                        'background-color': '#f5f5f5',
+                        'border-color': '#ddd',
+                        'color': '#aaa',
+                        'cursor': 'not-allowed'
+                    });
+                $('#open-quantity-modal').html('<i class="fas fa-ban me-2"></i> Stok Habis');
+                $('#buy-now').html('<i class="fas fa-exclamation-circle me-2"></i> Tidak Tersedia');
+            } else {
+                $('#open-quantity-modal, #buy-now').prop('disabled', false)
+                    .removeAttr('style');
+                $('#open-quantity-modal').html('<i class="fas fa-shopping-cart me-2"></i> Tambahkan ke Keranjang');
+                $('#buy-now').html('Beli Sekarang');
+            }
+        }
+
+        // Auto refresh setiap 30 detik
+        setInterval(refreshStockData, 30000);
+
+        // Refresh saat tab/window menjadi aktif kembali
+        $(window).on('focus', function() {
+            refreshStockData();
+        });
+
+        // Refresh setelah menambahkan ke keranjang
+        $(document).on('cartItemAdded', function() {
+            setTimeout(refreshStockData, 1000);
+        });
+    });
+
+    // Trigger event setelah item ditambahkan ke keranjang
+    $('#confirmAddToCart').on('click', function() {
+        // ... existing code ...
+
+        $.ajax({
+            // ... existing AJAX code ...
+            success: function(response) {
+                if (response.success) {
+                    // ... existing success code ...
+
+                    // Trigger refresh stok
+                    $(document).trigger('cartItemAdded');
+                }
+            }
+        });
+    });
     </script>
 @endpush

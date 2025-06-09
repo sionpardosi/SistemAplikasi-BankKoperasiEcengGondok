@@ -915,6 +915,9 @@ class CartController extends Controller
     /**
      * Upload bukti pembayaran untuk transfer bank
      */
+    /**
+     * ✅ DIPERBAIKI: Upload bukti pembayaran untuk transfer bank
+     */
     public function uploadPaymentProof(Request $request)
     {
         $request->validate([
@@ -947,7 +950,8 @@ class CartController extends Controller
                 $transaction->payment_proof = $paymentProofPath;
                 $transaction->save();
 
-                // Update status order menjadi pending menunggu verifikasi admin
+                // ✅ PERBAIKAN: Update status order menjadi pending (menunggu verifikasi admin)
+                // TIDAK langsung kurangi stok di sini, biarkan admin yang approve dulu
                 $order->status = 'pending';
                 $order->save();
 
@@ -988,6 +992,119 @@ class CartController extends Controller
             }
 
             return redirect()->back()->with('error', 'Terjadi kesalahan saat mengupload bukti pembayaran.');
+        }
+    }
+
+    /**
+     * ✅ METHOD BARU untuk Admin: Approve Manual Payment
+     * Method ini untuk admin ketika approve manual transfer
+     */
+    public function approveManualPayment($orderId)
+    {
+        $order = Order::findOrFail($orderId);
+        $transaction = Transaction::where('order_id', $orderId)->first();
+
+        if (!$transaction || !$transaction->payment_proof) {
+            return redirect()->back()->with('error', 'Bukti pembayaran tidak ditemukan.');
+        }
+
+        DB::beginTransaction();
+        try {
+            // Update status transaksi dan order
+            $transaction->status = 'approved';
+            $transaction->save();
+
+            $order->status = 'confirmed';
+            $order->confirmed_date = now();
+            $order->save();
+
+            // ✅ PERBAIKAN: Kurangi stok produk ketika admin approve
+            $this->reduceProductStock($order);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 'Pembayaran berhasil disetujui dan stok telah dikurangi.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error approving manual payment: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal menyetujui pembayaran.');
+        }
+    }
+
+    /**
+     * ✅ METHOD BARU: Kurangi stok produk ketika pembayaran berhasil
+     */
+    private function reduceProductStock(Order $order)
+    {
+        foreach ($order->orderItems as $orderItem) {
+            $product = Product::lockForUpdate()->find($orderItem->product_id);
+
+            if ($product) {
+                Log::info("CartController - Processing stock reduction for product {$product->id}, quantity: {$orderItem->quantity}");
+
+                // Parse options untuk mendapatkan size_id jika ada
+                $options = [];
+                if ($orderItem->options) {
+                    if (is_string($orderItem->options)) {
+                        $options = json_decode($orderItem->options, true) ?? [];
+                    } else {
+                        $options = $orderItem->options;
+                    }
+                }
+
+                // ✅ PERBAIKAN: Cek apakah produk memiliki ukuran berdasarkan relasi sizes
+                $hasSize = $product->sizes()->count() > 0;
+
+                if ($hasSize && isset($options['size_id'])) {
+                    // Untuk produk dengan ukuran
+                    $sizeId = $options['size_id'];
+
+                    Log::info("CartController - Product {$product->id} has sizes, reducing size {$sizeId} stock");
+
+                    // Update stok di tabel product_size
+                    $productSize = DB::table('product_size')
+                        ->where('product_id', $product->id)
+                        ->where('size_id', $sizeId)
+                        ->first();
+
+                    if ($productSize && $productSize->stock >= $orderItem->quantity) {
+                        DB::table('product_size')
+                            ->where('product_id', $product->id)
+                            ->where('size_id', $sizeId)
+                            ->decrement('stock', $orderItem->quantity);
+
+                        Log::info("✅ CartController - Size stock reduced for product {$product->id} size {$sizeId} by {$orderItem->quantity}");
+                    } else {
+                        Log::warning("❌ CartController - Insufficient size stock for product {$product->id} size {$sizeId}");
+                    }
+                } else {
+                    // ✅ PERBAIKAN: Untuk produk TANPA ukuran, pastikan stok utama berkurang
+                    Log::info("CartController - Product {$product->id} has NO sizes, reducing main stock");
+                }
+
+                // ✅ PERBAIKAN: SELALU kurangi stok utama dan reserved quantity
+                // Baik untuk produk dengan ukuran maupun tanpa ukuran
+                if ($product->quantity >= $orderItem->quantity && $product->reserved_quantity >= $orderItem->quantity) {
+                    $oldQuantity = $product->quantity;
+                    $oldReserved = $product->reserved_quantity;
+
+                    $product->quantity -= $orderItem->quantity;
+                    $product->reserved_quantity -= $orderItem->quantity;
+
+                    // Pastikan reserved_quantity tidak negatif
+                    if ($product->reserved_quantity < 0) {
+                        $product->reserved_quantity = 0;
+                    }
+
+                    $product->save();
+
+                    Log::info("✅ CartController - Product {$product->id} main stock reduced: {$oldQuantity} -> {$product->quantity}, reserved: {$oldReserved} -> {$product->reserved_quantity}");
+                } else {
+                    Log::warning("❌ CartController - Insufficient main stock for product {$product->id}. Available: {$product->quantity}, Reserved: {$product->reserved_quantity}, Needed: {$orderItem->quantity}");
+                }
+            } else {
+                Log::error("❌ CartController - Product {$orderItem->product_id} not found");
+            }
         }
     }
 }

@@ -31,7 +31,8 @@ class UserController extends Controller
         return view("user.index");
     }
 
-    public function job() {
+    public function job()
+    {
         try {
             $applications = JobApplication::with('job')
                 ->where('user_id', auth()->id())
@@ -75,13 +76,47 @@ class UserController extends Controller
         return view('user.order-details', compact('order', 'orderItems', 'transaction'));
     }
 
+    /**
+     * ✅ DIPERBAIKI: Cancel order dengan release reserved stock
+     */
     public function account_cancel_order(Request $request)
     {
-        $order = Order::find($request->order_id);
-        $order->status = "canceled";
-        $order->canceled_date = Carbon::now();
-        $order->save();
-        return back()->with("status", "Order has been cancelled successfully!");
+        $order = Order::where('user_id', Auth::user()->id)->find($request->order_id);
+
+        if (!$order) {
+            return back()->with("error", "Order tidak ditemukan!");
+        }
+
+        // Cek apakah order bisa dibatalkan
+        if (!in_array($order->status, ['awaiting_payment', 'pending', 'confirmed'])) {
+            return back()->with("error", "Order tidak dapat dibatalkan pada status ini!");
+        }
+
+        DB::beginTransaction();
+        try {
+            // Update status order
+            $order->status = "canceled";
+            $order->canceled_date = Carbon::now();
+            $order->save();
+
+            // Update status transaksi jika ada
+            $transaction = Transaction::where('order_id', $order->id)->first();
+            if ($transaction) {
+                $transaction->status = 'declined';
+                $transaction->save();
+            }
+
+            // ✅ PERBAIKAN: Release reserved stock
+            $this->releaseReservedStock($order);
+
+            DB::commit();
+
+            return back()->with("status", "Order berhasil dibatalkan dan stok dikembalikan!");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error canceling order: ' . $e->getMessage());
+            return back()->with("error", "Gagal membatalkan pesanan. Silakan coba lagi.");
+        }
     }
 
     // Menambahkan method baru untuk konfirmasi penerimaan pesanan
@@ -109,7 +144,7 @@ class UserController extends Controller
     }
 
     /**
-     * Auto check payment status via AJAX (memanggil Midtrans API)
+     * ✅ DIPERBAIKI: Auto check payment status via AJAX (memanggil Midtrans API)
      */
     public function autoCheckPaymentStatus(Request $request)
     {
@@ -148,21 +183,33 @@ class UserController extends Controller
 
             \Illuminate\Support\Facades\Log::info('Auto check - Midtrans status: ' . $status->transaction_status);
 
-            // Update status berdasarkan response dari Midtrans
+            // ✅ PERBAIKAN: Update status berdasarkan response dari Midtrans DAN kurangi stok
             if (in_array($status->transaction_status, ['capture', 'settlement'])) {
-                $transaction->status = 'approved';
-                $transaction->save();
+                DB::beginTransaction();
+                try {
+                    $transaction->status = 'approved';
+                    $transaction->save();
 
-                if ($transaction->order) {
-                    $transaction->order->status = 'confirmed';
-                    $transaction->order->confirmed_date = now();
-                    $transaction->order->save();
+                    if ($transaction->order) {
+                        $transaction->order->status = 'confirmed';
+                        $transaction->order->confirmed_date = now();
+                        $transaction->order->save();
+
+                        // ✅ PERBAIKAN: Kurangi stok produk
+                        $this->reduceProductStock($transaction->order);
+                    }
+
+                    DB::commit();
+
+                    return response()->json([
+                        'status' => 'approved',
+                        'message' => 'Payment confirmed and stock updated'
+                    ]);
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    Log::error('Error updating payment status: ' . $e->getMessage());
+                    throw $e;
                 }
-
-                return response()->json([
-                    'status' => 'approved',
-                    'message' => 'Payment confirmed'
-                ]);
             } else {
                 return response()->json([
                     'status' => $transaction->status,
@@ -180,7 +227,7 @@ class UserController extends Controller
     }
 
     /**
-     * Manual refresh status transaksi (untuk debugging)
+     * ✅ DIPERBAIKI: Manual refresh status transaksi (untuk debugging)
      */
     public function manualRefreshStatus(Request $request)
     {
@@ -204,24 +251,135 @@ class UserController extends Controller
 
             \Illuminate\Support\Facades\Log::info('Midtrans API Response: ', (array) $status);
 
-            // Update status berdasarkan response dari Midtrans
+            // ✅ PERBAIKAN: Update status berdasarkan response dari Midtrans DAN kurangi stok
             if (in_array($status->transaction_status, ['capture', 'settlement'])) {
-                $transaction->status = 'approved';
-                $transaction->save();
+                DB::beginTransaction();
+                try {
+                    $transaction->status = 'approved';
+                    $transaction->save();
 
-                if ($transaction->order) {
-                    $transaction->order->status = 'confirmed';
-                    $transaction->order->confirmed_date = now();
-                    $transaction->order->save();
+                    if ($transaction->order) {
+                        $transaction->order->status = 'confirmed';
+                        $transaction->order->confirmed_date = now();
+                        $transaction->order->save();
+
+                        // ✅ PERBAIKAN: Kurangi stok produk
+                        $this->reduceProductStock($transaction->order);
+                    }
+
+                    DB::commit();
+
+                    return redirect()->back()->with('success', 'Status berhasil diperbarui menjadi PAID dan stok dikurangi');
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    Log::error('Error updating manual refresh: ' . $e->getMessage());
+                    return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
                 }
-
-                return redirect()->back()->with('success', 'Status berhasil diperbarui menjadi PAID');
             } else {
                 return redirect()->back()->with('info', 'Status Midtrans: ' . $status->transaction_status);
             }
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Error checking Midtrans status: ' . $e->getMessage());
             return redirect()->back()->with('error', 'Error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * ✅ METHOD BARU: Kurangi stok produk ketika pembayaran berhasil
+     */
+    private function reduceProductStock(Order $order)
+    {
+        foreach ($order->orderItems as $orderItem) {
+            $product = Product::lockForUpdate()->find($orderItem->product_id);
+
+            if ($product) {
+                Log::info("UserController - Processing stock reduction for product {$product->id}, quantity: {$orderItem->quantity}");
+
+                // Parse options untuk mendapatkan size_id jika ada
+                $options = [];
+                if ($orderItem->options) {
+                    if (is_string($orderItem->options)) {
+                        $options = json_decode($orderItem->options, true) ?? [];
+                    } else {
+                        $options = $orderItem->options;
+                    }
+                }
+
+                // ✅ PERBAIKAN: Cek apakah produk memiliki ukuran berdasarkan relasi sizes
+                $hasSize = $product->sizes()->count() > 0;
+
+                if ($hasSize && isset($options['size_id'])) {
+                    // Untuk produk dengan ukuran
+                    $sizeId = $options['size_id'];
+
+                    Log::info("UserController - Product {$product->id} has sizes, reducing size {$sizeId} stock");
+
+                    // Update stok di tabel product_size
+                    $productSize = DB::table('product_size')
+                        ->where('product_id', $product->id)
+                        ->where('size_id', $sizeId)
+                        ->first();
+
+                    if ($productSize && $productSize->stock >= $orderItem->quantity) {
+                        DB::table('product_size')
+                            ->where('product_id', $product->id)
+                            ->where('size_id', $sizeId)
+                            ->decrement('stock', $orderItem->quantity);
+
+                        Log::info("✅ UserController - Size stock reduced for product {$product->id} size {$sizeId} by {$orderItem->quantity}");
+                    } else {
+                        Log::warning("❌ UserController - Insufficient size stock for product {$product->id} size {$sizeId}");
+                    }
+                } else {
+                    // ✅ PERBAIKAN: Untuk produk TANPA ukuran, pastikan stok utama berkurang
+                    Log::info("UserController - Product {$product->id} has NO sizes, reducing main stock");
+                }
+
+                // ✅ PERBAIKAN: SELALU kurangi stok utama dan reserved quantity
+                // Baik untuk produk dengan ukuran maupun tanpa ukuran
+                if ($product->quantity >= $orderItem->quantity && $product->reserved_quantity >= $orderItem->quantity) {
+                    $oldQuantity = $product->quantity;
+                    $oldReserved = $product->reserved_quantity;
+
+                    $product->quantity -= $orderItem->quantity;
+                    $product->reserved_quantity -= $orderItem->quantity;
+
+                    // Pastikan reserved_quantity tidak negatif
+                    if ($product->reserved_quantity < 0) {
+                        $product->reserved_quantity = 0;
+                    }
+
+                    $product->save();
+
+                    Log::info("✅ UserController - Product {$product->id} main stock reduced: {$oldQuantity} -> {$product->quantity}, reserved: {$oldReserved} -> {$product->reserved_quantity}");
+                } else {
+                    Log::warning("❌ UserController - Insufficient main stock for product {$product->id}. Available: {$product->quantity}, Reserved: {$product->reserved_quantity}, Needed: {$orderItem->quantity}");
+                }
+            } else {
+                Log::error("❌ UserController - Product {$orderItem->product_id} not found");
+            }
+        }
+    }
+    /**
+     * ✅ METHOD BARU: Release reserved stock ketika pembayaran gagal/dibatalkan
+     */
+    private function releaseReservedStock(Order $order)
+    {
+        foreach ($order->orderItems as $orderItem) {
+            $product = Product::lockForUpdate()->find($orderItem->product_id);
+
+            if ($product && $product->reserved_quantity >= $orderItem->quantity) {
+                $product->reserved_quantity -= $orderItem->quantity;
+
+                // Pastikan reserved_quantity tidak negatif
+                if ($product->reserved_quantity < 0) {
+                    $product->reserved_quantity = 0;
+                }
+
+                $product->save();
+
+                Log::info("Reserved stock released for product {$product->id} by {$orderItem->quantity}");
+            }
         }
     }
 

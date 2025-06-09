@@ -8,27 +8,28 @@ use App\Models\Product;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ShopController extends Controller
 {
     // Halaman User Produk
     public function index(Request $request)
     {
-    // Ubah nama variabel $size menjadi $pageSize untuk menghindari konflik
-    $pageSize = $request->query('size') ? $request->query('size') : 12;
-    $order = $request->query('order') ? $request->query('order') : -1;
-    $f_brands = $request->query('brands');
-    $f_categories = $request->query('categories');
-    $f_sizes = $request->query('sizes'); // Untuk filter ukuran
-    $min_price = $request->query('min') ? $request->query('min') : 1;
-    $max_price = $request->query('max') ? $request->query('max') : 10000000;
-    $search = $request->query('search');
-    $ratings = $request->query('ratings');
-    $shipping_courier = $request->query('shipping_courier');
-    $shipping_cost = $request->query('shipping_cost');
-    $shipping_time = $request->query('shipping_time');
-    $shipping_cost_min = $request->query('shipping_cost_min') ? $request->query('shipping_cost_min') : 0;
-    $shipping_cost_max = $request->query('shipping_cost_max') ? $request->query('shipping_cost_max') : 100000;
+        // Ubah nama variabel $size menjadi $pageSize untuk menghindari konflik
+        $pageSize = $request->query('size') ? $request->query('size') : 12;
+        $order = $request->query('order') ? $request->query('order') : -1;
+        $f_brands = $request->query('brands');
+        $f_categories = $request->query('categories');
+        $f_sizes = $request->query('sizes'); // Untuk filter ukuran
+        $min_price = $request->query('min') ? $request->query('min') : 1;
+        $max_price = $request->query('max') ? $request->query('max') : 10000000;
+        $search = $request->query('search');
+        $ratings = $request->query('ratings');
+        $shipping_courier = $request->query('shipping_courier');
+        $shipping_cost = $request->query('shipping_cost');
+        $shipping_time = $request->query('shipping_time');
+        $shipping_cost_min = $request->query('shipping_cost_min') ? $request->query('shipping_cost_min') : 0;
+        $shipping_cost_max = $request->query('shipping_cost_max') ? $request->query('shipping_cost_max') : 100000;
 
 
         // Definisikan ordering
@@ -155,5 +156,97 @@ class ShopController extends Controller
         $rproducts = Product::where('slug', '<>', $product_slug)->take(8)->get();
 
         return view('details', compact('product', 'rproducts', 'prevProduct', 'nextProduct'));
+    }
+
+    // Tambahkan method ini di ShopController.php
+    public function getProductStock($id)
+    {
+        try {
+            $product = Product::with(['sizes'])->findOrFail($id);
+
+            Log::info("API Stock check for product {$id}");
+
+            $stockData = [
+                'product_id' => $product->id,
+                'total_stock' => $product->quantity,
+                'reserved_stock' => $product->reserved_quantity ?? 0,
+                'available_stock' => 0,
+                'sizes' => []
+            ];
+
+            // ✅ PERBAIKAN: Hitung available_stock berdasarkan apakah ada ukuran atau tidak
+            if ($product->sizes->count() > 0) {
+                // Untuk produk dengan ukuran
+                foreach ($product->sizes as $size) {
+                    $stockData['sizes'][] = [
+                        'id' => $size->id,
+                        'name' => $size->name,
+                        'stock' => $size->pivot->stock
+                    ];
+                }
+
+                // Total stok = jumlah stok semua ukuran
+                $stockData['available_stock'] = $product->sizes->sum('pivot.stock');
+
+                Log::info("Product {$id} has sizes. Total available stock: {$stockData['available_stock']}");
+            } else {
+                // Untuk produk tanpa ukuran
+                $stockData['available_stock'] = $product->quantity - ($product->reserved_quantity ?? 0);
+
+                \Illuminate\Support\Facades\Log::info("Product {$id} has no sizes. Available stock: {$stockData['available_stock']} (quantity: {$product->quantity}, reserved: {$product->reserved_quantity})");
+            }
+
+            return response()->json($stockData);
+        } catch (\Exception $e) {
+            Log::error("Error getting stock for product {$id}: " . $e->getMessage());
+            return response()->json([
+                'error' => 'Product not found',
+                'message' => $e->getMessage()
+            ], 404);
+        }
+    }
+
+    // Tambahkan juga method untuk check stock sebelum add to cart
+    public function checkProductStock(Request $request, $id)
+    {
+        try {
+            $product = Product::with(['sizes'])->findOrFail($id);
+            $sizeId = $request->query('size_id');
+            $requestedQty = $request->query('quantity', 1);
+
+            $availableStock = 0;
+
+            if ($product->sizes->count() > 0 && $sizeId) {
+                // Untuk produk dengan ukuran
+                $size = $product->sizes()->where('size_id', $sizeId)->first();
+                if ($size) {
+                    $availableStock = $size->pivot->stock;
+                }
+
+                Log::info("Stock check for product {$id} size {$sizeId}: {$availableStock}");
+            } else {
+                // Untuk produk tanpa ukuran
+                $availableStock = $product->quantity - ($product->reserved_quantity ?? 0);
+
+                Log::info("Stock check for product {$id} (no size): {$availableStock}");
+            }
+
+            $isAvailable = $availableStock >= $requestedQty;
+
+            return response()->json([
+                'product_id' => $product->id,
+                'available_stock' => $availableStock,
+                'requested_quantity' => $requestedQty,
+                'is_available' => $isAvailable,
+                'has_sizes' => $product->sizes->count() > 0,
+                'message' => $isAvailable ? 'Stock available' : 'Insufficient stock'
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Error checking stock for product {$id}: " . $e->getMessage());
+            return response()->json([
+                'error' => 'Product not found',
+                'message' => $e->getMessage()
+            ], 404);
+        }
     }
 }
