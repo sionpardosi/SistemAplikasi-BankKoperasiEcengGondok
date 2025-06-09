@@ -67,17 +67,14 @@
                             <div class="pb-3"></div>
 
                             <div class="mb-3">
-                                <div class="phone-input-group">
-                                    <div class="form-floating">
-                                        <div class="input-group">
-                                            <span class="input-group-text">+62</span>
-                                            <input id="mobile" type="tel"
-                                                class="form-control form-control_gray @error('mobile') is-invalid @enderror"
-                                                name="mobile" value="{{ old('mobile') }}" required autocomplete="mobile"
-                                                pattern="^8[1-9][0-9]{6,12}$" placeholder="8xxxxxxxxxx">
-                                            <label for="mobile">Nomor Telepon <span class="text-danger">*</span></label>
-                                        </div>
-                                    </div>
+                                <label for="mobile" class="form-label">Nomor Telepon <span
+                                        class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">+62</span>
+                                    <input id="mobile" type="tel"
+                                        class="form-control form-control_gray @error('mobile') is-invalid @enderror"
+                                        name="mobile" value="{{ old('mobile') }}" required autocomplete="mobile"
+                                        pattern="^8[1-9][0-9]{6,12}$" placeholder="8xxxxxxxxxx">
                                 </div>
                                 @error('mobile')
                                     <span class="invalid-feedback d-block" role="alert">
@@ -293,7 +290,7 @@
 
             .password-toggle {
                 position: absolute;
-                right: 10px;
+                right: 15px;
                 top: 50%;
                 transform: translateY(-50%);
                 cursor: pointer;
@@ -301,57 +298,63 @@
                 color: #6c757d;
                 padding: 8px;
                 transition: color 0.2s;
+                height: 40px;
+                width: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 4px;
             }
 
             .password-toggle:hover {
                 color: #495057;
+                background-color: rgba(0, 0, 0, 0.05);
+            }
+
+            /* Perbaikan khusus untuk form-floating */
+            .form-floating .password-toggle {
+                top: calc(50% - 5px);
+                /* Sedikit offset untuk form-floating */
+            }
+
+            /* Memastikan input memiliki padding yang cukup untuk ikon */
+            .password-container .form-control {
+                padding-right: 50px !important;
+            }
+
+            /* Responsive adjustment */
+            @media (max-width: 576px) {
+                .password-toggle {
+                    right: 10px;
+                    height: 35px;
+                    width: 35px;
+                }
             }
 
             /* Phone input styling improvements */
-            .phone-input-group .form-floating {
-                position: relative;
-                width: 100%;
-            }
-
-            .phone-input-group .input-group {
-                display: flex;
-                align-items: stretch;
-            }
-
-            .phone-input-group .input-group-text {
+            /* Phone input styling - Simple and clean */
+            .input-group-text {
                 background-color: #f8f9fa;
                 border-color: #ced4da;
                 color: #495057;
                 font-weight: 500;
-                width: 45px;
+                width: 50px;
                 justify-content: center;
-                padding: 0.375rem 0.5rem;
+                border-right: 0;
             }
 
-            .phone-input-group .form-control {
-                height: auto;
-                padding-top: 1.625rem;
-                padding-bottom: 0.625rem;
-            }
-
-            .phone-input-group .form-floating>.form-control {
+            .input-group .form-control {
+                border-left: 0;
                 padding-left: 0.75rem;
             }
 
-            .phone-input-group .form-floating>.input-group>label {
-                left: 55px;
-                padding-left: 0.75rem;
-                height: auto;
-                transform-origin: 0 0;
-                z-index: 3;
+            .input-group .form-control:focus {
+                border-color: #956a3b;
+                box-shadow: 0 0 0 0.25rem rgba(149, 106, 59, 0.25);
             }
 
-            /* When input is focused or has value */
-            .phone-input-group .form-floating>.input-group>.form-control:focus~label,
-            .phone-input-group .form-floating>.input-group>.form-control:not(:placeholder-shown)~label {
-                opacity: 0.65;
-                transform: scale(0.85) translateY(-0.5rem) translateX(0);
-                padding-top: 0.5rem;
+            .input-group-text+.form-control:focus {
+                border-left-color: #956a3b;
             }
 
             /* Password strength styles */

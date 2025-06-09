@@ -17,9 +17,14 @@ class JobApplication extends Model
     protected $fillable = [
         'job_id',
         'user_id',
+        'name',
+        'email',
         'cv',
+        'image', // untuk upload keterampilan/gambar
         'cover_letter',
         'phone_number',
+        'whatsapp_number',
+        'gender',
         'education_level',
         'experience',
         'expected_salary',

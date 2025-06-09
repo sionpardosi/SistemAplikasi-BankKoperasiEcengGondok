@@ -3,71 +3,87 @@
 @section('content')
     <style>
         /* Modal Header */
-.modal-header {
-    background-color: #956a3b;
-    color: white;
-    border-top-left-radius: 15px;
-    border-top-right-radius: 15px;
-    padding: 15px 20px;
-}
+        .modal-header {
+            background-color: #956a3b;
+            color: white;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            padding: 15px 20px;
+        }
 
-.modal-title {
-    font-weight: 600;
-}
+        .modal-title {
+            font-weight: 600;
+            color: white;
+        }
 
-/* Modal Body */
-.modal-body {
-    padding: 25px;
-}
+        /* Modal Body */
+        .modal-body {
+            padding: 25px;
+        }
 
-.job-title-modal {
-    font-size: 1.25rem;
-    color: #000;
-}
+        .job-title-modal {
+            font-size: 1.25rem;
+            color: #000;
+        }
 
-.job-category-modal {
-    font-size: 0.9rem;
-    color: #956a3b;
-    font-weight: 600;
-}
+        .job-category-modal {
+            font-size: 0.9rem;
+            color: #956a3b;
+            font-weight: 600;
+        }
 
-/* Form Input */
-.form-label {
-    font-weight: 500;
-    color: #555;
-}
+        /* Form Input */
+        .form-label {
+            font-weight: 500;
+            color: #555;
+        }
 
-.form-control {
-    border-radius: 8px;
-    padding: 10px 15px;
-    border: 1px solid #ddd;
-}
+        .form-control {
+            border-radius: 8px;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+        }
 
-.form-control:focus {
-    border-color: #956a3b;
-    box-shadow: 0 0 0 0.25rem rgba(149, 106, 59, 0.25);
-}
+        .form-control:focus {
+            border-color: #956a3b;
+            box-shadow: 0 0 0 0.25rem rgba(149, 106, 59, 0.25);
+        }
 
-/* Tombol Kirim */
-.apply-btn {
-    background-color: #956a3b;
-    border-color: #956a3b;
-    color: #ffffff;
-    border-radius: 30px;
-    padding: 10px 20px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+        /* Required field indicator */
+        .form-label i.required::after {
+            content: " *";
+            color: #dc3545;
+        }
 
-.apply-btn:hover {
-    background-color: #7d5a32;
-    border-color: #7d5a32;
-    transform: translateY(-2px);
-    box-shadow: 0 5px 10px rgba(149, 106, 59, 0.2);
-}
+        /* Preview styling */
+        #imagePreview {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+
+        /* Tombol Kirim */
+        .apply-btn {
+            background-color: #956a3b;
+            border-color: #956a3b;
+            color: #ffffff;
+            border-radius: 30px;
+            padding: 10px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .apply-btn:hover {
+            background-color: #7d5a32;
+            border-color: #7d5a32;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(149, 106, 59, 0.2);
+        }
+
         /* Custom styles for job vacancy page */
         .text-danger {
             color: red !important;
@@ -210,6 +226,7 @@
 
         .modal-title {
             font-weight: 600;
+            color: white;
         }
 
         .modal-body {
@@ -355,13 +372,15 @@
             padding: 20px 0;
         }
 
-        /* Job detail modal */
         .job-detail-banner {
             height: 200px;
             background-size: cover;
             background-position: center;
+            background-repeat: no-repeat;
             border-radius: 15px 15px 0 0;
             position: relative;
+            background-color: #f8f9fa;
+            /* Fallback background */
         }
 
         .job-detail-overlay {
@@ -372,10 +391,26 @@
             padding: 20px;
             background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
             color: white;
+            border-radius: 0 0 0 0;
         }
 
         .job-detail-content {
             padding: 25px;
+        }
+
+        /* Tambahan CSS untuk gambar modal yang lebih responsif */
+        .modal-dialog {
+            max-width: 800px;
+        }
+
+        @media (max-width: 768px) {
+            .job-detail-banner {
+                height: 150px;
+            }
+
+            .job-detail-overlay {
+                padding: 15px;
+            }
         }
 
         /* Progress steps in application form */
@@ -426,6 +461,88 @@
         .step.active .step-label {
             color: #956a3b;
             font-weight: 600;
+        }
+
+        /* Perbaikan header modal di atas banner */
+        .modal-header {
+            background: transparent !important;
+            border-bottom: none !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 10;
+            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.3) !important;
+        }
+
+        /* Close button lebih terlihat */
+        .btn-close-white {
+            filter: invert(1) grayscale(100%) brightness(200%);
+        }
+
+        .btn-close {
+            color: white;
+        }
+
+        /* Loading state untuk banner */
+        .job-detail-banner.loading {
+            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+                linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+                linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
+                linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            animation: loading-stripes 1s linear infinite;
+        }
+
+        @keyframes loading-stripes {
+            0% {
+                background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            }
+
+            100% {
+                background-position: 20px 20px, 20px 30px, 30px 10px, 10px 20px;
+            }
+        }
+
+        /* Overlay title styling */
+        .job-detail-overlay h4 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            color: white;
+        }
+
+        .job-detail-overlay p {
+            font-size: 1rem;
+            font-weight: 500;
+            opacity: 0.9;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Responsive improvements */
+        @media (max-width: 576px) {
+            .modal-dialog {
+                margin: 0.5rem;
+            }
+
+            .job-detail-banner {
+                height: 120px;
+            }
+
+            .job-detail-overlay {
+                padding: 10px 15px;
+            }
+
+            .job-detail-overlay h4 {
+                font-size: 1.2rem;
+            }
+
+            .job-detail-overlay p {
+                font-size: 0.9rem;
+            }
         }
     </style>
 
@@ -510,10 +627,11 @@
                     </h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+                <!-- Banner gambar -->
                 <div class="job-detail-banner" id="jobDetailBanner">
                     <div class="job-detail-overlay">
                         <h4 id="jobDetailTitle">-</h4>
-                        <p id="jobDetailCategory">-</p>
+                        <p id="jobDetailCategory" class="mb-0">-</p>
                     </div>
                 </div>
                 <div class="modal-body job-detail-content">
@@ -606,70 +724,117 @@
                     <form id="applyForm" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" name="job_id" id="job_id">
-                        <div class="mb-3">
-                            <label for="cv" class="form-label">
-                                <i class="fas fa-file-pdf me-2 text-danger"></i>Upload CV (PDF, DOC, DOCX)
-                            </label>
-                            <input type="file" class="form-control" name="cv" id="cv" accept=".pdf,.doc,.docx">
-                            <small class="text-muted">Opsional, boleh diisi CV. Ukuran maksimum file: 2MB</small>
+                        <!-- Hidden fields untuk kompatibilitas dengan database -->
+                        <input type="hidden" name="cover_letter" value="Lamaran melalui formulir aplikasi baru - Data lengkap tersedia di form.">
+                        <input type="hidden" name="skills" value="Data keterampilan tersedia di dokumen yang diupload">
+                        <input type="hidden" name="expected_salary" value="Sesuai standar perusahaan">
+
+                        <!-- Data Pribadi -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="name" class="form-label">
+                                    <i class="fas fa-user me-2 text-primary"></i>Nama Lengkap *
+                                </label>
+                                <input type="text" class="form-control" name="name" id="name" required>
+                                <small class="text-muted">Nama akan otomatis terisi, tetapi dapat diubah</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">
+                                    <i class="fas fa-envelope me-2 text-primary"></i>Email *
+                                </label>
+                                <input type="email" class="form-control" name="email" id="email" required>
+                                <small class="text-muted">Email akan otomatis terisi, tetapi dapat diubah</small>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label for="image" class="form-label">
-                                <i class="fas fa-image me-2 text-primary"></i>Upload Foto/Gambar (JPG, JPEG, PNG)
-                            </label>
-                            <input type="file" class="form-control" name="image" id="image" accept=".jpg,.jpeg,.png">
-                            <small class="text-muted">Opsional, boleh diisi Gambar. Ukuran maksimum file: 2MB</small>
+
+                        <!-- Kontak -->
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="phone_number" class="form-label">
+                                    <i class="fas fa-phone me-2 text-primary"></i>Nomor Telepon *
+                                </label>
+                                <input type="text" class="form-control" name="phone_number" id="phone_number" required placeholder="Contoh: 081234567890">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="whatsapp_number" class="form-label">
+                                    <i class="fab fa-whatsapp me-2 text-success"></i>Nomor WhatsApp *
+                                </label>
+                                <input type="text" class="form-control" name="whatsapp_number" id="whatsapp_number" required placeholder="Contoh: 081234567890">
+                                <small class="text-muted">Nomor WhatsApp yang dapat dihubungi</small>
+                            </div>
                         </div>
+
+                        <!-- Jenis Kelamin -->
                         <div class="mb-3">
-                            <label for="phone_number" class="form-label">
-                                <i class="fas fa-phone me-2 text-primary"></i>Nomor Telepon *
+                            <label for="gender" class="form-label">
+                                <i class="fas fa-venus-mars me-2 text-primary"></i>Jenis Kelamin *
                             </label>
-                            <input type="text" class="form-control" name="phone_number" id="phone_number" required>
+                            <select class="form-control" name="gender" id="gender" required>
+                                <option value="">Pilih Jenis Kelamin</option>
+                                <option value="Laki-laki">Laki-laki</option>
+                                <option value="Perempuan">Perempuan</option>
+                            </select>
                         </div>
+
+                        <!-- Pendidikan -->
                         <div class="mb-3">
                             <label for="education_level" class="form-label">
-                                <i class="fas fa-graduation-cap me-2 text-primary"></i>Tingkat Pendidikan *
+                                <i class="fas fa-graduation-cap me-2 text-primary"></i>Pendidikan Terakhir *
                             </label>
                             <select class="form-control" name="education_level" id="education_level" required>
-                                <option value="">Pilih Tingkat Pendidikan</option>
+                                <option value="">Pilih Pendidikan Terakhir</option>
+                                <option value="SD">SD</option>
+                                <option value="SMP">SMP</option>
                                 <option value="SMA/SMK">SMA/SMK</option>
+                                <option value="D1">D1</option>
+                                <option value="D2">D2</option>
                                 <option value="D3">D3</option>
+                                <option value="D4">D4</option>
                                 <option value="S1">S1</option>
                                 <option value="S2">S2</option>
                                 <option value="S3">S3</option>
                             </select>
                         </div>
+
+                        <!-- Pengalaman Kerja -->
                         <div class="mb-3">
                             <label for="experience" class="form-label">
                                 <i class="fas fa-briefcase me-2 text-primary"></i>Pengalaman Kerja
                             </label>
-                            <textarea class="form-control" name="experience" id="experience" rows="3"></textarea>
+                            <textarea class="form-control" name="experience" id="experience" rows="3" placeholder="Ceritakan pengalaman kerja Anda (opsional)"></textarea>
+                            <small class="text-muted">Tuliskan pengalaman kerja yang relevan (opsional)</small>
                         </div>
+
+                        <!-- Upload Keterampilan/Gambar -->
                         <div class="mb-3">
-                            <label for="expected_salary" class="form-label">
-                                <i class="fas fa-money-bill-wave me-2 text-primary"></i>Gaji yang Diharapkan
+                            <label for="image" class="form-label">
+                                <i class="fas fa-image me-2 text-primary"></i>Upload Keterampilan/Gambar (Opsional)
                             </label>
-                            <input type="text" class="form-control" name="expected_salary" id="expected_salary">
+                            <input type="file" class="form-control" name="image" id="image" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx">
+                            <small class="text-muted">Upload gambar portofolio, sertifikat, atau dokumen keterampilan. Format: JPG, JPEG, PNG, PDF, DOC, DOCX (maksimal 2MB)</small>
+                            <div id="imagePreview" class="mt-2" style="display: none;">
+                                <img id="previewImg" src="#" alt="Preview" style="max-width: 200px; max-height: 200px; border-radius: 8px;">
+                            </div>
                         </div>
+
+                        <!-- CV Upload (Optional) -->
                         <div class="mb-3">
-                            <label for="skills" class="form-label">
-                                <i class="fas fa-tools me-2 text-primary"></i>Keterampilan
+                            <label for="cv" class="form-label">
+                                <i class="fas fa-file-pdf me-2 text-danger"></i>Upload CV (Opsional)
                             </label>
-                            <textarea class="form-control" name="skills" id="skills" rows="3"></textarea>
+                            <input type="file" class="form-control" name="cv" id="cv" accept=".pdf,.doc,.docx">
+                            <small class="text-muted">Upload CV Anda dalam format PDF, DOC, atau DOCX (maksimal 2MB)</small>
                         </div>
-                        <div class="mb-3">
-                            <label for="cover_letter" class="form-label">
-                                <i class="fas fa-envelope me-2 text-primary"></i>Surat Lamaran *
-                            </label>
-                            <textarea class="form-control" name="cover_letter" id="cover_letter" rows="5" required
-                                placeholder="Tulis surat lamaran singkat yang menjelaskan mengapa Anda tertarik dengan posisi ini..."></textarea>
-                        </div>
+
+                        <!-- Additional Info (Optional) -->
                         <div class="mb-3">
                             <label for="additional_info" class="form-label">
-                                <i class="fas fa-info-circle me-2 text-primary"></i>Informasi Tambahan
+                                <i class="fas fa-info-circle me-2 text-primary"></i>Informasi Tambahan (Opsional)
                             </label>
-                            <textarea class="form-control" name="additional_info" id="additional_info" rows="3"></textarea>
+                            <textarea class="form-control" name="additional_info" id="additional_info" rows="3" placeholder="Informasi tambahan yang ingin Anda sampaikan"></textarea>
+                            <small class="text-muted">Informasi lain yang menurut Anda penting</small>
                         </div>
+
                         <div class="d-grid">
                             <button type="submit" class="btn apply-btn">
                                 <i class="fas fa-paper-plane me-2"></i>Kirim Lamaran
@@ -683,153 +848,154 @@
     </div>
 
     {{-- Tabel Riwayat Lamaran User --}}
-    <div class="mw-930 mb-5">
-        <h4 class="mb-3">Riwayat Lamaran Saya</h4>
-        <div class="table-responsive">
-            <table class="table table-bordered align-middle">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Lowongan</th>
-                        <th>Tanggal Lamar</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($applications as $i => $app)
+    <div class="container">
+        <div class="mw-930 mb-5">
+            <h4 class="mb-3">Riwayat Lamaran Saya</h4>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle">
+                    <thead>
                         <tr>
-                            <td>{{ $i+1 }}</td>
-                            <td>{{ $app->job->title ?? '-' }}</td>
-                            <td>{{ $app->created_at->format('d-m-Y H:i') }}</td>
-                            <td>
-                                @if($app->status == 'Diterima')
-                                    <span class="badge bg-success">Diterima</span>
-                                @elseif($app->status == 'Ditolak')
-                                    <span class="badge bg-danger">Ditolak</span>
-                                @else
-                                    <span class="badge bg-warning text-dark">Diproses</span>
-                                @endif
-                            </td>
+                            <th>#</th>
+                            <th>Lowongan</th>
+                            <th>Tanggal Lamar</th>
+                            <th>Status</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="text-center">Belum ada lamaran.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @forelse($applications as $i => $app)
+                            <tr>
+                                <td>{{ $i + 1 }}</td>
+                                <td>{{ $app->job->title ?? '-' }}</td>
+                                <td>{{ $app->created_at->format('d-m-Y H:i') }}</td>
+                                <td>
+                                    @if ($app->status == 'Diterima')
+                                        <span class="badge bg-success">Diterima</span>
+                                    @elseif($app->status == 'Ditolak')
+                                        <span class="badge bg-danger">Ditolak</span>
+                                    @else
+                                        <span class="badge bg-warning text-dark">Diproses</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="4" class="text-center">Belum ada lamaran.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
-
-    document.addEventListener("DOMContentLoaded", function () {
-        // Tampilkan spinner loading
-        document.getElementById("loadingSpinner").classList.remove("d-none");
-
-        // Muat Font Awesome jika belum dimuat
-        if (!document.querySelector('link[href*="font-awesome"]')) {
-            const fontAwesome = document.createElement('link');
-            fontAwesome.rel = 'stylesheet';
-            fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
-            document.head.appendChild(fontAwesome);
-        }
-
-        // Panggil fungsi untuk memuat daftar pekerjaan
-        loadJobs();
-
-        // Event listener untuk tombol filter
-        document.getElementById("applyFilter").addEventListener("click", function () {
-            loadJobs(1, true);
-        });
-
-        // Event listener untuk pencarian (dengan debounce)
-        let searchTimeout;
-        document.getElementById("searchInput").addEventListener("input", function () {
-            clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                loadJobs(1, true);
-            }, 500);
-        });
-
-        // Fungsi untuk memuat daftar pekerjaan
-        function loadJobs(page = 1, isFilter = false) {
+        document.addEventListener("DOMContentLoaded", function() {
             // Tampilkan spinner loading
             document.getElementById("loadingSpinner").classList.remove("d-none");
-            document.getElementById("job-list").innerHTML = "";
-            document.getElementById("pagination").querySelector("ul").innerHTML = "";
-            document.getElementById("noJobs").classList.add("d-none");
 
-            // Ambil nilai filter
-            const category = document.getElementById("categoryFilter").value;
-            const status = document.getElementById("statusFilter").value;
-            const search = document.getElementById("searchInput").value;
+            // Muat Font Awesome jika belum dimuat
+            if (!document.querySelector('link[href*="font-awesome"]')) {
+                const fontAwesome = document.createElement('link');
+                fontAwesome.rel = 'stylesheet';
+                fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
+                document.head.appendChild(fontAwesome);
+            }
 
-            // Bangun URL API dengan filter
-            let apiUrl = `/api/jobs?page=${page}`;
-            if (category) apiUrl += `&category=${category}`;
-            if (status) apiUrl += `&status=${status}`;
-            if (search) apiUrl += `&search=${search}`;
+            // Panggil fungsi untuk memuat daftar pekerjaan
+            loadJobs();
 
-            // Fetch data dari API
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Gagal memuat data lowongan.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    // Sembunyikan spinner loading
-                    document.getElementById("loadingSpinner").classList.add("d-none");
+            // Event listener untuk tombol filter
+            document.getElementById("applyFilter").addEventListener("click", function() {
+                loadJobs(1, true);
+            });
 
-                    const jobList = document.getElementById("job-list");
-                    const pagination = document.getElementById("pagination").querySelector("ul");
-                    jobList.innerHTML = "";
-                    pagination.innerHTML = "";
+            // Event listener untuk pencarian (dengan debounce)
+            let searchTimeout;
+            document.getElementById("searchInput").addEventListener("input", function() {
+                clearTimeout(searchTimeout);
+                searchTimeout = setTimeout(() => {
+                    loadJobs(1, true);
+                }, 500);
+            });
 
-                    if (data.success) {
-                        // Jika tidak ada pekerjaan
-                        if (data.data.data.length === 0) {
-                            document.getElementById("noJobs").classList.remove("d-none");
-                            return;
+            // Fungsi untuk memuat daftar pekerjaan
+            function loadJobs(page = 1, isFilter = false) {
+                // Tampilkan spinner loading
+                document.getElementById("loadingSpinner").classList.remove("d-none");
+                document.getElementById("job-list").innerHTML = "";
+                document.getElementById("pagination").querySelector("ul").innerHTML = "";
+                document.getElementById("noJobs").classList.add("d-none");
+
+                // Ambil nilai filter
+                const category = document.getElementById("categoryFilter").value;
+                const status = document.getElementById("statusFilter").value;
+                const search = document.getElementById("searchInput").value;
+
+                // Bangun URL API dengan filter
+                let apiUrl = `/api/jobs?page=${page}`;
+                if (category) apiUrl += `&category=${category}`;
+                if (status) apiUrl += `&status=${status}`;
+                if (search) apiUrl += `&search=${search}`;
+
+                // Fetch data dari API
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Gagal memuat data lowongan.');
                         }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Sembunyikan spinner loading
+                        document.getElementById("loadingSpinner").classList.add("d-none");
 
-                        // Render daftar pekerjaan
-                        data.data.data.forEach((job, index) => {
-                            let statusClass = "";
-                            let statusText = "";
+                        const jobList = document.getElementById("job-list");
+                        const pagination = document.getElementById("pagination").querySelector("ul");
+                        jobList.innerHTML = "";
+                        pagination.innerHTML = "";
 
-                            switch (job.status) {
-                                case "Dibuka":
-                                    statusClass = "status-open";
-                                    statusText = "<i class='fas fa-door-open me-1'></i>Dibuka";
-                                    break;
-                                case "Ditutup":
-                                    statusClass = "status-closed";
-                                    statusText = "<i class='fas fa-door-closed me-1'></i>Ditutup";
-                                    break;
-                                case "Selesai":
-                                    statusClass = "status-finished";
-                                    statusText = "<i class='fas fa-check-circle me-1'></i>Selesai";
-                                    break;
+                        if (data.success) {
+                            // Jika tidak ada pekerjaan
+                            if (data.data.data.length === 0) {
+                                document.getElementById("noJobs").classList.remove("d-none");
+                                return;
                             }
 
-                            const formattedSalary = new Intl.NumberFormat('id-ID', {
-                                style: 'currency',
-                                currency: 'IDR',
-                                minimumFractionDigits: 0
-                            }).format(job.salary || 0);
+                            // Render daftar pekerjaan
+                            data.data.data.forEach((job, index) => {
+                                let statusClass = "";
+                                let statusText = "";
 
-                            const imageUrl = job.image
-                                ? `/storage/${job.image}`
-                                : `/storage/job_images/default/job.jpg`;
+                                switch (job.status) {
+                                    case "Dibuka":
+                                        statusClass = "status-open";
+                                        statusText = "<i class='fas fa-door-open me-1'></i>Dibuka";
+                                        break;
+                                    case "Ditutup":
+                                        statusClass = "status-closed";
+                                        statusText = "<i class='fas fa-door-closed me-1'></i>Ditutup";
+                                        break;
+                                    case "Selesai":
+                                        statusClass = "status-finished";
+                                        statusText = "<i class='fas fa-check-circle me-1'></i>Selesai";
+                                        break;
+                                }
 
-                            const jobCard = document.createElement('div');
-                            jobCard.className = `col-lg-4 col-md-6 mb-4 animated-card`;
-                            jobCard.style.animationDelay = `${index * 0.1}s`;
+                                const formattedSalary = new Intl.NumberFormat('id-ID', {
+                                    style: 'currency',
+                                    currency: 'IDR',
+                                    minimumFractionDigits: 0
+                                }).format(job.salary || 0);
 
-                            jobCard.innerHTML = `
+                                const imageUrl = job.image ?
+                                    `{{ asset('') }}${job.image}` :
+                                    `{{ asset('uploads/image_job/default/job.jpg') }}`;
+
+                                const jobCard = document.createElement('div');
+                                jobCard.className = `col-lg-4 col-md-6 mb-4 animated-card`;
+                                jobCard.style.animationDelay = `${index * 0.1}s`;
+
+                                jobCard.innerHTML = `
                                 <div class="card job-card">
                                     <div class="job-card-image">
                                         <img src="${imageUrl}" alt="${job.title || 'Lowongan'}" onerror="this.src='/storage/job_images/default/job.jpg'">
@@ -859,173 +1025,322 @@
                                 </div>
                             `;
 
-                            jobList.appendChild(jobCard);
-                        });
-
-                        // Tambahkan event listener ke tombol detail pekerjaan
-                        document.querySelectorAll('.view-job-details').forEach(button => {
-                            button.addEventListener('click', function () {
-                                const jobId = this.getAttribute('data-id');
-                                viewJobDetails(jobId);
+                                jobList.appendChild(jobCard);
                             });
-                        });
-                    } else {
-                        document.getElementById("noJobs").classList.remove("d-none");
-                        document.getElementById("noJobs").innerHTML = `
+
+                            // Tambahkan event listener ke tombol detail pekerjaan
+                            document.querySelectorAll('.view-job-details').forEach(button => {
+                                button.addEventListener('click', function() {
+                                    const jobId = this.getAttribute('data-id');
+                                    viewJobDetails(jobId);
+                                });
+                            });
+                        } else {
+                            document.getElementById("noJobs").classList.remove("d-none");
+                            document.getElementById("noJobs").innerHTML = `
                             <img src="{{ asset('assets/img/error.png') }}" alt="Error" class="mb-3" width="150">
                             <h4>Terjadi kesalahan</h4>
                             <p>${data.message || 'Gagal memuat data lowongan'}</p>
                         `;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.getElementById("loadingSpinner").classList.add("d-none");
-                    document.getElementById("noJobs").classList.remove("d-none");
-                    document.getElementById("noJobs").innerHTML = `
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById("loadingSpinner").classList.add("d-none");
+                        document.getElementById("noJobs").classList.remove("d-none");
+                        document.getElementById("noJobs").innerHTML = `
                         <img src="{{ asset('assets/img/error.png') }}" alt="Error" class="mb-3" width="150">
                         <h4>Terjadi kesalahan</h4>
                         <p>Gagal memuat data lowongan</p>
                     `;
-                });
-        }
-
-        // Fungsi untuk melihat detail pekerjaan
-        function viewJobDetails(jobId) {
-            // Tampilkan loading di modal
-            document.getElementById("jobDetailTitle").textContent = "Memuat...";
-            document.getElementById("jobDetailDescription").textContent = "Memuat...";
-
-            // Tampilkan modal
-            const jobDetailModal = new bootstrap.Modal(document.getElementById('jobDetailModal'));
-            jobDetailModal.show();
-
-            // Ambil detail pekerjaan dari API
-            fetch(`/api/jobs/${jobId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Gagal memuat detail pekerjaan.');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        const job = data.data;
-
-                        // Isi detail pekerjaan di modal
-                        document.getElementById("jobDetailTitle").textContent = job.title || '-';
-                        document.getElementById("jobDetailCategory").textContent = job.category || '-';
-                        document.getElementById("jobDetailSalary").textContent = `${job.salary || '-'} (${job.salary_type || '-'})`;
-                        document.getElementById("jobDetailDuration").textContent = job.duration || '-';
-                        document.getElementById("jobDetailLocation").textContent = job.location || '-';
-                        document.getElementById("jobDetailDeadline").textContent = job.deadline || 'Tidak ada batas waktu';
-                        document.getElementById("jobDetailDescription").textContent = job.description || 'Tidak ada deskripsi.';
-                        document.getElementById("jobDetailRequirements").textContent = job.requirements || 'Tidak ada persyaratan.';
-                        document.getElementById("jobDetailBenefits").textContent = job.benefits || 'Tidak ada keuntungan.';
-
-                        // Tambahkan event listener untuk tombol "Lamar Sekarang"
-                        const applyNowBtn = document.getElementById("applyNowBtn");
-                        applyNowBtn.onclick = function () {
-                            showApplyModal(job);
-                        };
-                    } else {
-                        document.getElementById("jobDetailTitle").textContent = "Error";
-                        document.getElementById("jobDetailDescription").textContent = "Gagal memuat detail lowongan.";
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching job details:', error);
-                    document.getElementById("jobDetailTitle").textContent = "Error";
-                    document.getElementById("jobDetailDescription").textContent = "Gagal memuat detail lowongan.";
-                });
-        }
-
-        // Fungsi untuk menampilkan modal "Lamar Pekerjaan"
-        function showApplyModal(job) {
-            document.getElementById("job_id").value = job.id;
-            document.getElementById("jobTitleModal").textContent = job.title || '-';
-            document.getElementById("jobCategoryModal").textContent = job.category || '-';
-
-            // Reset form
-            const applyForm = document.getElementById("applyForm");
-            applyForm.reset();
-            document.getElementById("applyMessage").innerHTML = "";
-
-            // Tampilkan modal
-            const applyModal = new bootstrap.Modal(document.getElementById('applyModal'));
-            applyModal.show();
-        }
-
-        // Event listener untuk form lamaran
-        document.getElementById("applyForm").addEventListener("submit", function (event) {
-            event.preventDefault();
-
-            // Validasi: minimal salah satu CV atau image harus diisi
-            const cv = document.getElementById('cv').files.length;
-            const image = document.getElementById('image').files.length;
-            if (cv === 0 && image === 0) {
-                document.getElementById("applyMessage").innerHTML = `
-                    <div class="alert alert-danger" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i> Silakan upload minimal CV atau Gambar!
-                    </div>
-                `;
-                return;
+                    });
             }
 
-            // Tampilkan pesan konfirmasi
-            const applyMessage = document.getElementById("applyMessage");
-            applyMessage.innerHTML = `
-                <div class="alert alert-info d-flex align-items-center" role="alert">
-                    <i class="fas fa-spinner fa-spin me-2"></i> Mengirim lamaran Anda, mohon tunggu...
-                </div>
-            `;
+            // Fungsi untuk melihat detail pekerjaan
+            function viewJobDetails(jobId) {
+                // Tampilkan loading di modal
+                document.getElementById("jobDetailTitle").textContent = "Memuat...";
+                document.getElementById("jobDetailCategory").textContent = "Memuat...";
+                document.getElementById("jobDetailDescription").textContent = "Memuat...";
 
-            const jobId = document.getElementById('job_id').value;
-            const formData = new FormData(applyForm);
+                // Set loading state untuk banner
+                const bannerElement = document.getElementById("jobDetailBanner");
+                bannerElement.classList.add("loading");
+                bannerElement.style.backgroundImage = "none";
 
-            fetch(`/jobs/${jobId}/apply`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                },
-                body: formData
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Gagal mengirim lamaran.');
-                }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    document.getElementById("applyMessage").innerHTML = `
-                        <div class="alert alert-success" role="alert">
-                            <i class="fas fa-check-circle me-2"></i> ${data.message}
-                        </div>
-                    `;
-                    setTimeout(() => {
-                        const applyModal = bootstrap.Modal.getInstance(document.getElementById('applyModal'));
-                        if (applyModal) {
-                            applyModal.hide();
+                // Tampilkan modal
+                const jobDetailModal = new bootstrap.Modal(document.getElementById('jobDetailModal'));
+                jobDetailModal.show();
+
+                // Ambil detail pekerjaan dari API
+                fetch(`/api/jobs/${jobId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Gagal memuat detail pekerjaan.');
                         }
-                    }, 3000);
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Remove loading state
+                        bannerElement.classList.remove("loading");
+
+                        if (data.success) {
+                            const job = data.data;
+
+                            // Set gambar banner dengan error handling yang lebih baik
+                            const imageUrl = job.image ?
+                                `/${job.image}` :
+                                `/uploads/image_job/default/job.jpg`;
+
+                            // Preload image untuk memastikan gambar tersedia
+                            const testImage = new Image();
+                            testImage.onload = function() {
+                                bannerElement.style.backgroundImage = `url('${imageUrl}')`;
+                            };
+                            testImage.onerror = function() {
+                                // Fallback ke placeholder jika gambar tidak ditemukan
+                                const fallbackUrl =
+                                    `https://via.placeholder.com/800x200/956a3b/ffffff?text=${encodeURIComponent(job.title || 'Lowongan Kerja')}`;
+                                bannerElement.style.backgroundImage = `url('${fallbackUrl}')`;
+                            };
+                            testImage.src = imageUrl;
+
+                            // Isi detail pekerjaan di modal (kode yang sudah ada sebelumnya)
+                            document.getElementById("jobDetailTitle").textContent = job.title || '-';
+                            document.getElementById("jobDetailCategory").textContent = job.category || '-';
+
+                            // Format salary dengan currency
+                            const formattedSalary = job.salary ?
+                                new Intl.NumberFormat('id-ID', {
+                                    style: 'currency',
+                                    currency: 'IDR',
+                                    minimumFractionDigits: 0
+                                }).format(job.salary) :
+                                '-';
+
+                            document.getElementById("jobDetailSalary").textContent =
+                                `${formattedSalary} (${job.salary_type || '-'})`;
+                            document.getElementById("jobDetailDuration").textContent = job.duration || '-';
+                            document.getElementById("jobDetailLocation").textContent = job.location || '-';
+
+                            // Format deadline
+                            const deadline = job.deadline ?
+                                new Date(job.deadline).toLocaleDateString('id-ID', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric'
+                                }) :
+                                'Tidak ada batas waktu';
+                            document.getElementById("jobDetailDeadline").textContent = deadline;
+
+                            document.getElementById("jobDetailDescription").textContent = job.description ||
+                                'Tidak ada deskripsi.';
+                            document.getElementById("jobDetailRequirements").textContent = job.requirements ||
+                                'Tidak ada persyaratan.';
+                            document.getElementById("jobDetailBenefits").textContent = job.benefits ||
+                                'Tidak ada keuntungan.';
+
+                            // Tambahkan event listener untuk tombol "Lamar Sekarang"
+                            const applyNowBtn = document.getElementById("applyNowBtn");
+                            applyNowBtn.onclick = function() {
+                                showApplyModal(job);
+                            };
+                        } else {
+                            bannerElement.style.backgroundImage = "none";
+                            document.getElementById("jobDetailTitle").textContent = "Error";
+                            document.getElementById("jobDetailDescription").textContent =
+                                "Gagal memuat detail lowongan.";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching job details:', error);
+                        bannerElement.classList.remove("loading");
+                        bannerElement.style.backgroundImage = "none";
+                        document.getElementById("jobDetailTitle").textContent = "Error";
+                        document.getElementById("jobDetailDescription").textContent =
+                            "Gagal memuat detail lowongan.";
+                    });
+            }
+
+            // Fungsi untuk menampilkan modal "Lamar Pekerjaan"
+            function showApplyModal(job) {
+                document.getElementById("job_id").value = job.id;
+                document.getElementById("jobTitleModal").textContent = job.title || '-';
+                document.getElementById("jobCategoryModal").textContent = job.category || '-';
+
+                // Reset form
+                const applyForm = document.getElementById("applyForm");
+                applyForm.reset();
+                document.getElementById("applyMessage").innerHTML = "";
+                document.getElementById("imagePreview").style.display = "none";
+
+                // Auto-fill nama dan email dari user yang login
+                @auth
+                    document.getElementById("name").value = "{{ auth()->user()->name }}";
+                    document.getElementById("email").value = "{{ auth()->user()->email }}";
+                    // Update hidden skills field jika ada additional info
+                    const additionalInfo = document.getElementById("additional_info").value;
+                    if (additionalInfo) {
+                        document.querySelector('input[name="skills"]').value = "Lihat informasi tambahan: " + additionalInfo;
+                    }
+                @endauth
+
+                // Tampilkan modal
+                const applyModal = new bootstrap.Modal(document.getElementById('applyModal'));
+                applyModal.show();
+            }
+
+            // Event listener untuk preview gambar
+            document.getElementById("image").addEventListener("change", function() {
+                const file = this.files[0];
+                const preview = document.getElementById("imagePreview");
+                const previewImg = document.getElementById("previewImg");
+
+                if (file) {
+                    // Validasi ukuran file (2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('Ukuran file terlalu besar. Maksimal 2MB');
+                        this.value = '';
+                        preview.style.display = "none";
+                        return;
+                    }
+
+                    // Validasi tipe file
+                    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                    if (!allowedTypes.includes(file.type)) {
+                        alert('Format file tidak didukung. Gunakan JPG, JPEG, PNG, PDF, DOC, atau DOCX');
+                        this.value = '';
+                        preview.style.display = "none";
+                        return;
+                    }
+
+                    // Preview untuk gambar
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            previewImg.src = e.target.result;
+                            preview.style.display = "block";
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        // Untuk file non-gambar, tampilkan nama file
+                        preview.innerHTML = `<div class="alert alert-info"><i class="fas fa-file me-2"></i>File terpilih: ${file.name}</div>`;
+                        preview.style.display = "block";
+                    }
                 } else {
+                    preview.style.display = "none";
+                }
+            });
+
+            // Update hidden skills field when additional_info changes
+            document.getElementById("additional_info").addEventListener("input", function() {
+                const additionalInfo = this.value;
+                const skillsField = document.querySelector('input[name="skills"]');
+                if (additionalInfo.trim()) {
+                    skillsField.value = "Lihat informasi tambahan: " + additionalInfo;
+                } else {
+                    skillsField.value = "Data keterampilan tersedia di dokumen yang diupload";
+                }
+            });
+
+            // Event listener untuk form lamaran
+            document.getElementById("applyForm").addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                // Validasi basic
+                const name = document.getElementById('name').value.trim();
+                const email = document.getElementById('email').value.trim();
+                const phone = document.getElementById('phone_number').value.trim();
+                const whatsapp = document.getElementById('whatsapp_number').value.trim();
+                const gender = document.getElementById('gender').value;
+                const education = document.getElementById('education_level').value;
+
+                if (!name || !email || !phone || !whatsapp || !gender || !education) {
                     document.getElementById("applyMessage").innerHTML = `
                         <div class="alert alert-danger" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i> ${data.message}
+                            <i class="fas fa-exclamation-triangle me-2"></i> Silakan lengkapi semua field yang wajib diisi (bertanda *)!
                         </div>
                     `;
+                    return;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                document.getElementById("applyMessage").innerHTML = `
-                    <div class="alert alert-danger" role="alert">
-                        <i class="fas fa-exclamation-triangle me-2"></i> Terjadi kesalahan, silakan coba lagi nanti.
+
+                // Validasi email format
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailRegex.test(email)) {
+                    document.getElementById("applyMessage").innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i> Format email tidak valid!
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Validasi nomor telepon (basic)
+                const phoneRegex = /^[\+]?[0-9\-\s\(\)]+$/;
+                if (!phoneRegex.test(phone) || !phoneRegex.test(whatsapp)) {
+                    document.getElementById("applyMessage").innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            <i class="fas fa-exclamation-triangle me-2"></i> Format nomor telepon tidak valid!
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Tampilkan pesan konfirmasi
+                const applyMessage = document.getElementById("applyMessage");
+                applyMessage.innerHTML = `
+                    <div class="alert alert-info d-flex align-items-center" role="alert">
+                        <i class="fas fa-spinner fa-spin me-2"></i> Mengirim lamaran Anda, mohon tunggu...
                     </div>
                 `;
+
+                const jobId = document.getElementById('job_id').value;
+                const formData = new FormData(applyForm);
+
+                fetch(`/jobs/${jobId}/apply`, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                .getAttribute('content')
+                        },
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Response:', data); // Debug log
+                        if (data.success) {
+                            document.getElementById("applyMessage").innerHTML = `
+                                <div class="alert alert-success" role="alert">
+                                    <i class="fas fa-check-circle me-2"></i> ${data.message}
+                                </div>
+                            `;
+                            setTimeout(() => {
+                                const applyModal = bootstrap.Modal.getInstance(document
+                                    .getElementById('applyModal'));
+                                if (applyModal) {
+                                    applyModal.hide();
+                                }
+                                // Reload halaman untuk update riwayat lamaran
+                                location.reload();
+                            }, 2000);
+                        } else {
+                            document.getElementById("applyMessage").innerHTML = `
+                                <div class="alert alert-danger" role="alert">
+                                    <i class="fas fa-exclamation-triangle me-2"></i> ${data.message}
+                                </div>
+                            `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById("applyMessage").innerHTML = `
+                            <div class="alert alert-danger" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i> Terjadi kesalahan, silakan coba lagi nanti. <br>
+                                <small>Error: ${error.message}</small>
+                            </div>
+                        `;
+                    });
             });
         });
-    });
     </script>
 @endsection

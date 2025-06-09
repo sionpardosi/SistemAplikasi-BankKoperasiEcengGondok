@@ -3443,7 +3443,7 @@ class AdminController extends Controller
     }
 
     // ====================================================================================================
-    // Halaman Jobs - Updated Methods
+    // Halaman Jobs
     // ====================================================================================================
     /**
      * Menampilkan halaman daftar lowongan kerja

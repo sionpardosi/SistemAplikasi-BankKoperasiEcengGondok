@@ -34,7 +34,6 @@ class JobApplicationController extends BaseController
                 'jobId' => $id,
                 'job' => $job
             ]);
-
         } catch (\Exception $e) {
             return redirect()->route('admin.jobs')->with('error', 'Gagal memuat data pelamar: ' . $e->getMessage());
         }
@@ -63,17 +62,21 @@ class JobApplicationController extends BaseController
                 return $this->sendError('Silakan login terlebih dahulu untuk melamar pekerjaan', [], 401);
             }
 
+            // Validasi input - disesuaikan dengan field yang ada
             $request->validate([
-                'cv' => 'required|file|mimes:pdf,doc,docx|max:2048',
-                'cover_letter' => 'required|string',
-                'phone_number' => 'required|string',
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone_number' => 'required|string|max:20',
+                'whatsapp_number' => 'required|string|max:20',
+                'gender' => 'required|in:Laki-laki,Perempuan',
                 'education_level' => 'required|string',
                 'experience' => 'nullable|string',
-                'expected_salary' => 'nullable|string',
-                'skills' => 'required|string',
+                'cv' => 'nullable|file|mimes:pdf,doc,docx|max:2048',
+                'image' => 'nullable|file|mimes:jpeg,jpg,png,pdf,doc,docx|max:2048',
                 'additional_info' => 'nullable|string',
             ]);
 
+            // Cek apakah user sudah pernah melamar
             $existingApplication = JobApplication::where('user_id', $user->id)
                 ->where('job_id', $jobId)
                 ->first();
@@ -81,27 +84,51 @@ class JobApplicationController extends BaseController
                 return $this->sendError('Anda sudah pernah melamar untuk lowongan ini', [], 400);
             }
 
-            // Simpan file CV
-            $cvPath = $request->file('cv')->store('cv', 'public');
-
-            JobApplication::create([
+            $applicationData = [
                 'job_id' => $jobId,
                 'user_id' => $user->id,
-                'cv' => $cvPath,
-                'cover_letter' => $request->cover_letter,
+                'name' => $request->name,
+                'email' => $request->email,
                 'phone_number' => $request->phone_number,
+                'whatsapp_number' => $request->whatsapp_number,
+                'gender' => $request->gender,
                 'education_level' => $request->education_level,
                 'experience' => $request->experience,
-                'expected_salary' => $request->expected_salary,
-                'skills' => $request->skills,
+                // Set default values untuk field yang dihapus dari form tapi masih diperlukan database
+                'cover_letter' => 'Lamaran melalui formulir aplikasi baru - Data lengkap tersedia di form.',
+                'skills' => $request->additional_info ? "Lihat informasi tambahan: " . $request->additional_info : 'Data keterampilan tersedia di dokumen yang diupload',
+                'expected_salary' => 'Sesuai standar perusahaan',
                 'additional_info' => $request->additional_info,
                 'status' => 'Diproses',
-            ]);
+            ];
 
-            return response()->json(['success' => true, 'message' => 'Lamaran berhasil dikirim!']);
+            // Handle file CV upload
+            if ($request->hasFile('cv')) {
+                $cvFile = $request->file('cv');
+                $cvFilename = time() . '_cv_' . \Illuminate\Support\Str::random(6) . '.' . $cvFile->getClientOriginalExtension();
+                $cvFile->move(public_path('uploads/cv'), $cvFilename);
+                $applicationData['cv'] = 'uploads/cv/' . $cvFilename;
+            }
+
+            // Handle file image/keterampilan upload
+            if ($request->hasFile('image')) {
+                $imageFile = $request->file('image');
+                $imageFilename = time() . '_skill_' . \Illuminate\Support\Str::random(6) . '.' . $imageFile->getClientOriginalExtension();
+                $imageFile->move(public_path('uploads/skills'), $imageFilename);
+                $applicationData['image'] = 'uploads/skills/' . $imageFilename;
+            }
+
+            $application = JobApplication::create($applicationData);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Lamaran berhasil dikirim! Kami akan menghubungi Anda melalui email atau WhatsApp.',
+                'data' => $application
+            ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->sendError('Validasi gagal', $e->errors(), 422);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error applying job: ' . $e->getMessage());
             return $this->sendError('Terjadi kesalahan saat mengirim lamaran', ['error' => $e->getMessage()], 500);
         }
     }
@@ -274,11 +301,11 @@ class JobApplicationController extends BaseController
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             ];
 
-            $callback = function() use ($applications, $job) {
+            $callback = function () use ($applications, $job) {
                 $file = fopen('php://output', 'w');
 
                 // Add BOM for UTF-8
-                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+                fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
                 // CSV Headers
                 fputcsv($file, [
@@ -318,7 +345,6 @@ class JobApplicationController extends BaseController
             };
 
             return response()->stream($callback, 200, $headers);
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal mengexport data: ' . $e->getMessage());
         }
@@ -347,7 +373,6 @@ class JobApplicationController extends BaseController
                     'response_rate' => $responseRate
                 ]
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -375,7 +400,6 @@ class JobApplicationController extends BaseController
                 'success' => true,
                 'message' => "Berhasil memperbarui status {$updated} pelamar"
             ]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json(['success' => false, 'message' => 'Validasi gagal', 'errors' => $e->errors()], 422);
         } catch (\Exception $e) {

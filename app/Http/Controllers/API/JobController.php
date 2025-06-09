@@ -37,10 +37,10 @@ class JobController extends BaseController
             // Filter by search term
             if ($request->has('search') && $request->search) {
                 $searchTerm = $request->search;
-                $query->where(function($q) use ($searchTerm) {
+                $query->where(function ($q) use ($searchTerm) {
                     $q->where('title', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('location', 'like', '%' . $searchTerm . '%');
+                        ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('location', 'like', '%' . $searchTerm . '%');
                 });
             }
 
@@ -83,27 +83,34 @@ class JobController extends BaseController
 
             $data = $request->all();
 
-            // Handle image upload
+            // Handle image upload menggunakan metode yang sama seperti contoh Anda
+            $imagePath = null;
             if ($request->hasFile('image')) {
-                $imagePath = $request->file('image')->store('job_images', 'public');
-                $data['image'] = $imagePath;
+                $file = $request->file('image');
+                $filename = time() . '_' . \Illuminate\Support\Str::random(6) . '.' . $file->getClientOriginalExtension();
+                // Move to public/uploads/image_job
+                $file->move(public_path('uploads/image_job'), $filename);
+                // Save relative path for asset()
+                $imagePath = 'uploads/image_job/' . $filename;
             } else {
                 // Set default image based on job category
                 $category = $request->category;
                 switch ($category) {
                     case 'Full-time':
-                        $data['image'] = 'job_images/default/full-time.jpg';
+                        $imagePath = 'uploads/image_job/default/full-time.jpg';
                         break;
                     case 'Part-time':
-                        $data['image'] = 'job_images/default/part-time.jpg';
+                        $imagePath = 'uploads/image_job/default/part-time.jpg';
                         break;
                     case 'Freelance':
-                        $data['image'] = 'job_images/default/freelance.jpg';
+                        $imagePath = 'uploads/image_job/default/freelance.jpg';
                         break;
                     default:
-                        $data['image'] = 'job_images/default/job.jpg';
+                        $imagePath = 'uploads/image_job/default/job.jpg';
                 }
             }
+
+            $data['image'] = $imagePath;
 
             $job = JobList::create($data);
             return $this->sendResponse($job, 'Lowongan kerja berhasil dibuat');
@@ -163,11 +170,18 @@ class JobController extends BaseController
             if ($request->hasFile('image')) {
                 // Delete old image if it exists and is not a default image
                 if ($job->image && !str_contains($job->image, 'default/')) {
-                    Storage::disk('public')->delete($job->image);
+                    $oldImagePath = public_path($job->image);
+                    if (file_exists($oldImagePath)) {
+                        unlink($oldImagePath);
+                    }
                 }
 
-                $imagePath = $request->file('image')->store('job_images', 'public');
-                $data['image'] = $imagePath;
+                $file = $request->file('image');
+                $filename = time() . '_' . \Illuminate\Support\Str::random(6) . '.' . $file->getClientOriginalExtension();
+                // Move to public/uploads/image_job
+                $file->move(public_path('uploads/image_job'), $filename);
+                // Save relative path for asset()
+                $data['image'] = 'uploads/image_job/' . $filename;
             }
 
             $job->update($data);
@@ -198,7 +212,10 @@ class JobController extends BaseController
 
             // Delete job image if it's not a default image
             if ($job->image && !str_contains($job->image, 'default/')) {
-                Storage::disk('public')->delete($job->image);
+                $imagePath = public_path($job->image);
+                if (file_exists($imagePath)) {
+                    unlink($imagePath);
+                }
             }
 
             $job->delete();
@@ -231,10 +248,10 @@ class JobController extends BaseController
 
             if ($request->has('search') && $request->search) {
                 $searchTerm = $request->search;
-                $query->where(function($q) use ($searchTerm) {
+                $query->where(function ($q) use ($searchTerm) {
                     $q->where('title', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('description', 'like', '%' . $searchTerm . '%')
-                      ->orWhere('location', 'like', '%' . $searchTerm . '%');
+                        ->orWhere('description', 'like', '%' . $searchTerm . '%')
+                        ->orWhere('location', 'like', '%' . $searchTerm . '%');
                 });
             }
 
@@ -247,11 +264,11 @@ class JobController extends BaseController
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             ];
 
-            $callback = function() use ($jobs) {
+            $callback = function () use ($jobs) {
                 $file = fopen('php://output', 'w');
 
                 // Add BOM for UTF-8
-                fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+                fprintf($file, chr(0xEF) . chr(0xBB) . chr(0xBF));
 
                 // CSV Headers
                 fputcsv($file, [
@@ -299,7 +316,6 @@ class JobController extends BaseController
             };
 
             return response()->stream($callback, 200, $headers);
-
         } catch (\Exception $e) {
             return $this->sendError('Gagal mengexport data', ['error' => $e->getMessage()], 500);
         }
@@ -339,7 +355,6 @@ class JobController extends BaseController
                 'categories' => $categoriesStats,
                 'popular_jobs' => $popularJobs
             ], 'Statistik lowongan berhasil diambil');
-
         } catch (\Exception $e) {
             return $this->sendError('Gagal mengambil statistik', ['error' => $e->getMessage()], 500);
         }
@@ -385,7 +400,6 @@ class JobController extends BaseController
                 'deleted_count' => $deletedCount,
                 'errors' => $errors
             ], $message);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
             return $this->sendError('Validasi gagal', $e->errors(), 422);
         } catch (\Exception $e) {
@@ -413,7 +427,6 @@ class JobController extends BaseController
 
             $newJob = JobList::create($newJobData);
             return $this->sendResponse($newJob, 'Lowongan berhasil diduplikasi');
-
         } catch (\Exception $e) {
             return $this->sendError('Gagal menduplikasi lowongan', ['error' => $e->getMessage()], 500);
         }
