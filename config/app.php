@@ -163,8 +163,6 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
-        // Package Service Providers...
-        HalilCosdu\ChatBot\ChatBotServiceProvider::class, // Pastikan ini ada sebelum provider Anda
 
         // Application Service Providers...
         App\Providers\AppServiceProvider::class,
