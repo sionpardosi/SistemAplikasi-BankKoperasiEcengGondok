@@ -68,19 +68,7 @@ class SupplierRequestController extends Controller
         return view('admin.adminsupplier.create', compact('kupons'));
     }
 
-    public function edit($id)
-    {
-        $request = SupplierRequest::with(['user', 'kupon', 'penjadwalan'])->findOrFail($id);
-
-        // Ambil semua kupon yang masih aktif dan belum expired
-        $kupons = Coupon::where('is_active', true)
-            ->where('expiry_date', '>=', now())
-            ->orderBy('code')
-            ->get();
-
-        return view('admin.adminsupplier.edit', compact('request', 'kupons'));
-    }
-
+f
     // Perbaikan untuk method update() di SupplierRequestController.php
     public function update(Request $request, $id)
     {
