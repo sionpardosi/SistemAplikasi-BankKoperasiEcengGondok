@@ -68,7 +68,6 @@ class SupplierRequestController extends Controller
         return view('admin.adminsupplier.create', compact('kupons'));
     }
 
-f
     // Perbaikan untuk method update() di SupplierRequestController.php
     public function update(Request $request, $id)
     {

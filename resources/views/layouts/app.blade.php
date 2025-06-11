@@ -510,6 +510,28 @@
             height: 2px;
             background-color: #956a3b;
         }
+
+        .back-to-top {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                width: 40px;
+                height: 40px;
+                background-color: #8B4513;
+                color: white;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                opacity: 0;
+                transition: opacity 0.3s ease;
+                z-index: 999;
+            }
+
+            .back-to-top.visible {
+                opacity: 1;
+            }
     </style>
 
     <style>
@@ -1220,9 +1242,11 @@
             <i class="fas fa-comment-dots fa-lg"></i>
         </a>
     </div> --}}
-
-    <div id="scrollTop" class="visually-hidden end-0"></div>
-    <div class="page-overlay"></div>
+    <div class="back-to-top" id="backToTop">
+        <i class="fas fa-arrow-up"></i>
+    </div>
+    {{-- <div id="scrollTop" class="visually-hidden end-0"></div>
+    <div class="page-overlay"></div> --}}
 
     <script src="{{ asset('assets/js/plugins/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/js/plugins/bootstrap.bundle.min.js') }}"></script>
@@ -1880,8 +1904,63 @@
                 }
             });
         });
+
     </script>
 
+        <!-- JavaScript for Interactivity -->
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Add Font Awesome for icons
+                if (!document.getElementById('fontawesome-css')) {
+                    const fontAwesome = document.createElement('link');
+                    fontAwesome.id = 'fontawesome-css';
+                    fontAwesome.rel = 'stylesheet';
+                    fontAwesome.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css';
+                    document.head.appendChild(fontAwesome);
+                }
+
+                // Toggle sections
+                const titles = document.querySelectorAll('.privacy-title');
+                titles.forEach(title => {
+                    title.addEventListener('click', function() {
+                        const sectionId = 'section' + this.getAttribute('data-section');
+                        const content = document.getElementById(sectionId);
+                        const icon = this.querySelector('.toggle-icon');
+
+                        content.classList.toggle('active');
+                        icon.classList.toggle('rotate');
+                    });
+                });
+
+                // Progress bar
+                window.onscroll = function() {
+                    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+                    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+                    const scrolled = (winScroll / height) * 100;
+                    document.getElementById("myBar").style.width = scrolled + "%";
+
+                    // Back to top button
+                    const backToTop = document.getElementById('backToTop');
+                    if (winScroll > 300) {
+                        backToTop.classList.add('visible');
+                    } else {
+                        backToTop.classList.remove('visible');
+                    }
+                };
+
+                // Back to top functionality
+                document.getElementById('backToTop').addEventListener('click', function() {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+
+                // Open first section by default
+                document.getElementById('section1').classList.add('active');
+            });
+        </script>
+        
     @stack('scripts')
 
 </body>
