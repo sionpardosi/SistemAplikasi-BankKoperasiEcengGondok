@@ -287,7 +287,7 @@
 
 <script>
     // API Key Configuration
-    const API_KEY = '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';
+    const API_KEY = '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';
 
     // DOM Elements
     const chatbotButton = document.getElementById('chatbotButton');
