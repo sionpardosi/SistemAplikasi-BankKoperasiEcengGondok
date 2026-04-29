@@ -46,6 +46,15 @@ Route::post('saveshippingcost', [RajaOngkirController::class, 'saveShippingCost'
 Route::get('rajaongkir/origin-info', [RajaOngkirController::class, 'getOriginCityInfo']);
 
 
+// RajaOngkir V2 Routes
+Route::get('rajaongkirprovinces', [RajaOngkirController::class, 'getProvinces']);
+Route::get('rajaongkircities/{id}', [RajaOngkirController::class, 'getCities']);
+Route::get('rajaongkirdistricts/{id}', [RajaOngkirController::class, 'getDistricts']); // BARU
+Route::get('useraddressgetaddress/{id}', [RajaOngkirController::class, 'userAddressGetAddress']);
+Route::post('rajaongkircalculate', [RajaOngkirController::class, 'calculateShipping']);
+Route::post('saveshippingcost', [RajaOngkirController::class, 'saveShippingCost']);
+Route::get('rajaongkir/origin-info', [RajaOngkirController::class, 'getOriginCityInfo']);
+
 // =====================================================================================================================================================================================================
 // -------------------------------------------------------------------------------------------- CHATBOT AI --------------------------------------------------------------------------------------------
 // =====================================================================================================================================================================================================

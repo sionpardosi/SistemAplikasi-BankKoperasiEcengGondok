@@ -25,7 +25,6 @@ class LoginController extends Controller
     public function showLoginForm(Request $request)
     {
         if ($request->has('redirect')) {
-            // Simpan URL tujuan ke intended
             \Illuminate\Support\Facades\Session::put('url.intended', $request->query('redirect'));
         }
         return view('auth.login');

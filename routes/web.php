@@ -48,6 +48,12 @@ Route::post('/api/rajaongkir/calculate', 'RajaOngkirController@calculateShipping
 // Route untuk verifikasi origin city (opsional - untuk testing)
 Route::get('rajaongkir/origin-info', [RajaOngkirController::class, 'getOriginCityInfo']);
 
+// RajaOngkir V2 Routes
+Route::get('/api/rajaongkir/provinces', 'RajaOngkirController@getProvinces');
+Route::get('/api/rajaongkir/cities/{province_id}', 'RajaOngkirController@getCities');
+Route::get('/api/rajaongkir/districts/{city_id}', 'RajaOngkirController@getDistricts'); // BARU
+Route::post('/api/rajaongkir/calculate', 'RajaOngkirController@calculateShipping');
+Route::get('rajaongkir/origin-info', [RajaOngkirController::class, 'getOriginCityInfo']);
 
 // ====================================================================================================
 // Halaman Verifikasi Email

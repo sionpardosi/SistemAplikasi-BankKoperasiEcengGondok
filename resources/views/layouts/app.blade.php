@@ -1041,11 +1041,11 @@
                             <img src="{{ asset('assets/images/logo/logo.png') }}" alt="EcengGondokSamosir"
                                 class="logo__image d-block">
                         </a>
+                        <p class="footer-address">Jalan Pulo, Sait Nihuta, Kec. Pangururan, Kabupaten Samosir, Sumatera
+                            Utara 22392</p>
+                        <p class="m-0"><strong class="fw-medium">ecenggondok@gmail.com</strong></p>
+                        <p><strong class="fw-medium">0813-7680-9200</strong></p>
                     </div>
-                    <p class="footer-address">Jalan Pulo, Sait Nihuta, Kec. Pangururan, Kabupaten Samosir, Sumatera
-                        Utara 22392</p>
-                    <p class="m-0"><strong class="fw-medium">ecenggondok@gmail.com</strong></p>
-                    <p><strong class="fw-medium">0813-7680-9200</strong></p>
 
                     <ul class="social-links list-unstyled d-flex flex-wrap mb-0">
                         <li>
@@ -1960,7 +1960,7 @@
                 document.getElementById('section1').classList.add('active');
             });
         </script>
-        
+
     @stack('scripts')
 
 </body>

@@ -17,7 +17,7 @@ class RajaOngkirController extends Controller
 
     public function __construct()
     {
-        $this->apiKey = '7ff8406f12c653758df1a5fa6d6bf474';
+        $this->apiKey = 'zNEdwdLg78e74ec30cf6931d4BAb2naT';
     }
 
     /**
@@ -62,9 +62,9 @@ class RajaOngkirController extends Controller
         try {
             $response = Http::withHeaders([
                 'key' => $this->apiKey
-            ])->get('https://api.rajaongkir.com/starter/province');
+            ])->get('https://rajaongkir.komerce.id/api/v1/destination/province');
 
-            $provinces = $response->json()['rajaongkir']['results'];
+            $provinces = $response->json()['data'];
             return response()->json([
                 'status' => 'success',
                 'data' => $provinces
@@ -99,11 +99,9 @@ class RajaOngkirController extends Controller
         try {
             $response = Http::withHeaders([
                 'key' => $this->apiKey
-            ])->get('https://api.rajaongkir.com/starter/city', [
-                'province' => $provinceId
-            ]);
+            ])->get("https://rajaongkir.komerce.id/api/v1/destination/city/{$provinceId}");
 
-            $cities = $response->json()['rajaongkir']['results'];
+            $cities = $response->json()['data'];
             return response()->json([
                 'status' => 'success',
                 'data' => $cities

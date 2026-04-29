@@ -1270,8 +1270,7 @@
                             if (response.status === 'success') {
                                 let options = '<option value="">Pilih Provinsi *</option>';
                                 $.each(response.data, function(index, province) {
-                                    options +=
-                                        `<option value="${province.province}" data-province-id="${province.province_id}">${province.province}</option>`;
+                                    options += `<option value="${province.name}" data-province-id="${province.id}">${province.name}</option>`;
                                 });
                                 $('#province').html(options);
                             } else {
@@ -1311,8 +1310,7 @@
                             if (response.status === 'success') {
                                 let options = '<option value="">Pilih Kota / Kabupaten *</option>';
                                 $.each(response.data, function(index, city) {
-                                    options +=
-                                        `<option value="${city.city_name}" data-city-id="${city.city_id}">${city.type} ${city.city_name}</option>`;
+                                    options += `<option value="${city.name}" data-city-id="${city.id}">${city.name}</option>`;
                                 });
                                 $('#city').html(options);
                             } else {
