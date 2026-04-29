@@ -28,7 +28,7 @@ class RajaOngkirController extends Controller
         try {
             $response = Http::withHeaders([
                 'key' => $this->apiKey
-            ])->get('https://api.rajaongkir.com/starter/city', [
+            ])->get('https://rajaongkir.komerce.id/api/v1/destination/city', [
                 'id' => $this->originCity
             ]);
 
@@ -115,6 +115,27 @@ class RajaOngkirController extends Controller
         }
     }
 
+    public function getDistricts($cityId)
+{
+    try {
+        $response = Http::withHeaders([
+            'key' => $this->apiKey
+        ])->get("https://rajaongkir.komerce.id/api/v1/destination/district/{$cityId}");
+
+        $districts = $response->json()['data'] ?? [];
+        return response()->json([
+            'status' => 'success',
+            'data' => $districts
+        ]);
+    } catch (\Exception $e) {
+        Log::error('RajaOngkir District Error: ' . $e->getMessage());
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Gagal memuat data kecamatan'
+        ], 500);
+    }
+}
+
     public function calculateShipping(Request $request)
     {
         // Enhanced validation dengan custom messages
@@ -156,13 +177,13 @@ class RajaOngkirController extends Controller
             ]);
 
             // Make API request to RajaOngkir
-            $response = Http::timeout(30)->withHeaders([
+            $response = Http::timeout(30)->asForm()->withHeaders([
                 'key' => $this->apiKey
-            ])->post('https://api.rajaongkir.com/starter/cost', [
-                'origin' => $this->originCity,
+            ])->post('https://rajaongkir.komerce.id/api/v1/calculate/district/domestic-cost', [
+                'origin'      => $this->originCity,
                 'destination' => $request->city_id,
-                'weight' => $weight,
-                'courier' => $request->courier
+                'weight'      => $weight,
+                'courier'     => $request->courier
             ]);
 
             // Log raw response
@@ -172,86 +193,44 @@ class RajaOngkirController extends Controller
                 'response_successful' => $response->successful()
             ]);
 
-            // Check if request was successful
             if (!$response->successful()) {
                 Log::error('RajaOngkir API request failed', [
-                    'status_code' => $response->status(),
+                    'status_code'   => $response->status(),
                     'response_body' => $response->body()
                 ]);
-
                 return response()->json([
-                    'status' => 'error',
+                    'status'  => 'error',
                     'message' => 'API RajaOngkir tidak dapat diakses. Status: ' . $response->status()
                 ], 500);
             }
 
             $result = $response->json();
 
-            // Check response structure
-            if (!isset($result['rajaongkir'])) {
-                Log::error('Invalid RajaOngkir response structure', ['response' => $result]);
+            // Komerce API mengembalikan struktur { "meta": {...}, "data": [...] }
+            if (!isset($result['data']) || empty($result['data'])) {
+                Log::error('No shipping results from Komerce API', ['response' => $result]);
                 return response()->json([
-                    'status' => 'error',
-                    'message' => 'Format response API tidak valid'
-                ], 500);
-            }
-
-            // Check for API errors
-            if (isset($result['rajaongkir']['status']['code']) && $result['rajaongkir']['status']['code'] != 200) {
-                Log::error('RajaOngkir API error', [
-                    'error_code' => $result['rajaongkir']['status']['code'],
-                    'error_description' => $result['rajaongkir']['status']['description']
-                ]);
-
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Error API: ' . $result['rajaongkir']['status']['description']
-                ], 500);
-            }
-
-            // Check if results exist
-            if (!isset($result['rajaongkir']['results']) || empty($result['rajaongkir']['results'])) {
-                Log::error('No shipping results found', [
-                    'courier' => $request->courier,
-                    'origin' => $this->originCity,
-                    'destination' => $request->city_id
-                ]);
-
-                return response()->json([
-                    'status' => 'error',
+                    'status'  => 'error',
                     'message' => 'Tidak ada layanan pengiriman tersedia untuk rute ini'
                 ], 500);
             }
 
-            // Check if costs exist
-            if (!isset($result['rajaongkir']['results'][0]['costs']) || empty($result['rajaongkir']['results'][0]['costs'])) {
-                Log::error('No shipping costs found', [
-                    'courier' => $request->courier,
-                    'results' => $result['rajaongkir']['results'][0]
-                ]);
-
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Layanan pengiriman tidak tersedia untuk kurir ' . strtoupper($request->courier)
-                ], 500);
-            }
-
-            $shippingCosts = $result['rajaongkir']['results'][0]['costs'];
+            $shippingCosts = $result['data'];
 
             Log::info('Shipping calculation successful', [
                 'services_found' => count($shippingCosts),
-                'courier' => $request->courier
+                'courier'        => $request->courier
             ]);
 
             return response()->json([
                 'status' => 'success',
-                'data' => $shippingCosts,
-                'meta' => [
-                    'origin_info' => 'Kabupaten Samosir, Sumatera Utara',
-                    'origin_city_id' => $this->originCity,
+                'data'   => $shippingCosts,
+                'meta'   => [
+                    'origin_info'        => 'Kabupaten Samosir, Sumatera Utara',
+                    'origin_city_id'     => $this->originCity,
                     'destination_city_id' => $request->city_id,
-                    'weight' => $weight . ' gram',
-                    'courier' => strtoupper($request->courier)
+                    'weight'             => $weight . ' gram',
+                    'courier'            => strtoupper($request->courier)
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {

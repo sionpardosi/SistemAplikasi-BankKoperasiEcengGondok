@@ -696,7 +696,8 @@
     <main class="pt-90">
         <div class="mb-4 pb-4"></div>
         <section class="shop-checkout container">
-            <h2 class="page-title mb-4" style="letter-spacing:1px; margin-bottom: 3.5rem !important;">Pengiriman dan Metode Pembayaran</h2>
+            <h2 class="page-title mb-4" style="letter-spacing:1px; margin-bottom: 3.5rem !important;">Pengiriman dan Metode
+                Pembayaran</h2>
             <!-- Modern Checkout Steps - Menggunakan format yang sama seperti di keranjang -->
             <div class="checkout-steps step-2">
                 <a href="{{ route('cart.index') }}" class="checkout-steps__item completed">
@@ -883,6 +884,16 @@
                                         </span>
                                     </div>
                                 </div>
+
+                                <div class="col-md-4">
+                                    <div class="form-floating my-3">
+                                        <select class="form-select custom-select" id="district" name="district">
+                                            <option value="">Pilih Kecamatan *</option>
+                                        </select>
+                                        <label for="district">Kecamatan *</label>
+                                    </div>
+                                </div>
+
                                 <div class="col-md-6">
                                     <div class="form-floating my-3">
                                         <input type="text" class="form-control custom-input" name="address"
@@ -1155,6 +1166,22 @@
                     updateShippingOptions();
                 });
 
+                // 3. Setup event listener untuk kota
+                $('#city').on('change', function() {
+                    const cityId = $(this).find(':selected').data('city-id');
+                    if (cityId) {
+                        loadDistricts(cityId);
+                    } else {
+                        $('#district').html('<option value="">Pilih Kecamatan *</option>');
+                    }
+                    updateShippingOptions();
+                });
+
+                // 3b. Setup event listener untuk kecamatan
+                $('#district').on('change', function() {
+                    updateShippingOptions();
+                });
+
                 // 4. Setup event listener untuk selector alamat
                 $('#address_selector').on('change', function() {
                     selectedAddressId = $(this).val();
@@ -1270,7 +1297,8 @@
                             if (response.status === 'success') {
                                 let options = '<option value="">Pilih Provinsi *</option>';
                                 $.each(response.data, function(index, province) {
-                                    options += `<option value="${province.name}" data-province-id="${province.id}">${province.name}</option>`;
+                                    options +=
+                                        `<option value="${province.name}" data-province-id="${province.id}">${province.name}</option>`;
                                 });
                                 $('#province').html(options);
                             } else {
@@ -1310,7 +1338,8 @@
                             if (response.status === 'success') {
                                 let options = '<option value="">Pilih Kota / Kabupaten *</option>';
                                 $.each(response.data, function(index, city) {
-                                    options += `<option value="${city.name}" data-city-id="${city.id}">${city.name}</option>`;
+                                    options +=
+                                        `<option value="${city.name}" data-city-id="${city.id}">${city.name}</option>`;
                                 });
                                 $('#city').html(options);
                             } else {
@@ -1333,6 +1362,30 @@
                                 confirmButtonText: 'OK',
                                 confirmButtonColor: '#e3342f'
                             });
+                        }
+                    });
+                }
+
+                function loadDistricts(cityId) {
+                    $.ajax({
+                        url: '{{ url('api/rajaongkirdistricts', '') }}/' + cityId,
+                        type: 'GET',
+                        dataType: 'json',
+                        beforeSend: function() {
+                            $('#district').html('<option value="">Memuat kecamatan...</option>');
+                        },
+                        success: function(response) {
+                            if (response.status === 'success') {
+                                let options = '<option value="">Pilih Kecamatan *</option>';
+                                $.each(response.data, function(index, district) {
+                                    options +=
+                                        `<option value="${district.name}" data-district-id="${district.id}">${district.name}</option>`;
+                                });
+                                $('#district').html(options);
+                            }
+                        },
+                        error: function() {
+                            $('#district').html('<option value="">Gagal memuat kecamatan</option>');
                         }
                     });
                 }
@@ -1396,14 +1449,19 @@
 
                 // Fungsi untuk menghitung ongkos kirim
                 function calculateShipping(courier) {
+                    let districtVal = $('#district').find(':selected').data('district-id');
                     let city = $('#idcitynya').val();
-                    // Jika menggunakan alamat baru, ambil ID kota dari dropdown
-                    if (city != '') {
+
+                    if (districtVal) {
+                        // Alamat baru — pakai district ID dari dropdown
+                        cityId = districtVal;
+                        $('#idcitynya').val(cityId);
+                        $('#city_id').val(cityId);
+                    } else if (city != '') {
                         cityId = city;
                         $('#city_id').val(cityId);
                     } else {
                         cityId = $('#idcitylama').val();
-                        stateId = $('#idstatelama').val();
                     }
 
                     console.log('Calculating shipping details:', {
@@ -1455,11 +1513,11 @@
 
                                 $.each(response.data, function(index, service) {
                                     options += `<option value="${service.service}"
-                        data-cost="${service.cost[0].value}"
-                        data-etd="${service.cost[0].etd}"
-                        data-description="${service.description}">
-                        ${service.service} - ${service.description} (${formatRupiah(service.cost[0].value)})
-                    </option>`;
+    data-cost="${service.cost}"
+    data-etd="${service.etd}"
+    data-description="${service.description}">
+    ${service.service} - ${service.description} (${formatRupiah(service.cost)})
+</option>`;
                                 });
 
                                 $('#shipping_service').html(options);
@@ -1519,16 +1577,20 @@
                 // Tambahkan kode ini di dalam calculateShipping function
 
                 function calculateShipping(courier) {
+                    let districtVal = $('#district').find(':selected').data('district-id');
                     let city = $('#idcitynya').val();
-                    // Jika menggunakan alamat baru, ambil ID kota dari dropdown
-                    if (city != '') {
+
+                    if (districtVal) {
+                        // Alamat baru — pakai district ID dari dropdown
+                        cityId = districtVal;
+                        $('#idcitynya').val(cityId);
+                        $('#city_id').val(cityId);
+                    } else if (city != '') {
                         cityId = city;
                         $('#city_id').val(cityId);
                     } else {
                         cityId = $('#idcitylama').val();
-                        stateId = $('#idstatelama').val();
                     }
-
                     console.log('Calculating shipping from Samosir to City ID:', cityId);
 
                     $.ajax({
@@ -1560,11 +1622,11 @@
 
                                 $.each(response.data, function(index, service) {
                                     options += `<option value="${service.service}"
-                        data-cost="${service.cost[0].value}"
-                        data-etd="${service.cost[0].etd}"
-                        data-description="${service.description}">
-                        ${service.service} - ${service.description} (${formatRupiah(service.cost[0].value)})
-                    </option>`;
+    data-cost="${service.cost}"
+    data-etd="${service.etd}"
+    data-description="${service.description}">
+    ${service.service} - ${service.description} (${formatRupiah(service.cost)})
+</option>`;
                                 });
                                 $('#shipping_service').html(options);
                                 $('#shipping_service').prop('disabled', false);
