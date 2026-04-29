@@ -250,7 +250,7 @@ Lihat [CONTRIBUTING.md](CONTRIBUTING.md) untuk panduan lebih lanjut.
 
 ## 📄 Lisensi
 MIT License © 2025 Bank Koperasi Eceng Gondok.  
-Lihat [LICENSE](LICENSE) untuk detail.
+Lihat [LICENSE](LICENSE) untuk detail - sionpardosi12@gmail.com.
 
 ---
 
