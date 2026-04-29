@@ -512,14 +512,6 @@
                                     </a>
                                 </li>
                             </ul>
-                            <ul class="menu-list">
-                                <li class="menu-item active">
-                                    <a href="{{ route('admin.ai.dashboard') }}" class="">
-                                        <div class="icon"><i class="icon-cpu"></i></div>
-                                        <div class="text">AI Dashboard</div>
-                                    </a>
-                                </li>
-                            </ul>
                         </div>
 
                         <div class="center-item">

@@ -146,6 +146,179 @@ class AdminController extends Controller
         ));
     }
 
+
+    // ====================================================================================================
+    // AI Business Insight Generator
+    // ====================================================================================================
+    public function generateAiInsight(Request $request)
+    {
+        try {
+            $apiKey = env('OPENROUTER_API_KEY');
+
+            if (!$apiKey) {
+                return response()->json(['error' => 'API Key tidak ditemukan. Cek file .env.'], 500);
+            }
+
+            // ── Kumpulkan data dari database ──────────────────────────────────────
+
+            // 1. Ringkasan pesanan
+            $totalPesanan   = Order::count();
+            $totalPendapatan = Order::sum('total');
+            $pesananSelesai  = Order::where('status', 'completed')->count();
+            $pesananBatal    = Order::where('status', 'canceled')->count();
+            $pesananPending  = Order::whereIn('status', ['pending', 'awaiting_payment'])->count();
+
+            // 2. Pendapatan bulan ini vs bulan lalu
+            $bulanIni   = Order::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('total');
+            $bulanLalu  = Order::whereMonth('created_at', now()->subMonth()->month)->whereYear('created_at', now()->year)->sum('total');
+            $pertumbuhan = $bulanLalu > 0 ? round((($bulanIni - $bulanLalu) / $bulanLalu) * 100, 1) : 0;
+
+            // 3. Produk terlaris (berdasarkan order items)
+            $produkTerlaris = OrderItem::select('product_id', DB::raw('SUM(quantity) as total_terjual'), DB::raw('SUM(price * quantity) as total_revenue'))
+                ->with('product:id,name,regular_price,sale_price,quantity')
+                ->groupBy('product_id')
+                ->orderByDesc('total_terjual')
+                ->limit(5)
+                ->get()
+                ->map(fn($item) => [
+                    'nama'          => $item->product->name ?? 'Unknown',
+                    'terjual'       => $item->total_terjual,
+                    'revenue'       => 'Rp ' . number_format($item->total_revenue, 0, ',', '.'),
+                    'stok_tersisa'  => $item->product->quantity ?? 0,
+                ]);
+
+            // 4. Stok bahan baku
+            $totalStok = \App\Models\StokBahanBaku::sum('jumlah_kg');
+
+            // 5. Ulasan & rating terbaru
+            $reviews = Review::with('product:id,name')
+                ->where('status', 'approved')
+                ->latest()
+                ->limit(10)
+                ->get()
+                ->map(fn($r) => [
+                    'produk'  => $r->product->name ?? 'Unknown',
+                    'rating'  => $r->rating . '/5',
+                    'komentar' => $r->comment,
+                ]);
+
+            $rataRating = Review::where('status', 'approved')->avg('rating');
+
+            // 6. Produk dengan stok menipis
+            $stokMenipis = Product::where('quantity', '>', 0)
+                ->where('quantity', '<', 10)
+                ->select('name', 'quantity')
+                ->get();
+
+            // ── Susun prompt ──────────────────────────────────────────────────────
+
+            $dataKonteks = json_encode([
+                'ringkasan_bisnis' => [
+                    'total_pesanan'       => $totalPesanan,
+                    'total_pendapatan'    => 'Rp ' . number_format($totalPendapatan, 0, ',', '.'),
+                    'pesanan_selesai'     => $pesananSelesai,
+                    'pesanan_dibatalkan'  => $pesananBatal,
+                    'pesanan_pending'     => $pesananPending,
+                    'pendapatan_bulan_ini'  => 'Rp ' . number_format($bulanIni, 0, ',', '.'),
+                    'pendapatan_bulan_lalu' => 'Rp ' . number_format($bulanLalu, 0, ',', '.'),
+                    'pertumbuhan_pendapatan' => $pertumbuhan . '%',
+                ],
+                'produk_terlaris'    => $produkTerlaris,
+                'stok_bahan_baku_kg' => $totalStok,
+                'stok_produk_menipis' => $stokMenipis,
+                'rata_rata_rating'   => round($rataRating, 1) . '/5',
+                'ulasan_pelanggan'   => $reviews,
+            ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+
+            $prompt = <<<PROMPT
+Kamu adalah analis bisnis senior untuk Bank Eceng Gondok, sebuah UMKM yang menjual produk kerajinan berbahan eceng gondok.
+
+Berikut adalah data bisnis terkini:
+{$dataKonteks}
+
+Berdasarkan data di atas, buatlah laporan insight bisnis dalam Bahasa Indonesia yang:
+1. Dimulai dengan ringkasan kondisi bisnis saat ini (2-3 kalimat)
+2. Identifikasi 2-3 temuan penting (positif maupun negatif) dari data penjualan dan ulasan pelanggan
+3. Berikan 2-3 rekomendasi aksi konkret yang bisa dilakukan admin untuk meningkatkan penjualan
+4. Akhiri dengan 1 kalimat penutup yang memotivasi
+
+Format output: Gunakan paragraf pendek yang jelas. Gunakan emoji yang relevan di awal setiap poin utama agar mudah dibaca. Buat seperti laporan singkat profesional, bukan bullet point biasa.
+
+Panjang: sekitar 200-300 kata.
+PROMPT;
+
+            // ── Kirim ke OpenRouter ───────────────────────────────────────────────
+
+            // Pakai Anthropic Claude langsung
+            $response = Http::withHeaders([
+                'Authorization' => 'Bearer ' . $apiKey,
+                'Content-Type'  => 'application/json',
+                'HTTP-Referer'  => url('/'),
+                'X-Title'       => 'Bank Eceng Gondok AI Insight',
+            ])->timeout(30)->post('https://openrouter.ai/api/v1/chat/completions', [
+                'model'    => 'openrouter/free',
+                'messages' => [
+                    ['role' => 'user', 'content' => $prompt]
+                ],
+                'max_tokens'  => 600,
+                'temperature' => 0.7,
+            ]);
+
+            if (!$response->successful()) {
+                Log::error('OpenRouter error: ' . $response->body());
+                return response()->json(['error' => 'Gagal menghubungi AI. Coba lagi.'], 500);
+            }
+
+            $result  = $response->json();
+
+            // Log response untuk debug
+            Log::info('OpenRouter response:', $result);
+
+            // Handle berbagai format response
+            $content = $result['choices'][0]['message']['content'] ?? null;
+
+            // Kadang content berupa array of objects
+            if (is_array($content)) {
+                $insight = collect($content)->where('type', 'text')->pluck('text')->implode(' ');
+            } elseif (is_string($content) && strlen($content) > 0) {
+                $insight = $content;
+            } else {
+                // Fallback: coba model spesifik yang lebih stabil
+                $insight = null;
+            }
+
+            if (!$insight) {
+                $retry = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . $apiKey,
+                    'Content-Type'  => 'application/json',
+                    'HTTP-Referer'  => url('/'),
+                    'X-Title'       => 'Bank Eceng Gondok AI Insight',
+                ])->timeout(30)->post('https://openrouter.ai/api/v1/chat/completions', [
+                    'model'    => 'meta-llama/llama-3.3-70b-instruct:free',
+                    'messages' => [
+                        ['role' => 'user', 'content' => $prompt]
+                    ],
+                    'max_tokens'  => 600,
+                    'temperature' => 0.7,
+                ]);
+
+                $retryResult = $retry->json();
+                Log::info('Retry response:', $retryResult);
+                $insight = $retryResult['choices'][0]['message']['content'] ?? 'Tidak ada insight yang dihasilkan.';
+            }
+
+            return response()->json([
+                'success'    => true,
+                'insight'    => $insight,
+                'generated_at' => now()->format('d M Y, H:i') . ' WIB',
+            ]);
+        } catch (\Exception $e) {
+            Log::error('AI Insight error: ' . $e->getMessage());
+            return response()->json(['error' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+        }
+    }
+
+
     /**
      * Get additional statistics
      */
@@ -185,252 +358,6 @@ class AdminController extends Controller
         }
     }
 
-    // ====================================================================================================
-    // AI Intelligence Dashboard
-    // ====================================================================================================
-    public function aiDashboard()
-    {
-        return view('admin.ai-dashboard');
-    }
-
-    public function aiAsk(Request $request)
-    {
-        $request->validate([
-            'question'  => 'required|string|max:500',
-            'history'   => 'nullable|array',
-        ]);
-
-        try {
-            $data = $this->collectBusinessData();
-            $dataJson = json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-
-            $systemPrompt = "Anda adalah analis bisnis AI senior untuk Bank Koperasi Eceng Gondok,
-sebuah koperasi berbasis eceng gondok di Kabupaten Samosir, Sumatera Utara.
-
-Tugas Anda: Menjawab pertanyaan admin berdasarkan DATA BISNIS NYATA yang diberikan.
-
-Aturan menjawab:
-1. Gunakan bahasa Indonesia yang profesional namun mudah dipahami
-2. Berikan angka spesifik dari data (bukan estimasi)
-3. Selalu format angka uang dengan 'Rp' dan titik sebagai pemisah ribuan
-4. Berikan insight dan rekomendasi aksi yang konkret
-5. Jika data tidak mencukupi untuk menjawab, katakan dengan jujur
-6. Format jawaban dengan rapi menggunakan poin-poin jika perlu
-7. Di akhir jawaban, selalu tambahkan 1 rekomendasi singkat yang actionable";
-
-            // Bangun messages dengan history
-            $messages = [];
-            if (!empty($request->history)) {
-                foreach (array_slice($request->history, -6) as $msg) {
-                    $messages[] = [
-                        'role'    => $msg['role'],
-                        'content' => $msg['content'],
-                    ];
-                }
-            }
-            $messages[] = [
-                'role'    => 'user',
-                'content' => "DATA BISNIS TERKINI (per " . now()->format('d F Y') . "):\n\n{$dataJson}\n\n---\nPERTANYAAN ADMIN: {$request->question}",
-            ];
-
-            $response = Http::timeout(30)->withHeaders([
-                'x-api-key'         => env('ANTHROPIC_API_KEY'),
-                'anthropic-version' => '2023-06-01',
-                'content-type'      => 'application/json',
-            ])->post('https://api.anthropic.com/v1/messages', [
-                'model'      => 'claude-haiku-4-5-20251001',
-                'max_tokens' => 1500,
-                'system'     => $systemPrompt,
-                'messages'   => $messages,
-            ]);
-
-            if ($response->successful()) {
-                $reply = $response->json()['content'][0]['text'] ?? 'Tidak ada respons.';
-                return response()->json([
-                    'status' => 'success',
-                    'reply'  => $reply,
-                    'data_snapshot' => [
-                        'total_orders'   => $data['orders']['total'],
-                        'monthly_revenue' => 'Rp ' . number_format($data['revenue']['current_month'], 0, ',', '.'),
-                        'total_stock'    => $data['stock']['total_kg'] . ' kg',
-                        'avg_rating'     => $data['reviews']['avg_rating'],
-                    ]
-                ]);
-            }
-
-            Log::error('Anthropic API Error on AI Dashboard', [
-                'status' => $response->status(),
-                'body'   => $response->body(),
-            ]);
-
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Layanan AI sedang tidak tersedia. Coba lagi.'
-            ], 500);
-        } catch (\Exception $e) {
-            Log::error('AI Dashboard Exception: ' . $e->getMessage());
-            return response()->json([
-                'status'  => 'error',
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
-            ], 500);
-        }
-    }
-
-    private function collectBusinessData(): array
-    {
-        $currentMonth = now()->month;
-        $currentYear  = now()->year;
-        $lastMonth    = now()->subMonth()->month;
-
-        // === ORDERS ===
-        $totalOrders     = Order::count();
-        $pendingOrders   = Order::whereIn('status', ['pending', 'awaiting_payment', 'confirmed', 'processing'])->count();
-        $deliveredOrders = Order::whereIn('status', ['delivered', 'completed'])->count();
-        $canceledOrders  = Order::where('status', 'canceled')->count();
-        $shippedOrders   = Order::where('status', 'shipped')->count();
-
-        // === REVENUE ===
-        $totalRevenue        = Order::whereIn('status', ['delivered', 'completed'])->sum('total');
-        $currentMonthRevenue = Order::whereMonth('created_at', $currentMonth)
-            ->whereYear('created_at', $currentYear)->sum('total');
-        $lastMonthRevenue    = Order::whereMonth('created_at', $lastMonth)
-            ->whereYear('created_at', $currentYear)->sum('total');
-        $revenueGrowth       = $lastMonthRevenue > 0
-            ? round((($currentMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1)
-            : 0;
-
-        // === TOP PRODUCTS ===
-        $topProducts = OrderItem::select(
-            'product_id',
-            DB::raw('SUM(quantity) as total_qty'),
-            DB::raw('SUM(price * quantity) as total_revenue')
-        )
-            ->with('product:id,name')
-            ->groupBy('product_id')
-            ->orderByDesc('total_qty')
-            ->limit(5)
-            ->get()
-            ->map(fn($p) => [
-                'nama'         => $p->product->name ?? 'Produk Dihapus',
-                'terjual'      => (int) $p->total_qty,
-                'pendapatan'   => 'Rp ' . number_format($p->total_revenue, 0, ',', '.'),
-            ])->toArray();
-
-        // === REVIEWS ===
-        $avgRating    = round(Review::where('status', 'approved')->avg('rating') ?? 0, 1);
-        $totalReviews = Review::count();
-        $rating5      = Review::where('rating', 5)->count();
-        $rating4      = Review::where('rating', 4)->count();
-        $rating3      = Review::where('rating', 3)->count();
-        $rating12     = Review::whereIn('rating', [1, 2])->count();
-
-        // Produk dengan rating rendah
-        $lowRatedProducts = Review::where('rating', '<=', 2)
-            ->with('product:id,name')
-            ->select('product_id', DB::raw('AVG(rating) as avg_r'), DB::raw('COUNT(*) as total'))
-            ->groupBy('product_id')
-            ->orderBy('avg_r')
-            ->limit(3)
-            ->get()
-            ->map(fn($r) => [
-                'produk'      => $r->product->name ?? 'Unknown',
-                'rating_rata' => round($r->avg_r, 1),
-                'jumlah'      => $r->total,
-            ])->toArray();
-
-        // === STOK BAHAN BAKU ===
-        $totalStok   = (float) \App\Models\StokBahanBaku::sum('jumlah_kg');
-        $stokMasuk   = (float) \App\Models\StokBahanBaku::where('jumlah_kg', '>', 0)->sum('jumlah_kg');
-        $stokKeluar  = abs((float) \App\Models\StokBahanBaku::where('jumlah_kg', '<', 0)->sum('jumlah_kg'));
-        $statusStok  = $totalStok <= 5 ? 'KRITIS' : ($totalStok <= 20 ? 'RENDAH' : ($totalStok <= 50 ? 'NORMAL' : 'AMAN'));
-
-        // === SUPPLIER REQUESTS ===
-        $supplierData = [];
-        try {
-            $supplierData = [
-                'total'    => \App\Models\SupplierRequest::count(),
-                'pending'  => \App\Models\SupplierRequest::where('status', 'pending')->count(),
-                'approved' => \App\Models\SupplierRequest::where('status', 'approved')->count(),
-                'rejected' => \App\Models\SupplierRequest::where('status', 'rejected')->count(),
-            ];
-        } catch (\Exception $e) {
-            $supplierData = ['total' => 0, 'info' => 'Data tidak tersedia'];
-        }
-
-        // === JOB APPLICATIONS ===
-        $jobData = [];
-        try {
-            $jobData = [
-                'total_lowongan' => \App\Models\JobList::count(),
-                'total_lamaran'  => \App\Models\JobApplication::count(),
-                'pending'        => \App\Models\JobApplication::where('status', 'pending')->count(),
-            ];
-        } catch (\Exception $e) {
-            $jobData = ['info' => 'Data tidak tersedia'];
-        }
-
-        // === MONTHLY REVENUE (12 bulan) ===
-        $bulanNama   = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-        $monthlyData = Order::selectRaw('MONTH(created_at) as bulan, SUM(total) as total')
-            ->whereYear('created_at', $currentYear)
-            ->groupBy(DB::raw('MONTH(created_at)'))
-            ->get()
-            ->pluck('total', 'bulan');
-        $bulananRevenue = [];
-        for ($i = 1; $i <= 12; $i++) {
-            $bulananRevenue[$bulanNama[$i - 1]] = 'Rp ' . number_format($monthlyData[$i] ?? 0, 0, ',', '.');
-        }
-
-        // === PRODUK LOW STOCK ===
-        $lowStockProducts = \App\Models\Product::where('quantity', '>', 0)
-            ->where('quantity', '<', 10)
-            ->select('name', 'quantity', 'stock_status')
-            ->orderBy('quantity')
-            ->limit(5)
-            ->get()
-            ->map(fn($p) => [
-                'nama'  => $p->name,
-                'stok'  => $p->quantity,
-            ])->toArray();
-
-        return [
-            'tanggal_data'   => now()->format('d F Y H:i'),
-            'pesanan'        => [
-                'total'            => $totalOrders,
-                'menunggu_proses'  => $pendingOrders,
-                'dikirim'          => $shippedOrders,
-                'selesai_delivered' => $deliveredOrders,
-                'dibatalkan'       => $canceledOrders,
-            ],
-            'pendapatan'     => [
-                'total_keseluruhan'       => 'Rp ' . number_format($totalRevenue, 0, ',', '.'),
-                'bulan_ini'               => 'Rp ' . number_format($currentMonthRevenue, 0, ',', '.'),
-                'bulan_lalu'              => 'Rp ' . number_format($lastMonthRevenue, 0, ',', '.'),
-                'pertumbuhan_persen'      => $revenueGrowth . '%',
-                'trend'                   => $revenueGrowth >= 0 ? 'naik' : 'turun',
-            ],
-            'produk_terlaris'  => $topProducts,
-            'produk_stok_rendah' => $lowStockProducts,
-            'ulasan_pelanggan' => [
-                'rata_rata_rating' => $avgRating . '/5',
-                'total_ulasan'     => $totalReviews,
-                'bintang_5'        => $rating5,
-                'bintang_4'        => $rating4,
-                'bintang_3'        => $rating3,
-                'bintang_1_2'      => $rating12,
-                'produk_dikeluhkan' => $lowRatedProducts,
-            ],
-            'stok_bahan_baku'  => [
-                'total_kg'         => $totalStok . ' kg',
-                'total_masuk'      => $stokMasuk . ' kg',
-                'total_keluar'     => $stokKeluar . ' kg',
-                'status'           => $statusStok,
-            ],
-            'pemasok'          => $supplierData,
-            'lowongan_kerja'   => $jobData,
-            'pendapatan_bulanan' => $bulananRevenue,
-        ];
-    }
 
     public function readall()
     {

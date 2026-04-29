@@ -78,7 +78,6 @@ Route::get('/chat-widget', [ChatbotAIController::class, 'chat'])->name("componen
 // =====================================================================================================================================================================================================
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
 
-
 // ====================================================================================================
 // Halaman Produk
 // ====================================================================================================
@@ -385,6 +384,7 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Halaman Index
     // ====================================================================================================
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::post('/admin/generate-insight', [AdminController::class, 'generateAiInsight'])->name('admin.generate.insight');
     Route::get('/admin/ai-dashboard', [AdminController::class, 'aiDashboard'])->name('admin.ai.dashboard');
     Route::post('/admin/ai-dashboard/ask', [AdminController::class, 'aiAsk'])->name('admin.ai.ask');
     // API untuk Chart Data (TAMBAHKAN INI)

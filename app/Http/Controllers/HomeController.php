@@ -43,7 +43,6 @@ class HomeController extends Controller
         return view('index', compact('slides', 'categories', 'sproducts', 'fproducts', 'about',));
     }
 
-
     public function search(Request $request)
     {
         $query = $request->input('query');
@@ -56,7 +55,7 @@ class HomeController extends Controller
             ]);
         }
 
-        // Enhanced search query - works with single character searches
+        // Enhanced search query - works with single character searches 
         $results = Product::where(function ($q) use ($query) {
             $q->where('name', 'LIKE', "%{$query}%")
                 ->orWhere('description', 'LIKE', "%{$query}%")

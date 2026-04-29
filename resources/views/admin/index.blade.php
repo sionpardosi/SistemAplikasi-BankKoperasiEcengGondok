@@ -643,6 +643,162 @@
             color: #721c24;
             border: 1px solid #f5c6cb;
         }
+
+        /* AI Insight Section */
+        .ai-insight-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+            color: white;
+        }
+
+        .ai-insight-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .ai-insight-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .ai-insight-subtitle {
+            font-size: 14px;
+            opacity: 0.85;
+            margin-top: 4px;
+            margin-bottom: 0;
+        }
+
+        .btn-generate-ai {
+            background: white;
+            color: #764ba2;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+        }
+
+        .btn-generate-ai:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+            background: #f8f9fa;
+        }
+
+        .btn-generate-ai:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .ai-insight-result {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            padding: 25px 30px;
+            font-size: 15px;
+            line-height: 2;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            display: none;
+            letter-spacing: 0.2px;
+        }
+
+        .ai-insight-result.show {
+            display: block;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .ai-insight-placeholder {
+            text-align: center;
+            padding: 30px 20px;
+            opacity: 0.8;
+        }
+
+        .ai-insight-placeholder .placeholder-icon {
+            font-size: 50px;
+            display: block;
+            margin-bottom: 12px;
+        }
+
+        .ai-timestamp {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 15px;
+            text-align: right;
+        }
+
+        .ai-loading {
+            text-align: center;
+            padding: 20px;
+            display: none;
+        }
+
+        .ai-loading.show {
+            display: block;
+        }
+
+        .dot-pulse {
+            display: inline-flex;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .dot-pulse span {
+            width: 10px;
+            height: 10px;
+            background: white;
+            border-radius: 50%;
+            animation: dotBounce 1.2s infinite ease-in-out;
+        }
+
+        .dot-pulse span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .dot-pulse span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes dotBounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0.6);
+                opacity: 0.4;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
     </style>
 
     <div class="main-content-inner">
@@ -776,6 +932,47 @@
                     <div id="line-chart-8"></div>
                 </div>
             </div>
+
+            {{-- ======================================================= --}}
+            {{-- AI BUSINESS INSIGHT SECTION --}}
+            {{-- ======================================================= --}}
+            <div class="ai-insight-section">
+                <div class="ai-insight-header">
+                    <div>
+                        <h5 class="ai-insight-title">
+                            🤖 AI Business Insight
+                        </h5>
+                        <p class="ai-insight-subtitle">Analisis cerdas kondisi bisnis berdasarkan data real-time</p>
+                    </div>
+                    <button class="btn-generate-ai" id="btnGenerateInsight" onclick="generateInsight()">
+                        ✨ Generate Insight
+                    </button>
+                </div>
+
+                {{-- Loading state --}}
+                <div class="ai-loading" id="aiLoading">
+                    <p style="margin:0; font-size:15px; opacity:0.9;">🧠 AI sedang menganalisis data bisnis Anda...</p>
+                    <div class="dot-pulse">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+
+                {{-- Placeholder sebelum generate --}}
+                <div class="ai-insight-result show" id="aiPlaceholder">
+                    <div class="ai-insight-placeholder">
+                        <span class="placeholder-icon">📊</span>
+                        <p style="margin:0; font-size:15px;">Klik <strong>"Generate Insight"</strong> untuk mendapatkan
+                            analisis AI dari data penjualan, ulasan pelanggan, dan stok bisnis Anda.</p>
+                    </div>
+                </div>
+
+                {{-- Hasil insight --}}
+                <div class="ai-insight-result" id="aiResult">
+                    <div id="aiInsightText" style="white-space: pre-line;"></div>
+                    <div class="ai-timestamp" id="aiTimestamp"></div>
+                </div>
+            </div>
+            {{-- ======================================================= --}}
 
             <!-- Filter Section -->
             <div class="filter-section">
@@ -1227,5 +1424,59 @@
             // Uncomment line berikut untuk auto refresh
             // window.location.reload();
         }, 300000); // 5 menit
+
+        // ── AI Business Insight ────────────────────────────────────────────
+        function generateInsight() {
+            const btn = document.getElementById('btnGenerateInsight');
+            const loading = document.getElementById('aiLoading');
+            const placeholder = document.getElementById('aiPlaceholder');
+            const result = document.getElementById('aiResult');
+            const textEl = document.getElementById('aiInsightText');
+            const tsEl = document.getElementById('aiTimestamp');
+
+            // Set loading state
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Menganalisis...';
+            loading.classList.add('show');
+            placeholder.classList.remove('show');
+            result.classList.remove('show');
+
+            fetch('{{ route('admin.generate.insight') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    loading.classList.remove('show');
+
+                    if (data.success) {
+                        // Bersihkan markdown bold/italic lalu tampilkan
+                        const cleaned = data.insight
+                            .replace(/\*\*(.*?)\*\*/g, '$1') // hapus **bold**
+                            .replace(/\*(.*?)\*/g, '$1') // hapus *italic*
+                            .trim();
+                        textEl.innerHTML = cleaned.replace(/\n/g, '<br>');
+                        tsEl.textContent = '🕐 Dibuat pada: ' + data.generated_at;
+                        result.classList.add('show');
+                    } else {
+                        textEl.textContent = '❌ ' + (data.error || 'Terjadi kesalahan.');
+                        result.classList.add('show');
+                    }
+                })
+                .catch(err => {
+                    loading.classList.remove('show');
+                    textEl.textContent = '❌ Gagal menghubungi server. Periksa koneksi dan coba lagi.';
+                    result.classList.add('show');
+                    console.error('AI Insight error:', err);
+                })
+                .finally(() => {
+                    btn.disabled = false;
+                    btn.innerHTML = '✨ Generate Insight';
+                });
+        }
     </script>
 @endpush
