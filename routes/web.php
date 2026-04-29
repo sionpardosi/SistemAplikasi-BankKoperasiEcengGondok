@@ -385,7 +385,8 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Halaman Index
     // ====================================================================================================
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
-
+    Route::get('/admin/ai-dashboard', [AdminController::class, 'aiDashboard'])->name('admin.ai.dashboard');
+    Route::post('/admin/ai-dashboard/ask', [AdminController::class, 'aiAsk'])->name('admin.ai.ask');
     // API untuk Chart Data (TAMBAHKAN INI)
     Route::get('/admin/chart-data', [AdminController::class, 'getChartData'])->name('admin.chart.data');
 

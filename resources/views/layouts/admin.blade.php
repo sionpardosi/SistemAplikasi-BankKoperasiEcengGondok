@@ -24,9 +24,9 @@
     <link rel="stylesheet" type="text/css" href="{{ asset('css/sweetalert.min.css') }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('css/custom.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<!-- Ganti dengan CDN alternatif -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/main.min.css" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/main.min.js"></script>
+    <!-- Ganti dengan CDN alternatif -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/main.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/6.1.8/main.min.js"></script>
     <!-- Admin Penjadwalan JavaScript -->
     <script src="{{ asset('assets/js/admin-penjadwalan.js') }}"></script>
     <script src="{{ asset('assets/js/category-management.js') }}"></script>
@@ -509,6 +509,14 @@
                                     <a href="{{ route('admin.index') }}" class="">
                                         <div class="icon"><i class="icon-grid"></i></div>
                                         <div class="text">Dashboard</div>
+                                    </a>
+                                </li>
+                            </ul>
+                            <ul class="menu-list">
+                                <li class="menu-item active">
+                                    <a href="{{ route('admin.ai.dashboard') }}" class="">
+                                        <div class="icon"><i class="icon-cpu"></i></div>
+                                        <div class="text">AI Dashboard</div>
                                     </a>
                                 </li>
                             </ul>
@@ -1118,48 +1126,48 @@
         });
     </script>
 
-<!-- Script inisialisasi yang ada -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        @if (session('success'))
-            Swal.fire({
-                title: 'Berhasil!',
-                text: '{{ session('success') }}',
-                icon: 'success',
-                iconColor: '#28a745',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#28a745'
-            });
-        @endif
+    <!-- Script inisialisasi yang ada -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (session('success'))
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: '{{ session('success') }}',
+                    icon: 'success',
+                    iconColor: '#28a745',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#28a745'
+                });
+            @endif
 
-        @if (session('error'))
-            Swal.fire({
-                title: 'Gagal!',
-                text: '{{ session('error') }}',
-                icon: 'error',
-                iconColor: '#e74c3c',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#e74c3c'
-            });
-        @endif
+            @if (session('error'))
+                Swal.fire({
+                    title: 'Gagal!',
+                    text: '{{ session('error') }}',
+                    icon: 'error',
+                    iconColor: '#e74c3c',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#e74c3c'
+                });
+            @endif
 
-        @if ($errors->any())
-            let errorMessages = [];
-            @foreach ($errors->all() as $error)
-                errorMessages.push('{{ $error }}');
-            @endforeach
+            @if ($errors->any())
+                let errorMessages = [];
+                @foreach ($errors->all() as $error)
+                    errorMessages.push('{{ $error }}');
+                @endforeach
 
-            Swal.fire({
-                title: 'Validasi Gagal!',
-                html: errorMessages.join('<br>'),
-                icon: 'error',
-                iconColor: '#e74c3c',
-                confirmButtonText: 'OK',
-                confirmButtonColor: '#e74c3c'
-            });
-        @endif
-    });
-</script>
+                Swal.fire({
+                    title: 'Validasi Gagal!',
+                    html: errorMessages.join('<br>'),
+                    icon: 'error',
+                    iconColor: '#e74c3c',
+                    confirmButtonText: 'OK',
+                    confirmButtonColor: '#e74c3c'
+                });
+            @endif
+        });
+    </script>
     @stack('scripts')
 
 </body>
