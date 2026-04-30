@@ -4,6 +4,7 @@
 
 > _Bank Koperasi Eceng Gondok: Melestarikan lingkungan Danau Toba melalui digitalisasi transaksi, pemasaran, dan manajemen stok produk kerajinan berbahan eceng gondok._
 
+DEMO : (https://ecenggondoksamosir.site)
 ---
 
 ## 📌 Daftar Isi

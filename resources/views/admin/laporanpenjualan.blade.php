@@ -51,7 +51,7 @@
                                     <th style="min-width: 150px;">Customer Name</th>
                                     <th style="min-width: 120px;">Phone</th>
                                     <th style="min-width: 300px;">Items</th>
-                                    <th style="min-width: 120px;">Tax</th>
+                                    {{-- <th style="min-width: 120px;">Tax</th> --}}
                                     <th style="min-width: 120px;">Total</th>
                                     <th style="min-width: 120px;">Status</th>
                                 </tr>
@@ -75,7 +75,7 @@
                                             </ul>
                                         </td>
                                         <td class="text-end">
-                                            Rp. {{ number_format($order->tax) }}
+                                            {{-- Rp. {{ number_format($order->tax) }} --}}
                                         </td>
                                         <td class="text-end fw-bold">
                                             Rp. {{ number_format($order->total) }}

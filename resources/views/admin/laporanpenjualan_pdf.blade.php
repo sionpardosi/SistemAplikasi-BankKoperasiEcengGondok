@@ -57,7 +57,7 @@
                             Rp.{{ number_format($item->price * $item->quantity) }}<br>
                         @endforeach
                     </td>
-                    <td>Rp.{{ number_format($order->tax) }}</td>
+                    {{-- <td>Rp.{{ number_format($order->tax) }}</td> --}}
                     <td>Rp.{{ number_format($order->total) }}</td>
                     <td>{{ ucfirst($order->order_status) }}</td>
                 </tr>
