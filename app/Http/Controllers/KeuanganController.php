@@ -235,7 +235,7 @@ class KeuanganController extends Controller
         $totalPendBulanLalu   = $pendOnlineBulanLalu + $pendOfflineBulanLalu;
 
         // Beban bulan ini
-        $bebanKode  = ['5-001', '5-002', '5-003'];
+        $bebanKode = ['5-001', '5-002', '5-003', '5-004'];
         $totalBebanBulanIni  = 0;
         $totalBebanBulanLalu = 0;
         foreach ($bebanKode as $kode) {
@@ -268,7 +268,8 @@ class KeuanganController extends Controller
             $pend  = $hitungSaldoAkun('4-001', $sb) + $hitungSaldoAkun('4-002', $sb);
             $beban = $hitungSaldoAkun('5-001', $sb)
                 + $hitungSaldoAkun('5-002', $sb)
-                + $hitungSaldoAkun('5-003', $sb);
+                + $hitungSaldoAkun('5-003', $sb)
+                + $hitungSaldoAkun('5-004', $sb);
 
             $trenBulan[] = [
                 'bulan'       => $tgl->translatedFormat('M Y'),
@@ -468,7 +469,8 @@ class KeuanganController extends Controller
         $bebanBahanBaku  = $hitungSaldo('5-001');
         $bebanOperasional = $hitungSaldo('5-002');
         $bebanLainLain   = $hitungSaldo('5-003');
-        $totalBeban      = $bebanBahanBaku + $bebanOperasional + $bebanLainLain;
+        $bebanGajiKaryawan = $hitungSaldo('5-004');
+        $totalBeban = $bebanBahanBaku + $bebanOperasional + $bebanLainLain + $bebanGajiKaryawan;
 
         // Laba Bersih
         $labaBersih = $totalPendapatan - $totalBeban;
@@ -524,7 +526,7 @@ class KeuanganController extends Controller
 
         // Laba berjalan (semua pendapatan - semua beban sampai tanggal ini)
         $pendAll  = $hitungSaldo('4-001') + $hitungSaldo('4-002');
-        $bebanAll = $hitungSaldo('5-001') + $hitungSaldo('5-002') + $hitungSaldo('5-003');
+        $bebanAll = $hitungSaldo('5-001') + $hitungSaldo('5-002') + $hitungSaldo('5-003') + $hitungSaldo('5-004');
         $labaBerjalan = $pendAll - $bebanAll;
 
         $totalEkuitas      = $modalPemilik + $labaDitahan + $labaBerjalan;
@@ -595,7 +597,8 @@ class KeuanganController extends Controller
         $bebanBahanBaku    = $hitungSaldo('5-001');
         $bebanOperasional  = $hitungSaldo('5-002');
         $bebanLainLain     = $hitungSaldo('5-003');
-        $totalBeban        = $bebanBahanBaku + $bebanOperasional + $bebanLainLain;
+        $bebanGajiKaryawan = $hitungSaldo('5-004');
+        $totalBeban = $bebanBahanBaku + $bebanOperasional + $bebanLainLain + $bebanGajiKaryawan;
         $labaBersih        = $totalPendapatan - $totalBeban;
 
         $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('admin.keuangan.pdf.laba_rugi_pdf', compact(
@@ -638,7 +641,7 @@ class KeuanganController extends Controller
         $modalPemilik        = $hitungSaldo('3-001');
         $labaDitahan         = $hitungSaldo('3-002');
         $pendAll             = $hitungSaldo('4-001') + $hitungSaldo('4-002');
-        $bebanAll            = $hitungSaldo('5-001') + $hitungSaldo('5-002') + $hitungSaldo('5-003');
+        $bebanAll = $hitungSaldo('5-001') + $hitungSaldo('5-002') + $hitungSaldo('5-003') + $hitungSaldo('5-004');
         $labaBerjalan        = $pendAll - $bebanAll;
         $totalEkuitas        = $modalPemilik + $labaDitahan + $labaBerjalan;
         $totalLiabilitasEkuitas = $totalLiabilitas + $totalEkuitas;

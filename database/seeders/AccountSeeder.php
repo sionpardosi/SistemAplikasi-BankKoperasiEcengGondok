@@ -85,6 +85,12 @@ class AccountSeeder extends Seeder
                 'tipe'         => 'beban',
                 'saldo_normal' => 'debit',
             ],
+            [
+                'kode'         => '5-004',
+                'nama'         => 'Beban Gaji Karyawan',
+                'tipe'         => 'beban',
+                'saldo_normal' => 'debit',
+            ],
         ];
 
         foreach ($accounts as $account) {
