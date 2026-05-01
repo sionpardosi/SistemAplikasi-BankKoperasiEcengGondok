@@ -469,7 +469,7 @@
                     <div class="col-lg-3 col-md-6">
                         <div class="lr-kpi">
                             <div class="lr-kpi-icon" style="background:{{ $labaBersih >= 0 ? '#dbeafe' : '#fce7f3' }};">
-                                <i class="icon-trophy" style="color:{{ $labaBersih >= 0 ? '#2563eb' : '#be185d' }};"></i>
+                                <i class="icon-award" style="color:{{ $labaBersih >= 0 ? '#2563eb' : '#be185d' }};"></i>
                             </div>
                             <div class="lr-kpi-body">
                                 <div class="lr-kpi-label">

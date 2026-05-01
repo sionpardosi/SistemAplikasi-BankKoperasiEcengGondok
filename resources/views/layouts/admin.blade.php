@@ -619,7 +619,7 @@
                                 <li class="menu-item">
                                     <a href="{{ url('admin/laporanpenjualan') }}">
                                         <div class="icon"><i class="icon-user"></i></div>
-                                        <div class="text">Laporan Penjualan</div>
+                                        <div class="text">Laporan Pesanan</div>
                                     </a>
                                 </li>
 
@@ -644,7 +644,7 @@
 
                                 <li class="menu-item has-children">
                                     <a href="javascript:void(0);" class="menu-item-button">
-                                        <div class="icon"><i class="icon-doc"></i></div>
+                                        <div class="icon"><i class="icon-bar-chart"></i></div>
                                         <div class="text">Laporan Keuangan</div>
                                     </a>
                                     <ul class="sub-menu">
