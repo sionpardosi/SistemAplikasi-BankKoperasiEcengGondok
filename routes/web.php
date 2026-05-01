@@ -1,6 +1,8 @@
 <?php
 
+use App\Exports\JurnalExport;
 use App\Http\Middleware\AuthAdmin;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Models\PenjadwalanPenjemputan;
@@ -15,6 +17,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Controllers\ChatbotController;
 use App\Http\Controllers\WishlistController;
+use App\Http\Controllers\KeuanganController;
 use App\Http\Controllers\ChatbotAIController;
 use App\Http\Controllers\Auth\OAuthController;
 use App\Http\Controllers\RajaOngkirController;
@@ -385,8 +388,6 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // ====================================================================================================
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
     Route::post('/admin/generate-insight', [AdminController::class, 'generateAiInsight'])->name('admin.generate.insight');
-    Route::get('/admin/ai-dashboard', [AdminController::class, 'aiDashboard'])->name('admin.ai.dashboard');
-    Route::post('/admin/ai-dashboard/ask', [AdminController::class, 'aiAsk'])->name('admin.ai.ask');
     // API untuk Chart Data (TAMBAHKAN INI)
     Route::get('/admin/chart-data', [AdminController::class, 'getChartData'])->name('admin.chart.data');
 
@@ -603,6 +604,52 @@ Route::middleware(['auth', AuthAdmin::class])->group(function () {
     // Halaman Laporan
     // ====================================================================================================
     Route::get('/admin/laporanpenjualan', [AdminController::class, 'laporanpenjualan']);
+
+
+    // ====================================================================================================
+    // Manajemen Keuangan (SIA - TA Adinda)
+    // ====================================================================================================
+    Route::prefix('admin/keuangan')->name('admin.keuangan.')->group(function () {
+
+        // Dashboard Keuangan
+        Route::get('/dashboard', [KeuanganController::class, 'dashboard'])
+            ->name('dashboard');
+
+        // Input Transaksi Manual (Offline)
+        Route::get('/transaksi', [KeuanganController::class, 'transaksi'])
+            ->name('transaksi');
+        Route::post('/transaksi/simpan', [KeuanganController::class, 'simpanTransaksi'])
+            ->name('transaksi.simpan');
+        Route::delete('/transaksi/{id}', [KeuanganController::class, 'hapusTransaksi'])
+            ->name('transaksi.hapus');
+
+        // Jurnal Umum
+        Route::get('/jurnal', [KeuanganController::class, 'jurnal'])
+            ->name('jurnal');
+
+        // Sinkronisasi jurnal dari order online (AJAX)
+        Route::post('/jurnal/sinkron-online', [KeuanganController::class, 'sinkronOnline'])
+            ->name('jurnal.sinkron');
+
+        // Laporan Laba Rugi
+        Route::get('/laba-rugi', [KeuanganController::class, 'labaRugi'])
+            ->name('laba_rugi');
+
+        // Laporan Posisi Keuangan
+        Route::get('/posisi-keuangan', [KeuanganController::class, 'posisiKeuangan'])
+            ->name('posisi_keuangan');
+
+        // Export PDF (semua laporan)
+        Route::get('/laba-rugi/pdf', [KeuanganController::class, 'labaRugiPdf'])
+            ->name('laba_rugi.pdf');
+        Route::get('/posisi-keuangan/pdf', [KeuanganController::class, 'posisiKeuanganPdf'])
+            ->name('posisi_keuangan.pdf');
+        Route::get('/jurnal/pdf', [KeuanganController::class, 'jurnalPdf'])
+            ->name('jurnal.pdf');
+
+        Route::get('/jurnal/excel', [KeuanganController::class, 'jurnalExcel'])
+            ->name('jurnal.excel');
+    });
 
 
     // ====================================================================================================
@@ -1080,7 +1127,7 @@ Route::prefix('api/user')->middleware(['auth'])->group(function () {
 
 // Route untuk testing format rupiah (development only)
 if (app()->environment('local')) {
-    Route::get('/test/format-rupiah/{amount}', function($amount) {
+    Route::get('/test/format-rupiah/{amount}', function ($amount) {
         return response()->json([
             'original' => $amount,
             'formatted' => formatRupiah($amount),
@@ -1093,7 +1140,7 @@ if (app()->environment('local')) {
 // Public API Routes untuk Frontend (jika diperlukan)
 // ====================================================================================================
 
-Route::prefix('api/public')->group(function() {
+Route::prefix('api/public')->group(function () {
     // Validasi kupon untuk customer (tanpa auth)
     Route::post('/validate-coupon', [AdminController::class, 'validateCouponForCustomer'])->name('api.public.validate.coupon');
 
@@ -1105,7 +1152,7 @@ Route::prefix('api/public')->group(function() {
 // Webhook Routes untuk Integrasi External (jika diperlukan)
 // ====================================================================================================
 
-Route::prefix('webhooks')->group(function() {
+Route::prefix('webhooks')->group(function () {
     // Webhook untuk sistem pembayaran
     Route::post('/payment/coupon-used', [AdminController::class, 'handleCouponUsageWebhook'])->name('webhook.coupon.used');
 
@@ -1117,7 +1164,7 @@ Route::prefix('webhooks')->group(function() {
 // Scheduled Tasks Routes (untuk cron job)
 // ====================================================================================================
 
-Route::prefix('cron')->middleware(['throttle:5,1'])->group(function() {
+Route::prefix('cron')->middleware(['throttle:5,1'])->group(function () {
     // Cleanup expired coupons
     Route::get('/cleanup-expired-coupons', [AdminController::class, 'cleanupExpiredCoupons'])->name('cron.cleanup.expired.coupons');
 
@@ -1126,5 +1173,4 @@ Route::prefix('cron')->middleware(['throttle:5,1'])->group(function() {
 
     // Generate coupon usage reports
     Route::get('/generate-usage-reports', [AdminController::class, 'generateUsageReports'])->name('cron.generate.usage.reports');
-
 });

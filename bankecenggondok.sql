@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3307
--- Waktu pembuatan: 30 Apr 2026 pada 04.11
+-- Waktu pembuatan: 01 Bulan Mei 2026 pada 09.10
 -- Versi server: 10.4.24-MariaDB
 -- Versi PHP: 8.2.26
 
@@ -56,6 +56,40 @@ CREATE TABLE `abouts` (
 
 INSERT INTO `abouts` (`id`, `title`, `slug`, `story`, `vision`, `mission`, `founder`, `established_date`, `address`, `contact_info`, `map_embed`, `image1`, `image1_caption`, `image1_alt`, `image2`, `image2_caption`, `image2_alt`, `is_active`, `created_at`, `updated_at`) VALUES
 (4, 'Tentang Bank Koperasi Eceng Gondok Samosir', 'tentang-bank-koperasi-eceng-gondok-samosir', 'Di pesisir Danau Toba, pertumbuhan Eceng Gondok yang tak terkendali menutupi perairan dan meresahkan masyarakat setempat. Bank Koperasi Eceng Gondok Samosir hadir sebagai inisiatif inovatif untuk mengatasi masalah lingkungan sekaligus memberdayakan masyarakat lokal. Koperasi ini didirikan oleh Sumondang Tabita Nainggolan pada akhir tahun 2023 di Sitanggang Bau, Pangururan. Melalui kolaborasi dan semangat gotong-royong, kami mengubah Eceng Gondok yang selama ini dianggap gulma menjadi produk kerajinan bernilai tinggi, menciptakan lapangan usaha baru bagi komunitas sekitar.\r\nSejumlah pengrajin lokal Bank Koperasi Eceng Gondok Samosir menunjukkan hasil kerajinan dari Eceng Gondok dengan bangga. Pada awalnya, proses pembuatan sandal, tas, dan kerajinan lain masih dilakukan secara manual menggunakan teknik anyaman tradisional. Melalui pelatihan dan kerja sama, kami meningkatkan kemampuan anggota sehingga kapasitas produksi pun bertambah. Setiap helai Eceng Gondok dikeringkan, dihaluskan, dan dianyam dengan tangan sesuai kearifan lokal, menghasilkan produk kerajinan berkualitas tinggi. Kini, produk kami tidak hanya dipasarkan secara lokal, tetapi juga melalui platform daring, menjangkau konsumen yang lebih luas.\r\nMenjawab tantangan pengelolaan usaha yang masih dilakukan secara manual, kami mengembangkan sistem koperasi digital terintegrasi. Dengan sistem daring ini, proses pendaftaran anggota, transaksi, dan pengelolaan usaha dilakukan lebih mudah dan efisien. Langkah ini tidak hanya meningkatkan efisiensi operasional, tetapi juga transparansi, sehingga setiap anggota dapat memantau pembukuan dan distribusi produk secara terbuka. Melalui platform digital, kami mengajak masyarakat lebih aktif berpartisipasi dan menjangkau pasar yang lebih luas bagi produk Eceng Gondok Samosir.', 'Menjadi koperasi terdepan yang memberdayakan ekonomi masyarakat lokal melalui pemanfaatan Eceng Gondok secara berkelanjutan untuk menjaga lingkungan Danau Toba, serta mendukung inovasi sistem digital dan pelestarian budaya serta kerajinan lokal.', 'Meningkatkan kesejahteraan ekonomi masyarakat lokal melalui pelatihan dan pendampingan kewirausahaan berbasis Eceng Gondok.\r\nMengelola Eceng Gondok secara berkelanjutan untuk menjaga kelestarian lingkungan Danau Toba.\r\nMengembangkan sistem koperasi digital yang transparan dan efisien untuk mempermudah administrasi dan pemasaran produk.\r\nMelestarikan budaya lokal melalui inovasi kerajinan Eceng Gondok yang khas Samosir.', 'Sumondang', '2025-04-29', 'Jl. Sitanggang No. 1, Desa Sitanggang Bau, Kec. Pangururan, Kab. Samosir, Sumatera Utara', 'Telepon: +62 812 3456 7890\r\nEmail: info@bkecg-samosir.id\r\nWebsite: www.bkecg-samosir.coop', '<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d4966.45620991171!2d98.69318757585994!3d2.628665756129755!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3031c5ca7c7e07f9%3A0x2c25b5a19a80edae!2skoperasibank%20Eceng%20Gondok!5e1!3m2!1sid!2sid!4v1745930060331!5m2!1sid!2sid\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>', 'uploads/abouts/1749477698_XClL2k.jpeg', 'Tentang Bank Koperasi Eceng Gondok Samosir', 'Tentang Bank Koperasi Eceng Gondok Samosir', 'uploads/abouts/1749477669_KXRm3g.jpg', 'Tentang Bank Koperasi Eceng Gondok Samosir', 'Tentang Bank Koperasi Eceng Gondok Samosir', 1, '2025-04-28 16:13:53', '2025-06-09 14:01:38');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `accounts`
+--
+
+CREATE TABLE `accounts` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `kode` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `nama` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `tipe` enum('aset','liabilitas','ekuitas','pendapatan','beban') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `saldo_normal` enum('debit','kredit') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `is_active` tinyint(1) NOT NULL DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `accounts`
+--
+
+INSERT INTO `accounts` (`id`, `kode`, `nama`, `tipe`, `saldo_normal`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, '1-001', 'Kas', 'aset', 'debit', 1, '2026-04-30 22:17:46', '2026-04-30 22:17:46'),
+(2, '1-002', 'Piutang Usaha', 'aset', 'debit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(3, '1-003', 'Persediaan Bahan Baku', 'aset', 'debit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(4, '2-001', 'Utang Usaha', 'liabilitas', 'kredit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(5, '3-001', 'Modal Pemilik', 'ekuitas', 'kredit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(6, '3-002', 'Laba Ditahan', 'ekuitas', 'kredit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(7, '4-001', 'Pendapatan Penjualan Online', 'pendapatan', 'kredit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(8, '4-002', 'Pendapatan Penjualan Offline', 'pendapatan', 'kredit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(9, '5-001', 'Beban Bahan Baku', 'beban', 'debit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(10, '5-002', 'Beban Operasional', 'beban', 'debit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(11, '5-003', 'Beban Lain-lain', 'beban', 'debit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47');
 
 -- --------------------------------------------------------
 
@@ -144,6 +178,14 @@ CREATE TABLE `cache` (
   `value` mediumtext COLLATE utf8mb4_unicode_ci NOT NULL,
   `expiration` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `cache`
+--
+
+INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
+('sionpardosi12@gmaill.com|127.0.0.1', 'i:4;', 1777579199),
+('sionpardosi12@gmaill.com|127.0.0.1:timer', 'i:1777579199;', 1777579199);
 
 -- --------------------------------------------------------
 
@@ -423,6 +465,99 @@ INSERT INTO `job_lists` (`id`, `title`, `description`, `category`, `salary`, `sa
 -- --------------------------------------------------------
 
 --
+-- Struktur dari tabel `journal_entries`
+--
+
+CREATE TABLE `journal_entries` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `tanggal` date NOT NULL,
+  `no_jurnal` varchar(30) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `keterangan` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `sumber` enum('online','offline') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `referensi_id` bigint(20) UNSIGNED DEFAULT NULL,
+  `referensi_tipe` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `journal_entries`
+--
+
+INSERT INTO `journal_entries` (`id`, `tanggal`, `no_jurnal`, `keterangan`, `sumber`, `referensi_id`, `referensi_tipe`, `created_at`, `updated_at`) VALUES
+(1, '2025-06-09', 'JRN-20250609-001', 'Penjualan Online - Order #1 (Sion Pardosi)', 'online', 1, 'order', '2026-04-30 22:24:46', '2026-04-30 22:24:46'),
+(2, '2025-06-09', 'JRN-20250609-002', 'Penjualan Online - Order #2 (Sion Pardosi)', 'online', 2, 'order', '2026-04-30 22:24:46', '2026-04-30 22:24:46'),
+(3, '2025-06-09', 'JRN-20250609-003', 'Penjualan Online - Order #4 (Sion Pardosi)', 'online', 4, 'order', '2026-04-30 22:24:46', '2026-04-30 22:24:46'),
+(4, '2026-05-01', 'JRN-20260501-001', 'pembelian topi', 'offline', 1, 'manual', '2026-04-30 22:28:46', '2026-04-30 22:28:46'),
+(5, '2026-05-01', 'JRN-20260501-002', 'pembelian sendal', 'offline', 2, 'manual', '2026-05-01 04:41:18', '2026-05-01 04:41:18'),
+(6, '2026-04-29', 'JRN-20260429-001', 'Penjualan Online - Order #8 (asa)', 'online', 8, 'order', '2026-05-01 06:09:30', '2026-05-01 06:09:30'),
+(7, '2026-05-01', 'JRN-20260501-003', 'Penjualan Online - Order #9 (asa)', 'online', 9, 'order', '2026-05-01 06:09:30', '2026-05-01 06:09:30');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `journal_entry_lines`
+--
+
+CREATE TABLE `journal_entry_lines` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `journal_entry_id` bigint(20) UNSIGNED NOT NULL,
+  `account_id` bigint(20) UNSIGNED NOT NULL,
+  `posisi` enum('debit','kredit') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `jumlah` decimal(15,2) NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `journal_entry_lines`
+--
+
+INSERT INTO `journal_entry_lines` (`id`, `journal_entry_id`, `account_id`, `posisi`, `jumlah`, `created_at`, `updated_at`) VALUES
+(1, 1, 1, 'debit', '62000.00', '2026-04-30 22:24:46', '2026-04-30 22:24:46'),
+(2, 1, 7, 'kredit', '62000.00', '2026-04-30 22:24:46', '2026-04-30 22:24:46'),
+(3, 2, 1, 'debit', '180000.00', '2026-04-30 22:24:46', '2026-04-30 22:24:46'),
+(4, 2, 7, 'kredit', '180000.00', '2026-04-30 22:24:46', '2026-04-30 22:24:46'),
+(5, 3, 1, 'debit', '275000.00', '2026-04-30 22:24:46', '2026-04-30 22:24:46'),
+(6, 3, 7, 'kredit', '275000.00', '2026-04-30 22:24:46', '2026-04-30 22:24:46'),
+(7, 4, 1, 'debit', '1000000.00', '2026-04-30 22:28:46', '2026-04-30 22:28:46'),
+(8, 4, 8, 'kredit', '1000000.00', '2026-04-30 22:28:46', '2026-04-30 22:28:46'),
+(9, 5, 1, 'debit', '50000.00', '2026-05-01 04:41:18', '2026-05-01 04:41:18'),
+(10, 5, 8, 'kredit', '50000.00', '2026-05-01 04:41:18', '2026-05-01 04:41:18'),
+(11, 6, 1, 'debit', '620000.00', '2026-05-01 06:09:30', '2026-05-01 06:09:30'),
+(12, 6, 7, 'kredit', '620000.00', '2026-05-01 06:09:30', '2026-05-01 06:09:30'),
+(13, 7, 1, 'debit', '120000.00', '2026-05-01 06:09:30', '2026-05-01 06:09:30'),
+(14, 7, 7, 'kredit', '120000.00', '2026-05-01 06:09:30', '2026-05-01 06:09:30');
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `manual_transactions`
+--
+
+CREATE TABLE `manual_transactions` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `tanggal` date NOT NULL,
+  `jenis` enum('pendapatan','pengeluaran') COLLATE utf8mb4_unicode_ci NOT NULL,
+  `deskripsi` text COLLATE utf8mb4_unicode_ci NOT NULL,
+  `account_id` bigint(20) UNSIGNED NOT NULL,
+  `jumlah` decimal(15,2) NOT NULL,
+  `jurnal_dibuat` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data untuk tabel `manual_transactions`
+--
+
+INSERT INTO `manual_transactions` (`id`, `tanggal`, `jenis`, `deskripsi`, `account_id`, `jumlah`, `jurnal_dibuat`, `created_at`, `updated_at`) VALUES
+(1, '2026-05-01', 'pendapatan', 'pembelian topi', 7, '1000000.00', 1, '2026-04-30 22:28:46', '2026-04-30 22:28:46'),
+(2, '2026-05-01', 'pendapatan', 'pembelian sendal', 8, '50000.00', 1, '2026-05-01 04:41:18', '2026-05-01 04:41:18');
+
+-- --------------------------------------------------------
+
+--
 -- Struktur dari tabel `migrations`
 --
 
@@ -502,7 +637,11 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (63, '2025_06_26_173020_add_lokasi_fields_to_supplier_requests_and_penjadwalan_penjemputan', 1),
 (64, '2025_06_27_003316_update_penjadwalan_table', 1),
 (65, '2025_06_12_015423_add_is_active_to_categories_table', 2),
-(66, '2025_06_09_143042_add_new_fields_to_job_applications_table', 3);
+(66, '2025_06_09_143042_add_new_fields_to_job_applications_table', 3),
+(67, '2026_05_01_051410_create_accounts_table', 4),
+(68, '2026_05_01_051422_create_journal_entries_table', 4),
+(69, '2026_05_01_051426_create_journal_entry_lines_table', 4),
+(70, '2026_05_01_051430_create_manual_transactions_table', 4);
 
 -- --------------------------------------------------------
 
@@ -540,7 +679,8 @@ INSERT INTO `notifications` (`idnotification`, `pesan`, `waktu`, `status`) VALUE
 (5, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-5-45329e5b-af66-4500-b256-cf492746643a dengan status pending', '2025-06-09 22:50:55', 'read'),
 (6, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-6-1ad2a137-a234-4f1e-855f-086ed02d4cc9 dengan status pending', '2025-06-09 22:53:50', 'read'),
 (7, 'Pesanan Baru Dari Sion Pardosi dengan Invoice ORDER-7-d5f9a42d-3be0-4245-a818-2664112d295f dengan status pending', '2025-06-09 22:56:56', 'read'),
-(8, 'Pesanan Baru Dari asa dengan Invoice ORDER-8-0ef564de-41f2-41a0-894c-ad26d1c09adb dengan status pending', '2026-04-29 14:06:34', 'read');
+(8, 'Pesanan Baru Dari asa dengan Invoice ORDER-8-0ef564de-41f2-41a0-894c-ad26d1c09adb dengan status pending', '2026-04-29 14:06:34', 'read'),
+(9, 'Pesanan Baru Dari asa dengan Invoice ORDER-9-c1e99c94-5330-462c-a76e-d6092c6a55f4 dengan status pending', '2026-05-01 11:33:03', 'unread');
 
 -- --------------------------------------------------------
 
@@ -590,7 +730,8 @@ INSERT INTO `orders` (`id`, `user_id`, `subtotal`, `discount`, `total`, `name`, 
 (5, 1, '165000.00', '0.00', '172000.00', 'Sion Pardosi', '082278900178', 'Komplek PLN Balige', 'Jl.Dr.Td.Pardede Onan', 'Samosir', 'Sumatera Utara', 'Indonesia', 'simpang 3 masuk ke PLN', '22312', '7000', 'jne', 'home', 'canceled', 0, NULL, NULL, NULL, NULL, NULL, '2025-06-09', '2025-06-09 15:50:54', '2025-06-09 15:53:04'),
 (6, 1, '78000.00', '0.00', '85000.00', 'Sion Pardosi', '082278900178', 'Komplek PLN Balige', 'Jl.Dr.Td.Pardede Onan', 'Samosir', 'Sumatera Utara', 'Indonesia', 'simpang 3 masuk ke PLN', '22312', '7000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-06-09 15:53:50', '2025-06-09 15:53:50'),
 (7, 1, '165000.00', '0.00', '172000.00', 'Sion Pardosi', '082278900178', 'Komplek PLN Balige', 'Jl.Dr.Td.Pardede Onan', 'Samosir', 'Sumatera Utara', 'Indonesia', 'simpang 3 masuk ke PLN', '22312', '7000', 'jne', 'home', 'awaiting_payment', 0, NULL, NULL, NULL, NULL, NULL, NULL, '2025-06-09 15:56:55', '2025-06-09 15:56:55'),
-(8, 1, '220000.00', '0.00', '620000.00', 'asa', '082267193923', 'ajans', 'simpang', 'BANJARMASIN', 'KALIMANTAN SELATAN', 'Indonesia', 'andan', '24122', '400000', 'jne', 'home', 'delivered', 0, '2026-04-30', NULL, '2026-04-30', '2026-04-30', NULL, NULL, '2026-04-29 07:06:29', '2026-04-29 17:24:15');
+(8, 1, '220000.00', '0.00', '620000.00', 'asa', '082267193923', 'ajans', 'simpang', 'BANJARMASIN', 'KALIMANTAN SELATAN', 'Indonesia', 'andan', '24122', '400000', 'jne', 'home', 'delivered', 0, '2026-04-30', NULL, '2026-04-30', '2026-04-30', NULL, NULL, '2026-04-29 07:06:29', '2026-04-29 17:24:15'),
+(9, 1, '110000.00', '0.00', '120000.00', 'asa', '082267193923', 'ajans', 'simpang', 'BANJARMASIN', 'KALIMANTAN SELATAN', 'Indonesia', 'andan', '24122', '10000', 'jne', 'home', 'delivered', 0, '2026-05-01', NULL, '2026-05-01', '2026-05-01', '2026-05-01', NULL, '2026-05-01 04:32:59', '2026-05-01 04:37:39');
 
 -- --------------------------------------------------------
 
@@ -623,7 +764,8 @@ INSERT INTO `order_items` (`id`, `product_id`, `order_id`, `price`, `quantity`, 
 (6, 9, 5, '165000.00', 1, '[]', 0, '2025-06-09 15:50:55', '2025-06-09 15:50:55'),
 (7, 4, 6, '39000.00', 2, '{\"size_id\":4,\"size_name\":\"15 Cm\"}', 0, '2025-06-09 15:53:50', '2025-06-09 15:53:50'),
 (8, 9, 7, '165000.00', 1, '[]', 0, '2025-06-09 15:56:55', '2025-06-09 15:56:55'),
-(9, 11, 8, '110000.00', 2, '{\"size_id\":5,\"size_name\":\"18 Cm\"}', 0, '2026-04-29 07:06:30', '2026-04-29 07:06:30');
+(9, 11, 8, '110000.00', 2, '{\"size_id\":5,\"size_name\":\"18 Cm\"}', 0, '2026-04-29 07:06:30', '2026-04-29 07:06:30'),
+(10, 11, 9, '110000.00', 1, '{\"size_id\":5,\"size_name\":\"18 Cm\"}', 0, '2026-05-01 04:32:59', '2026-05-01 04:32:59');
 
 -- --------------------------------------------------------
 
@@ -817,7 +959,7 @@ INSERT INTO `product_size` (`id`, `product_id`, `size_id`, `stock`, `created_at`
 (10, 5, 10, 17, '2025-06-09 11:45:53', '2025-06-09 11:45:53'),
 (15, 10, 15, 29, '2025-06-09 12:34:58', '2025-06-09 14:16:24'),
 (16, 10, 16, 24, '2025-06-09 12:34:58', '2025-06-09 14:16:24'),
-(18, 11, 5, 34, '2025-06-09 14:12:54', '2025-06-09 14:12:54'),
+(18, 11, 5, 33, '2025-06-09 14:12:54', '2025-06-09 14:12:54'),
 (19, 6, 5, 42, '2025-06-09 14:13:35', '2025-06-09 14:13:35'),
 (20, 7, 5, 67, '2025-06-09 14:15:28', '2025-06-09 14:15:28'),
 (21, 7, 18, 23, '2025-06-09 14:15:28', '2025-06-09 14:15:28'),
@@ -905,7 +1047,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('ZYmcDGUxHsQeUY6bUHyg8QrP6FdQ8cyqwc3aFQLP', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoibFhnM2Rhc01ONWhHRmVKNjZpTTVNbG1MZm9tenBrckxwcmh5MWNoZyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9zaG9wIjt9fQ==', 1777512521);
+('abLUgZdxUY6xubTH5AtYSoYpBOFzxnPrfzGyjgBx', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiUkhzMldBRXpwR0tmMjcwZUpvNEtRS1JjYVRjQ1E4WGRFRzJRVmlTciI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czo0NToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FjY291bnQtb3JkZXItZGV0YWlscy85Ijt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hcGkvYWRtaW4vZGFzaGJvYXJkLXN0YXRzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjtzOjQ6ImNhcnQiO2E6MTp7czo0OiJjYXJ0IjtPOjI5OiJJbGx1bWluYXRlXFN1cHBvcnRcQ29sbGVjdGlvbiI6Mjp7czo4OiIAKgBpdGVtcyI7YToxOntzOjMyOiJmMDFkYzIxNGIyYTJkZGEyZGFkM2NkNzk3YzVhZDYwYyI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6ImYwMWRjMjE0YjJhMmRkYTJkYWQzY2Q3OTdjNWFkNjBjIjtzOjI6ImlkIjtpOjExO3M6MzoicXR5IjtpOjM7czo0OiJuYW1lIjtzOjM2OiJLb3RhayBLZXJhbmphbmcgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6MTEwMDAwO3M6Nzoib3B0aW9ucyI7Tzo0MjoiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW1PcHRpb25zIjoyOntzOjg6IgAqAGl0ZW1zIjthOjI6e3M6Nzoic2l6ZV9pZCI7aTo1O3M6OToic2l6ZV9uYW1lIjtzOjU6IjE4IENtIjt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fX1zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fX1zOjQ6ImF1dGgiO2E6MTp7czoyMToicGFzc3dvcmRfY29uZmlybWVkX2F0IjtpOjE3Nzc2MTAwNzU7fX0=', 1777618622),
+('zUCZgUHMK6KtvsmFXBuLay0Pd11OzRyD3SH8E0Hy', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiZUhmZGZSZE0zNHFEVmU5Y2VOWmpiRDJWUlNKVVFORG5wMUNVcEtadyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7czo0OiJhdXRoIjthOjE6e3M6MjE6InBhc3N3b3JkX2NvbmZpcm1lZF9hdCI7aToxNzc3NjA5OTEwO31zOjQ6ImNhcnQiO2E6MDp7fXM6ODoib3JkZXJfaWQiO2k6OTt9', 1777614090);
 
 -- --------------------------------------------------------
 
@@ -1135,7 +1278,8 @@ INSERT INTO `transactions` (`id`, `user_id`, `order_id`, `pending_order_id`, `in
 (5, 1, 5, NULL, 'ORDER-5-45329e5b-af66-4500-b256-cf492746643a', 'manual_atm', 'BNI', NULL, 'declined', NULL, '2025-06-09 15:50:55', '2025-06-09 15:53:04'),
 (6, 1, 6, NULL, 'ORDER-6-1ad2a137-a234-4f1e-855f-086ed02d4cc9', 'manual_atm', 'BNI', NULL, 'pending', NULL, '2025-06-09 15:53:50', '2025-06-09 15:53:50'),
 (7, 1, 7, NULL, 'ORDER-7-d5f9a42d-3be0-4245-a818-2664112d295f', '', NULL, NULL, 'pending', 'fc9fabc5-5acf-4c60-a691-c08db8c7941e', '2025-06-09 15:56:56', '2025-06-09 15:56:56'),
-(8, 1, 8, NULL, 'ORDER-8-0ef564de-41f2-41a0-894c-ad26d1c09adb', '', NULL, NULL, 'approved', 'ef6b3df8-e1fc-46a2-9845-c177bc920caf', '2026-04-29 07:06:34', '2026-04-29 17:24:15');
+(8, 1, 8, NULL, 'ORDER-8-0ef564de-41f2-41a0-894c-ad26d1c09adb', '', NULL, NULL, 'approved', 'ef6b3df8-e1fc-46a2-9845-c177bc920caf', '2026-04-29 07:06:34', '2026-04-29 17:24:15'),
+(9, 1, 9, NULL, 'ORDER-9-c1e99c94-5330-462c-a76e-d6092c6a55f4', '', NULL, NULL, 'approved', '0755aca6-dc85-43e3-8ddb-202d7afee647', '2026-05-01 04:33:03', '2026-05-01 04:33:40');
 
 -- --------------------------------------------------------
 
@@ -1222,6 +1366,13 @@ CREATE TABLE `wishlist_items` (
 ALTER TABLE `abouts`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `abouts_slug_unique` (`slug`);
+
+--
+-- Indeks untuk tabel `accounts`
+--
+ALTER TABLE `accounts`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `accounts_kode_unique` (`kode`);
 
 --
 -- Indeks untuk tabel `addresses`
@@ -1338,6 +1489,28 @@ ALTER TABLE `job_batches`
 --
 ALTER TABLE `job_lists`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indeks untuk tabel `journal_entries`
+--
+ALTER TABLE `journal_entries`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `journal_entries_no_jurnal_unique` (`no_jurnal`);
+
+--
+-- Indeks untuk tabel `journal_entry_lines`
+--
+ALTER TABLE `journal_entry_lines`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `journal_entry_lines_journal_entry_id_foreign` (`journal_entry_id`),
+  ADD KEY `journal_entry_lines_account_id_foreign` (`account_id`);
+
+--
+-- Indeks untuk tabel `manual_transactions`
+--
+ALTER TABLE `manual_transactions`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `manual_transactions_account_id_foreign` (`account_id`);
 
 --
 -- Indeks untuk tabel `migrations`
@@ -1566,6 +1739,12 @@ ALTER TABLE `abouts`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
+-- AUTO_INCREMENT untuk tabel `accounts`
+--
+ALTER TABLE `accounts`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+
+--
 -- AUTO_INCREMENT untuk tabel `addresses`
 --
 ALTER TABLE `addresses`
@@ -1650,10 +1829,28 @@ ALTER TABLE `job_lists`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
+-- AUTO_INCREMENT untuk tabel `journal_entries`
+--
+ALTER TABLE `journal_entries`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+--
+-- AUTO_INCREMENT untuk tabel `journal_entry_lines`
+--
+ALTER TABLE `journal_entry_lines`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+
+--
+-- AUTO_INCREMENT untuk tabel `manual_transactions`
+--
+ALTER TABLE `manual_transactions`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
 -- AUTO_INCREMENT untuk tabel `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=67;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=71;
 
 --
 -- AUTO_INCREMENT untuk tabel `month_names`
@@ -1665,19 +1862,19 @@ ALTER TABLE `month_names`
 -- AUTO_INCREMENT untuk tabel `notifications`
 --
 ALTER TABLE `notifications`
-  MODIFY `idnotification` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `idnotification` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT untuk tabel `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT untuk tabel `order_items`
 --
 ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT untuk tabel `pending_orders`
@@ -1785,7 +1982,7 @@ ALTER TABLE `thread_messages`
 -- AUTO_INCREMENT untuk tabel `transactions`
 --
 ALTER TABLE `transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT untuk tabel `users`
@@ -1797,7 +1994,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `user_cart_items`
 --
 ALTER TABLE `user_cart_items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT untuk tabel `wishlist_items`
@@ -1833,6 +2030,19 @@ ALTER TABLE `failed_payments`
 ALTER TABLE `job_applications`
   ADD CONSTRAINT `job_applications_job_id_foreign` FOREIGN KEY (`job_id`) REFERENCES `job_lists` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `job_applications_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `journal_entry_lines`
+--
+ALTER TABLE `journal_entry_lines`
+  ADD CONSTRAINT `journal_entry_lines_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`),
+  ADD CONSTRAINT `journal_entry_lines_journal_entry_id_foreign` FOREIGN KEY (`journal_entry_id`) REFERENCES `journal_entries` (`id`) ON DELETE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `manual_transactions`
+--
+ALTER TABLE `manual_transactions`
+  ADD CONSTRAINT `manual_transactions_account_id_foreign` FOREIGN KEY (`account_id`) REFERENCES `accounts` (`id`);
 
 --
 -- Ketidakleluasaan untuk tabel `orders`

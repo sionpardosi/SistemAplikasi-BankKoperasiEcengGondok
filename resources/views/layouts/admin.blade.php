@@ -623,6 +623,49 @@
                                     </a>
                                 </li>
 
+                                <!-- ===== MANAJEMEN KEUANGAN (SIA) ===== -->
+                                <div class="menu-category-header">
+                                    <span class="menu-category-label">Manajemen Keuangan</span>
+                                </div>
+
+                                <li class="menu-item">
+                                    <a href="{{ route('admin.keuangan.dashboard') }}" class="">
+                                        <div class="icon"><i class="icon-pie-chart"></i></div>
+                                        <div class="text">Dashboard Keuangan</div>
+                                    </a>
+                                </li>
+
+                                <li class="menu-item">
+                                    <a href="{{ route('admin.keuangan.transaksi') }}" class="">
+                                        <div class="icon"><i class="icon-plus"></i></div>
+                                        <div class="text">Input Transaksi</div>
+                                    </a>
+                                </li>
+
+                                <li class="menu-item has-children">
+                                    <a href="javascript:void(0);" class="menu-item-button">
+                                        <div class="icon"><i class="icon-doc"></i></div>
+                                        <div class="text">Laporan Keuangan</div>
+                                    </a>
+                                    <ul class="sub-menu">
+                                        <li class="sub-menu-item">
+                                            <a href="{{ route('admin.keuangan.jurnal') }}">
+                                                <div class="text">Jurnal Umum</div>
+                                            </a>
+                                        </li>
+                                        <li class="sub-menu-item">
+                                            <a href="{{ route('admin.keuangan.laba_rugi') }}">
+                                                <div class="text">Laporan Laba Rugi</div>
+                                            </a>
+                                        </li>
+                                        <li class="sub-menu-item">
+                                            <a href="{{ route('admin.keuangan.posisi_keuangan') }}">
+                                                <div class="text">Posisi Keuangan</div>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+
                                 <!-- ===== SUMBER DAYA ===== -->
                                 <div class="menu-category-header">
                                     <span class="menu-category-label">Sumber Daya</span>
@@ -1007,7 +1050,7 @@
                         @yield('content')
 
                         <div class="bottom-page">
-                            <div class="body-text">Copyright © 2025 BankKoperasiEcengGondok</div>
+                            <div class="body-text">Copyright © 2026 EcengGondokSamosir</div>
                         </div>
                     </div>
 
