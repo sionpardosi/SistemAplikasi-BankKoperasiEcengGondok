@@ -564,9 +564,12 @@
                             {{ number_format($bebanOperasional, 0, ',', '.') }}
                         </td>
                     </tr>
-                    <tr>
-                        <td class="px-4">Beban Gaji Karyawan</td>
-                        <td class="text-end px-4">{{ number_format($bebanGajiKaryawan, 0, ',', '.') }}</td>
+                    <tr class="lr-row-item">
+                        <td style="width:50px; padding-right:0; color:#94a3b8; font-size:11px; font-weight:600;">5-004</td>
+                        <td class="lr-akun-nama">Beban Gaji Karyawan</td>
+                        <td class="lr-nominal {{ $bebanGajiKaryawan == 0 ? 'zero' : '' }}">
+                            {{ number_format($bebanGajiKaryawan, 0, ',', '.') }}
+                        </td>
                     </tr>
                     <tr class="lr-row-item">
                         <td style="width:50px; padding-right:0; color:#94a3b8; font-size:11px; font-weight:600;">5-003</td>
