@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3307
--- Waktu pembuatan: 01 Bulan Mei 2026 pada 12.30
+-- Waktu pembuatan: 01 Bulan Mei 2026 pada 17.46
 -- Versi server: 10.4.24-MariaDB
 -- Versi PHP: 8.2.26
 
@@ -89,7 +89,8 @@ INSERT INTO `accounts` (`id`, `kode`, `nama`, `tipe`, `saldo_normal`, `is_active
 (8, '4-002', 'Pendapatan Penjualan Offline', 'pendapatan', 'kredit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
 (9, '5-001', 'Beban Bahan Baku', 'beban', 'debit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
 (10, '5-002', 'Beban Operasional', 'beban', 'debit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
-(11, '5-003', 'Beban Lain-lain', 'beban', 'debit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47');
+(11, '5-003', 'Beban Lain-lain', 'beban', 'debit', 1, '2026-04-30 22:17:47', '2026-04-30 22:17:47'),
+(12, '5-004', 'Beban Gaji Karyawan', 'beban', 'debit', 1, '2026-05-01 15:37:39', '2026-05-01 15:37:39');
 
 -- --------------------------------------------------------
 
@@ -184,8 +185,10 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('sionpardosi12@gmaill.com|127.0.0.1', 'i:4;', 1777579199),
-('sionpardosi12@gmaill.com|127.0.0.1:timer', 'i:1777579199;', 1777579199);
+('sionpardosi12@gmaill.com|127.0.0.1', 'i:2;', 1777644215),
+('sionpardosi12@gmaill.com|127.0.0.1:timer', 'i:1777644215;', 1777644215),
+('spardosi12@gmaill.com|127.0.0.1', 'i:2;', 1777644200),
+('spardosi12@gmaill.com|127.0.0.1:timer', 'i:1777644200;', 1777644200);
 
 -- --------------------------------------------------------
 
@@ -1051,7 +1054,7 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('abLUgZdxUY6xubTH5AtYSoYpBOFzxnPrfzGyjgBx', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36', 'YTo3OntzOjY6Il90b2tlbiI7czo0MDoiUkhzMldBRXpwR0tmMjcwZUpvNEtRS1JjYVRjQ1E4WGRFRzJRVmlTciI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czo0NToiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FjY291bnQtb3JkZXItZGV0YWlscy85Ijt9czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hcGkvYWRtaW4vZGFzaGJvYXJkLXN0YXRzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjtzOjQ6ImNhcnQiO2E6MTp7czo0OiJjYXJ0IjtPOjI5OiJJbGx1bWluYXRlXFN1cHBvcnRcQ29sbGVjdGlvbiI6Mjp7czo4OiIAKgBpdGVtcyI7YToxOntzOjMyOiJmMDFkYzIxNGIyYTJkZGEyZGFkM2NkNzk3YzVhZDYwYyI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6ImYwMWRjMjE0YjJhMmRkYTJkYWQzY2Q3OTdjNWFkNjBjIjtzOjI6ImlkIjtpOjExO3M6MzoicXR5IjtpOjM7czo0OiJuYW1lIjtzOjM2OiJLb3RhayBLZXJhbmphbmcgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6MTEwMDAwO3M6Nzoib3B0aW9ucyI7Tzo0MjoiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW1PcHRpb25zIjoyOntzOjg6IgAqAGl0ZW1zIjthOjI6e3M6Nzoic2l6ZV9pZCI7aTo1O3M6OToic2l6ZV9uYW1lIjtzOjU6IjE4IENtIjt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fX1zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fX1zOjQ6ImF1dGgiO2E6MTp7czoyMToicGFzc3dvcmRfY29uZmlybWVkX2F0IjtpOjE3Nzc2MTAwNzU7fX0=', 1777631069);
+('Lf7tTTRyGKQSDLIJYLDaQySVKnvUj1gyKHGbfErT', 2, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/147.0.0.0 Safari/537.36', 'YTo2OntzOjY6Il90b2tlbiI7czo0MDoiNEkwa1ljV1g5SjJ1Q3M3bU1DcFdkcnpKVlYyVjJ5SWw2ak9GYjRDZSI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hcGkvYWRtaW4vZGFzaGJvYXJkLXN0YXRzIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjtzOjQ6ImNhcnQiO2E6MTp7czo0OiJjYXJ0IjtPOjI5OiJJbGx1bWluYXRlXFN1cHBvcnRcQ29sbGVjdGlvbiI6Mjp7czo4OiIAKgBpdGVtcyI7YToxOntzOjMyOiJmMDFkYzIxNGIyYTJkZGEyZGFkM2NkNzk3YzVhZDYwYyI7TzozNToiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0iOjk6e3M6NToicm93SWQiO3M6MzI6ImYwMWRjMjE0YjJhMmRkYTJkYWQzY2Q3OTdjNWFkNjBjIjtzOjI6ImlkIjtpOjExO3M6MzoicXR5IjtpOjM7czo0OiJuYW1lIjtzOjM2OiJLb3RhayBLZXJhbmphbmcgQW55YW1hbiBFY2VuZyBHb25kb2siO3M6NToicHJpY2UiO2Q6MTEwMDAwO3M6Nzoib3B0aW9ucyI7Tzo0MjoiU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW1PcHRpb25zIjoyOntzOjg6IgAqAGl0ZW1zIjthOjI6e3M6Nzoic2l6ZV9pZCI7aTo1O3M6OToic2l6ZV9uYW1lIjtzOjU6IjE4IENtIjt9czoyODoiACoAZXNjYXBlV2hlbkNhc3RpbmdUb1N0cmluZyI7YjowO31zOjUyOiIAU3VyZnNpZGVtZWRpYVxTaG9wcGluZ2NhcnRcQ2FydEl0ZW0AYXNzb2NpYXRlZE1vZGVsIjtzOjE4OiJBcHBcTW9kZWxzXFByb2R1Y3QiO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQB0YXhSYXRlIjtpOjIxO3M6NDQ6IgBTdXJmc2lkZW1lZGlhXFNob3BwaW5nY2FydFxDYXJ0SXRlbQBpc1NhdmVkIjtiOjA7fX1zOjI4OiIAKgBlc2NhcGVXaGVuQ2FzdGluZ1RvU3RyaW5nIjtiOjA7fX1zOjQ6ImF1dGgiO2E6MTp7czoyMToicGFzc3dvcmRfY29uZmlybWVkX2F0IjtpOjE3Nzc2NDQxODA7fX0=', 1777650299);
 
 -- --------------------------------------------------------
 
@@ -1745,7 +1748,7 @@ ALTER TABLE `abouts`
 -- AUTO_INCREMENT untuk tabel `accounts`
 --
 ALTER TABLE `accounts`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT untuk tabel `addresses`
@@ -1835,19 +1838,19 @@ ALTER TABLE `job_lists`
 -- AUTO_INCREMENT untuk tabel `journal_entries`
 --
 ALTER TABLE `journal_entries`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT untuk tabel `journal_entry_lines`
 --
 ALTER TABLE `journal_entry_lines`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT untuk tabel `manual_transactions`
 --
 ALTER TABLE `manual_transactions`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT untuk tabel `migrations`
