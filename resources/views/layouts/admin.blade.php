@@ -630,21 +630,21 @@
 
                                 <li class="menu-item">
                                     <a href="{{ route('admin.keuangan.dashboard') }}" class="">
-                                        <div class="icon"><i class="icon-pie-chart"></i></div>
+                                        <div class="icon"><i class="icon-bar-chart"></i></div>
                                         <div class="text">Dashboard Keuangan</div>
                                     </a>
                                 </li>
 
                                 <li class="menu-item">
                                     <a href="{{ route('admin.keuangan.transaksi') }}" class="">
-                                        <div class="icon"><i class="icon-plus"></i></div>
+                                        <div class="icon"><i class="icon-file-text"></i></div>
                                         <div class="text">Input Transaksi</div>
                                     </a>
                                 </li>
 
                                 <li class="menu-item has-children">
                                     <a href="javascript:void(0);" class="menu-item-button">
-                                        <div class="icon"><i class="icon-bar-chart"></i></div>
+                                        <div class="icon"><i class="icon-book"></i></div>
                                         <div class="text">Laporan Keuangan</div>
                                     </a>
                                     <ul class="sub-menu">
