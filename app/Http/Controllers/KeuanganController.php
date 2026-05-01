@@ -483,6 +483,7 @@ class KeuanganController extends Controller
             'totalPendapatan',
             'bebanBahanBaku',
             'bebanOperasional',
+            'bebanGajiKaryawan',
             'bebanLainLain',
             'totalBeban',
             'labaBersih'
