@@ -581,11 +581,11 @@
                         {{-- Breakdown Online vs Offline --}}
                         <div class="breakdown-row">
                             <div class="breakdown-pill bp-online">
-                                <div class="bp-label">🌐 Online</div>
+                                <div class="bp-label">Online</div>
                                 <div class="bp-val">Rp {{ number_format($pendOnlineBulanIni, 0, ',', '.') }}</div>
                             </div>
                             <div class="breakdown-pill bp-offline">
-                                <div class="bp-label">🏪 Offline</div>
+                                <div class="bp-label">Offline</div>
                                 <div class="bp-val">Rp {{ number_format($pendOfflineBulanIni, 0, ',', '.') }}</div>
                             </div>
                         </div>
@@ -692,7 +692,7 @@
                             <div class="text-center">
                                 <div
                                     style="font-size:11px;color:#6c757d;font-weight:600;text-transform:uppercase;letter-spacing:.5px">
-                                    🏪 Offline</div>
+                                    Offline</div>
                                 <div style="font-weight:800;color:#28a745;font-size:16px;margin-top:4px">
                                     Rp {{ number_format($pendOfflineBulanIni, 0, ',', '.') }}
                                 </div>
@@ -794,9 +794,9 @@
                                     </td>
                                     <td class="text-center">
                                         @if ($jurnal->sumber === 'online')
-                                            <span class="badge-online">🌐 Online</span>
+                                            <span class="badge-online">Online</span>
                                         @else
-                                            <span class="badge-offline">🏪 Offline</span>
+                                            <span class="badge-offline">Offline</span>
                                         @endif
                                     </td>
                                     <td class="text-end">
@@ -882,7 +882,7 @@
                     speed: 800
                 }
             },
-            labels: ['🌐 Online', '🏪 Offline'],
+            labels: ['Online', 'Offline'],
             colors: ['#2377FC', '#28a745'],
             legend: {
                 position: 'bottom',
